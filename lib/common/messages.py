@@ -25,12 +25,12 @@ def title(version):
     Print the tool title, with version.
     """
     os.system('clear')
-    print "================================================================"
+    print "================================================================================"
     # print ' [Empire]  PowerShell/Python post-exploitation framework'
-    print " [Empire]  Post-Exploitation Framework"
-    print '================================================================'
-    print " [Version] %s | [Web] https://github.com/empireProject/Empire" % (version)
-    print '================================================================'
+    print " [Empire]  Post-Exploitation Framework test1"
+    print '================================================================================'
+    print " [Version] %s | [Web] https://github.com/BC-SECURITY/DEFCON27" % (version)
+    print '================================================================================'
     print """
    _______ .___  ___. .______    __  .______       _______
   |   ____||   \/   | |   _  \  |  | |   _  \     |   ____|

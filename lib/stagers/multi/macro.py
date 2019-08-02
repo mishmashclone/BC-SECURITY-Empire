@@ -80,7 +80,7 @@ class Stager:
                 'Value'         :   'True'
             },
             'AMSIBypass2' : {
-                'Description'   :   'Include rastamouse\'s AMSI Bypass in the stager code.',
+                'Description'   :   'Include Tal Liberman\'s AMSI Bypass in the stager code.',
                 'Required'      :   False,
                 'Value'         :   'False'
             }

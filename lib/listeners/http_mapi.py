@@ -634,6 +634,8 @@ class Listener:
 
                 context = ssl.SSLContext(proto)
                 context.load_cert_chain("%s/empire-chain.pem" % (certPath), "%s/empire-priv.key"  % (certPath))
+                #setting the cipher list allows for modification of the JA3 signature 
+                context.set_ciphers("ECDHE-RSA-AES128-GCM-SHA256")
                 app.run(host=bindIP, port=int(port), threaded=True, ssl_context=context)
             else:
                 app.run(host=bindIP, port=int(port), threaded=True)

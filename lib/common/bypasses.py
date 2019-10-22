@@ -1,4 +1,5 @@
-import helpers
+from __future__ import absolute_import
+from . import helpers
 
 
 def scriptBlockLogBypass():

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 
 class Module:
@@ -46,7 +47,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Unable to open script at the configured path: " + str(scriptPath))
+            print(helpers.color("[!] Unable to open script at the configured path: " + str(scriptPath)))
             return ""
 
         script = f.read()

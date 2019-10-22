@@ -55,6 +55,8 @@ handle_agent_data() is the main function that should be used by external listene
 Most methods utilize self.lock to deal with the concurreny issue of kicking off threaded listeners.
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 # -*- encoding: utf-8 -*-
 import os
 import json
@@ -65,11 +67,11 @@ from zlib_wrapper import compress
 from zlib_wrapper import decompress
 
 # Empire imports
-import encryption
-import helpers
-import packets
-import messages
-import events
+from . import encryption
+from . import helpers
+from . import packets
+from . import messages
+from . import events
 
 
 class Agents:
@@ -276,10 +278,10 @@ class Agents:
                 f = open("%s/%s" % (save_path, filename), 'ab')
 
             if "python" in lang:
-                print helpers.color("\n[*] Compressed size of %s download: %s" %(filename, helpers.get_file_size(data)), color="green")
+                print(helpers.color("\n[*] Compressed size of %s download: %s" %(filename, helpers.get_file_size(data)), color="green"))
                 d = decompress.decompress()
                 dec_data = d.dec_data(data)
-                print helpers.color("[*] Final size of %s wrote: %s" %(filename, helpers.get_file_size(dec_data['data'])), color="green")
+                print(helpers.color("[*] Final size of %s wrote: %s" %(filename, helpers.get_file_size(dec_data['data'])), color="green"))
                 if not dec_data['crc32_check']:
                     message = "[!] WARNING: File agent {} failed crc32 check during decompression!\n[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!".format(nameid, dec_data['header_crc32'], dec_data['dec_crc32'], dec_data['crc32_check'])
                     signal = json.dumps({
@@ -317,10 +319,10 @@ class Agents:
 
         # decompress data if coming from a python agent:
         if "python" in lang:
-            print helpers.color("\n[*] Compressed size of %s download: %s" %(filename, helpers.get_file_size(data)), color="green")
+            print(helpers.color("\n[*] Compressed size of %s download: %s" %(filename, helpers.get_file_size(data)), color="green"))
             d = decompress.decompress()
             dec_data = d.dec_data(data)
-            print helpers.color("[*] Final size of %s wrote: %s" %(filename, helpers.get_file_size(dec_data['data'])), color="green")
+            print(helpers.color("[*] Final size of %s wrote: %s" %(filename, helpers.get_file_size(dec_data['data'])), color="green"))
             if not dec_data['crc32_check']:
                 message = "[!] WARNING: File agent {} failed crc32 check during decompression!\n[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!".format(nameid, dec_data['header_crc32'], dec_data['dec_crc32'], dec_data['crc32_check'])
                 signal = json.dumps({
@@ -617,7 +619,7 @@ class Agents:
             sessionID = nameid
 
         if sessionID not in self.agents:
-            print helpers.color("[!] Agent %s not active." % (agent_name))
+            print(helpers.color("[!] Agent %s not active." % (agent_name)))
         else:
             conn = self.get_db_connection()
             try:
@@ -944,7 +946,7 @@ class Agents:
         """
 
         if not newname.isalnum():
-            print helpers.color("[!] Only alphanumeric characters allowed for names.")
+            print(helpers.color("[!] Only alphanumeric characters allowed for names."))
             return False
 
         conn = self.get_db_connection()
@@ -957,7 +959,7 @@ class Agents:
 
             # check if the folder is already used
             if os.path.exists(newPath):
-                print helpers.color("[!] Name already used by current or past agent.")
+                print(helpers.color("[!] Name already used by current or past agent."))
                 retVal = False
             else:
                 # move the old folder path to the new one
@@ -1023,8 +1025,8 @@ class Agents:
             cur.execute("UPDATE config SET autorun_data=?", [moduleData])
             cur.close()
         except Exception:
-            print helpers.color("[!] Error: script autoruns not a database field, run ./setup_database.py to reset DB schema.")
-            print helpers.color("[!] Warning: this will reset ALL agent connections!")
+            print(helpers.color("[!] Error: script autoruns not a database field, run ./setup_database.py to reset DB schema."))
+            print(helpers.color("[!] Warning: this will reset ALL agent connections!"))
 
 
     def clear_autoruns_db(self):
@@ -1062,7 +1064,7 @@ class Agents:
             sessionID = nameid
 
         if sessionID not in self.agents:
-            print helpers.color("[!] Agent %s not active." % (agentName))
+            print(helpers.color("[!] Agent %s not active." % (agentName)))
         else:
             if sessionID:
                 message = "[*] Tasked {} to run {}".format(sessionID, taskName)
@@ -1134,7 +1136,7 @@ class Agents:
             sessionID = nameid
 
         if sessionID not in self.agents:
-            print helpers.color("[!] Agent %s not active." % (agentName))
+            print(helpers.color("[!] Agent %s not active." % (agentName)))
             return []
         else:
             conn = self.get_db_connection()
@@ -1252,7 +1254,7 @@ class Agents:
             try:
                 message = encryption.aes_decrypt_and_verify(stagingKey, encData)
             except Exception as e:
-                print 'exception e:' + str(e)
+                print('exception e:' + str(e))
                 # if we have an error during decryption
                 message = "[!] HMAC verification failed from '{}'".format(sessionID)
                 signal = json.dumps({
@@ -1480,7 +1482,7 @@ class Agents:
             if autorun and autorun[0] != '' and autorun[1] != '':
                 self.add_agent_task_db(sessionID, autorun[0], autorun[1])
 
-            if self.mainMenu.autoRuns.has_key(language.lower()) and len(self.mainMenu.autoRuns[language.lower()]) > 0:
+            if language.lower() in self.mainMenu.autoRuns and len(self.mainMenu.autoRuns[language.lower()]) > 0:
                 autorunCmds = ["interact %s" % sessionID]
                 autorunCmds.extend(self.mainMenu.autoRuns[language.lower()])
                 autorunCmds.extend(["lastautoruncmd"])
@@ -1764,7 +1766,7 @@ class Agents:
                 })
                 dispatcher.send(signal, sender="agents/{}".format(sessionID))
             else:
-                print "sysinfo:",data
+                print("sysinfo:",data)
                 # extract appropriate system information
                 listener = unicode(parts[1], 'utf-8')
                 domainname = unicode(parts[2], 'utf-8')
@@ -2051,4 +2053,4 @@ class Agents:
             dispatcher.send(signal, sender="agents/{}".format(sessionID))
 
         else:
-            print helpers.color("[!] Unknown response %s from %s" % (responseName, sessionID))
+            print(helpers.color("[!] Unknown response %s from %s" % (responseName, sessionID)))

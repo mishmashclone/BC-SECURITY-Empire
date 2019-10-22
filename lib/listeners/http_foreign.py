@@ -1,3 +1,4 @@
+from __future__ import print_function
 import base64
 import random
 
@@ -126,7 +127,7 @@ class Listener:
 
         for key in self.options:
             if self.options[key]['Required'] and (str(self.options[key]['Value']).strip() == ''):
-                print helpers.color("[!] Option \"%s\" is required." % (key))
+                print(helpers.color("[!] Option \"%s\" is required." % (key)))
                 return False
 
         return True
@@ -138,7 +139,7 @@ class Listener:
         """
 
         if not language:
-            print helpers.color('[!] listeners/http_foreign generate_launcher(): no language specified!')
+            print(helpers.color('[!] listeners/http_foreign generate_launcher(): no language specified!'))
 
         if listenerName and (listenerName in self.mainMenu.listeners.activeListeners):
 
@@ -265,7 +266,7 @@ class Listener:
                         launcherBase += "   sys.exit()\n"
                 except Exception as e:
                     p = "[!] Error setting LittleSnitch in stagger: " + str(e)
-                    print helpers.color(p, color='red')
+                    print(helpers.color(p, color='red'))
 
                 if userAgent.lower() == 'default':
                     profile = listenerOptions['DefaultProfile']['Value']
@@ -334,10 +335,10 @@ class Listener:
                     return launcherBase
 
             else:
-                print helpers.color("[!] listeners/http_foreign generate_launcher(): invalid language specification: only 'powershell' and 'python' are current supported for this module.")
+                print(helpers.color("[!] listeners/http_foreign generate_launcher(): invalid language specification: only 'powershell' and 'python' are current supported for this module."))
 
         else:
-            print helpers.color("[!] listeners/http_foreign generate_launcher(): invalid listener name specification!")
+            print(helpers.color("[!] listeners/http_foreign generate_launcher(): invalid listener name specification!"))
 
 
     def generate_stager(self, listenerOptions, encode=False, encrypt=True, obfuscate=False, obfuscationCommand="", language=None):
@@ -345,7 +346,7 @@ class Listener:
         If you want to support staging for the listener module, generate_stager must be
         implemented to return the stage1 key-negotiation stager code.
         """
-        print helpers.color("[!] generate_stager() not implemented for listeners/template")
+        print(helpers.color("[!] generate_stager() not implemented for listeners/template"))
         return ''
 
 
@@ -354,7 +355,7 @@ class Listener:
         If you want to support staging for the listener module, generate_agent must be
         implemented to return the actual staged agent code.
         """
-        print helpers.color("[!] generate_agent() not implemented for listeners/template")
+        print(helpers.color("[!] generate_agent() not implemented for listeners/template"))
         return ''
 
 
@@ -503,9 +504,9 @@ def send_message(packets=None):
                 return updateServers + sendMessage
 
             else:
-                print helpers.color("[!] listeners/http_foreign generate_comms(): invalid language specification, only 'powershell' and 'python' are current supported for this module.")
+                print(helpers.color("[!] listeners/http_foreign generate_comms(): invalid language specification, only 'powershell' and 'python' are current supported for this module."))
         else:
-            print helpers.color('[!] listeners/http_foreign generate_comms(): no language specified!')
+            print(helpers.color('[!] listeners/http_foreign generate_comms(): no language specified!'))
 
 
     def start(self, name=''):

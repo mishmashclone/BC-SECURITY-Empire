@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 
 class Module:
@@ -82,7 +83,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -97,7 +98,7 @@ class Module:
         if credID != "":
             
             if not self.mainMenu.credentials.is_credential_valid(credID):
-                print helpers.color("[!] CredID is invalid!")
+                print(helpers.color("[!] CredID is invalid!"))
                 return ""
 
             (credID, credType, domainName, userName, password, host, os, sid, notes) = self.mainMenu.credentials.get_credentials(credID)[0]
@@ -108,10 +109,10 @@ class Module:
                 self.options["Password"]['Value'] = str(password)
 
         if self.options["Username"]['Value'] == "":
-            print helpers.color("[!] Either 'CredId' or Username/Password must be specified.")
+            print(helpers.color("[!] Either 'CredId' or Username/Password must be specified."))
             return ""
         if self.options["Password"]['Value'] == "":
-            print helpers.color("[!] Either 'CredId' or Username/Password must be specified.")
+            print(helpers.color("[!] Either 'CredId' or Username/Password must be specified."))
             return ""
             
         for option,values in self.options.iteritems():

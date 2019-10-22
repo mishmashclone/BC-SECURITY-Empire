@@ -9,6 +9,7 @@ handler (RequestHandler).
 These are the first places URI requests are processed.
 
 """
+from __future__ import absolute_import
 
 from BaseHTTPServer import BaseHTTPRequestHandler
 import BaseHTTPServer, threading, ssl, os, string, random
@@ -17,8 +18,8 @@ import re
 import json
 
 # Empire imports
-import encryption
-import helpers
+from . import encryption
+from . import helpers
 
 
 def default_page(path_to_html_file="empty"):

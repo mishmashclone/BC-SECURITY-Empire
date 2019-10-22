@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 import random, string
 
@@ -157,7 +158,7 @@ class Stager:
         Method=''.join(random.choice(string.letters) for i in range(random.randint(1,len(listenerName))))
 
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
         else:
             chunks = list(helpers.chunks(launcher, 50))

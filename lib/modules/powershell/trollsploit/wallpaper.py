@@ -1,3 +1,4 @@
+from __future__ import print_function
 import base64
 from lib.common import helpers
 
@@ -135,10 +136,10 @@ namespace Wallpaper
 
                 script += " -WallpaperData \"" + base64.b64encode(data) + "\""
             except:
-                print helpers.color("[!] Error reading local image path.")
+                print(helpers.color("[!] Error reading local image path."))
                 return ""
         else:
-            print helpers.color("[!] Please specify a valid local image path.")
+            print(helpers.color("[!] Please specify a valid local image path."))
             return ""
         
         script += "; 'Set-Wallpaper executed'"

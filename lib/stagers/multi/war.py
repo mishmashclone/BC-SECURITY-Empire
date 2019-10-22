@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 import zipfile
 import StringIO
@@ -110,7 +111,7 @@ class Stager:
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=obfuscate, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries)
 
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
 
         else:

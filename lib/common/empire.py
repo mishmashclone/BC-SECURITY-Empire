@@ -7,6 +7,8 @@ Contains the Main, Listener, Agents, Agent, and Module
 menu loops.
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 # make version for Empire
 VERSION = "2.5 BC-Security Fork"
@@ -29,15 +31,15 @@ import threading
 import json
 
 # Empire imports
-import helpers
-import messages
-import agents
-import listeners
-import modules
-import stagers
-import credentials
-import plugins
-from events import log_event
+from . import helpers
+from . import messages
+from . import agents
+from . import listeners
+from . import modules
+from . import stagers
+from . import credentials
+from . import plugins
+from .events import log_event
 from zlib_wrapper import compress
 from zlib_wrapper import decompress
 
@@ -181,7 +183,7 @@ class MainMenu(cmd.Cmd):
 
             if self.args.debug == '2':
                 # if --debug 2, also print the output to the screen
-                print " %s : %s" % (sender, signal)
+                print(" %s : %s" % (sender, signal))
 
 
     def check_root(self):
@@ -193,7 +195,7 @@ class MainMenu(cmd.Cmd):
             if os.geteuid() != 0:
                 if self.isroot:
                     messages.title(VERSION)
-                    print "[!] Warning: Running Empire as non-root, after running as root will likely fail to access prior agents!"
+                    print("[!] Warning: Running Empire as non-root, after running as root will likely fail to access prior agents!")
                     while True:
                         a = raw_input(helpers.color("[>] Are you sure you want to continue (y) or (n): "))
                         if a.startswith("y"):
@@ -211,7 +213,7 @@ class MainMenu(cmd.Cmd):
                     cur.execute("UPDATE config SET rootuser = 1")
                     cur.close()
         except Exception as e:
-            print e
+            print(e)
 
 
     def handle_args(self):
@@ -238,16 +240,16 @@ class MainMenu(cmd.Cmd):
                         # messages.display_listener_database(targetListener)
                         # TODO: reimplement this logic
                     else:
-                        print helpers.color("\n[!] No active listeners with name '%s'\n" % (self.args.listener))
+                        print(helpers.color("\n[!] No active listeners with name '%s'\n" % (self.args.listener)))
 
             else:
                 if self.args.stager == 'list':
-                    print "\nStagers:\n"
-                    print "  Name             Description"
-                    print "  ----             -----------"
+                    print("\nStagers:\n")
+                    print("  Name             Description")
+                    print("  ----             -----------")
                     for stagerName, stager in self.stagers.stagers.iteritems():
-                        print "  %s%s" % ('{0: <17}'.format(stagerName), stager.info['Description'])
-                    print "\n"
+                        print("  %s%s" % ('{0: <17}'.format(stagerName), stager.info['Description']))
+                    print("\n")
                 else:
                     stagerName = self.args.stager
                     try:
@@ -257,8 +259,8 @@ class MainMenu(cmd.Cmd):
                         if self.args.stager_options:
                             for option in self.args.stager_options:
                                 if '=' not in option:
-                                    print helpers.color("\n[!] Invalid option: '%s'" % (option))
-                                    print helpers.color("[!] Please use Option=Value format\n")
+                                    print(helpers.color("\n[!] Invalid option: '%s'" % (option)))
+                                    print(helpers.color("[!] Please use Option=Value format\n"))
                                     if self.conn:
                                         self.conn.close()
                                     sys.exit()
@@ -274,8 +276,8 @@ class MainMenu(cmd.Cmd):
                             messages.display_stager(targetStager)
 
                     except Exception as e:
-                        print e
-                        print helpers.color("\n[!] No current stager with name '%s'\n" % (stagerName))
+                        print(e)
+                        print(helpers.color("\n[!] No current stager with name '%s'\n" % (stagerName)))
 
             # shutdown the database connection object
             if self.conn:
@@ -288,7 +290,7 @@ class MainMenu(cmd.Cmd):
         """
         Perform any shutdown actions.
         """
-        print "\n" + helpers.color("[!] Shutting down...")
+        print("\n" + helpers.color("[!] Shutting down..."))
 
         message = "[*] Empire shutting down..."
         signal = json.dumps({
@@ -317,8 +319,8 @@ class MainMenu(cmd.Cmd):
             return self.conn
 
         except Exception:
-            print helpers.color("[!] Could not connect to database")
-            print helpers.color("[!] Please run database_setup.py")
+            print(helpers.color("[!] Could not connect to database"))
+            print(helpers.color("[!] Please run database_setup.py"))
             sys.exit()
 
     def cmdloop(self):
@@ -354,9 +356,9 @@ class MainMenu(cmd.Cmd):
                     else:
                         num_listeners = 0
 
-                    print "       " + helpers.color(str(num_modules), "green") + " modules currently loaded\n"
-                    print "       " + helpers.color(str(num_listeners), "green") + " listeners currently active\n"
-                    print "       " + helpers.color(str(num_agents), "green") + " agents currently active\n\n"
+                    print("       " + helpers.color(str(num_modules), "green") + " modules currently loaded\n")
+                    print("       " + helpers.color(str(num_listeners), "green") + " listeners currently active\n")
+                    print("       " + helpers.color(str(num_agents), "green") + " agents currently active\n\n")
 
 		    if len(self.resourceQueue) > 0:
 	    		self.cmdqueue.append(self.resourceQueue.pop(0))
@@ -390,7 +392,7 @@ class MainMenu(cmd.Cmd):
                 self.menu_state = "Listeners"
 
             except Exception as e:
-                print helpers.color("[!] Exception: %s" % (e))
+                print(helpers.color("[!] Exception: %s" % (e)))
                 time.sleep(5)
 
 
@@ -539,7 +541,7 @@ class MainMenu(cmd.Cmd):
             parts = line.split(' ')
 
             if parts[0] not in self.stagers.stagers:
-                print helpers.color("[!] Error: invalid stager module")
+                print(helpers.color("[!] Error: invalid stager module"))
 
             elif len(parts) == 1:
                 stager_menu = StagerMenu(self, parts[0])
@@ -547,13 +549,13 @@ class MainMenu(cmd.Cmd):
             elif len(parts) == 2:
                 listener = parts[1]
                 if not self.listeners.is_listener_valid(listener):
-                    print helpers.color("[!] Please enter a valid listener name or ID")
+                    print(helpers.color("[!] Please enter a valid listener name or ID"))
                 else:
                     self.stagers.set_stager_option('Listener', listener)
                     stager_menu = StagerMenu(self, parts[0])
                     stager_menu.cmdloop()
             else:
-                print helpers.color("[!] Error in MainMenu's do_userstager()")
+                print(helpers.color("[!] Error in MainMenu's do_userstager()"))
         except Exception as e:
             raise e
 
@@ -563,7 +565,7 @@ class MainMenu(cmd.Cmd):
         # Strip asterisks added by MainMenu.complete_usemodule()
         line = line.rstrip("*")
         if line not in self.modules.modules:
-            print helpers.color("[!] Error: invalid module")
+            print(helpers.color("[!] Error: invalid module"))
         else:
             try:
                 module_menu = ModuleMenu(self, line)
@@ -614,7 +616,7 @@ class MainMenu(cmd.Cmd):
                 self.credentials.add_credential(credType, domain, username, password, "", sid=sid, notes=notes)
 
             else:
-                print helpers.color("[!] Format is 'add domain username password <notes> <credType> <sid>")
+                print(helpers.color("[!] Format is 'add domain username password <notes> <credType> <sid>"))
                 return
 
             creds = self.credentials.get_credentials()
@@ -624,7 +626,7 @@ class MainMenu(cmd.Cmd):
             try:
                 args = shlex.split(filterTerm)[1:]
                 if len(args) != 1:
-                    print helpers.color("[!] Format is 'remove <credID>/<credID-credID>/all'")
+                    print(helpers.color("[!] Format is 'remove <credID>/<credID-credID>/all'"))
                 else:
                     if args[0].lower() == "all":
                         choice = raw_input(helpers.color("[>] Remove all credentials from the database? [y/N] ", "red"))
@@ -642,8 +644,8 @@ class MainMenu(cmd.Cmd):
                             self.credentials.remove_credentials(args)
 
             except Exception:
-                print helpers.color("[!] Error in remove command parsing.")
-                print helpers.color("[!] Format is 'remove <credID>/<credID-credID>/all'")
+                print(helpers.color("[!] Error in remove command parsing."))
+                print(helpers.color("[!] Format is 'remove <credID>/<credID-credID>/all'"))
 
             return
 
@@ -652,7 +654,7 @@ class MainMenu(cmd.Cmd):
             args = shlex.split(filterTerm)[1:]
 
             if len(args) != 1:
-                print helpers.color("[!] Please supply an output filename/filepath.")
+                print(helpers.color("[!] Please supply an output filename/filepath."))
                 return
             else:
                 self.credentials.export_credentials(args[0])
@@ -678,7 +680,7 @@ class MainMenu(cmd.Cmd):
 
         parts = line.split(' ')
         if len(parts) == 1:
-            print helpers.color("[!] Please enter 'IP,IP-IP,IP/CIDR' or a file path.")
+            print(helpers.color("[!] Please enter 'IP,IP-IP,IP/CIDR' or a file path."))
         else:
             if parts[0].lower() == "ip_whitelist":
                 if parts[1] != "" and os.path.exists(parts[1]):
@@ -688,7 +690,7 @@ class MainMenu(cmd.Cmd):
                         open_file.close()
                         self.agents.ipWhiteList = helpers.generate_ip_list(ipData)
                     except Exception:
-                        print helpers.color("[!] Error opening ip file %s" % (parts[1]))
+                        print(helpers.color("[!] Error opening ip file %s" % (parts[1])))
                 else:
                     self.agents.ipWhiteList = helpers.generate_ip_list(",".join(parts[1:]))
             elif parts[0].lower() == "ip_blacklist":
@@ -699,13 +701,13 @@ class MainMenu(cmd.Cmd):
                         open_file.close()
                         self.agents.ipBlackList = helpers.generate_ip_list(ipData)
                     except Exception:
-                        print helpers.color("[!] Error opening ip file %s" % (parts[1]))
+                        print(helpers.color("[!] Error opening ip file %s" % (parts[1])))
                 else:
                     self.agents.ipBlackList = helpers.generate_ip_list(",".join(parts[1:]))
             elif parts[0].lower() == "obfuscate":
                 if parts[1].lower() == "true":
                     if not helpers.is_powershell_installed():
-                        print helpers.color("[!] PowerShell is not installed and is required to use obfuscation, please install it first.")
+                        print(helpers.color("[!] PowerShell is not installed and is required to use obfuscation, please install it first."))
                     else:
                         self.obfuscate = True
 
@@ -727,11 +729,11 @@ class MainMenu(cmd.Cmd):
                     dispatcher.send(signal, sender="empire")
 
                 else:
-                    print helpers.color("[!] Valid options for obfuscate are 'true' or 'false'")
+                    print(helpers.color("[!] Valid options for obfuscate are 'true' or 'false'"))
             elif parts[0].lower() == "obfuscate_command":
                 self.obfuscateCommand = parts[1]
             else:
-                print helpers.color("[!] Please choose 'ip_whitelist', 'ip_blacklist', 'obfuscate', or 'obfuscate_command'")
+                print(helpers.color("[!] Please choose 'ip_whitelist', 'ip_blacklist', 'obfuscate', or 'obfuscate_command'"))
 
 
     def do_reset(self, line):
@@ -747,20 +749,20 @@ class MainMenu(cmd.Cmd):
         "Show a global option (e.g. IP whitelists)."
 
         if line.strip().lower() == "ip_whitelist":
-            print self.agents.ipWhiteList
+            print(self.agents.ipWhiteList)
         if line.strip().lower() == "ip_blacklist":
-            print self.agents.ipBlackList
+            print(self.agents.ipBlackList)
         if line.strip().lower() == "obfuscate":
-            print self.obfuscate
+            print(self.obfuscate)
         if line.strip().lower() == "obfuscate_command":
-            print self.obfuscateCommand
+            print(self.obfuscateCommand)
 
 
     def do_load(self, line):
         "Loads Empire modules from a non-standard folder."
 
         if line.strip() == '' or not os.path.isdir(line.strip()):
-            print helpers.color("[!] Please specify a valid folder to load modules from.")
+            print(helpers.color("[!] Please specify a valid folder to load modules from."))
         else:
             self.modules.load_modules(rootPath=line.strip())
 
@@ -770,16 +772,16 @@ class MainMenu(cmd.Cmd):
 
         if line.strip().lower() == "all":
             # reload all modules
-            print "\n" + helpers.color("[*] Reloading all modules.") + "\n"
+            print("\n" + helpers.color("[*] Reloading all modules.") + "\n")
             self.modules.load_modules()
         elif os.path.isdir(line.strip()):
             # if we're loading an external directory
             self.modules.load_modules(rootPath=line.strip())
         else:
             if line.strip() not in self.modules.modules:
-                print helpers.color("[!] Error: invalid module")
+                print(helpers.color("[!] Error: invalid module"))
             else:
-                print "\n" + helpers.color("[*] Reloading module: " + line) + "\n"
+                print("\n" + helpers.color("[*] Reloading module: " + line) + "\n")
                 self.modules.reload_module(line)
 
 
@@ -827,7 +829,7 @@ class MainMenu(cmd.Cmd):
                     messages.display_agents(agentsToDisplay)
 
                 except Exception:
-                    print helpers.color("[!] Please enter the minute window for agent checkin.")
+                    print(helpers.color("[!] Please enter the minute window for agent checkin."))
 
             else:
                 messages.display_agents(allAgents)
@@ -847,13 +849,13 @@ class MainMenu(cmd.Cmd):
         if sessionID and sessionID != '' and sessionID in self.agents.agents:
             AgentMenu(self, sessionID)
         else:
-            print helpers.color("[!] Please enter a valid agent name")
+            print(helpers.color("[!] Please enter a valid agent name"))
 
     def do_preobfuscate(self, line):
         "Preobfuscate PowerShell module_source files"
 
         if not helpers.is_powershell_installed():
-            print helpers.color("[!] PowerShell is not installed and is required to use obfuscation, please install it first.")
+            print(helpers.color("[!] PowerShell is not installed and is required to use obfuscation, please install it first."))
             return
 
         module = line.strip()
@@ -875,7 +877,7 @@ class MainMenu(cmd.Cmd):
         else:
             module_source_fullpath = self.installPath + 'data/module_source/' + module
             if not os.path.isfile(module_source_fullpath):
-                print helpers.color("[!] The module_source file:" + module_source_fullpath + " does not exist.")
+                print(helpers.color("[!] The module_source file:" + module_source_fullpath + " does not exist."))
                 return
 
             choice = raw_input(helpers.color("[>] Preobfuscate the module_source file: " + module + " using obfuscation command: \"" + self.obfuscateCommand + "\"? [y/N] ", "red"))
@@ -902,7 +904,7 @@ class MainMenu(cmd.Cmd):
                     })
                     dispatcher.send(signal, sender="empire")
                 else:
-                    print helpers.color("[*] " + os.path.basename(file) + " was already obfuscated. Not reobfuscating.")
+                    print(helpers.color("[*] " + os.path.basename(file) + " was already obfuscated. Not reobfuscating."))
                 helpers.obfuscate_module(file, self.obfuscateCommand, reobfuscate)
 
     def do_report(self, line):
@@ -916,7 +918,7 @@ class MainMenu(cmd.Cmd):
             cur.execute('select session_id, hostname, username, checkin_time from agents')
 
             rows = cur.fetchall()
-            print helpers.color("[*] Writing data/sessions.csv")
+            print(helpers.color("[*] Writing data/sessions.csv"))
             f = open('data/sessions.csv','w')
             f.write("SessionID, Hostname, User Name, First Check-in\n")
             for row in rows:
@@ -940,7 +942,7 @@ class MainMenu(cmd.Cmd):
             """)
 
             rows = cur.fetchall()
-            print helpers.color("[*] Writing data/credentials.csv")
+            print(helpers.color("[*] Writing data/credentials.csv"))
             f = open('data/credentials.csv','w')
             f.write('Domain, Username, Host, Cred Type, Password\n')
             for row in rows:
@@ -966,7 +968,7 @@ class MainMenu(cmd.Cmd):
                 reporting.event_type == 'task' OR reporting.event_type == 'checkin'
             """)
             rows = cur.fetchall()
-            print helpers.color("[*] Writing data/master.log")
+            print(helpers.color("[*] Writing data/master.log"))
             f = open('data/master.log', 'w')
             f.write('Empire Master Taskings & Results Log by timestamp\n')
             f.write('='*50 + '\n\n')
@@ -1193,7 +1195,7 @@ class AgentsMenu(SubMenu):
 	"Read and execute a list of Empire commands from a file and execute on each new agent \"autorun <resource file> <agent language>\" e.g. \"autorun /root/ps.rc powershell\". Or clear any autorun setting with \"autorun clear\" and show current autorun settings with \"autorun show\""
 	line = line.strip()
         if not line:
-	    print helpers.color("[!] You must specify a resource file, show or clear. e.g. 'autorun /root/res.rc powershell' or 'autorun clear'")
+	    print(helpers.color("[!] You must specify a resource file, show or clear. e.g. 'autorun /root/res.rc powershell' or 'autorun clear'"))
 	    return
 	cmds = line.split(' ')
 	resourceFile = cmds[0]
@@ -1201,24 +1203,24 @@ class AgentsMenu(SubMenu):
         if len(cmds) > 1:
 	    language = cmds[1].lower()
 	elif not resourceFile == "show" and not resourceFile == "clear":
-	    print helpers.color("[!] You must specify the agent language to run this module on. e.g. 'autorun /root/res.rc powershell' or 'autorun /root/res.rc python'")
+	    print(helpers.color("[!] You must specify the agent language to run this module on. e.g. 'autorun /root/res.rc powershell' or 'autorun /root/res.rc python'"))
 	    return
 	#show the current autorun settings by language or all
 	if resourceFile == "show":
 	    if language:
-		if self.mainMenu.autoRuns.has_key(language):
-		    print self.mainMenu.autoRuns[language]
+		if language in self.mainMenu.autoRuns:
+		    print(self.mainMenu.autoRuns[language])
 		else:
-		    print "No autorun commands for language %s" % language
+		    print("No autorun commands for language %s" % language)
 	    else:
-	        print self.mainMenu.autoRuns
+	        print(self.mainMenu.autoRuns)
 	#clear autorun settings by language or all
 	elif resourceFile == "clear":
 	    if language and not language == "all":
-		if self.mainMenu.autoRuns.has_key(language):
+		if language in self.mainMenu.autoRuns:
 		    self.mainMenu.autoRuns.pop(language)
 		else:
-		    print "No autorun commands for language %s" % language
+		    print("No autorun commands for language %s" % language)
 	    else:
 		#clear all autoruns
 		self.mainMenu.autoRuns.clear()
@@ -1247,7 +1249,7 @@ class AgentsMenu(SubMenu):
             # replace the old name with the new name
             self.mainMenu.agents.rename_agent(parts[0], parts[1])
         else:
-            print helpers.color("[!] Please enter an agent name and new name")
+            print(helpers.color("[!] Please enter an agent name and new name"))
 
 
     def do_interact(self, line):
@@ -1260,7 +1262,7 @@ class AgentsMenu(SubMenu):
         if sessionID and sessionID != '' and sessionID in self.mainMenu.agents.agents:
             AgentMenu(self.mainMenu, sessionID)
         else:
-            print helpers.color("[!] Please enter a valid agent name")
+            print(helpers.color("[!] Please enter a valid agent name"))
 
 
     def do_kill(self, line):
@@ -1277,7 +1279,7 @@ class AgentsMenu(SubMenu):
                         sessionID = agent['session_id']
                         self.mainMenu.agents.add_agent_task_db(sessionID, 'TASK_EXIT')
             except KeyboardInterrupt:
-                print ''
+                print('')
 
         else:
             # extract the sessionID and clear the agent tasking
@@ -1289,9 +1291,9 @@ class AgentsMenu(SubMenu):
                     if choice.lower() != '' and choice.lower()[0] == 'y':
                         self.mainMenu.agents.add_agent_task_db(sessionID, 'TASK_EXIT')
                 except KeyboardInterrupt:
-                    print ''
+                    print('')
             else:
-                print helpers.color("[!] Invalid agent name")
+                print(helpers.color("[!] Invalid agent name"))
 
     def do_clear(self, line):
         "Clear one or more agent's taskings."
@@ -1309,7 +1311,7 @@ class AgentsMenu(SubMenu):
             if sessionID and len(sessionID) != 0:
                 self.mainMenu.agents.clear_agent_tasks_db(sessionID)
             else:
-                print helpers.color("[!] Invalid agent name")
+                print(helpers.color("[!] Invalid agent name"))
 
 
     def do_sleep(self, line):
@@ -1318,7 +1320,7 @@ class AgentsMenu(SubMenu):
         parts = line.strip().split(' ')
 
         if len(parts) == 1:
-            print helpers.color("[!] Please enter 'interval [jitter]'")
+            print(helpers.color("[!] Please enter 'interval [jitter]'"))
 
         elif parts[0].lower() == 'all':
             delay = parts[1]
@@ -1377,7 +1379,7 @@ class AgentsMenu(SubMenu):
                 self.mainMenu.agents.save_agent_log(sessionID, msg)
 
             else:
-                print helpers.color("[!] Invalid agent name")
+                print(helpers.color("[!] Invalid agent name"))
 
 
     def do_lostlimit(self, line):
@@ -1386,7 +1388,7 @@ class AgentsMenu(SubMenu):
         parts = line.strip().split(' ')
 
         if len(parts) == 1:
-            print helpers.color("[!] Usage: 'lostlimit [agent/all] [number of missed callbacks]")
+            print(helpers.color("[!] Usage: 'lostlimit [agent/all] [number of missed callbacks]"))
 
         elif parts[0].lower() == 'all':
             lostLimit = parts[1]
@@ -1435,7 +1437,7 @@ class AgentsMenu(SubMenu):
                 self.mainMenu.agents.save_agent_log(sessionID, msg)
 
             else:
-                print helpers.color("[!] Invalid agent name")
+                print(helpers.color("[!] Invalid agent name"))
 
 
     def do_killdate(self, line):
@@ -1444,7 +1446,7 @@ class AgentsMenu(SubMenu):
         parts = line.strip().split(' ')
 
         if len(parts) == 1:
-            print helpers.color("[!] Usage: 'killdate [agent/all] [01/01/2016]'")
+            print(helpers.color("[!] Usage: 'killdate [agent/all] [01/01/2016]'"))
 
         elif parts[0].lower() == 'all':
             date = parts[1]
@@ -1494,7 +1496,7 @@ class AgentsMenu(SubMenu):
                 self.mainMenu.agents.save_agent_log(sessionID, msg)
 
             else:
-                print helpers.color("[!] Invalid agent name")
+                print(helpers.color("[!] Invalid agent name"))
 
 
     def do_workinghours(self, line):
@@ -1503,7 +1505,7 @@ class AgentsMenu(SubMenu):
         parts = line.strip().split(' ')
 
         if len(parts) == 1:
-            print helpers.color("[!] Usage: 'workinghours [agent/all] [9:00-17:00]'")
+            print(helpers.color("[!] Usage: 'workinghours [agent/all] [9:00-17:00]'"))
 
         elif parts[0].lower() == 'all':
             hours = parts[1]
@@ -1556,7 +1558,7 @@ class AgentsMenu(SubMenu):
                 self.mainMenu.agents.save_agent_log(sessionID, msg)
 
             else:
-                print helpers.color("[!] Invalid agent name")
+                print(helpers.color("[!] Invalid agent name"))
 
 
     def do_remove(self, line):
@@ -1570,7 +1572,7 @@ class AgentsMenu(SubMenu):
                 if choice.lower() != '' and choice.lower()[0] == 'y':
                     self.mainMenu.agents.remove_agent_db('%')
             except KeyboardInterrupt:
-                print ''
+                print('')
 
         elif name.lower() == 'stale':
             # remove 'stale' agents that have missed their checkin intervals
@@ -1612,7 +1614,7 @@ class AgentsMenu(SubMenu):
                         self.mainMenu.agents.remove_agent_db(sessionID)
 
             except:
-                print helpers.color("[!] Please enter the minute window for agent checkin.")
+                print(helpers.color("[!] Please enter the minute window for agent checkin."))
 
         else:
             # extract the sessionID and clear the agent tasking
@@ -1621,7 +1623,7 @@ class AgentsMenu(SubMenu):
             if sessionID and len(sessionID) != 0:
                 self.mainMenu.agents.remove_agent_db(sessionID)
             else:
-                print helpers.color("[!] Invalid agent name")
+                print(helpers.color("[!] Invalid agent name"))
 
 
     def do_usestager(self, line):
@@ -1630,7 +1632,7 @@ class AgentsMenu(SubMenu):
         parts = line.split(' ')
 
         if parts[0] not in self.mainMenu.stagers.stagers:
-            print helpers.color("[!] Error: invalid stager module")
+            print(helpers.color("[!] Error: invalid stager module"))
 
         elif len(parts) == 1:
             stager_menu = StagerMenu(self.mainMenu, parts[0])
@@ -1638,13 +1640,13 @@ class AgentsMenu(SubMenu):
         elif len(parts) == 2:
             listener = parts[1]
             if not self.mainMenu.listeners.is_listener_valid(listener):
-                print helpers.color("[!] Please enter a valid listener name or ID")
+                print(helpers.color("[!] Please enter a valid listener name or ID"))
             else:
                 self.mainMenu.stagers.set_stager_option('Listener', listener)
                 stager_menu = StagerMenu(self.mainMenu, parts[0])
                 stager_menu.cmdloop()
         else:
-            print helpers.color("[!] Error in AgentsMenu's do_userstager()")
+            print(helpers.color("[!] Error in AgentsMenu's do_userstager()"))
 
 
     def do_usemodule(self, line):
@@ -1654,7 +1656,7 @@ class AgentsMenu(SubMenu):
         module = line.strip().rstrip("*")
 
         if module not in self.mainMenu.modules.modules:
-            print helpers.color("[!] Error: invalid module")
+            print(helpers.color("[!] Error: invalid module"))
         else:
             # set agent to "all"
             module_menu = ModuleMenu(self.mainMenu, line, agent="all")
@@ -1667,7 +1669,7 @@ class AgentsMenu(SubMenu):
         searchTerm = line.strip()
 
         if searchTerm.strip() == "":
-            print helpers.color("[!] Please enter a search term.")
+            print(helpers.color("[!] Please enter a search term."))
         else:
             self.mainMenu.modules.search_modules(searchTerm)
 
@@ -1775,7 +1777,7 @@ class AgentMenu(SubMenu):
 	    agent_menu = PythonAgentMenu(mainMenu, sessionID)
 	    agent_menu.cmdloop()
 	else:
-	    print helpers.color("[!] Agent language %s not recognized." % (agentLanguage))
+	    print(helpers.color("[!] Agent language %s not recognized." % (agentLanguage)))
 
 
 class PowerShellAgentMenu(SubMenu):
@@ -1803,7 +1805,7 @@ class PowerShellAgentMenu(SubMenu):
         # while we weren't interacting with the agent
         results = self.mainMenu.agents.get_agent_results_db(self.sessionID)
         if results:
-            print "\n" + results.rstrip('\r\n')
+            print("\n" + results.rstrip('\r\n'))
 
     # def preloop(self):
     #     traceback.print_stack()
@@ -1851,15 +1853,15 @@ class PowerShellAgentMenu(SubMenu):
                 msg = "Tasked agent to run command " + line
                 self.mainMenu.agents.save_agent_log(self.sessionID, msg)
             else:
-                print helpers.color("[!] Command not recognized.")
-                print helpers.color("[*] Use 'help' or 'help agentcmds' to see available commands.")
+                print(helpers.color("[!] Command not recognized."))
+                print(helpers.color("[*] Use 'help' or 'help agentcmds' to see available commands."))
 
     def do_help(self, *args):
         "Displays the help menu or syntax for particular commands."
 
         if args[0].lower() == "agentcmds":
-            print "\n" + helpers.color("[*] Available opsec-safe agent commands:\n")
-            print "     " + messages.wrap_columns(", ".join(self.agentCommands), ' ', width1=50, width2=10, indent=5) + "\n"
+            print("\n" + helpers.color("[*] Available opsec-safe agent commands:\n"))
+            print("     " + messages.wrap_columns(", ".join(self.agentCommands), ' ', width1=50, width2=10, indent=5) + "\n")
         else:
             SubMenu.do_help(self, *args)
 
@@ -1871,7 +1873,7 @@ class PowerShellAgentMenu(SubMenu):
         elif line.lower().startswith("agents"):
             self.mainMenu.do_list("agents " + str(' '.join(line.split(' ')[1:])))
         else:
-            print helpers.color("[!] Please use 'list [agents/listeners] <modifier>'.")
+            print(helpers.color("[!] Please use 'list [agents/listeners] <modifier>'."))
 
     def do_rename(self, line):
         "Rename the agent."
@@ -1886,7 +1888,7 @@ class PowerShellAgentMenu(SubMenu):
             if result:
                 self.prompt = "(Empire: " + helpers.color(parts[0], 'red') + ") > "
         else:
-            print helpers.color("[!] Please enter a new name for the agent")
+            print(helpers.color("[!] Please enter a new name for the agent"))
 
     def do_info(self, line):
         "Display information about this agent"
@@ -1917,7 +1919,7 @@ class PowerShellAgentMenu(SubMenu):
                 raise NavAgents
 
         except KeyboardInterrupt:
-            print ""
+            print("")
 
 
     def do_clear(self, line):
@@ -1945,7 +1947,7 @@ class PowerShellAgentMenu(SubMenu):
                 # update the agent log
                 self.mainMenu.agents.save_agent_log(self.sessionID, "Tasked agent to get running jobs")
             else:
-                print helpers.color("[!] Please use form 'jobs kill JOB_ID'")
+                print(helpers.color("[!] Please use form 'jobs kill JOB_ID'"))
         elif len(parts) == 2:
             jobID = parts[1].strip()
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_STOPJOB", jobID)
@@ -2022,7 +2024,7 @@ class PowerShellAgentMenu(SubMenu):
         process = parts[0]
 
         if process == "":
-            print helpers.color("[!] Please enter a process name or ID.")
+            print(helpers.color("[!] Please enter a process name or ID."))
         else:
             # if we were passed a process ID
             if process.isdigit():
@@ -2212,7 +2214,7 @@ class PowerShellAgentMenu(SubMenu):
 
                 size = os.path.getsize(parts[0])
                 if size > 1048576:
-                    print helpers.color("[!] File size is too large. Upload limit is 1MB.")
+                    print(helpers.color("[!] File size is too large. Upload limit is 1MB."))
                 else:
                     # dispatch this event
                     message = "[*] Tasked agent to upload {}, {}".format(uploadname, helpers.get_file_size(file_data))
@@ -2234,7 +2236,7 @@ class PowerShellAgentMenu(SubMenu):
                     data = uploadname + "|" + file_data
                     self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_UPLOAD", data)
             else:
-                print helpers.color("[!] Please enter a valid file path to upload")
+                print(helpers.color("[!] Please enter a valid file path to upload"))
 
 
     def do_scriptimport(self, line):
@@ -2274,7 +2276,7 @@ class PowerShellAgentMenu(SubMenu):
             self.mainMenu.agents.set_agent_functions_db(self.sessionID, functions)
 
         else:
-            print helpers.color("[!] Please enter a valid script path")
+            print(helpers.color("[!] Please enter a valid script path"))
 
 
     def do_scriptcmd(self, line):
@@ -2304,7 +2306,7 @@ class PowerShellAgentMenu(SubMenu):
         module = "powershell/%s" %(line.strip().rstrip("*"))
 
         if module not in self.mainMenu.modules.modules:
-            print helpers.color("[!] Error: invalid module")
+            print(helpers.color("[!] Error: invalid module"))
         else:
             module_menu = ModuleMenu(self.mainMenu, module, agent=self.sessionID)
             module_menu.cmdloop()
@@ -2316,7 +2318,7 @@ class PowerShellAgentMenu(SubMenu):
         search_term = line.strip()
 
         if search_term.strip() == "":
-            print helpers.color("[!] Please enter a search term.")
+            print(helpers.color("[!] Please enter a search term."))
         else:
             self.mainMenu.modules.search_modules(search_term)
 
@@ -2341,7 +2343,7 @@ class PowerShellAgentMenu(SubMenu):
                 profile = profile[0]
 
             if not profile.strip().startswith("\"/"):
-                print helpers.color("[!] Task URIs in profiles must start with / and be enclosed in quotes!")
+                print(helpers.color("[!] Task URIs in profiles must start with / and be enclosed in quotes!"))
             else:
                 updatecmd = "Update-Profile " + profile
 
@@ -2361,7 +2363,7 @@ class PowerShellAgentMenu(SubMenu):
                 self.mainMenu.agents.save_agent_log(self.sessionID, msg)
 
         else:
-            print helpers.color("[*] Profile format is \"TaskURI1,TaskURI2,...|UserAgent|OptionalHeader2:Val1|OptionalHeader2:Val2...\"")
+            print(helpers.color("[*] Profile format is \"TaskURI1,TaskURI2,...|UserAgent|OptionalHeader2:Val1|OptionalHeader2:Val2...\""))
 
     def do_updatecomms(self, line):
         "Dynamically update the agent comms to another listener"
@@ -2370,7 +2372,7 @@ class PowerShellAgentMenu(SubMenu):
         if line:
             listenerID = line.strip()
             if not self.mainMenu.listeners.is_listener_valid(listenerID):
-                print helpers.color("[!] Please enter a valid listenername.")
+                print(helpers.color("[!] Please enter a valid listenername."))
             else:
                 activeListener = self.mainMenu.listeners.activeListeners[listenerID]
                 if activeListener['moduleName'] != 'meterpreter' or activeListener['moduleName'] != 'http_mapi':
@@ -2383,10 +2385,10 @@ class PowerShellAgentMenu(SubMenu):
                     msg = "Tasked agent to update comms to %s listener" % listenerID
                     self.mainMenu.agents.save_agent_log(self.sessionID, msg)
                 else:
-                    print helpers.color("[!] Ineligible listener for updatecomms command: %s" % activeListener['moduleName'])
+                    print(helpers.color("[!] Ineligible listener for updatecomms command: %s" % activeListener['moduleName']))
 
         else:
-            print helpers.color("[!] Please enter a valid listenername.")
+            print(helpers.color("[!] Please enter a valid listenername."))
 
     def do_psinject(self, line):
         "Inject a launcher into a remote process. Ex. psinject <listener> <pid/process_name>"
@@ -2415,13 +2417,13 @@ class PowerShellAgentMenu(SubMenu):
                     module_menu.do_execute("")
 
                 else:
-                    print helpers.color("[!] Please enter <listenerName> <pid>")
+                    print(helpers.color("[!] Please enter <listenerName> <pid>"))
 
             else:
-                print helpers.color("[!] powershell/management/psinject module not loaded")
+                print(helpers.color("[!] powershell/management/psinject module not loaded"))
 
         else:
-            print helpers.color("[!] Injection requires you to specify listener")
+            print(helpers.color("[!] Injection requires you to specify listener"))
 
 
     def do_shinject(self, line):
@@ -2441,19 +2443,19 @@ class PowerShellAgentMenu(SubMenu):
                         if target.isdigit():
                             module.options['ProcId']['Value'] = target
                         else:
-                            print helpers.color('[!] Please enter a valid process ID.')
+                            print(helpers.color('[!] Please enter a valid process ID.'))
 
                     module.options['Agent']['Value'] = self.mainMenu.agents.get_agent_name_db(self.sessionID)
                     module_menu = ModuleMenu(self.mainMenu, 'powershell/management/shinject')
                     module_menu.do_execute("")
                 else:
-                    print helpers.color('[!] Please select a valid listener')
+                    print(helpers.color('[!] Please select a valid listener'))
             
             else:
-                print helpers.color("[!] powershell/management/psinject module not loaded")
+                print(helpers.color("[!] powershell/management/psinject module not loaded"))
         
         else:
-            print helpers.color("[!] Injection requires you to specify listener")
+            print(helpers.color("[!] Injection requires you to specify listener"))
 
     def do_injectshellcode(self, line):
         "Inject listener shellcode into a remote process. Ex. injectshellcode <meter_listener> <pid>"
@@ -2481,13 +2483,13 @@ class PowerShellAgentMenu(SubMenu):
                     module_menu.cmdloop()
 
                 else:
-                    print helpers.color("[!] Please enter <listenerName> <pid>")
+                    print(helpers.color("[!] Please enter <listenerName> <pid>"))
 
             else:
-                print helpers.color("[!] powershell/code_execution/invoke_shellcode module not loaded")
+                print(helpers.color("[!] powershell/code_execution/invoke_shellcode module not loaded"))
 
         else:
-            print helpers.color("[!] Injection requires you to specify listener")
+            print(helpers.color("[!] Injection requires you to specify listener"))
 
 
     def do_sc(self, line):
@@ -2499,7 +2501,7 @@ class PowerShellAgentMenu(SubMenu):
             try:
                 screenshot_ratio = str(int(line.strip()))
             except Exception:
-                print helpers.color("[*] JPEG Ratio incorrect. Has been set to 80.")
+                print(helpers.color("[*] JPEG Ratio incorrect. Has been set to 80."))
                 screenshot_ratio = "80"
         else:
             screenshot_ratio = ''
@@ -2514,7 +2516,7 @@ class PowerShellAgentMenu(SubMenu):
             module_menu.do_execute("")
 
         else:
-            print helpers.color("[!] powershell/collection/screenshot module not loaded")
+            print(helpers.color("[!] powershell/collection/screenshot module not loaded"))
 
 
     def do_spawn(self, line):
@@ -2538,13 +2540,13 @@ class PowerShellAgentMenu(SubMenu):
                     module_menu.cmdloop()
 
                 else:
-                    print helpers.color("[!] management/spawn module not loaded")
+                    print(helpers.color("[!] management/spawn module not loaded"))
 
             else:
-                print helpers.color("[!] Please enter a valid listener name or ID.")
+                print(helpers.color("[!] Please enter a valid listener name or ID."))
 
         else:
-            print helpers.color("[!] Please specify a listener name or ID.")
+            print(helpers.color("[!] Please specify a listener name or ID."))
 
 
     def do_bypassuac(self, line):
@@ -2568,13 +2570,13 @@ class PowerShellAgentMenu(SubMenu):
                     module_menu.do_execute('')
 
                 else:
-                    print helpers.color("[!] powershell/privesc/bypassuac_eventvwr module not loaded")
+                    print(helpers.color("[!] powershell/privesc/bypassuac_eventvwr module not loaded"))
 
             else:
-                print helpers.color("[!] Please enter a valid listener name or ID.")
+                print(helpers.color("[!] Please enter a valid listener name or ID."))
 
         else:
-            print helpers.color("[!] Please specify a listener name or ID.")
+            print(helpers.color("[!] Please specify a listener name or ID."))
 
 
     def do_mimikatz(self, line):
@@ -2597,7 +2599,7 @@ class PowerShellAgentMenu(SubMenu):
         credID = line.strip()
 
         if credID == '':
-            print helpers.color("[!] Please specify a <CredID>.")
+            print(helpers.color("[!] Please specify a <CredID>."))
             return
 
         if self.mainMenu.modules.modules['powershell/credentials/mimikatz/pth']:
@@ -2623,7 +2625,7 @@ class PowerShellAgentMenu(SubMenu):
         processID = line.strip()
 
         if processID == '':
-            print helpers.color("[!] Please specify a process ID.")
+            print(helpers.color("[!] Please specify a process ID."))
             return
 
         if self.mainMenu.modules.modules['powershell/credentials/tokens']:
@@ -2782,7 +2784,7 @@ class PythonAgentMenu(SubMenu):
         # while we weren't interacting with the agent
         results = self.mainMenu.agents.get_agent_results_db(self.sessionID)
         if results:
-            print "\n" + results.rstrip('\r\n')
+            print("\n" + results.rstrip('\r\n'))
 
     def handle_agent_event(self, signal, sender):
         """
@@ -2815,8 +2817,8 @@ class PythonAgentMenu(SubMenu):
                 msg = "Tasked agent to run command " + line
                 self.mainMenu.agents.save_agent_log(self.sessionID, msg)
             else:
-                print helpers.color("[!] Command not recognized.")
-                print helpers.color("[*] Use 'help' or 'help agentcmds' to see available commands.")
+                print(helpers.color("[!] Command not recognized."))
+                print(helpers.color("[*] Use 'help' or 'help agentcmds' to see available commands."))
 
     def do_help(self, *args):
         "Displays the help menu or syntax for particular commands."
@@ -2831,7 +2833,7 @@ class PythonAgentMenu(SubMenu):
         elif line.lower().startswith("agents"):
             self.mainMenu.do_list("agents " + str(' '.join(line.split(' ')[1:])))
         else:
-            print helpers.color("[!] Please use 'list [agents/listeners] <modifier>'.")
+            print(helpers.color("[!] Please use 'list [agents/listeners] <modifier>'."))
 
 
     def do_rename(self, line):
@@ -2847,7 +2849,7 @@ class PythonAgentMenu(SubMenu):
             if result:
                 self.prompt = "(Empire: " + helpers.color(parts[0], 'red') + ") > "
         else:
-            print helpers.color("[!] Please enter a new name for the agent")
+            print(helpers.color("[!] Please enter a new name for the agent"))
 
 
     def do_info(self, line):
@@ -2880,7 +2882,7 @@ class PythonAgentMenu(SubMenu):
                 raise NavAgents
 
         except KeyboardInterrupt as e:
-            print ""
+            print("")
 
 
     def do_clear(self, line):
@@ -2935,7 +2937,7 @@ class PythonAgentMenu(SubMenu):
                 # update the agent log
                 self.mainMenu.agents.save_agent_log(self.sessionID, "Tasked agent to get running jobs")
             else:
-                print helpers.color("[!] Please use form 'jobs kill JOB_ID'")
+                print(helpers.color("[!] Please use form 'jobs kill JOB_ID'"))
         elif len(parts) == 2:
             jobID = parts[1].strip()
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_STOPJOB", jobID)
@@ -2963,14 +2965,14 @@ class PythonAgentMenu(SubMenu):
             try:
                 int(delay)
             except:
-                print helpers.color("[!] Please only enter integer for 'interval'")
+                print(helpers.color("[!] Please only enter integer for 'interval'"))
                 return
 
         if len(parts) > 1:
             try:
                 int(parts[1])
             except:
-                print helpers.color("[!] Please only enter integer for '[jitter]'")
+                print(helpers.color("[!] Please only enter integer for '[jitter]'"))
                 return
 
         if delay == "":
@@ -3203,7 +3205,7 @@ class PythonAgentMenu(SubMenu):
             msg = "[*] Tasked agent to execute python script: "+filename
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
         else:
-            print helpers.color("[!] Please provide a valid path", color="red")
+            print(helpers.color("[!] Please provide a valid path", color="red"))
 
 
     def do_sysinfo(self, line):
@@ -3272,9 +3274,9 @@ class PythonAgentMenu(SubMenu):
                 # Get file size
                 size = os.path.getsize(parts[0])
                 if size > 1048576:
-                    print helpers.color("[!] File size is too large. Upload limit is 1MB.")
+                    print(helpers.color("[!] File size is too large. Upload limit is 1MB."))
                 else:
-                    print helpers.color("[*] Original tasked size of %s for upload: %s" %(uploadname, helpers.get_file_size(fileData)), color="green")
+                    print(helpers.color("[*] Original tasked size of %s for upload: %s" %(uploadname, helpers.get_file_size(fileData)), color="green"))
 
                     original_md5 = hashlib.md5(fileData).hexdigest()
                     # update the agent log with the filename and MD5
@@ -3304,7 +3306,7 @@ class PythonAgentMenu(SubMenu):
 
                     self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_UPLOAD", data)
             else:
-                print helpers.color("[!] Please enter a valid file path to upload")
+                print(helpers.color("[!] Please enter a valid file path to upload"))
 
 
     def do_usemodule(self, line):
@@ -3315,7 +3317,7 @@ class PythonAgentMenu(SubMenu):
 
 
         if module not in self.mainMenu.modules.modules:
-            print helpers.color("[!] Error: invalid module")
+            print(helpers.color("[!] Error: invalid module"))
         else:
             module_menu = ModuleMenu(self.mainMenu, module, agent=self.sessionID)
             module_menu.cmdloop()
@@ -3327,7 +3329,7 @@ class PythonAgentMenu(SubMenu):
         searchTerm = line.strip()
 
         if searchTerm.strip() == "":
-            print helpers.color("[!] Please enter a search term.")
+            print(helpers.color("[!] Please enter a search term."))
         else:
             self.mainMenu.modules.search_modules(searchTerm)
 
@@ -3340,7 +3342,7 @@ class PythonAgentMenu(SubMenu):
             #execute screenshot module
             msg = "[*] Tasked agent to take a screenshot"
             module_menu = ModuleMenu(self.mainMenu, 'python/collection/osx/native_screenshot')
-            print helpers.color(msg, color="green")
+            print(helpers.color(msg, color="green"))
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
 
             # dispatch this event
@@ -3353,7 +3355,7 @@ class PythonAgentMenu(SubMenu):
 
             module_menu.do_execute("")
         else:
-            print helpers.color("[!] python/collection/osx/screenshot module not loaded")
+            print(helpers.color("[!] python/collection/osx/screenshot module not loaded"))
 
     def do_cat(self, line):
         "View the contents of a file"
@@ -3420,7 +3422,7 @@ except Exception as e:
             data = filename + '|' + module_data
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_IMPORT_MODULE", data)
         else:
-            print helpers.color("[!] Please provide a valid zipfile path", color="red")
+            print(helpers.color("[!] Please provide a valid zipfile path", color="red"))
 
             
     def do_viewrepo(self, line):
@@ -3456,7 +3458,7 @@ except Exception as e:
         dispatcher.send(signal, sender="agents/{}".format(self.sessionID))
 
         msg = "[*] Tasked agent to remove repo: "+repoName
-        print helpers.color(msg, color="green")
+        print(helpers.color(msg, color="green"))
         self.mainMenu.agents.save_agent_log(self.sessionID, msg)
         self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_REMOVE_MODULE", repoName)
 
@@ -3528,7 +3530,7 @@ class ListenersMenu(SubMenu):
                 if choice.lower() != '' and choice.lower()[0] == 'y':
                     self.mainMenu.listeners.kill_listener('all')
             except KeyboardInterrupt:
-                print ''
+                print('')
 
         else:
             self.mainMenu.listeners.kill_listener(listenerID)
@@ -3544,7 +3546,7 @@ class ListenersMenu(SubMenu):
                 if choice.lower() != '' and choice.lower()[0] == 'y':
                     self.mainMenu.listeners.delete_listener("all")
             except KeyboardInterrupt:
-                print ''
+                print('')
 
         else:
             self.mainMenu.listeners.delete_listener(listener_id)
@@ -3555,7 +3557,7 @@ class ListenersMenu(SubMenu):
         parts = line.split(' ')
 
         if parts[0] not in self.mainMenu.stagers.stagers:
-            print helpers.color("[!] Error: invalid stager module")
+            print(helpers.color("[!] Error: invalid stager module"))
 
         elif len(parts) == 1:
             stager_menu = StagerMenu(self.mainMenu, parts[0])
@@ -3563,13 +3565,13 @@ class ListenersMenu(SubMenu):
         elif len(parts) == 2:
             listener = parts[1]
             if not self.mainMenu.listeners.is_listener_valid(listener):
-                print helpers.color("[!] Please enter a valid listener name or ID")
+                print(helpers.color("[!] Please enter a valid listener name or ID"))
             else:
                 self.mainMenu.stagers.set_stager_option('Listener', listener)
                 stager_menu = StagerMenu(self.mainMenu, parts[0])
                 stager_menu.cmdloop()
         else:
-            print helpers.color("[!] Error in ListenerMenu's do_userstager()")
+            print(helpers.color("[!] Error in ListenerMenu's do_userstager()"))
 
 
     def do_uselistener(self, line):
@@ -3578,7 +3580,7 @@ class ListenersMenu(SubMenu):
         parts = line.split(' ')
 
         if parts[0] not in self.mainMenu.listeners.loadedListeners:
-            print helpers.color("[!] Error: invalid listener module")
+            print(helpers.color("[!] Error: invalid listener module"))
         else:
             listenerMenu = ListenerMenu(self.mainMenu, parts[0])
             listenerMenu.cmdloop()
@@ -3590,7 +3592,7 @@ class ListenersMenu(SubMenu):
         listenerName = line.strip()
 
         if listenerName not in self.mainMenu.listeners.activeListeners:
-            print helpers.color("[!] Invalid listener name")
+            print(helpers.color("[!] Invalid listener name"))
         else:
             messages.display_active_listener(self.mainMenu.listeners.activeListeners[listenerName])
 
@@ -3600,7 +3602,7 @@ class ListenersMenu(SubMenu):
 
         parts = line.strip().split()
         if len(parts) != 2:
-            print helpers.color("[!] Please enter 'launcher <language> <listenerName>'")
+            print(helpers.color("[!] Please enter 'launcher <language> <listenerName>'"))
             return
         else:
             language = parts[0].lower()
@@ -3633,12 +3635,12 @@ class ListenersMenu(SubMenu):
                 })
                 dispatcher.send(signal, sender="empire")
 
-                print stager.generate()
+                print(stager.generate())
             except Exception as e:
-                print helpers.color("[!] Error generating launcher: %s" % (e))
+                print(helpers.color("[!] Error generating launcher: %s" % (e)))
 
         else:
-            print helpers.color("[!] Please enter a valid listenerName")
+            print(helpers.color("[!] Please enter a valid listenerName"))
 
     def do_enable(self, line):
         "Enables and starts one or all listeners."
@@ -3646,14 +3648,14 @@ class ListenersMenu(SubMenu):
         listenerID = line.strip()
 
         if listenerID == '':
-            print helpers.color("[!] Please provide a listener name")
+            print(helpers.color("[!] Please provide a listener name"))
         elif listenerID.lower() == 'all':
             try:
                 choice = raw_input(helpers.color('[>] Start all listeners? [y/N] ', 'red'))
                 if choice.lower() != '' and choice.lower()[0] == 'y':
                     self.mainMenu.listeners.enable_listener('all')
             except KeyboardInterrupt:
-                print ''
+                print('')
 
         else:
             self.mainMenu.listeners.enable_listener(listenerID)
@@ -3669,7 +3671,7 @@ class ListenersMenu(SubMenu):
                 if choice.lower() != '' and choice.lower()[0] == 'y':
                     self.mainMenu.listeners.shutdown_listener('all')
             except KeyboardInterrupt:
-                print ''
+                print('')
 
         else:
             self.mainMenu.listeners.disable_listener(listenerID)
@@ -3679,13 +3681,13 @@ class ListenersMenu(SubMenu):
 
         arguments = line.strip().split(" ")
         if len(arguments) < 2:
-            print helpers.color("[!] edit <listener name> <option name> <option value> (leave value blank to unset)")
+            print(helpers.color("[!] edit <listener name> <option name> <option value> (leave value blank to unset)"))
             return
         if len(arguments) == 2:
             arguments.append("")
         self.mainMenu.listeners.update_listener_options(arguments[0], arguments[1], ' '.join(arguments[2:]))
         if arguments[0] in self.mainMenu.listeners.activeListeners.keys():
-            print helpers.color("[*] This change will not take effect until the listener is restarted")
+            print(helpers.color("[*] This change will not take effect until the listener is restarted"))
 
     def complete_usestager(self, text, line, begidx, endidx):
         "Tab-complete an Empire stager module path."
@@ -3771,7 +3773,7 @@ class ListenerMenu(SubMenu):
         SubMenu.__init__(self, mainMenu)
 
         if listenerName not in self.mainMenu.listeners.loadedListeners:
-            print helpers.color("[!] Listener '%s' not currently valid!" % (listenerName))
+            print(helpers.color("[!] Listener '%s' not currently valid!" % (listenerName)))
             raise NavListeners()
 
         self.doc_header = 'Listener Commands'
@@ -3800,7 +3802,7 @@ class ListenerMenu(SubMenu):
         parts = line.strip().split()
 
         if len(parts) != 1:
-            print helpers.color("[!] Please enter 'launcher <language>'")
+            print(helpers.color("[!] Please enter 'launcher <language>'"))
             return
 
         try:
@@ -3825,9 +3827,9 @@ class ListenerMenu(SubMenu):
             })
             dispatcher.send(signal, sender="empire")
 
-            print stager.generate()
+            print(stager.generate())
         except Exception as e:
-            print helpers.color("[!] Error generating launcher: %s" % (e))
+            print(helpers.color("[!] Error generating launcher: %s" % (e)))
 
 
     def do_set(self, line):
@@ -3838,7 +3840,7 @@ class ListenerMenu(SubMenu):
         try:
             option = parts[0]
             if option not in self.listener.options:
-                print helpers.color("[!] Invalid option specified.")
+                print(helpers.color("[!] Invalid option specified."))
 
             elif len(parts) == 1:
                 # "set OPTION"
@@ -3846,7 +3848,7 @@ class ListenerMenu(SubMenu):
                 if self.listener.options[option]['Description'].startswith("Switch."):
                     self.listener.options[option]['Value'] = "True"
                 else:
-                    print helpers.color("[!] Please specify an option value.")
+                    print(helpers.color("[!] Please specify an option value."))
             else:
                 # otherwise "set OPTION VALUE"
                 option = parts[0]
@@ -3858,7 +3860,7 @@ class ListenerMenu(SubMenu):
                 self.mainMenu.listeners.set_listener_option(self.listenerName, option, value)
 
         except Exception as e:
-            print helpers.color("[!] Error in setting listener option: %s" % (e))
+            print(helpers.color("[!] Error in setting listener option: %s" % (e)))
 
 
     def do_unset(self, line):
@@ -3870,7 +3872,7 @@ class ListenerMenu(SubMenu):
             for option in self.listener.options:
                 self.listener.options[option]['Value'] = ''
         if option not in self.listener.options:
-            print helpers.color("[!] Invalid option specified.")
+            print(helpers.color("[!] Invalid option specified."))
         else:
             self.listener.options[option]['Value'] = ''
 
@@ -3946,7 +3948,7 @@ class ModuleMenu(SubMenu):
                 self.module.options['Agent']['Value'] = agent
 
         except Exception as e:
-            print helpers.color("[!] ModuleMenu() init error: %s" % (e))
+            print(helpers.color("[!] ModuleMenu() init error: %s" % (e)))
 
     def validate_options(self, prompt):
         "Ensure all required module options are completed."
@@ -3954,7 +3956,7 @@ class ModuleMenu(SubMenu):
         # ensure all 'Required=True' options are filled in
         for option, values in self.module.options.iteritems():
             if values['Required'] and ((not values['Value']) or (values['Value'] == '')):
-                print helpers.color("[!] Error: Required module option missing.")
+                print(helpers.color("[!] Error: Required module option missing."))
                 return False
 
         # 'Agent' is set for all but external/* modules
@@ -3968,10 +3970,10 @@ class ModuleMenu(SubMenu):
 
                     # check if the agent/module PowerShell versions are compatible
                     if moduleLangVersion > agentLangVersion:
-                        print helpers.color("[!] Error: module requires language version %s but agent running version %s" % (moduleLangVersion, agentPSVersion))
+                        print(helpers.color("[!] Error: module requires language version %s but agent running version %s" % (moduleLangVersion, agentPSVersion)))
                         return False
             except Exception as e:
-                print helpers.color("[!] Invalid module or agent language version: %s" % (e))
+                print(helpers.color("[!] Invalid module or agent language version: %s" % (e)))
                 return False
 
             # check if the module needs admin privs
@@ -3979,7 +3981,7 @@ class ModuleMenu(SubMenu):
                 # if we're running this module for all agents, skip this validation
                 if sessionID.lower() != "all" and sessionID.lower() != "autorun":
                     if not self.mainMenu.agents.is_agent_elevated(sessionID):
-                        print helpers.color("[!] Error: module needs to run in an elevated context.")
+                        print(helpers.color("[!] Error: module needs to run in an elevated context."))
                         return False
 
         # if the module isn't opsec safe, prompt before running (unless "execute noprompt" was issued)
@@ -3990,7 +3992,7 @@ class ModuleMenu(SubMenu):
                 if not (choice.lower() != "" and choice.lower()[0] == "y"):
                     return False
             except KeyboardInterrupt:
-                print ""
+                print("")
                 return False
 
         return True
@@ -4003,12 +4005,12 @@ class ModuleMenu(SubMenu):
         elif line.lower().startswith("agents"):
             self.mainMenu.do_list("agents " + str(' '.join(line.split(' ')[1:])))
         else:
-            print helpers.color("[!] Please use 'list [agents/listeners] <modifier>'.")
+            print(helpers.color("[!] Please use 'list [agents/listeners] <modifier>'."))
 
     def do_reload(self, line):
         "Reload the current module."
 
-        print "\n" + helpers.color("[*] Reloading module") + "\n"
+        print("\n" + helpers.color("[*] Reloading module") + "\n")
 
         # reload the specific module
         self.mainMenu.modules.reload_module(self.moduleName)
@@ -4034,7 +4036,7 @@ class ModuleMenu(SubMenu):
         try:
             option = parts[0]
             if option not in self.module.options:
-                print helpers.color("[!] Invalid option specified.")
+                print(helpers.color("[!] Invalid option specified."))
 
             elif len(parts) == 1:
                 # "set OPTION"
@@ -4042,7 +4044,7 @@ class ModuleMenu(SubMenu):
                 if self.module.options[option]['Description'].startswith("Switch."):
                     self.module.options[option]['Value'] = "True"
                 else:
-                    print helpers.color("[!] Please specify an option value.")
+                    print(helpers.color("[!] Please specify an option value."))
             else:
                 # otherwise "set OPTION VALUE"
                 option = parts[0]
@@ -4053,7 +4055,7 @@ class ModuleMenu(SubMenu):
 
                 self.module.options[option]['Value'] = value
         except:
-            print helpers.color("[!] Error in setting option, likely invalid option name.")
+            print(helpers.color("[!] Error in setting option, likely invalid option name."))
 
 
     def do_unset(self, line):
@@ -4065,7 +4067,7 @@ class ModuleMenu(SubMenu):
             for option in self.module.options:
                 self.module.options[option]['Value'] = ''
         if option not in self.module.options:
-            print helpers.color("[!] Invalid option specified.")
+            print(helpers.color("[!] Invalid option specified."))
         else:
             self.module.options[option]['Value'] = ''
 
@@ -4077,7 +4079,7 @@ class ModuleMenu(SubMenu):
         module = line.strip().rstrip("*")
 
         if module not in self.mainMenu.modules.modules:
-            print helpers.color("[!] Error: invalid module")
+            print(helpers.color("[!] Error: invalid module"))
         else:
             _agent = ''
             if 'Agent' in self.module.options:
@@ -4112,11 +4114,11 @@ class ModuleMenu(SubMenu):
             moduleData = self.module.generate(self.mainMenu.obfuscate, self.mainMenu.obfuscateCommand)
 
             if not moduleData or moduleData == "":
-                print helpers.color("[!] Error: module produced an empty script")
+                print(helpers.color("[!] Error: module produced an empty script"))
             try:
                 moduleData.decode('ascii')
             except UnicodeDecodeError:
-                print helpers.color("[!] Error: module source contains non-ascii characters")
+                print(helpers.color("[!] Error: module source contains non-ascii characters"))
                 return
 
             # strip all comments from the module
@@ -4183,7 +4185,7 @@ class ModuleMenu(SubMenu):
                             self.mainMenu.agents.save_agent_log(sessionID, msg)
 
                 except KeyboardInterrupt:
-                    print ""
+                    print("")
 
             # set the script to be the global autorun
             elif agentName.lower() == "autorun":
@@ -4198,7 +4200,7 @@ class ModuleMenu(SubMenu):
 
             else:
                 if not self.mainMenu.agents.is_agent_present(agentName):
-                    print helpers.color("[!] Invalid agent name.")
+                    print(helpers.color("[!] Invalid agent name."))
                 else:
                     # set the agent's tasking in the cache
                     self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData)
@@ -4231,7 +4233,7 @@ class ModuleMenu(SubMenu):
 
             agent_menu = AgentMenu(self.mainMenu, sessionID)
         else:
-            print helpers.color("[!] Please enter a valid agent name")
+            print(helpers.color("[!] Please enter a valid agent name"))
 
 
     def complete_set(self, text, line, begidx, endidx):
@@ -4334,13 +4336,13 @@ class StagerMenu(SubMenu):
 
         for option, values in self.stager.options.iteritems():
             if values['Required'] and ((not values['Value']) or (values['Value'] == '')):
-                print helpers.color("[!] Error: Required stager option missing.")
+                print(helpers.color("[!] Error: Required stager option missing."))
                 return False
 
         listenerName = self.stager.options['Listener']['Value']
 
         if not self.mainMenu.listeners.is_listener_valid(listenerName):
-            print helpers.color("[!] Invalid listener ID or name.")
+            print(helpers.color("[!] Invalid listener ID or name."))
             return False
 
         return True
@@ -4353,7 +4355,7 @@ class StagerMenu(SubMenu):
         elif line.lower().startswith("agents"):
             self.mainMenu.do_list("agents " + str(' '.join(line.split(' ')[1:])))
         else:
-            print helpers.color("[!] Please use 'list [agents/listeners] <modifier>'.")
+            print(helpers.color("[!] Please use 'list [agents/listeners] <modifier>'."))
 
 
     def do_info(self, line):
@@ -4374,7 +4376,7 @@ class StagerMenu(SubMenu):
         try:
             option = parts[0]
             if option not in self.stager.options:
-                print helpers.color("[!] Invalid option specified.")
+                print(helpers.color("[!] Invalid option specified."))
 
             elif len(parts) == 1:
                 # "set OPTION"
@@ -4382,7 +4384,7 @@ class StagerMenu(SubMenu):
                 if self.stager.options[option]['Description'].startswith("Switch."):
                     self.stager.options[option]['Value'] = "True"
                 else:
-                    print helpers.color("[!] Please specify an option value.")
+                    print(helpers.color("[!] Please specify an option value."))
             else:
                 # otherwise "set OPTION VALUE"
                 option = parts[0]
@@ -4393,7 +4395,7 @@ class StagerMenu(SubMenu):
 
                 self.stager.options[option]['Value'] = value
         except:
-            print helpers.color("[!] Error in setting option, likely invalid option name.")
+            print(helpers.color("[!] Error in setting option, likely invalid option name."))
 
 
     def do_unset(self, line):
@@ -4405,7 +4407,7 @@ class StagerMenu(SubMenu):
             for option in self.stager.options:
                 self.stager.options[option]['Value'] = ''
         if option not in self.stager.options:
-            print helpers.color("[!] Invalid option specified.")
+            print(helpers.color("[!] Invalid option specified."))
         else:
             self.stager.options[option]['Value'] = ''
 
@@ -4441,7 +4443,7 @@ class StagerMenu(SubMenu):
             if ".sh" in savePath:
                 os.chmod(savePath, 777)
 
-            print "\n" + helpers.color("[*] Stager output written out to: %s\n" % (savePath))
+            print("\n" + helpers.color("[*] Stager output written out to: %s\n" % (savePath)))
             # dispatch this event
             message = "[*] Generated stager"
             signal = json.dumps({
@@ -4451,7 +4453,7 @@ class StagerMenu(SubMenu):
             })
             dispatcher.send(signal, sender="empire")
         else:
-            print stagerOutput
+            print(stagerOutput)
 
 
     def do_execute(self, line):
@@ -4470,7 +4472,7 @@ class StagerMenu(SubMenu):
 
             agent_menu = AgentMenu(self.mainMenu, sessionID)
         else:
-            print helpers.color("[!] Please enter a valid agent name")
+            print(helpers.color("[!] Please enter a valid agent name"))
 
 
     def complete_set(self, text, line, begidx, endidx):

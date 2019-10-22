@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 
 class Module:
@@ -60,7 +61,7 @@ class Module:
         listenerName = self.options['Listener']['Value']
 
         if listenerName not in self.mainMenu.listeners.activeListeners:
-            print helpers.color("[!] Listener '%s' doesn't exist!" % (listenerName))
+            print(helpers.color("[!] Listener '%s' doesn't exist!" % (listenerName)))
             return ''
 
         activeListener = self.mainMenu.listeners.activeListeners[listenerName]

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 
 class Module:
@@ -77,7 +78,7 @@ class Module:
             with open(moduleSource, 'r') as source:
                 script = source.read()
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         scriptEnd = " Get-SQLQuery"

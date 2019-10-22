@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 import base64
 
@@ -93,7 +94,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -105,7 +106,7 @@ class Module:
 
         #check if dllpath or PEUrl is set. Both are required params in their respective parameter sets.
         if self.options['DllPath']['Value'] == "" and self.options['PEUrl']['Value'] == "":
-            print helpers.color("[!] Please provide a PEUrl or DllPath")
+            print(helpers.color("[!] Please provide a PEUrl or DllPath"))
             return ""
         for option,values in self.options.iteritems():
             if option.lower() != "agent":
@@ -120,7 +121,7 @@ class Module:
                             scriptEnd += " -PEbase64 " + str(base64bytes)
 
                         except:
-                            print helpers.color("[!] Error in reading/encoding dll: " + str(values['Value']))
+                            print(helpers.color("[!] Error in reading/encoding dll: " + str(values['Value'])))
                 elif values['Value'].lower() == "true":
                     scriptEnd += " -" + str(option)
                 elif values['Value'] and values['Value'] != '':

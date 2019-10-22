@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Empire imports
 from lib.common import helpers
 
@@ -59,7 +60,7 @@ class Listener:
 
         for key in self.options:
             if self.options[key]['Required'] and (str(self.options[key]['Value']).strip() == ''):
-                print helpers.color("[!] Option \"%s\" is required." % (key))
+                print(helpers.color("[!] Option \"%s\" is required." % (key)))
                 return False
 
         return True
@@ -71,7 +72,7 @@ class Listener:
         """
 
         if not language or language.lower() != 'powershell':
-            print helpers.color('[!] listeners/http generate_launcher(): only PowerShell is supported at this time')
+            print(helpers.color('[!] listeners/http generate_launcher(): only PowerShell is supported at this time'))
             return None
 
         if listenerName and (listenerName in self.mainMenu.listeners.activeListeners):
@@ -85,7 +86,7 @@ class Listener:
             try:
                 f = open(moduleSourcePath, 'r')
             except:
-                print helpers.color("[!] Could not read module source path at: %s" % (moduleSourcePath))
+                print(helpers.color("[!] Could not read module source path at: %s" % (moduleSourcePath)))
                 return ''
             script = f.read()
             f.close()
@@ -106,14 +107,14 @@ class Listener:
             return script
 
         else:
-            print helpers.color("[!] listeners/meterpreter generate_launcher(): invalid listener name specification!")
+            print(helpers.color("[!] listeners/meterpreter generate_launcher(): invalid listener name specification!"))
 
 
     def generate_stager(self, encode=False, encrypt=True, obfuscate=False, obfuscationCommand="", language=None):
         """
         Nothing to actually generate here for foreign listeners.
         """
-        print "generate_stager() not applicable for listeners/meterpreter"
+        print("generate_stager() not applicable for listeners/meterpreter")
         pass
 
 
@@ -121,7 +122,7 @@ class Listener:
         """
         Nothing to actually generate here for foreign listeners.
         """
-        print "generate_stager() not applicable for listeners/meterpreter"
+        print("generate_stager() not applicable for listeners/meterpreter")
         pass
 
 
@@ -142,9 +143,9 @@ class Listener:
                 # send_message()
                 pass
             else:
-                print helpers.color("[!] listeners/meterpreter generate_comms(): invalid language specification, only 'powershell' and 'python' are current supported for this module.")
+                print(helpers.color("[!] listeners/meterpreter generate_comms(): invalid language specification, only 'powershell' and 'python' are current supported for this module."))
         else:
-            print helpers.color('[!] listeners/meterpreter generate_comms(): no language specified!')
+            print(helpers.color('[!] listeners/meterpreter generate_comms(): no language specified!'))
 
 
     def start(self, name=''):

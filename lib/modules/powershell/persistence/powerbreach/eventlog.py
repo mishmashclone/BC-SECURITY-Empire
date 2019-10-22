@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 from lib.common import helpers
 import pdb
@@ -119,7 +120,7 @@ Invoke-EventLogBackdoor"""
 
         if not self.mainMenu.listeners.is_listener_valid(listenerName):
             # not a valid listener, return nothing for the script
-            print helpers.color("[!] Invalid listener: " + listenerName)
+            print(helpers.color("[!] Invalid listener: " + listenerName))
             return ""
 
         else:
@@ -156,7 +157,7 @@ Invoke-EventLogBackdoor"""
             f.write(script)
             f.close()
 
-            print helpers.color("[+] PowerBreach deaduser backdoor written to " + outFile)
+            print(helpers.color("[+] PowerBreach deaduser backdoor written to " + outFile))
             return ""
 
         if obfuscate:
@@ -173,6 +174,6 @@ Invoke-EventLogBackdoor"""
         if obfuscate:
             scriptLauncher = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptLauncher, obfuscationCommand=obfuscationCommand)
 
-        print scriptLauncher
+        print(scriptLauncher)
         
         return scriptLauncher

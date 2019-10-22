@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 
 class Module:
@@ -101,7 +102,7 @@ class Module:
         launcher = launcher.replace("'", "\\'")
         launcher = launcher.replace('"', '\\"')
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
         script = """
 import os

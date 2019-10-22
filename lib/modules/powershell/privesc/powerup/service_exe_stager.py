@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 
 class Module:
@@ -91,7 +92,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -123,7 +124,7 @@ class Module:
         scriptEnd += "\"Launcher bat written to $tempLoc `n\";\n"
   
         if launcherCode == "":
-            print helpers.color("[!] Error in launcher .bat generation.")
+            print(helpers.color("[!] Error in launcher .bat generation."))
             return ""
         else:
             scriptEnd += "\nInstall-ServiceBinary -ServiceName \""+str(serviceName)+"\" -Command \"C:\\Windows\\System32\\cmd.exe /C $tempLoc\""    

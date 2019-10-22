@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sqlite3, os, string, hashlib, random
 
 
@@ -175,4 +176,4 @@ c.execute('''CREATE TABLE "reporting" (
 conn.commit()
 conn.close()
 
-print "\n [*] Database setup completed!\n"
+print("\n [*] Database setup completed!\n")

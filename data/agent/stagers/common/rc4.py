@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import struct
 
@@ -102,11 +103,11 @@ def parse_routing_packet(stagingKey, data):
             return results
 
         else:
-            print "[*] parse_agent_data() data length incorrect: %s" % (len(data))
+            print("[*] parse_agent_data() data length incorrect: %s" % (len(data)))
             return None
 
     else:
-        print "[*] parse_agent_data() data is None"
+        print("[*] parse_agent_data() data is None")
         return None
 
 

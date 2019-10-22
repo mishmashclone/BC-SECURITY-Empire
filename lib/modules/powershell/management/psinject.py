@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 import base64
 
@@ -90,7 +91,7 @@ class Module:
         procName = self.options['ProcName']['Value'].strip()
 
         if procID == '' and procName == '':
-            print helpers.color("[!] Either ProcID or ProcName must be specified.")
+            print(helpers.color("[!] Either ProcID or ProcName must be specified."))
             return ''
 
         # staging options
@@ -106,7 +107,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -116,17 +117,17 @@ class Module:
         scriptEnd = ""
         if not self.mainMenu.listeners.is_listener_valid(listenerName):
             # not a valid listener, return nothing for the script
-            print helpers.color("[!] Invalid listener: %s" %(listenerName))
+            print(helpers.color("[!] Invalid listener: %s" %(listenerName)))
             return ''
         else:
             # generate the PowerShell one-liner with all of the proper options set
             launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
 
             if launcher == '':
-                print helpers.color('[!] Error in launcher generation.')
+                print(helpers.color('[!] Error in launcher generation.'))
                 return ''
             elif len(launcher) > 5952:
-                print helpers.color("[!] Launcher string is too long!")
+                print(helpers.color("[!] Launcher string is too long!"))
                 return ''
             else:
                 launcherCode = launcher.split(' ')[-1]

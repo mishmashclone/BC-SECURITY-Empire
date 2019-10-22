@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 from lib.common import helpers
 import pdb
@@ -98,7 +99,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -111,7 +112,7 @@ class Module:
         listenerName = self.options['Listener']['Value']
         if listenerName != "":
             if not self.mainMenu.listeners.is_listener_valid(listenerName):
-                print helpers.color("[!] Invalid listener: " + listenerName)
+                print(helpers.color("[!] Invalid listener: " + listenerName))
                 return ""
             else:
                 # TODO: redo pulling these listener configs...

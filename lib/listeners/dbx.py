@@ -1,3 +1,4 @@
+from __future__ import print_function
 import base64
 import random
 import os
@@ -153,7 +154,7 @@ class Listener:
 
         for key in self.options:
             if self.options[key]['Required'] and (str(self.options[key]['Value']).strip() == ''):
-                print helpers.color("[!] Option \"%s\" is required." % (key))
+                print(helpers.color("[!] Option \"%s\" is required." % (key)))
                 return False
 
         return True
@@ -165,7 +166,7 @@ class Listener:
         """
 
         if not language:
-            print helpers.color('[!] listeners/dbx generate_launcher(): no language specified!')
+            print(helpers.color('[!] listeners/dbx generate_launcher(): no language specified!'))
 
         if listenerName and (listenerName in self.threads) and (listenerName in self.mainMenu.listeners.activeListeners):
 
@@ -284,7 +285,7 @@ class Listener:
                         launcherBase += "   sys.exit()\n"
                 except Exception as e:
                     p = "[!] Error setting LittleSnitch in stager: " + str(e)
-                    print helpers.color(p, color='red')
+                    print(helpers.color(p, color='red'))
 
                 if userAgent.lower() == 'default':
                     profile = listenerOptions['DefaultProfile']['Value']
@@ -351,7 +352,7 @@ class Listener:
                     return launcherBase
 
         else:
-            print helpers.color("[!] listeners/dbx generate_launcher(): invalid listener name specification!")
+            print(helpers.color("[!] listeners/dbx generate_launcher(): invalid listener name specification!"))
 
 
     def generate_stager(self, listenerOptions, encode=False, encrypt=True, language=None):
@@ -360,7 +361,7 @@ class Listener:
         """
 
         if not language:
-            print helpers.color('[!] listeners/dbx generate_stager(): no language specified!')
+            print(helpers.color('[!] listeners/dbx generate_stager(): no language specified!'))
             return None
 
         pollInterval = listenerOptions['PollInterval']['Value']
@@ -439,7 +440,7 @@ class Listener:
                 return stager
 
         else:
-            print helpers.color("[!] listeners/http generate_stager(): invalid language specification, only 'powershell' and 'python' are currently supported for this module.")
+            print(helpers.color("[!] listeners/http generate_stager(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
 
 
     def generate_agent(self, listenerOptions, language=None):
@@ -448,7 +449,7 @@ class Listener:
         """
 
         if not language:
-            print helpers.color('[!] listeners/dbx generate_agent(): no language specified!')
+            print(helpers.color('[!] listeners/dbx generate_agent(): no language specified!'))
             return None
 
         language = language.lower()
@@ -511,7 +512,7 @@ class Listener:
 
             return code
         else:
-            print helpers.color("[!] listeners/dbx generate_agent(): invalid language specification,  only 'powershell' and 'python' are currently supported for this module.")
+            print(helpers.color("[!] listeners/dbx generate_agent(): invalid language specification,  only 'powershell' and 'python' are currently supported for this module."))
 
 
     def generate_comms(self, listenerOptions, language=None):
@@ -724,7 +725,7 @@ def send_message(packets=None):
                 sendMessage = sendMessage.replace('REPLACE_API_TOKEN', apiToken)
                 return sendMessage
         else:
-            print helpers.color('[!] listeners/dbx generate_comms(): no language specified!')
+            print(helpers.color('[!] listeners/dbx generate_comms(): no language specified!'))
 
 
     def start_server(self, listenerOptions):
@@ -838,7 +839,7 @@ def send_message(packets=None):
         try:
             dbx.users_get_current_account()
         except dropbox.exceptions.AuthError as err:
-            print helpers.color("[!] ERROR: Invalid access token; try re-generating an access token from the app console on the web.")
+            print(helpers.color("[!] ERROR: Invalid access token; try re-generating an access token from the app console on the web."))
             return False
 
         # setup the base folder structure we need
@@ -883,7 +884,7 @@ def send_message(packets=None):
             dbx.files_upload(stagerCodeps, "%s/debugps" % (stagingFolder))
             dbx.files_upload(stagerCodepy, "%s/debugpy" % (stagingFolder))
         except dropbox.exceptions.ApiError:
-            print helpers.color("[!] Error uploading stager to '%s/stager'" % (stagingFolder))
+            print(helpers.color("[!] Error uploading stager to '%s/stager'" % (stagingFolder)))
             return
 
         while True:
@@ -1126,8 +1127,8 @@ def send_message(packets=None):
         """
 
         if name and name != '':
-            print helpers.color("[!] Killing listener '%s'" % (name))
+            print(helpers.color("[!] Killing listener '%s'" % (name)))
             self.threads[name].kill()
         else:
-            print helpers.color("[!] Killing listener '%s'" % (self.options['Name']['Value']))
+            print(helpers.color("[!] Killing listener '%s'" % (self.options['Name']['Value'])))
             self.threads[self.options['Name']['Value']].kill()

@@ -18,6 +18,7 @@ Includes:
     DiffieHellman()             -   Mark Loiseau's DiffieHellman implementation, see ./data/licenses/ for license info
 
 """
+from __future__ import print_function
 
 import base64
 import hashlib

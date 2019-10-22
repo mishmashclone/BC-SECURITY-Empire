@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 from lib.common import pylnk
 
@@ -120,7 +121,7 @@ class Stager:
         launcher = launcher.replace('powershell.exe ','',1)
 
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
         else:
             link = pylnk.for_file(powershellPath,launcher,lnkName,lnkIcon,lnkComment)

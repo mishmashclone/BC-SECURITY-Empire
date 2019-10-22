@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 
 
@@ -109,7 +110,7 @@ class Module:
 
         launcher = self.mainMenu.stagers.generate_launcher(listenername, language='python', userAgent=userAgent, safeChecks=safeChecks)
 	if launcher == "":
-		print helpers.color("[!] Error in launcher generation")
+		print(helpers.color("[!] Error in launcher generation"))
 	launcher = launcher.replace("\"","\\\"")
 	fullPath = self.options['WriteablePath']['Value'] + self.options['FileName']['Value']
         fileName = self.options['FileName']['Value']

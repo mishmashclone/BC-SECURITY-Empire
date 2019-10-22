@@ -13,10 +13,12 @@ The Stagers() class in instantiated in ./empire.py by the main menu and includes
     generate_dylib() - generates a dylib with an embedded python interpreter and runs launcher code when loaded into an application
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 import fnmatch
 import imp
-import helpers
+from . import helpers
 import errno
 import os
 import errno
@@ -25,7 +27,7 @@ import shutil
 import zipfile
 import subprocess
 from itertools import izip, cycle
-from ShellcodeRDI import *
+from .ShellcodeRDI import *
 import base64
 
 
@@ -51,7 +53,7 @@ class Stagers:
         rootPath = "%s/lib/stagers/" % (self.mainMenu.installPath)
         pattern = '*.py'
 
-        print helpers.color("[*] Loading stagers from: %s" % (rootPath))
+        print(helpers.color("[*] Loading stagers from: %s" % (rootPath)))
 
         for root, dirs, files in os.walk(rootPath):
             for filename in fnmatch.filter(files, pattern):
@@ -94,7 +96,7 @@ class Stagers:
         """
 
         if not listenerName in self.mainMenu.listeners.activeListeners:
-            print helpers.color("[!] Invalid listener: %s" % (listenerName))
+            print(helpers.color("[!] Invalid listener: %s" % (listenerName)))
             return ''
 
         activeListener = self.mainMenu.listeners.activeListeners[listenerName]
@@ -132,7 +134,7 @@ class Stagers:
                 return dllPatched
 
         else:
-            print helpers.color("[!] Original .dll for arch %s does not exist!" % (arch))
+            print(helpers.color("[!] Original .dll for arch %s does not exist!" % (arch)))
 
     def generate_shellcode(self, poshCode, arch):
         """
@@ -164,7 +166,7 @@ class Stagers:
                 return sc 
         
         else:
-            print helpers.color("[!] Original .dll for arch {} does not exist!".format(arch))
+            print(helpers.color("[!] Original .dll for arch {} does not exist!".format(arch)))
                 
 
 
@@ -179,7 +181,7 @@ class Stagers:
         macho = macholib.MachO.MachO(f.name)
 
         if int(macho.headers[0].header.filetype) != MH_EXECUTE:
-            print helpers.color("[!] Macho binary template is not the correct filetype")
+            print(helpers.color("[!] Macho binary template is not the correct filetype"))
             return ""
 
         cmds = macho.headers[0].commands
@@ -208,7 +210,7 @@ class Stagers:
 
             return patchedMachO
         else:
-            print helpers.color("[!] Unable to patch MachO binary")
+            print(helpers.color("[!] Unable to patch MachO binary"))
 
 
     def generate_dylib(self, launcherCode, arch, hijacker):
@@ -232,7 +234,7 @@ class Stagers:
         macho = macholib.MachO.MachO(f.name)
 
         if int(macho.headers[0].header.filetype) != MH_DYLIB:
-            print helpers.color("[!] Dylib template is not the correct filetype")
+            print(helpers.color("[!] Dylib template is not the correct filetype"))
             return ""
 
         cmds = macho.headers[0].commands
@@ -257,7 +259,7 @@ class Stagers:
 
             return patchedDylib
         else:
-            print helpers.color("[!] Unable to patch dylib")
+            print(helpers.color("[!] Unable to patch dylib"))
 
 
     def generate_appbundle(self, launcherCode, Arch, icon, AppName, disarm):
@@ -278,7 +280,7 @@ class Stagers:
         macho = macholib.MachO.MachO(f.name)
 
         if int(macho.headers[0].header.filetype) != MH_EXECUTE:
-            print helpers.color("[!] Macho binary template is not the correct filetype")
+            print(helpers.color("[!] Macho binary template is not the correct filetype"))
             return ""
 
         cmds = macho.headers[0].commands
@@ -318,7 +320,7 @@ class Stagers:
                 t.close()
 
             os.rename(tmpdir + "Contents/MacOS/launcher",tmpdir + "Contents/MacOS/%s" % AppName)
-            os.chmod(tmpdir+"Contents/MacOS/%s" % AppName, 0755)
+            os.chmod(tmpdir+"Contents/MacOS/%s" % AppName, 0o755)
 
             if icon != '':
                 iconfile = os.path.splitext(icon)[0].split('/')[-1]
@@ -399,7 +401,7 @@ class Stagers:
 
 
         else:
-            print helpers.color("[!] Unable to patch application")
+            print(helpers.color("[!] Unable to patch application"))
 
     def generate_pkg(self, launcher, bundleZip, AppName):
 

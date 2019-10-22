@@ -3,8 +3,10 @@
 Credential handling functionality for Empire.
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
-import helpers
+from . import helpers
 import os
 # import sqlite3
 
@@ -136,7 +138,7 @@ class Credentials:
         """
 
         if export_path == '':
-            print helpers.color("[!] Export path cannot be ''")
+            print(helpers.color("[!] Export path cannot be ''"))
 
         export_path += ".csv"
 
@@ -153,7 +155,7 @@ class Credentials:
         creds = self.get_credentials()
 
         if len(creds) == 0:
-            print helpers.color("[!] No credentials in the database.")
+            print(helpers.color("[!] No credentials in the database."))
             return
 
         output_file = open(export_path, 'w')
@@ -161,5 +163,5 @@ class Credentials:
         for cred in creds:
             output_file.write("\"%s\"\n" % ('","'.join([str(x) for x in cred])))
 
-        print "\n" + helpers.color("[*] Credentials exported to %s\n" % (export_path))
+        print("\n" + helpers.color("[*] Credentials exported to %s\n" % (export_path)))
         output_file.close()

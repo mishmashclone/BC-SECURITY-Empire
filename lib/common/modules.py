@@ -6,12 +6,14 @@ Right now, just loads up all modules from the
 install path in the common config.
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 import fnmatch
 import os
 import imp
-import messages
-import helpers
+from . import messages
+from . import helpers
 
 
 class Modules:
@@ -41,7 +43,7 @@ class Modules:
             rootPath = "%s/lib/modules/" % (self.mainMenu.installPath)
 
         pattern = '*.py'
-        print helpers.color("[*] Loading modules from: %s" % (rootPath))
+        print(helpers.color("[*] Loading modules from: %s" % (rootPath)))
          
         for root, dirs, files in os.walk(rootPath):
             for filename in fnmatch.filter(files, pattern):
@@ -90,7 +92,7 @@ class Modules:
         Search currently loaded module names and descriptions.
         """
 
-        print ''
+        print('')
 
         for moduleName, module in self.modules.iteritems():
 

@@ -1,5 +1,6 @@
 """ Implements Diffie-Hellman as a Jinja2 partial for use in stagers
 DH code from: https://github.com/lowazo/pyDHE """
+from __future__ import print_function
 
 import os
 import hashlib

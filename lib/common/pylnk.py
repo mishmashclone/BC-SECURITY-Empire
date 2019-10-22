@@ -21,6 +21,7 @@
 # not as clean as i wished
 # cannibal: @theguly
 
+from __future__ import print_function
 import sys, os, time, re
 from struct import pack, unpack
 from pprint import pformat,PrettyPrinter
@@ -269,7 +270,7 @@ class Flags(object):
         return object.__getattribute__(self, '_flags')[key]
     
     def __setitem__(self, key, value):
-        if not self._flags.has_key(key):
+        if key not in self._flags:
             raise KeyError("The key '%s' is not defined for those flags." % key)
         self._flags[key] = value
     
@@ -277,9 +278,9 @@ class Flags(object):
         return object.__getattribute__(self, '_flags')[key]
     
     def __setattr__(self, key, value):
-        if not self.__dict__.has_key('_flags'):
+        if '_flags' not in self.__dict__:
             object.__setattr__(self, key, value)
-        elif self.__dict__.has_key(key):
+        elif key in self.__dict__:
             object.__setattr__(self, key, value)
         else:
             self.__setitem__(key, value)
@@ -524,7 +525,7 @@ class LinkInfo(object):
             self.offs_network_volume_table = read_int(lnk)
             self.offs_base_name = read_int(lnk)
             if self.header_size >= _LINK_INFO_HEADER_OPTIONAL:
-                print "TODO: read the unicode stuff" # TODO: read the unicode stuff
+                print("TODO: read the unicode stuff") # TODO: read the unicode stuff
             self._parse_path_elements(lnk)
         else:
             self.size = None

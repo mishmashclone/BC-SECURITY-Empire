@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 class Module:
 
@@ -160,7 +161,7 @@ Invoke-Redirector"""
             if option.lower() == "listener" and values['Value'] != '':
                 # extract out all options from a listener if one is set
                 if not self.mainMenu.listeners.is_listener_valid(values['Value']):
-                    print helpers.color("[!] Invalid listener set")
+                    print(helpers.color("[!] Invalid listener set"))
                     return ""
                 else:
                     listenerName = values['Value']
@@ -186,9 +187,9 @@ Invoke-Redirector"""
                 agent = self.options['Agent']['Value']
                 port = self.options['ListenPort']['Value']
                 self.mainMenu.listeners.add_pivot_listener(listenerName, agent, port)
-                print helpers.color("[*] Added pivot listener on port " + str(port))
+                print(helpers.color("[*] Added pivot listener on port " + str(port)))
             else:
-                print helpers.color("[!] Listener not set, pivot listener not added.")
+                print(helpers.color("[!] Listener not set, pivot listener not added."))
                 return ""
         if obfuscate:
             script = helpers.obfuscate(psScript=script, obfuscationCommand=obfuscationCommand)

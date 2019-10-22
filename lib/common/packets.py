@@ -58,6 +58,7 @@ HMACc = first 10 bytes of a SHA256 HMAC using the client's session key
             [X...]     - tasking data
 
 """
+from __future__ import absolute_import
 
 import struct
 import base64
@@ -68,7 +69,7 @@ import json
 from pydispatch import dispatcher
 
 # Empire imports
-import encryption
+from . import encryption
 
 # 0         -> error
 # 1-99      -> standard functionality

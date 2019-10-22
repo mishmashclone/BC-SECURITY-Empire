@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 
 class Stager:
@@ -101,11 +102,11 @@ class Stager:
 
         launcher_array=launcher.split()
         if len(launcher_array) > 1:
-            print helpers.color("[*] Removing Launcher String")
+            print(helpers.color("[*] Removing Launcher String"))
             launcher = launcher_array[-1]
 
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
         else:
                 code ="<Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">"

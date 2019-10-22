@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 
 class Module:
@@ -102,7 +103,7 @@ class Module:
         ServerType = self.options['ServerType']['Value']
         Loginacc = self.options['Loginacc']['Value']
         Loginpass = self.options['Loginpass']['Value']
-        print helpers.color("[+] Initiated using passwords: " + str(Passlist))
+        print(helpers.color("[+] Initiated using passwords: " + str(Passlist)))
 
 
         # if you're reading in a large, external script that might be updates,
@@ -115,7 +116,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -138,5 +139,5 @@ class Module:
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-        print helpers.color("[+] Command: " + str(scriptEnd))
+        print(helpers.color("[+] Command: " + str(scriptEnd)))
         return script

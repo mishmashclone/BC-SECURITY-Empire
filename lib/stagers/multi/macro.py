@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 import re
 
@@ -139,7 +140,7 @@ class Stager:
         pylauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="python", encode=True, userAgent=userAgent, safeChecks=safeChecks)
 
         if pylauncher == "":
-            print helpers.color("[!] Error in python launcher command generation.")
+            print(helpers.color("[!] Error in python launcher command generation."))
             return ""
 
         # render python launcher into python payload
@@ -151,7 +152,7 @@ class Stager:
         poshlauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="powershell", encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool)
 
         if poshlauncher == "":
-            print helpers.color("[!] Error in powershell launcher command generation.")
+            print(helpers.color("[!] Error in powershell launcher command generation."))
             return ""
 
         # render powershell launcher into powershell payload

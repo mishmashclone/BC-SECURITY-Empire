@@ -1,3 +1,4 @@
+from __future__ import print_function
 from lib.common import helpers
 
 class Stager:
@@ -69,7 +70,7 @@ class Stager:
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, userAgent=userAgent, safeChecks=SafeChecks)
         
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
         else:
             launcher = launcher.replace('"','\\"')

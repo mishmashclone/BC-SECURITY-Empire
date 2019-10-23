@@ -1,22 +1,35 @@
 # Empire
 
-## While the main fork for Empire is no longer maintained, this fork is maintained by BC-Security and will continue to receive periodic updates.
+## While the main fork for Empire is no longer maintained, this fork is maintained by [BC-Security](https://www.bc-security.org) and will continue to receive periodic updates.
 
 Empire is a post-exploitation framework that includes a pure-PowerShell2.0 Windows agent, and a pure Python 2.6/2.7 Linux/OS X agent. It is the merge of the previous PowerShell Empire and Python EmPyre projects. The framework offers cryptologically-secure communications and a flexible architecture. On the PowerShell side, Empire implements the ability to run PowerShell agents without needing powershell.exe, rapidly deployable post-exploitation modules ranging from key loggers to Mimikatz, and adaptable communications to evade network detection, all wrapped up in a usability-focused framework. PowerShell Empire premiered at [BSidesLV in 2015](https://www.youtube.com/watch?v=Pq9t59w0mUI) and Python EmPyre premeiered at HackMiami 2016.
 
 Empire relies heavily on the work from several other projects for its underlying functionality. We have tried to call out a few of those people we've interacted with [heavily here](http://www.powershellempire.com/?page_id=2) and have included author/reference link information in the source of each Empire module as appropriate. If we have failed to improperly cite existing or prior work, please let us know.
 
-Empire is developed by [@harmj0y](https://twitter.com/harmj0y), [@sixdub](https://twitter.com/sixdub), [@enigma0x3](https://twitter.com/enigma0x3), [@rvrsh3ll](https://twitter.com/424f424f), [@killswitch_gui](https://twitter.com/killswitch_gui), and [@xorrior](https://twitter.com/xorrior).
+Empire is developed by [@harmj0y](https://twitter.com/harmj0y), [@sixdub](https://twitter.com/sixdub), [@enigma0x3](https://twitter.com/enigma0x3), [@rvrsh3ll](https://twitter.com/424f424f), [@killswitch_gui](https://twitter.com/killswitch_gui), [@xorrior](https://twitter.com/xorrior), and [@bcsecurity1](https://twitter.com/BCSecurity1).
 
 ## Install
 
-To install, run `sudo ./setup/install.sh` script or use the corresponding docker image `docker pull empireproject/empire`.
+To install and run:
+
+```sh
+git clone https://github.com/BC-SECURITY/Empire.git
+cd Empire
+sudo ./setup/install.sh
+```
 
 There's also a [quickstart here](http://www.powershellempire.com/?page_id=110) and full [documentation here](http://www.powershellempire.com/?page_id=83).
 
 ## Quickstart
 
 Check out the [Empire wiki](https://github.com/EmpireProject/Empire/wiki/Quickstart) for instructions on getting started with Empire.
+
+## To Do List
+
+* Port code to work with Python 3
+* [Invoke-SocksProxy](https://github.com/p3nt4/Invoke-SocksProxy)
+* Function name randomization
+* JA3/S signature randomization
 
 ## Contribution Rules
 

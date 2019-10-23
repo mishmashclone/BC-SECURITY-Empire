@@ -1,8 +1,10 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 import os
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -163,7 +165,7 @@ Invoke-DeadUserBackdoor"""
                 script = script.replace("REPLACE_LAUNCHER", stagerCode)
                 script = script.encode('ascii', 'ignore')
         
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent" and option.lower() != "listener" and option.lower() != "outfile":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":

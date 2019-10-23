@@ -6,11 +6,14 @@ Credential handling functionality for Empire.
 from __future__ import print_function
 from __future__ import absolute_import
 
+from builtins import input
+from builtins import str
+from builtins import object
 from . import helpers
 import os
 # import sqlite3
 
-class Credentials:
+class Credentials(object):
     """
     Class that handles interaction with the backend credential model
     (adding creds, displaying, etc.).
@@ -144,7 +147,7 @@ class Credentials:
 
         if os.path.exists(export_path):
             try:
-                choice = raw_input(helpers.color("\n[>] File %s already exists, overwrite? [y/N] " % (export_path), "red"))
+                choice = input(helpers.color("\n[>] File %s already exists, overwrite? [y/N] " % (export_path), "red"))
                 if choice.lower() != "" and choice.lower()[0] == "y":
                     pass
                 else:

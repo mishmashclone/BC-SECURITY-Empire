@@ -1,7 +1,9 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -144,7 +146,7 @@ class Module:
         # build the golden ticket command        
         scriptEnd = "Invoke-Mimikatz -Command '\"kerberos::golden"
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent" and option.lower() != "credid":
                 if values['Value'] and values['Value'] != '':
                     scriptEnd += " /" + str(option) + ":" + str(values['Value']) 

@@ -1,4 +1,6 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 import logging
 import base64
 import random
@@ -18,7 +20,7 @@ from lib.common import packets
 from lib.common import messages
 
 
-class Listener:
+class Listener(object):
 
     def __init__(self, mainMenu, params=[]):
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from builtins import next
+from builtins import hex
+from builtins import object
 import argparse
 import logging
 import random

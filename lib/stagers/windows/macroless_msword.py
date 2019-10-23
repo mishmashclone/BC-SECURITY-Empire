@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+from builtins import object
 from lib.common import helpers
 import os
 
-class Stager:
+class Stager(object):
 
     def __init__(self, mainMenu, params=[]):
 

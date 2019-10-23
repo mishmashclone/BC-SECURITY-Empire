@@ -1,7 +1,9 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -100,7 +102,7 @@ class Module:
         script = moduleCode + "\n\n"
         scriptEnd = ""
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if option == "4624":

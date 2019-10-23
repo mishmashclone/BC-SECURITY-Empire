@@ -1,6 +1,8 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -157,7 +159,7 @@ Invoke-Redirector"""
         addAsListener = False
         listenerName = False
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() == "listener" and values['Value'] != '':
                 # extract out all options from a listener if one is set
                 if not self.mainMenu.listeners.is_listener_valid(values['Value']):

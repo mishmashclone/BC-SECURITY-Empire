@@ -1,8 +1,10 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -131,7 +133,7 @@ Invoke-Something"""
         scriptEnd = ""
 
         # Add any arguments to the end execution of the script
-        for option, values in self.options.iteritems():
+        for option, values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":

@@ -9,6 +9,7 @@ install path in the common config.
 from __future__ import print_function
 from __future__ import absolute_import
 
+from builtins import object
 import fnmatch
 import os
 import imp
@@ -16,7 +17,7 @@ from . import messages
 from . import helpers
 
 
-class Modules:
+class Modules(object):
 
     def __init__(self, MainMenu, args):
 
@@ -94,7 +95,7 @@ class Modules:
 
         print('')
 
-        for moduleName, module in self.modules.iteritems():
+        for moduleName, module in self.modules.items():
 
             if searchTerm.lower() == '' or searchTerm.lower() in moduleName.lower() or searchTerm.lower() in module.info['Description'].lower():
                 messages.display_module_search(moduleName, module)

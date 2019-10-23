@@ -1,8 +1,10 @@
 from __future__ import print_function
+from builtins import object
 import os
 from lib.common import helpers
 
-class Module:
+
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -62,7 +64,7 @@ class Module:
             'RegPath' : {
                 'Description'   :   'Registry location to store the script code. Last element is the key name.',
                 'Required'      :   False,
-                'Value'         :   'HKCU:\Software\Microsoft\Windows\CurrentVersion\debug'
+                'Value'         :   r'HKCU:\Software\Microsoft\Windows\CurrentVersion\debug'
             },
             'ADSPath' : {
                 'Description'   :   'Alternate-data-stream location to store the script code.',

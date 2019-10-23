@@ -1,4 +1,6 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 import base64
 import random
 import os
@@ -20,7 +22,7 @@ from lib.common import packets
 from lib.common import messages
 from lib.common import bypasses
 
-class Listener:
+class Listener(object):
     def __init__(self, mainMenu, params=[]):
         self.info = {
                 'Name': 'Onedrive',
@@ -622,7 +624,7 @@ class Listener:
         while True:
             #Wait until Empire is aware the listener is running, so we can save our refresh token and stager URL
             try:
-                if listener_name in self.mainMenu.listeners.activeListeners.keys():
+                if listener_name in list(self.mainMenu.listeners.activeListeners.keys()):
                     upload_stager()
                     upload_launcher()
                     break

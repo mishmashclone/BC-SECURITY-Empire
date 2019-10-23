@@ -6,6 +6,9 @@ Listener handling functionality for Empire.
 """
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import filter
+from builtins import str
+from builtins import object
 import sys
 import fnmatch
 import imp
@@ -18,7 +21,7 @@ import json
 
 from pydispatch import dispatcher
 
-class Listeners:
+class Listeners(object):
     """
     Listener handling class.
     """
@@ -75,7 +78,7 @@ class Listeners:
         #         if listenerOption == option:
         #             listener.options[option]['Value'] = str(value)
 
-        for name, listenerObject in self.loadedListeners.iteritems():
+        for name, listenerObject in self.loadedListeners.items():
 
             if (listenerName.lower() == 'all' or listenerName == name) and (option in listenerObject.options):
 
@@ -188,7 +191,7 @@ class Listeners:
             return
 
         i = 1
-        while name in self.activeListeners.keys():
+        while name in list(self.activeListeners.keys()):
             name = "%s%s" % (nameBase, i)
 
         listenerObject.options['Name']['Value'] = name
@@ -240,7 +243,7 @@ class Listeners:
 
 
             i = 1
-            while listenerName in self.activeListeners.keys():
+            while listenerName in list(self.activeListeners.keys()):
                 listenerName = "%s%s" % (nameBase, i)
 
             # unpickle all the listener options
@@ -249,7 +252,7 @@ class Listeners:
             try:
                 listenerModule = self.loadedListeners[moduleName]
 
-                for option, value in options.iteritems():
+                for option, value in options.items():
                     listenerModule.options[option] = value
 
                 print(helpers.color("[*] Starting listener '%s'" % (listenerName)))
@@ -281,7 +284,7 @@ class Listeners:
 
     def enable_listener(self, listenerName):
         "Starts an existing listener and sets it to enabled"
-        if listenerName in self.activeListeners.keys():
+        if listenerName in list(self.activeListeners.keys()):
             print(helpers.color("[!] Listener already running!"))
             return False
 
@@ -298,7 +301,7 @@ class Listeners:
         try:
             listenerModule = self.loadedListeners[moduleName]
 
-            for option, value in options.iteritems():
+            for option, value in options.items():
                 listenerModule.options[option] = value
 
             print(helpers.color("[*] Starting listener '%s'" % (listenerName)))
@@ -333,7 +336,7 @@ class Listeners:
         """
 
         if listenerName.lower() == 'all':
-            listenerNames = self.activeListeners.keys()
+            listenerNames = list(self.activeListeners.keys())
         else:
             listenerNames = [listenerName]
 
@@ -370,7 +373,7 @@ class Listeners:
             self.conn.row_factory = helpers.dict_factory
             cur = self.conn.cursor()
             cur.execute("SELECT name FROM listeners")
-            db_names = map(lambda x: x['name'], cur.fetchall())
+            db_names = [x['name'] for x in cur.fetchall()]
             if listener_name.lower() == "all":
                 names = db_names
             else:
@@ -381,7 +384,7 @@ class Listeners:
                     print(helpers.color("[!] Listener '%s' does not exist!" % name))
                     return False
 
-                if name in self.activeListeners.keys():
+                if name in list(self.activeListeners.keys()):
                     self.shutdown_listener(name)
                 cur.execute("DELETE FROM listeners WHERE name=?", [name])
 
@@ -398,7 +401,7 @@ class Listeners:
         """
 
         if listenerName.lower() == 'all':
-            listenerNames = self.activeListeners.keys()
+            listenerNames = list(self.activeListeners.keys())
         else:
             listenerNames = [listenerName]
 
@@ -511,7 +514,7 @@ class Listeners:
         """
         Return all current listener names.
         """
-        return self.activeListeners.keys()
+        return list(self.activeListeners.keys())
 
     def get_inactive_listeners(self):
         """
@@ -526,7 +529,7 @@ class Listeners:
         db_listeners = cur.fetchall()
 
         inactive_listeners = {}
-        for listener in filter((lambda x: x['name'] not in self.activeListeners.keys()), db_listeners):
+        for listener in filter((lambda x: x['name'] not in list(self.activeListeners.keys())), db_listeners):
             inactive_listeners[listener['name']] = {'moduleName': listener['module'],
                                                     'options': pickle.loads(listener['options'])}
 
@@ -543,7 +546,7 @@ class Listeners:
             cur.execute('SELECT id,options FROM listeners WHERE name=?', [listener_name])
             listener_id, result = cur.fetchone()
             options = pickle.loads(result)
-            if not option_name in options.keys():
+            if not option_name in list(options.keys()):
                 print(helpers.color("[!] Listener %s does not have the option %s" % (listener_name, option_name)))
                 return
             options[option_name]['Value'] = option_value

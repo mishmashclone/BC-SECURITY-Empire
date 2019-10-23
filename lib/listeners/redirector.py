@@ -1,4 +1,6 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 import base64
 import random
 import copy
@@ -12,7 +14,7 @@ from lib.common import packets
 from lib.common import messages
 
 
-class Listener:
+class Listener(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -790,7 +792,7 @@ def send_message(packets=None):
                     # clone the existing listener options
                     self.options = copy.deepcopy(listenerOptions)
 
-                    for option, values in self.options.iteritems():
+                    for option, values in self.options.items():
 
                         if option.lower() == 'name':
                             self.options[option]['Value'] = sessionID
@@ -805,7 +807,7 @@ def send_message(packets=None):
 
 
                     # check to see if there was a host value at all
-                    if "Host" not in self.options.keys():
+                    if "Host" not in list(self.options.keys()):
                         self.options['Host']['Value'] = host
 
                     self.mainMenu.agents.add_agent_task_db(tempOptions['Name']['Value'], "TASK_SHELL", script)

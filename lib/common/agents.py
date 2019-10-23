@@ -58,6 +58,8 @@ Most methods utilize self.lock to deal with the concurreny issue of kicking off 
 from __future__ import print_function
 from __future__ import absolute_import
 # -*- encoding: utf-8 -*-
+from builtins import str
+from builtins import object
 import os
 import json
 import string
@@ -74,7 +76,7 @@ from . import messages
 from . import events
 
 
-class Agents:
+class Agents(object):
     """
     Main class that contains agent handling functionality, including key
     negotiation in process_get() and process_post().
@@ -1266,7 +1268,7 @@ class Agents:
 
             if language.lower() == 'powershell':
                 # strip non-printable characters
-                message = ''.join(filter(lambda x: x in string.printable, message))
+                message = ''.join([x for x in message if x in string.printable])
 
                 # client posts RSA key
                 if (len(message) < 400) or (not message.endswith("</RSAKeyValue>")):
@@ -1421,18 +1423,18 @@ class Agents:
                 })
                 dispatcher.send(signal, sender="agents/{}".format(sessionID))
 
-                listener = unicode(parts[1], 'utf-8')
-                domainname = unicode(parts[2], 'utf-8')
-                username = unicode(parts[3], 'utf-8')
-                hostname = unicode(parts[4], 'utf-8')
-                external_ip = unicode(clientIP, 'utf-8')
-                internal_ip = unicode(parts[5], 'utf-8')
-                os_details = unicode(parts[6], 'utf-8')
-                high_integrity = unicode(parts[7], 'utf-8')
-                process_name = unicode(parts[8], 'utf-8')
-                process_id = unicode(parts[9], 'utf-8')
-                language = unicode(parts[10], 'utf-8')
-                language_version = unicode(parts[11], 'utf-8')
+                listener = str(parts[1], 'utf-8')
+                domainname = str(parts[2], 'utf-8')
+                username = str(parts[3], 'utf-8')
+                hostname = str(parts[4], 'utf-8')
+                external_ip = str(clientIP, 'utf-8')
+                internal_ip = str(parts[5], 'utf-8')
+                os_details = str(parts[6], 'utf-8')
+                high_integrity = str(parts[7], 'utf-8')
+                process_name = str(parts[8], 'utf-8')
+                process_id = str(parts[9], 'utf-8')
+                language = str(parts[10], 'utf-8')
+                language_version = str(parts[11], 'utf-8')
                 if high_integrity == "True":
                     high_integrity = 1
                 else:
@@ -1531,7 +1533,7 @@ class Agents:
         dataToReturn = []
 
         # process each routing packet
-        for sessionID, (language, meta, additional, encData) in routingPacket.iteritems():
+        for sessionID, (language, meta, additional, encData) in routingPacket.items():
 
             if meta == 'STAGE0' or meta == 'STAGE1' or meta == 'STAGE2':
                 message = "[*] handle_agent_data(): sessionID {} issued a {} request".format(sessionID, meta)
@@ -1768,17 +1770,17 @@ class Agents:
             else:
                 print("sysinfo:",data)
                 # extract appropriate system information
-                listener = unicode(parts[1], 'utf-8')
-                domainname = unicode(parts[2], 'utf-8')
-                username = unicode(parts[3], 'utf-8')
-                hostname = unicode(parts[4], 'utf-8')
-                internal_ip = unicode(parts[5], 'utf-8')
-                os_details = unicode(parts[6], 'utf-8')
-                high_integrity = unicode(parts[7], 'utf-8')
-                process_name = unicode(parts[8], 'utf-8')
-                process_id = unicode(parts[9], 'utf-8')
-                language = unicode(parts[10], 'utf-8')
-                language_version = unicode(parts[11], 'utf-8')
+                listener = str(parts[1], 'utf-8')
+                domainname = str(parts[2], 'utf-8')
+                username = str(parts[3], 'utf-8')
+                hostname = str(parts[4], 'utf-8')
+                internal_ip = str(parts[5], 'utf-8')
+                os_details = str(parts[6], 'utf-8')
+                high_integrity = str(parts[7], 'utf-8')
+                process_name = str(parts[8], 'utf-8')
+                process_id = str(parts[9], 'utf-8')
+                language = str(parts[10], 'utf-8')
+                language_version = str(parts[11], 'utf-8')
                 if high_integrity == 'True':
                     high_integrity = 1
                 else:

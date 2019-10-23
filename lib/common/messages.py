@@ -8,6 +8,8 @@ Titles, agent displays, listener displays, etc.
 from __future__ import print_function
 from __future__ import absolute_import
 
+from builtins import str
+from builtins import range
 import os
 import time
 import textwrap
@@ -28,10 +30,9 @@ def title(version):
     """
     os.system('clear')
     print("================================================================================")
-    # print ' [Empire]  PowerShell/Python post-exploitation framework'
-    print(" [Empire]  Post-Exploitation Framework test1")
+    print(" [Empire]  Post-Exploitation Framework")
     print('================================================================================')
-    print(" [Version] %s | [Web] https://github.com/BC-SECURITY/DEFCON27" % (version))
+    print(" [Version] %s | [Web] https://github.com/BC-SECURITY/Empire" % (version))
     print('================================================================================')
     print("""
    _______ .___  ___. .______    __  .______       _______
@@ -136,7 +137,7 @@ def wrap_columns(col1, col2, width1=24, width2=40, indent=31):
 
     limit = max(len(lines1), len(lines2))
 
-    for x in xrange(limit):
+    for x in range(limit):
 
         if x < len(lines1):
             if x != 0:
@@ -225,13 +226,13 @@ def display_agent(agent, returnAsString=False):
 
     if returnAsString:
         agentString = "\n[*] Agent info:\n"
-        for key, value in agent.iteritems():
+        for key, value in agent.items():
             if key != 'functions' and key != 'takings' and key != 'results':
                 agentString += "  %s\t%s\n" % ('{0: <16}'.format(key), wrap_string(value, width=70))
         return agentString + '\n'
     else:
         print(helpers.color("\n[*] Agent info:\n"))
-        for key, value in agent.iteritems():
+        for key, value in agent.items():
             if key != 'functions' and key != 'takings' and key != 'results':
                 print("\t%s\t%s" % (helpers.color('{0: <16}'.format(key), "blue"), wrap_string(value, width=70)))
         print('')
@@ -249,7 +250,7 @@ def display_listeners(listeners, type = "Active"):
         print("  Name              Module          Host                                 Delay/Jitter   KillDate")
         print("  ----              ------          ----                                 ------------   --------")
 
-        for listenerName, listener in listeners.iteritems():
+        for listenerName, listener in listeners.items():
 
             moduleName = listener['moduleName']
             if 'Host' in listener['options']:
@@ -295,7 +296,7 @@ def display_active_listener(listener):
     print("  Name              Required    Value                            Description")
     print("  ----              --------    -------                          -----------")
 
-    for option, values in listener['options'].iteritems():
+    for option, values in listener['options'].items():
         # if there's a long value length, wrap it
         if len(str(values['Value'])) > 33:
             print("  %s%s%s" % ('{0: <18}'.format(option), '{0: <12}'.format(("True" if values['Required'] else "False")), '{0: <33}'.format(wrap_string(values['Value'], width=32, indent=32, followingHeader=values['Description']))))
@@ -343,7 +344,7 @@ def display_listener_module(listener):
     print("  Name              Required    Value                            Description")
     print("  ----              --------    -------                          -----------")
 
-    for option, values in listener.options.iteritems():
+    for option, values in listener.options.items():
         # if there's a long value length, wrap it
         if len(str(values['Value'])) > 33:
             print("  %s%s%s" % ('{0: <18}'.format(option), '{0: <12}'.format(("True" if values['Required'] else "False")), '{0: <33}'.format(wrap_string(values['Value'], width=32, indent=32, followingHeader=values['Description']))))
@@ -373,7 +374,7 @@ def display_stager(stager):
         print("  Name             Required    Value             Description")
         print("  ----             --------    -------           -----------")
 
-        for option, values in stager.options.iteritems():
+        for option, values in stager.options.items():
             print("  %s%s%s%s" % ('{0: <17}'.format(option), '{0: <12}'.format(("True" if values['Required'] else "False")), '{0: <18}'.format(values['Value']), wrap_string(values['Description'], indent=49)))
 
     print("\n")
@@ -428,13 +429,13 @@ def display_module(moduleName, module):
     if module.options:
 
         # get the size for the first column
-        maxNameLen = len(max(module.options.keys(), key=len))
+        maxNameLen = len(max(list(module.options.keys()), key=len))
 
         print("\nOptions:\n")
         print("  %sRequired    Value                     Description" %('{:<{}s}'.format("Name", maxNameLen+1)))
         print("  %s--------    -------                   -----------" %('{:<{}s}'.format("----", maxNameLen+1)))
 
-        for option, values in module.options.iteritems():
+        for option, values in module.options.items():
             print("  %s%s%s" % ('{:<{}s}'.format(str(option), maxNameLen+1), '{0: <12}'.format(("True" if values['Required'] else "False")), wrap_columns(str(values['Value']), str(values['Description']), indent=(31 + (maxNameLen-16)))))
 
     print('')

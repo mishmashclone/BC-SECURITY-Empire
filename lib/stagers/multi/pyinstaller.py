@@ -1,4 +1,6 @@
 from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 import os
 
@@ -20,7 +22,7 @@ Install steps...
 
 """
 
-class Stager:
+class Stager(object):
 
 	def __init__(self, mainMenu, params=[]):
 

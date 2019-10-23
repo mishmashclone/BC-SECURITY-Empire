@@ -9,6 +9,7 @@ import sqlite3
 
 from . import helpers
 
+
 def connect_to_db():
     try:
         # set the database connectiont to autocommit w/ isolation level
@@ -16,10 +17,11 @@ def connect_to_db():
         conn.text_factory = str
         conn.isolation_level = None
         return conn
-
+    
     except Exception:
         print(helpers.color("[!] Could not connect to database"))
         print(helpers.color("[!] Please run database_setup.py"))
         sys.exit()
+
 
 db = connect_to_db()

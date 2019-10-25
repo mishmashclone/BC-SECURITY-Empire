@@ -14,9 +14,9 @@ import ast
 from lib.common import empire, helpers
 
 # if running in python 2.7 set global utf8 encoding otherwise python 3 is already UTF-8 by default
-if sys.version[0] == '2':
-    reload(sys)
-    sys.setdefaultencoding("utf-8")
+#if sys.version[0] == '2':
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 global serverExitCommand
 serverExitCommand = 'restart'

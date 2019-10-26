@@ -360,10 +360,8 @@ def build_routing_packet(stagingKey, sessionID, language, meta="NONE", additiona
     stagingKey = bytes(stagingKey)
     key = RC4IV + stagingKey
     rc4EncData = encryption.rc4(key, data)
-    print('packets.py: 358')
     # return an rc4 encyption of the routing packet, append an HMAC of the packet, then the actual encrypted data
     packet = RC4IV + bytes(rc4EncData) + bytes(encData)
-    print("packets.py: build packet return")
     return packet
 
 

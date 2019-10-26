@@ -80,7 +80,7 @@ def pad(data):
     """
     
     pad = 16 - (len(data) % 16)
-    return data + to_bufferable(chr(pad) * pad)
+    return data + to_bufferable(chr(pad).encode('latin-1') * pad)
     
     # return str(s) + chr(16 - len(str(s)) % 16) * (16 - len(str(s)) % 16)
 
@@ -137,6 +137,8 @@ def aes_encrypt(key, data):
     Generate a random IV and new AES cipher object with the given
     key, and return IV + encryptedData.
     """
+    key = bytes(key, 'latin-1')
+    data = bytes(data, 'latin-1')
     backend = default_backend()
     IV = os.urandom(16)
     cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)
@@ -149,8 +151,10 @@ def aes_encrypt_then_hmac(key, data):
     """
     Encrypt the data then calculate HMAC over the ciphertext.
     """
+    key = bytes(key, 'latin-1')
+    data = bytes(data, 'latin-1')
     data = aes_encrypt(key, data)
-    mac = hmac.new(str(key), data, hashlib.sha256).digest()
+    mac = hmac.new(key, data, hashlib.sha256).digest()
     return data + mac[0:10]
 
 
@@ -172,22 +176,14 @@ def verify_hmac(key, data):
     """
     Verify the HMAC supplied in the data with the given key.
     """
-    print('encryption.py(verify_hmac): line 175')
     key = bytes(key, 'latin-1')
-    print("Key type: " + str(type(key)))
-    print('data type: ' + str(type(data)))
     
     if len(data) > 20:
         mac = data[-10:]
         data = data[:-10]
-        print("mac type: " + str(type(mac)))
-        print('data type: ' + str(type(data)))
         expected = hmac.new(key, data, hashlib.sha256).digest()[0:10]
         # Double HMAC to prevent timing attacks. hmac.compare_digest() is
         # preferable, but only available since Python 2.7.7.
-        print('verify_hmac: line 182')
-        print(hmac.new(key, expected).digest() == hmac.new(key, mac).digest())
-        print('returning')
         return hmac.new(key, expected).digest() == hmac.new(key, mac).digest()
     else:
         return False
@@ -217,8 +213,6 @@ def rc4(key, data):
 
     From: http://stackoverflow.com/questions/29607753/how-to-decrypt-a-file-that-encrypted-with-rc4-using-python
     """
-    print("encryption.py: RC4")
-    
     S, j, out = list(range(256)), 0, []
     
     # KSA Phase
@@ -233,8 +227,7 @@ def rc4(key, data):
         j = (j + S[i]) % 256
         S[i], S[j] = S[j], S[i]
         out.append(chr(ord(char) ^ S[(S[i] + S[j]) % 256]).encode('latin-1'))
-    print('encryption.py: rc4 return')
-    
+       
     return ''.join(out)
 
 

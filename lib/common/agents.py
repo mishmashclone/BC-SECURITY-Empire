@@ -1254,9 +1254,7 @@ class Agents(object):
 
             # decrypt the agent's public key
             try:
-                print('agents.py: line 1257')
                 message = encryption.aes_decrypt_and_verify(stagingKey, encData)
-                print("message passed: agents.py")
             except Exception as e:
                 print('exception e:' + str(e))
                 # if we have an error during decryption

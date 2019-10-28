@@ -56,7 +56,7 @@ class Module(object):
     def generate(self, obfuscate=False, obfuscationCommand=""):
 
         moduleName = self.info["Name"]
-        
+        print('powerup checks')
         # read in the common powerup.ps1 module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/privesc/PowerUp.ps1"
         if obfuscate:
@@ -70,13 +70,13 @@ class Module(object):
 
         moduleCode = f.read()
         f.close()
-
+        moduleCode = bytes(moduleCode)
         # # get just the code needed for the specified function
         # script = helpers.generate_dynamic_powershell_script(moduleCode, moduleName)
         script = moduleCode
 
         scriptEnd = ';' + moduleName + " "
-
+        print('allchecks.py: line 79')
         for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
@@ -87,7 +87,10 @@ class Module(object):
                         scriptEnd += " -" + str(option) + " " + str(values['Value']) 
 
         scriptEnd += ' | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
+        print('allchecks.py: line 90')
         if obfuscate:
+            print('obfuscating script: allchecks.py')
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        print('allchecks.py: line 95')
         return script

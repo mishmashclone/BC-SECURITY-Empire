@@ -4118,11 +4118,10 @@ class ModuleMenu(SubMenu):
             
             if not moduleData or moduleData == "":
                 print(helpers.color("[!] Error: module produced an empty script"))
+                return
             try:
-                print('empire.py: line 4122')
                 moduleData = bytes(moduleData)
                 moduleData.decode('ascii')
-                print('passed decode')
             except UnicodeDecodeError:
                 print(helpers.color("[!] Error: module source contains non-ascii characters"))
                 return

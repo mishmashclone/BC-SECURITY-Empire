@@ -80,7 +80,7 @@ def pad(data):
     """
     
     pad = 16 - (len(data) % 16)
-    return data + to_bufferable(chr(pad).encode('latin-1') * pad)
+    return data + to_bufferable(chr(pad).encode('UTF-8') * pad)
     
     # return str(s) + chr(16 - len(str(s)) % 16) * (16 - len(str(s)) % 16)
 
@@ -137,8 +137,10 @@ def aes_encrypt(key, data):
     Generate a random IV and new AES cipher object with the given
     key, and return IV + encryptedData.
     """
-    key = bytes(key, 'latin-1')
-    data = bytes(data, 'latin-1')
+    if isinstance(key, str):
+        key = bytes(key, 'UTF-8')
+    if isinstance(data, str):
+        data = bytes(data, 'UTF-8')
     backend = default_backend()
     IV = os.urandom(16)
     cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)
@@ -151,8 +153,8 @@ def aes_encrypt_then_hmac(key, data):
     """
     Encrypt the data then calculate HMAC over the ciphertext.
     """
-    key = bytes(key, 'latin-1')
-    data = bytes(data, 'latin-1')
+    key = bytes(key, 'UTF-8')
+    data = bytes(data, 'UTF-8')
     data = aes_encrypt(key, data)
     mac = hmac.new(key, data, hashlib.sha256).digest()
     return data + mac[0:10]
@@ -163,6 +165,7 @@ def aes_decrypt(key, data):
     Generate an AES cipher object, pull out the IV from the data
     and return the unencrypted data.
     """
+
     if len(data) > 16:
         backend = default_backend()
         IV = data[0:16]
@@ -176,7 +179,8 @@ def verify_hmac(key, data):
     """
     Verify the HMAC supplied in the data with the given key.
     """
-    key = bytes(key, 'latin-1')
+    if isinstance(key, str):
+        key = bytes(key, 'latin-1')
     
     if len(data) > 20:
         mac = data[-10:]
@@ -193,8 +197,10 @@ def aes_decrypt_and_verify(key, data):
     """
     Decrypt the data, but only if it has a valid MAC.
     """
+
     if len(data) > 32 and verify_hmac(key, data):
-        key = bytes(key, 'latin-1')
+        if isinstance(key, str):
+            key = bytes(key, 'latin-1')
         return aes_decrypt(key, data[:-10])
     raise Exception("Invalid ciphertext received.")
 
@@ -214,21 +220,26 @@ def rc4(key, data):
     From: http://stackoverflow.com/questions/29607753/how-to-decrypt-a-file-that-encrypted-with-rc4-using-python
     """
     S, j, out = list(range(256)), 0, []
-    
+    # This might break python 2.7
+    key = bytearray(key)
     # KSA Phase
     for i in range(256):
-        j = (j + S[i] + ord(key[i % len(key)])) % 256
+        j = (j + S[i] + key[i % len(key)]) % 256
         S[i], S[j] = S[j], S[i]
-    
+    # this might also break python 2.7
+    #data = bytearray(data)
     # PRGA Phase
     i = j = 0
+
     for char in data:
         i = (i + 1) % 256
         j = (j + S[i]) % 256
         S[i], S[j] = S[j], S[i]
-        out.append(chr(ord(char) ^ S[(S[i] + S[j]) % 256]).encode('latin-1'))
-       
-    return ''.join(out)
+        out.append(chr(char ^ S[(S[i] + S[j]) % 256]).encode('latin-1'))
+    #out = str(out)
+    tmp = b''.join(out)
+    print('encryption: 234')
+    return tmp
 
 
 class DiffieHellman(object):

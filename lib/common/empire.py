@@ -274,7 +274,7 @@ class MainMenu(cmd.Cmd):
                             
                             # generate the stager
                             menu.do_generate('')
-                        
+                            print('empire.py: line 277')
                         else:
                             messages.display_stager(targetStager)
                     

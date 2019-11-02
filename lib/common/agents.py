@@ -164,6 +164,7 @@ class Agents(object):
             cur.close()
 
             # dispatch this event
+            print(sessionID)
             message = "[*] New agent {} checked in".format(sessionID)
             signal = json.dumps({
                 'print': True,
@@ -1268,7 +1269,7 @@ class Agents(object):
 
             if language.lower() == 'powershell':
                 # strip non-printable characters
-                message = ''.join([x for x in message if x in string.printable])
+                message = ''.join([x for x in message.decode('UTF-8') if x in string.printable])
 
                 # client posts RSA key
                 if (len(message) < 400) or (not message.endswith("</RSAKeyValue>")):
@@ -1387,11 +1388,13 @@ class Agents(object):
         elif meta == 'STAGE2':
             # step 5 of negotiation -> client posts nonce+sysinfo and requests agent
 
-            sessionKey = self.agents[sessionID]['sessionKey']
+            sessionKey = (self.agents[sessionID]['sessionKey'])
+            if isinstance(sessionKey, str):
+                sessionKey = (self.agents[sessionID]['sessionKey']).encode('UTF-8')
 
             try:
                 message = encryption.aes_decrypt_and_verify(sessionKey, encData)
-                parts = message.split('|')
+                parts = message.split(b'|')
 
                 if len(parts) < 12:
                     message = "[!] Agent {} posted invalid sysinfo checkin format: {}".format(sessionID, message)
@@ -1427,7 +1430,7 @@ class Agents(object):
                 domainname = str(parts[2], 'utf-8')
                 username = str(parts[3], 'utf-8')
                 hostname = str(parts[4], 'utf-8')
-                external_ip = str(clientIP, 'utf-8')
+                external_ip = clientIP
                 internal_ip = str(parts[5], 'utf-8')
                 os_details = str(parts[6], 'utf-8')
                 high_integrity = str(parts[7], 'utf-8')
@@ -1534,7 +1537,6 @@ class Agents(object):
 
         # process each routing packet
         for sessionID, (language, meta, additional, encData) in routingPacket.items():
-
             if meta == 'STAGE0' or meta == 'STAGE1' or meta == 'STAGE2':
                 message = "[*] handle_agent_data(): sessionID {} issued a {} request".format(sessionID, meta)
                 signal = json.dumps({
@@ -1846,6 +1848,7 @@ class Agents(object):
             else:
                 index, path, data = parts
                 # decode the file data and save it off as appropriate
+                print('agents 1861')
                 file_data = helpers.decode_base64(data)
                 name = self.get_agent_name_db(sessionID)
 

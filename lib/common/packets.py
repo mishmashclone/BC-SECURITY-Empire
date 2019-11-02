@@ -279,11 +279,10 @@ def parse_routing_packet(stagingKey, data):
                 
                 RC4IV = data[0 + offset:4 + offset]
                 RC4data = data[4 + offset:20 + offset]
-                routingPacket = encryption.rc4(RC4IV + bytes(stagingKey), RC4data)
-                sessionID = routingPacket[0:8]
-                
+                routingPacket = encryption.rc4(RC4IV + bytes(stagingKey, 'UTF-8'), RC4data)
+                sessionID = str(routingPacket[0:8])
+                print('packets 284')
                 # B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
-                
                 (language, meta, additional, length) = struct.unpack("=BBHL", routingPacket[8:])
                 if length < 0:
                     message = "[*] parse_agent_data(): length in decoded rc4 packet is < 0"
@@ -353,15 +352,19 @@ def build_routing_packet(stagingKey, sessionID, language, meta="NONE", additiona
     """
     # binary pack all of the pcassed config values as unsigned numbers
     #   B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
+    print('packets: 356')
+    sessionID = bytes(sessionID, 'UTF-8')
     data = sessionID + struct.pack("=BBHL", LANGUAGE.get(language.upper(), 0), META.get(meta.upper(), 0),
                                    ADDITIONAL.get(additional.upper(), 0), len(encData))
-    
+    print('packets: 360')
     RC4IV = os.urandom(4)
-    stagingKey = bytes(stagingKey)
+    stagingKey = bytes(stagingKey, 'UTF-8')
+    print('packets.py: 361')
     key = RC4IV + stagingKey
+    print('packets.py: 362')
     rc4EncData = encryption.rc4(key, data)
     # return an rc4 encyption of the routing packet, append an HMAC of the packet, then the actual encrypted data
-    packet = RC4IV + bytes(rc4EncData) + bytes(encData)
+    packet = RC4IV + rc4EncData + bytes(encData, 'UTF-8')
     return packet
 
 

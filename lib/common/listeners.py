@@ -107,6 +107,10 @@ class Listeners(object):
                         protocol = 'http'
                         defaultPort = 80
 
+
+##################################################################################################################################
+                    # Added functionality to Port
+                    # Unsure if this section is needed
                     if len(parts) != 1 and parts[-1].isdigit():
                         # if a port is specified with http://host:port
                         listenerObject.options['Host']['Value'] = "%s://%s" % (protocol, value)
@@ -120,7 +124,7 @@ class Listeners(object):
                         listenerObject.options['Host']['Value'] = "%s://%s" % (protocol, value)
                         if listenerObject.options['Port']['Value'] == '':
                             listenerObject.options['Port']['Value'] = defaultPort
-
+###################################################################################################################################
                     return True
 
                 elif option == 'CertPath':
@@ -133,6 +137,18 @@ class Listeners(object):
 
                 if option == 'Port':
                     listenerObject.options[option]['Value'] = value
+                    # Check if Port is set and add it to host
+                    parts = listenerObject.options['Host']['Value']
+                    if parts.startswith('http'):
+                        address = parts[7:]
+                        address = ''.join(address.split(':')[0])
+                        protocol = "http"
+                        listenerObject.options['Host']['Value'] = "%s://%s:%s" % (protocol, address, listenerObject.options['Port']['Value'])
+                    elif parts.startswith('https'):
+                        address = parts[8:]
+                        address = ''.join(address.split(':')[0])
+                        protocol = "https"
+                        listenerObject.options['Host']['Value'] = "%s://%s:%s" % (protocol, address, listenerObject.options['Port']['Value'])
                     return True
 
                 elif option == 'StagingKey':

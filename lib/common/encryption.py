@@ -153,8 +153,12 @@ def aes_encrypt_then_hmac(key, data):
     """
     Encrypt the data then calculate HMAC over the ciphertext.
     """
-    key = bytes(key, 'UTF-8')
-    data = bytes(data, 'UTF-8')
+    if isinstance(key, str):
+       key = bytes(key, 'UTF-8')
+    if isinstance(data, str):
+       print("encryption line 159")
+       data = bytes(data, 'UTF-8')
+
     data = aes_encrypt(key, data)
     mac = hmac.new(key, data, hashlib.sha256).digest()
     return data + mac[0:10]
@@ -238,7 +242,6 @@ def rc4(key, data):
         out.append(chr(char ^ S[(S[i] + S[j]) % 256]).encode('latin-1'))
     #out = str(out)
     tmp = b''.join(out)
-    print('encryption: 234')
     return tmp
 
 

@@ -64,6 +64,7 @@ import base64
 import json
 import os
 import struct
+import simplejson as json
 
 from pydispatch import dispatcher
 
@@ -164,10 +165,8 @@ def build_task_packet(taskName, data, resultID):
     totalPacket = struct.pack('=H', 1)
     packetNum = struct.pack('=H', 1)
     resultID = struct.pack('=H', resultID)
-    length = struct.pack('=L', len(data.decode('utf-8').encode('utf-8', errors='ignore')))
-    return taskType + totalPacket + packetNum + resultID + length + data.decode('utf-8').encode('utf-8',
-                                                                                                errors='ignore')
-
+    length = struct.pack('=L', len(data))
+    return taskType + totalPacket + packetNum + resultID + length + data.encode("UTF-8")
 
 def parse_result_packet(packet, offset=0):
     """
@@ -280,8 +279,7 @@ def parse_routing_packet(stagingKey, data):
                 RC4IV = data[0 + offset:4 + offset]
                 RC4data = data[4 + offset:20 + offset]
                 routingPacket = encryption.rc4(RC4IV + bytes(stagingKey, 'UTF-8'), RC4data)
-                sessionID = str(routingPacket[0:8])
-                print('packets 284')
+                sessionID = routingPacket[0:8].decode("UTF-8")
                 # B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
                 (language, meta, additional, length) = struct.unpack("=BBHL", routingPacket[8:])
                 if length < 0:
@@ -364,7 +362,10 @@ def build_routing_packet(stagingKey, sessionID, language, meta="NONE", additiona
     print('packets.py: 362')
     rc4EncData = encryption.rc4(key, data)
     # return an rc4 encyption of the routing packet, append an HMAC of the packet, then the actual encrypted data
-    packet = RC4IV + rc4EncData + bytes(encData, 'UTF-8')
+    if isinstance(encData, str):
+        encData = encData.encode('UTF-8')
+
+    packet = RC4IV + rc4EncData + encData
     return packet
 
 

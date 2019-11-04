@@ -68,6 +68,8 @@ import hashlib
 import datetime
 import uuid
 import ipaddress
+import simplejson as json
+
 from datetime import datetime
 
 ###############################################################

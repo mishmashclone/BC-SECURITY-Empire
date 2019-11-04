@@ -4120,8 +4120,9 @@ class ModuleMenu(SubMenu):
                 print(helpers.color("[!] Error: module produced an empty script"))
                 return
             try:
-                moduleData = bytes(moduleData)
-                moduleData.decode('ascii')
+                #moduleData = moduleData.encode('UTF-8')
+                print("im awesome")
+                #moduleData.decode('ascii')
             except UnicodeDecodeError:
                 print(helpers.color("[!] Error: module source contains non-ascii characters"))
                 return

@@ -374,7 +374,8 @@ class Agents(object):
         """
         Save the agent console output to the agent's log file.
         """
-
+        if isinstance(data, bytes):
+           data = data.decode('UTF-8')
         name = self.get_agent_name_db(sessionID)
         save_path = self.installPath + "/downloads/" + str(name) + "/"
 
@@ -858,6 +859,9 @@ class Agents(object):
         """
 
         # see if we were passed a name instead of an ID
+        if isinstance(results, bytes):
+            results = results.decode('UTF-8')
+
         nameid = self.get_agent_id_db(sessionID)
         if nameid:
             sessionID = nameid
@@ -871,7 +875,6 @@ class Agents(object):
                 # get existing agent results
                 cur.execute("SELECT results FROM agents WHERE session_id LIKE ?", [sessionID])
                 agent_results = cur.fetchone()
-
                 if agent_results and agent_results[0]:
                     agent_results = json.loads(agent_results[0])
                 else:
@@ -1607,7 +1610,7 @@ class Agents(object):
 
         if taskings and taskings != []:
 
-            all_task_packets = ''
+            all_task_packets = b''
 
             # build tasking packets for everything we have
             for tasking in taskings:

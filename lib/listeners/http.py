@@ -1080,7 +1080,7 @@ def send_message(packets=None):
                                 print('listeners/http 1076')
                                 return make_response(stage, 200)
                             
-                            elif results.startswith('ERROR:'):
+                            elif results.startswith(b'ERROR:'):
                                 print('error listeners/http 1084')
                                 listenerName = self.options['Name']['Value']
                                 message = "[!] Error from agents.handle_agent_data() for {} from {}: {}".format(
@@ -1166,8 +1166,8 @@ def send_message(packets=None):
                             # TODO: document the exact results structure returned
                             if ':' in clientIP:
                                 clientIP = '[' + str(clientIP) + ']'
-                            sessionID = results.split(b' ')[1].strip()
-                            sessionKey = self.mainMenu.agents.agents[sessionID.decode('UTF-8')]['sessionKey']
+                            sessionID = results.split(b' ')[1].strip().decode('UTF-8')
+                            sessionKey = self.mainMenu.agents.agents[sessionID]['sessionKey']
                             
                             listenerName = self.options['Name']['Value']
                             message = "[*] Sending agent (stage 2) to {} at {}".format(sessionID, clientIP)

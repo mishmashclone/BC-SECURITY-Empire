@@ -1693,7 +1693,6 @@ class Agents(object):
             #   when an exception is thrown, something causes the lock to remain locked...
             # if self.lock.locked():
             #     self.lock.release()
-
             return None
 
 
@@ -1969,10 +1968,12 @@ class Agents(object):
 
             # TODO: redo this regex for really large AD dumps
             #   so a ton of data isn't kept in memory...?
-            parts = data.split("\n")
+            if isinstance(data,str):
+                data = data.encode("UTF-8")
+            parts = data.split(b"\n")
             if len(parts) > 10:
                 time = helpers.get_datetime()
-                if parts[0].startswith("Hostname:"):
+                if parts[0].startswith(b"Hostname:"):
                     # if we get Invoke-Mimikatz output, try to parse it and add
                     #   it to the internal credential store
 

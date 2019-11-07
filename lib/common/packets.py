@@ -63,6 +63,7 @@ from __future__ import absolute_import
 import base64
 import json
 import os
+import sys
 import struct
 import simplejson as json
 
@@ -278,10 +279,14 @@ def parse_routing_packet(stagingKey, data):
                 
                 RC4IV = data[0 + offset:4 + offset]
                 RC4data = data[4 + offset:20 + offset]
-                routingPacket = encryption.rc4(RC4IV + bytes(stagingKey, 'UTF-8'), RC4data)
+                if sys.version[0] != '2':
+                    stagingKey = stagingKey.encode('UTF-8')
+
+                routingPacket = encryption.rc4(RC4IV + stagingKey, RC4data)
                 sessionID = routingPacket[0:8].decode("UTF-8")
                 # B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
                 (language, meta, additional, length) = struct.unpack("=BBHL", routingPacket[8:])
+
                 if length < 0:
                     message = "[*] parse_agent_data(): length in decoded rc4 packet is < 0"
                     signal = json.dumps({
@@ -350,21 +355,35 @@ def build_routing_packet(stagingKey, sessionID, language, meta="NONE", additiona
     """
     # binary pack all of the pcassed config values as unsigned numbers
     #   B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
+    if sys.version[0] == '2':
+        reload(sys)
+        sys.setdefaultencoding("utf-8")
+        print("packets.py: 356")
+
     print('packets: 356')
-    sessionID = bytes(sessionID, 'UTF-8')
+    if isinstance(sessionID, str) and sys.version[0] != '2':
+        sessionID = sessionID.encode('UTF-8')
     data = sessionID + struct.pack("=BBHL", LANGUAGE.get(language.upper(), 0), META.get(meta.upper(), 0),
                                    ADDITIONAL.get(additional.upper(), 0), len(encData))
     print('packets: 360')
-    RC4IV = os.urandom(4)
-    stagingKey = bytes(stagingKey, 'UTF-8')
+    if sys.version[0] == '2':
+        RC4IV = os.urandom(4).decode("latin-1")
+    else:
+        RC4IV = os.urandom(4)
+
+    if isinstance(stagingKey, str) and sys.version[0] != '2':
+        stagingKey = stagingKey.encode('UTF-8')
     print('packets.py: 361')
     key = RC4IV + stagingKey
     print('packets.py: 362')
     rc4EncData = encryption.rc4(key, data)
     # return an rc4 encyption of the routing packet, append an HMAC of the packet, then the actual encrypted data
-    if isinstance(encData, str):
+    if isinstance(encData, str) and sys.version[0] != '2':
         encData = encData.encode('UTF-8')
-
+    print("packets.py: 368")
+    print(type(RC4IV))
+    print(type(rc4EncData))
+    print(type(encData))
     packet = RC4IV + rc4EncData + encData
     return packet
 

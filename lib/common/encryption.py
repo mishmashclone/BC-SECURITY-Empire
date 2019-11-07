@@ -24,6 +24,7 @@ import base64
 import hashlib
 import hmac
 import os
+import sys
 import random
 import string
 from binascii import hexlify
@@ -154,10 +155,10 @@ def aes_encrypt_then_hmac(key, data):
     Encrypt the data then calculate HMAC over the ciphertext.
     """
     if isinstance(key, str):
-       key = bytes(key, 'UTF-8')
+       key = key.encode('UTF-8')
     if isinstance(data, str):
        print("encryption line 159")
-       data = bytes(data, 'UTF-8')
+       data = data.encode('UTF-8')
 
     data = aes_encrypt(key, data)
     mac = hmac.new(key, data, hashlib.sha256).digest()
@@ -225,23 +226,39 @@ def rc4(key, data):
     """
     S, j, out = list(range(256)), 0, []
     # This might break python 2.7
-    key = bytearray(key)
+    if sys.version[0] != '2':
+        key = bytearray(key)
+
+    print("encryption.py: 228")
     # KSA Phase
     for i in range(256):
-        j = (j + S[i] + key[i % len(key)]) % 256
+        if sys.version[0] == '2':
+            j = (j + S[i] + ord(key[i % len(key)])) % 256
+        else:
+            j = (j + S[i] + key[i % len(key)]) % 256
         S[i], S[j] = S[j], S[i]
     # this might also break python 2.7
     #data = bytearray(data)
     # PRGA Phase
     i = j = 0
+    print("encryption.py: 238")
 
     for char in data:
         i = (i + 1) % 256
         j = (j + S[i]) % 256
         S[i], S[j] = S[j], S[i]
-        out.append(chr(char ^ S[(S[i] + S[j]) % 256]).encode('latin-1'))
+
+        if sys.version[0] == '2':
+            out.append(chr(ord(char) ^ S[(S[i] + S[j]) % 256]))
+        else:
+            out.append(chr(char ^ S[(S[i] + S[j]) % 256]).encode('latin-1'))
+        print("encryption.py: 243")
+
     #out = str(out)
-    tmp = b''.join(out)
+    if sys.version[0] == '2':
+        tmp = ''.join(out)
+    else:
+        tmp = b''.join(out)
     return tmp
 
 

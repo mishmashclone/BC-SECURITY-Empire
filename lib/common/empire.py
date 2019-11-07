@@ -394,9 +394,9 @@ class MainMenu(cmd.Cmd):
             except NavListeners as e:
                 self.menu_state = "Listeners"
             
-            except Exception as e:
-                print(helpers.color("[!] Exception: %s" % (e)))
-                time.sleep(5)
+            #except Exception as e:
+            #    print(helpers.color("[!] Exception: %s" % (e)))
+            #    time.sleep(5)
     
     
     def print_topics(self, header, commands, cmdlen, maxcol):
@@ -540,27 +540,27 @@ class MainMenu(cmd.Cmd):
     def do_usestager(self, line):
         "Use an Empire stager."
         
-        try:
-            parts = line.split(' ')
-            
-            if parts[0] not in self.stagers.stagers:
-                print(helpers.color("[!] Error: invalid stager module"))
-            
-            elif len(parts) == 1:
+       # try:
+        parts = line.split(' ')
+
+        if parts[0] not in self.stagers.stagers:
+            print(helpers.color("[!] Error: invalid stager module"))
+
+        elif len(parts) == 1:
+            stager_menu = StagerMenu(self, parts[0])
+            stager_menu.cmdloop()
+        elif len(parts) == 2:
+            listener = parts[1]
+            if not self.listeners.is_listener_valid(listener):
+                print(helpers.color("[!] Please enter a valid listener name or ID"))
+            else:
+                self.stagers.set_stager_option('Listener', listener)
                 stager_menu = StagerMenu(self, parts[0])
                 stager_menu.cmdloop()
-            elif len(parts) == 2:
-                listener = parts[1]
-                if not self.listeners.is_listener_valid(listener):
-                    print(helpers.color("[!] Please enter a valid listener name or ID"))
-                else:
-                    self.stagers.set_stager_option('Listener', listener)
-                    stager_menu = StagerMenu(self, parts[0])
-                    stager_menu.cmdloop()
-            else:
-                print(helpers.color("[!] Error in MainMenu's do_userstager()"))
-        except Exception as e:
-            raise e
+        else:
+            print(helpers.color("[!] Error in MainMenu's do_userstager()"))
+        #except Exception as e:
+        #    raise e
     
     
     def do_usemodule(self, line):

@@ -24,6 +24,7 @@ import base64
 import hashlib
 import hmac
 import os
+import sys
 import random
 import string
 from binascii import hexlify
@@ -239,6 +240,8 @@ def rc4(key, data):
         i = (i + 1) % 256
         j = (j + S[i]) % 256
         S[i], S[j] = S[j], S[i]
+        if sys.version[0] == "2":
+            char = ord(char)
         out.append(chr(char ^ S[(S[i] + S[j]) % 256]).encode('latin-1'))
     #out = str(out)
     tmp = b''.join(out)

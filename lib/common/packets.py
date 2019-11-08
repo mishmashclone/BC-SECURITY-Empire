@@ -63,8 +63,8 @@ from __future__ import absolute_import
 import base64
 import json
 import os
+import sys
 import struct
-import simplejson as json
 
 from pydispatch import dispatcher
 
@@ -362,7 +362,7 @@ def build_routing_packet(stagingKey, sessionID, language, meta="NONE", additiona
     print('packets.py: 362')
     rc4EncData = encryption.rc4(key, data)
     # return an rc4 encyption of the routing packet, append an HMAC of the packet, then the actual encrypted data
-    if isinstance(encData, str):
+    if isinstance(encData, str) and sys.version[0] != "2":
         encData = encData.encode('UTF-8')
 
     packet = RC4IV + rc4EncData + encData

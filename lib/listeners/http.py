@@ -606,7 +606,7 @@ class Listener(object):
             
             randomizedStager = ''
             # forces inputs into a bytestring to ensure 2/3 compatibility
-            stagingKey = bytes(stagingKey, 'UTF-8')
+            stagingKey = stagingKey.encode('UTF-8')
             #stager = stager.encode('UTF-8')
             #randomizedStager = randomizedStager.encode('UTF-8')
             
@@ -1160,7 +1160,7 @@ def send_message(packets=None):
                     print(str(type(results)))
                     if isinstance(results, str):
                         print('results type changed listeners/http 1162')
-                        results = bytes(results, 'UTF-8')
+                        results = results.encode('UTF-8')
                     if results:
                         if results.startswith(b'STAGE2'):
                             # TODO: document the exact results structure returned

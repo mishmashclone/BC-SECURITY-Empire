@@ -171,7 +171,7 @@ def generate_random_script_var_name(origvariname, globDebug=False):
         return origvariname
     else:
         print('helpers: 171')
-        origvariname = bytes(origvariname, 'UTF-8')
+        origvariname = origvariname.encode('UTF-8')
         entrop = bytes(globentropy)
         hash_object = hashlib.sha1(origvariname + entrop).hexdigest()
         print('helpers: 173')
@@ -237,7 +237,7 @@ def enc_powershell(raw):
     """
     print('helpers: 232')
     print(raw)
-    raw = bytes(raw, 'UTF-16LE')
+    raw = raw.encode('UTF-16LE')
     tmp = raw
     #tmp = bytes("".join([str(char) + "\x00" for char in raw]), "UTF-16LE")
     print('helpers 235')

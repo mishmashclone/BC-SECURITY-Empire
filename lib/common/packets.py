@@ -278,7 +278,7 @@ def parse_routing_packet(stagingKey, data):
                 
                 RC4IV = data[0 + offset:4 + offset]
                 RC4data = data[4 + offset:20 + offset]
-                routingPacket = encryption.rc4(RC4IV + bytes(stagingKey, 'UTF-8'), RC4data)
+                routingPacket = encryption.rc4(RC4IV + stagingKey.encode('UTF-8'), RC4data)
                 sessionID = routingPacket[0:8].decode("UTF-8")
                 # B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
                 (language, meta, additional, length) = struct.unpack("=BBHL", routingPacket[8:])
@@ -351,12 +351,12 @@ def build_routing_packet(stagingKey, sessionID, language, meta="NONE", additiona
     # binary pack all of the pcassed config values as unsigned numbers
     #   B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
     print('packets: 356')
-    sessionID = bytes(sessionID, 'UTF-8')
+    sessionID = sessionID.encode('UTF-8')
     data = sessionID + struct.pack("=BBHL", LANGUAGE.get(language.upper(), 0), META.get(meta.upper(), 0),
                                    ADDITIONAL.get(additional.upper(), 0), len(encData))
     print('packets: 360')
     RC4IV = os.urandom(4)
-    stagingKey = bytes(stagingKey, 'UTF-8')
+    stagingKey = stagingKey.encode('UTF-8')
     print('packets.py: 361')
     key = RC4IV + stagingKey
     print('packets.py: 362')

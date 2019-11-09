@@ -1090,7 +1090,6 @@ class MainMenu(cmd.Cmd):
         "Tab-complete an interact command"
         
         names = self.agents.get_agent_names_db()
-        
         mline = line.partition(' ')[2]
         offs = len(mline) - len(text)
         return [s[offs:] for s in names if s.startswith(mline)]
@@ -1681,10 +1680,14 @@ class AgentsMenu(SubMenu):
         "Tab-complete an interact command"
         
         names = self.mainMenu.agents.get_agent_names_db()
-        
         mline = line.partition(' ')[2]
         offs = len(mline) - len(text)
-        return [s[offs:] for s in names if s.startswith(mline)]
+
+        if sys.version[0] != "2":
+            names_return = b','.join(names).decode("UTF-8").split(',')
+        else:
+            names_return = names
+        return [s[offs:] for s in names_return if s.startswith(mline)]
     
     
     def complete_rename(self, text, line, begidx, endidx):

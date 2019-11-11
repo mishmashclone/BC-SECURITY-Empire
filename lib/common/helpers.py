@@ -539,7 +539,8 @@ def parse_mimikatz(data):
         # check if we have lsadump output to check for krbtgt
         #   happens on domain controller hashdumps
         for x in range(8, 13):
-            if lines[x].startswith("Domain :"):
+            print(lines)
+            if lines[x].startswith(b"Domain :"):
 
                 domain, sid, krbtgtHash = "", "", ""
 
@@ -565,7 +566,7 @@ def parse_mimikatz(data):
 
     if len(creds) == 0:
         # check if we get lsadump::dcsync output
-        if '** SAM ACCOUNT **' in lines:
+        if b'** SAM ACCOUNT **' in lines:
             domain, user, userHash, dcName, sid = "", "", "", "", ""
             for line in lines:
                 try:

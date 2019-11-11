@@ -12,6 +12,7 @@ from lib.common import agents
 from lib.common import encryption
 from lib.common import packets
 from lib.common import messages
+from lib.common import bypasses
 
 
 class Listener(object):

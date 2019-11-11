@@ -1679,6 +1679,7 @@ class Agents(object):
             # return a 200/valid
             return 'VALID'
 
+
         except Exception as e:
             message = "[!] Error processing result packet from {} : {}".format(sessionID, e)
             signal = json.dumps({

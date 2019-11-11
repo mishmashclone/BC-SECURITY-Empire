@@ -50,6 +50,8 @@ Check out the [Empire wiki](https://github.com/EmpireProject/Empire/wiki/Quickst
 * Function name randomization
 * JA3/S signature randomization
 * Multi-menu function calls
+* Function name aliasing
+* Update to [Mimikatz 2.2.0](https://github.com/gentilkiwi/mimikatz)
 
 ## Contribution Rules
 

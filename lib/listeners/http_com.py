@@ -713,7 +713,6 @@ class Listener(object):
                     for (language, results) in dataResults:
                         if results:
                             if results == 'STAGE0':
-                                print('stage0 listeners/http_com 707')
                                 # handle_agent_data() signals that the listener should return the stager.ps1 code
 
                                 # step 2 of negotiation -> return stager.ps1 (stage 1)

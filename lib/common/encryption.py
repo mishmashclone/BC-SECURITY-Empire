@@ -157,7 +157,6 @@ def aes_encrypt_then_hmac(key, data):
     if isinstance(key, str):
        key = bytes(key, 'UTF-8')
     if isinstance(data, str):
-       print("encryption line 159")
        data = bytes(data, 'UTF-8')
 
     data = aes_encrypt(key, data)

@@ -39,7 +39,6 @@ class Modules(object):
         Load Empire modules from a specified path, default to
         installPath + "/lib/modules/*"
         """
-        print("modules line 42")
         if rootPath == '':
             rootPath = "%s/lib/modules/" % (self.mainMenu.installPath)
 

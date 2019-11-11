@@ -4122,14 +4122,18 @@ class ModuleMenu(SubMenu):
             if not moduleData or moduleData == "":
                 print(helpers.color("[!] Error: module produced an empty script"))
                 return
-            try:
+
+            ############################################
+            ## No longer needed
+            #try:
                 #moduleData = moduleData.encode('UTF-8')
-                print("im awesome")
+                #print("im awesome")
                 #moduleData.decode('ascii')
-            except UnicodeDecodeError:
-                print(helpers.color("[!] Error: module source contains non-ascii characters"))
-                return
-            
+            #except UnicodeDecodeError:
+            #    print(helpers.color("[!] Error: module source contains non-ascii characters"))
+            #    return
+            ############################################print
+
             # strip all comments from the module
             moduleData = helpers.strip_powershell_comments(moduleData)
             

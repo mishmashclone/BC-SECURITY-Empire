@@ -100,15 +100,12 @@ class Stagers(object):
         Abstracted functionality that invokes the generate_launcher() method for a given listener,
         if it exists.
         """
-        print('stagers.py: 103')
         if not listenerName in self.mainMenu.listeners.activeListeners:
             print(helpers.color("[!] Invalid listener: %s" % (listenerName)))
             return ''
 
         activeListener = self.mainMenu.listeners.activeListeners[listenerName]
-        print('stagers.py: 109')
         launcherCode = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']].generate_launcher(encode=encode, obfuscate=obfuscate, obfuscationCommand=obfuscationCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, language=language, listenerName=listenerName, safeChecks=safeChecks, scriptLogBypass=scriptLogBypass, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
-        print('stagers.py: line 111')
         if launcherCode:
             return launcherCode
 

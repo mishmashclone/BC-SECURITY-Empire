@@ -350,16 +350,12 @@ def build_routing_packet(stagingKey, sessionID, language, meta="NONE", additiona
     """
     # binary pack all of the pcassed config values as unsigned numbers
     #   B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
-    print('packets: 356')
     sessionID = sessionID.encode('UTF-8')
     data = sessionID + struct.pack("=BBHL", LANGUAGE.get(language.upper(), 0), META.get(meta.upper(), 0),
                                    ADDITIONAL.get(additional.upper(), 0), len(encData))
-    print('packets: 360')
     RC4IV = os.urandom(4)
     stagingKey = stagingKey.encode('UTF-8')
-    print('packets.py: 361')
     key = RC4IV + stagingKey
-    print('packets.py: 362')
     rc4EncData = encryption.rc4(key, data)
     # return an rc4 encyption of the routing packet, append an HMAC of the packet, then the actual encrypted data
     if isinstance(encData, str) and sys.version[0] != "2":

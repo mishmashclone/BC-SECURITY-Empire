@@ -692,18 +692,23 @@ class Listener(object):
             reqHeader = request.headers.get(listenerOptions['RequestHeader']['Value'])
             if reqHeader and reqHeader != '':
                 try:
-                    tmp = repr(reqHeader)[2:-1].replace("'","").encode("UTF-8")
-            #       print(tmp)
+
+                    if reqHeader.startswith("b'"):
+                        tmp = repr(reqHeader)[2:-1].replace("'","").encode("UTF-8")
+                    else:
+                        tmp = reqHeader.encode("UTF-8")
                     routingPacket = base64.b64decode(tmp)
-            #        print(routingPacket)
                 except Exception as e:
                     routingPacket = None
                     #pass
+
+                    #if isinstance(results, str):
 
             if routingPacket:
                 # parse the routing packet and process the results
 
                 dataResults = self.mainMenu.agents.handle_agent_data(stagingKey, routingPacket, listenerOptions, clientIP)
+
                 if dataResults and len(dataResults) > 0:
                     for (language, results) in dataResults:
                         if results:
@@ -784,7 +789,6 @@ class Listener(object):
             dataResults = self.mainMenu.agents.handle_agent_data(stagingKey, requestData, listenerOptions, clientIP)
             if dataResults and len(dataResults) > 0:
                 for (language, results) in dataResults:
-                    print(type(results))
                     if isinstance(results, str):
                         print('results type changed listeners/http_com 782')
                         results = results.encode('UTF-8')

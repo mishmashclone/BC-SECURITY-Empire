@@ -217,7 +217,7 @@ def parse_result_packets(packets):
     """
     Parse a blob of one or more result packets
     """
-    
+
     resultPackets = []
     
     # parse the first result packet
@@ -267,7 +267,6 @@ def parse_routing_packet(stagingKey, data):
     if data:
         results = {}
         offset = 0
-        
         # ensure we have at least the 20 bytes for a routing packet
         if len(data) >= 20:
             

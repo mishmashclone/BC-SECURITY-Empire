@@ -27,9 +27,9 @@ def title(version):
     os.system('clear')
     print "================================================================================"
     # print ' [Empire]  PowerShell/Python post-exploitation framework'
-    print " [Empire]  Post-Exploitation Framework test1"
+    print " [Empire]  Post-Exploitation Framework"
     print '================================================================================'
-    print " [Version] %s | [Web] https://github.com/BC-SECURITY/DEFCON27" % (version)
+    print " [Version] %s | [Web] https://github.com/BC-SECURITY/Empire" % (version)
     print '================================================================================'
     print """
    _______ .___  ___. .______    __  .______       _______

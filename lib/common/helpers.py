@@ -414,21 +414,22 @@ def parse_credentials(data):
     """
     Enumerate module output, looking for any parseable credential sections.
     """
-
-    parts = data.split("\n")
+    if isinstance(data, str):
+        data = data.encode('UTF-8')
+    parts = data.split(b"\n")
 
     # tag for Invoke-Mimikatz output
-    if parts[0].startswith("Hostname:"):
+    if parts[0].startswith(b"Hostname:"):
         return parse_mimikatz(data)
 
     # powershell/collection/prompt output
-    elif parts[0].startswith("[+] Prompted credentials:"):
+    elif parts[0].startswith(b"[+] Prompted credentials:"):
 
-        parts = parts[0].split("->")
+        parts = parts[0].split(b"->")
         if len(parts) == 2:
 
-            username = parts[1].split(":", 1)[0].strip()
-            password = parts[1].split(":", 1)[1].strip()
+            username = parts[1].split(b":", 1)[0].strip()
+            password = parts[1].split(b":", 1)[1].strip()
 
             if "\\" in username:
                 domain = username.split("\\")[0].strip()
@@ -443,7 +444,7 @@ def parse_credentials(data):
             return None
 
     # python/collection/prompt (Mac OS)
-    elif "text returned:" in parts[0]:
+    elif b"text returned:" in parts[0]:
         parts2 = parts[0].split("text returned:")
         if len(parts2) >= 2:
             password = parts2[-1]

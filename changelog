@@ -1,8 +1,20 @@
+11/23/2019
+------------
+- Version 3.0 Beta Release
+	- Added Python 2.x and 3.x compatibility
+	- Updated mimikatz binary in Invoke-Mimikatz to version 2.2.0 20190408
+	- Added port assignment feature to listeners
+	- Fixed issues with http_Hop listener
+	- Fixed issues with rediector listener
+    - Added ability to uselisteners on main menu
+    - Added Invoke-RID_Hijack (@r4wd3r)
+
+
 
 03/15/2018
 ------------
 - Version 2.5 Master Release
-	- Patched launcher generation bug 
+	- Patched launcher generation bug
 	- Added OSX Mic record module #893 (@s0lst1c3)
 	- More robust password handling in ssh_command and ssh_launcher modules (@retro-engineer)
 	- Updated server responses for http listener (@xorrior) 

@@ -536,7 +536,17 @@ class MainMenu(cmd.Cmd):
         except Exception as e:
             raise e
     
-    
+    def do_uselistener(self, line):
+        "Use an Empire listener module."
+        print("uselistener")
+        parts = line.split(' ')
+
+        if parts[0] not in self.listeners.loadedListeners:
+            print(helpers.color("[!] Error: invalid listener module"))
+        else:
+            listenerMenu = ListenerMenu(self, parts[0])
+            listenerMenu.cmdloop()
+
     def do_usestager(self, line):
         "Use an Empire stager."
         
@@ -1034,7 +1044,15 @@ class MainMenu(cmd.Cmd):
             mline = line.partition(' ')[2]
             offs = len(mline) - len(text)
             return [s[offs:] for s in stagerNames if s.startswith(mline)]
-    
+
+    def complete_uselistener(self, text, line, begidx, endidx):
+        "Tab-complete an uselistener command"
+
+        names = list(self.listeners.loadedListeners.keys())
+        mline = line.partition(' ')[2]
+        offs = len(mline) - len(text)
+        return [s[offs:] for s in names if s.startswith(mline)]
+
     def complete_setlist(self, text, line, begidx, endidx):
         "Tab-complete a global list option"
         
@@ -1674,7 +1692,17 @@ class AgentsMenu(SubMenu):
             print(helpers.color("[!] Please enter a search term."))
         else:
             self.mainMenu.modules.search_modules(searchTerm)
-    
+
+    def do_uselistener(self, line):
+        "Use an Empire listener module."
+
+        parts = line.split(' ')
+
+        if parts[0] not in self.mainMenu.listeners.loadedListeners:
+            print(helpers.color("[!] Error: invalid listener module"))
+        else:
+            listenerMenu = ListenerMenu(self.mainMenu, parts[0])
+            listenerMenu.cmdloop()
     
     def complete_interact(self, text, line, begidx, endidx):
         "Tab-complete an interact command"

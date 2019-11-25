@@ -1161,7 +1161,7 @@ def send_message(packets=None):
                             })
                             dispatcher.send(signal, sender="listeners/http/{}".format(listenerName))
                             return make_response(self.default_response(), 404)
-                        elif results == 'VALID':
+                        elif results.startswith(b'VALID'):
                             listenerName = self.options['Name']['Value']
                             message = "[*] Valid results returned by {}".format(clientIP)
                             signal = json.dumps({
@@ -1169,7 +1169,7 @@ def send_message(packets=None):
                                 'message': message
                             })
                             dispatcher.send(signal, sender="listeners/http/{}".format(listenerName))
-                            return make_response(self.default_response(), 404)
+                            return make_response(self.default_response(), 200)
                         else:
                             return make_response(results, 200)
                     else:

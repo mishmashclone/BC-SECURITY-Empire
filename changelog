@@ -1,4 +1,4 @@
-11/23/2019
+11/26/2019
 ------------
 - Version 3.0 Beta Release
 	- Added Python 2.x and 3.x compatibility
@@ -7,9 +7,10 @@
 	- Fixed issues with http_Hop listener
 	- Fixed issues with rediector listener
     - Added ability to uselisteners on main menu
-    - Added invoke-RID_Hijack (@r4wd3r)
-    - Added invoke-internal_monologue (@audibleblink)
-
+    - Added Invoke-RID_Hijack (@r4wd3r)
+    - Added Invoke-internal_monologue (@audibleblink)
+    - Added Invoke-SMBLogin (@mvelazc0)
+    - Added Sherlock (@_RastaMouse & @audibleblink)
 
 
 03/15/2018

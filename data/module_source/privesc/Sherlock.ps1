@@ -333,18 +333,17 @@ function Find-MS15078 {
     $MSBulletin = "MS15-078"
 
     $Path = $env:windir + "\system32\atmfd.dll"
-    $VersionInfo = Get-FileVersionInfo($Path)
-    $VersionInfo = $VersionInfo.Split(" ")
+    if (Test-Path $Path -PathType Leaf) {
+        $VersionInfo = Get-FileVersionInfo($Path) -ErrorAction Stop
+        $VersionInfo = $VersionInfo.Split(" ")
 
-    $Revision = $VersionInfo[2]
-
+        $Revision = $VersionInfo[2]
+    }
     switch ( $Revision ) {
 
         243 { $VulnStatus = "Appears Vulnerable" }
         default { $VulnStatus = "Not Vulnerable" }
-
     }
-
     Set-ExploitTable $MSBulletin $VulnStatus
 
 }

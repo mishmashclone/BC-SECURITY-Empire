@@ -16,7 +16,7 @@
 [7]: https://www.bc-security.org/blog
 
 ![GitHub contributors](https://img.shields.io/github/contributors/BC-SECURITY/Empire)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/w/BC-SECURITY/Empire)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/BC-SECURITY/Empire)
 ![GitHub stars](https://img.shields.io/github/stars/BC-SECURITY/Empire)
 ![GitHub](https://img.shields.io/github/license/BC-Security/Empire)
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/fold_left.svg?style=flat)](https://twitter.com/BCSecurity1)

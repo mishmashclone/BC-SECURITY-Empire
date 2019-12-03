@@ -25,6 +25,11 @@
 	- Added Invoke-CredentialPhisher (@quickbreach)
 	- Made Security Bypasses configurable for launchers (@phra)
 	- Updated Readme to include install instruction, EOL of Core Devloper support, new contribution rules 
+	- Added OSX shellcode stager (@johneiser)
+	- Added Invoke-Phant0m (@leesoh)
+	- Added Get-AppLockerConfig (@matterpreter)
+	- Added HostRecon (@RootUp)
+	- Added more informative PS agent directory listing (@winnie22)
 
 Credit was given based on Commit Author if something is credited incorrectly or we missed an update 
 please contact us at info@bc-security.org 

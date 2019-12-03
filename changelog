@@ -1,17 +1,33 @@
 11/26/2019
 ------------
 - Version 3.0 Beta Release
-	- Added Python 2.x and 3.x compatibility
-	- Updated mimikatz binary in Invoke-Mimikatz to version 2.2.0 20190408
-	- Added port assignment feature to listeners
-	- Fixed issues with http_Hop listener
-	- Fixed issues with rediector listener
-    - Added ability to uselisteners on main menu
-    - Added Invoke-RID_Hijack (@r4wd3r)
-    - Added Invoke-internal_monologue (@audibleblink)
-    - Added Invoke-SMBLogin (@mvelazc0)
-    - Added Sherlock (@_RastaMouse & @audibleblink)
+	- Added Python 2.6/7 and 3.x compatibility (@Cx01N, @Hubbl3, @Vinnybod)
+	- Imporved Windows Defender Evasion 
+	- Updated mimikatz binary in Invoke-Mimikatz to version 2.2.0 20190408 (@Cx01N)
+	- Fixed port assignment feature to listeners (@Cx01N)
+	- Fixed issues with http_Hop listener (@Cx01N)
+	- Fixed issues with redirector listener (@Cx01N)
+	- Fixed typos in default http listener payloads (@Hubbl3)
+	- Fixed psinject AV recognition (@Hubbl3) 
+	- Updated Invoke-Obfuscation to version 1.8 (@phra)
+	- Updated Invoke-Kerberoast (@Zero1t0) 
+	- Added ability to uselisteners on main menu (@Cx01N, @Hubbl3)
+	- Added Get-Subnet_Ranges (@benichmt1)
+	- Added Get-WinUpdates (@classity)
+	- Added Get-KerberosServiceTIcket (@OneLogicalMyth)
+	- Added Invoke-RID_Hijack (@r4wd3r)
+	- Added Invoke-internal_monologue (@audibleblink)
+	- Added Invoke-SMBLogin (@mvelazc0)
+	- Added Sherlock (@_RastaMouse, @audibleblink)
+	- Added Outlook Sandbox Evasion for Windows Macro launcher (@Cx01N, @Hubbl3)
+	- Added Randomized JA3S signature (@Hubbl3) 
+	- Added AMSI Bypass based on Tal Liberman's AMSI Bypass (@Hubbl3)
+	- Added Invoke-CredentialPhisher (@quickbreach)
+	- Made Security Bypasses configurable for launchers (@phra)
+	- Updated Readme to include install instruction, EOL of Core Devloper support, new contribution rules 
 
+Credit was given based on Commit Author if something is credited incorrectly or we missed an update 
+please contact us at info@bc-security.org 
 
 03/15/2018
 ------------

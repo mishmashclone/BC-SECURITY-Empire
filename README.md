@@ -1,3 +1,5 @@
+![Empire](https://user-images.githubusercontent.com/20302208/70022749-1ad2b080-154a-11ea-9d8c-1b42632fd9f9.jpg)
+
 [1.1]: http://i.imgur.com/tXSoThF.png (twitter icon with padding)
 [2.1]: http://i.imgur.com/P3YfQoD.png (facebook icon with padding)
 [3.1]: http://i.imgur.com/yCsTjba.png (google plus icon with padding)
@@ -13,18 +15,28 @@
 [6]: http://www.github.com/BC-SECURITY
 [7]: https://www.bc-security.org/blog
 
-# Empire
-[![alt text][1.1]][1]
-[![alt text][6.1]][6]
+![GitHub contributors](https://img.shields.io/github/contributors/BC-SECURITY/Empire)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/BC-SECURITY/Empire)
+![GitHub stars](https://img.shields.io/github/stars/BC-SECURITY/Empire)
+![GitHub](https://img.shields.io/github/license/BC-Security/Empire)
+[![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/fold_left.svg?style=flat)](https://twitter.com/BCSecurity1)
 
 Keep up-to-date on our blog at [https://www.bc-security.org/blog][7]
 
+# Empire
 ## The beta release of [Empire 3.0](https://github.com/BC-SECURITY/Empire/tree/dev) is available on the dev branch ##
 Empire 3.0 is a post-exploitation framework that includes a pure-PowerShell 2.0 Windows agent, and compatibility with Python 2.x/3.x Linux/OS X agents. It is the merger of the previous PowerShell Empire and Python EmPyre projects. The framework offers cryptologically-secure communications and a flexible architecture. On the PowerShell side, Empire implements the ability to run PowerShell agents without needing powershell.exe, rapidly deployable post-exploitation modules ranging from key loggers to Mimikatz, and adaptable communications to evade network detection, all wrapped up in a usability-focused framework. PowerShell Empire premiered at [BSidesLV in 2015](https://www.youtube.com/watch?v=Pq9t59w0mUI) and Python EmPyre premeiered at HackMiami 2016. BC-Security presented updates to further evade Microsoft Antimalware Scan Interface (AMSI) and JA3/S signatures at [DEF CON 27](https://github.com/BC-SECURITY/DEFCON27).
 
 Empire relies heavily on the work from several other projects for its underlying functionality. We have tried to call out a few of those people we've interacted with [heavily here](http://www.powershellempire.com/?page_id=2) and have included author/reference link information in the source of each Empire module as appropriate. If we have failed to improperly cite existing or prior work, please let us know.
 
 Empire is developed by [@harmj0y](https://twitter.com/harmj0y), [@sixdub](https://twitter.com/sixdub), [@enigma0x3](https://twitter.com/enigma0x3), [@rvrsh3ll](https://twitter.com/424f424f), [@killswitch_gui](https://twitter.com/killswitch_gui), [@xorrior](https://twitter.com/xorrior), and [@bcsecurity1](https://twitter.com/BCSecurity1). While the main fork for Empire is no longer maintained, this fork is maintained by [BC-Security](https://www.bc-security.org) and will continue to receive periodic updates.
+
+## Release Notes
+With the release of the 3.0 beta, there are some major upgrades to Empire. Many of these have lingered on various branches of the Empire project and have finally been consolidated, as well as, there being several new updates. The biggest change to mention is the conversion of the Empire base code from Python 2.7 to Python 2.7/3.x compatible. This will ensure that Empire continues to function as Kali drops Python 2.7 support. The conversion also causes some issues in the way that bytes and strings are handled which will likely cause some unfound errors. 
+
+We have tested the core http listeners (http, http_hop, http_mapi, redirector) and confirmed that they work in both Python 2.7 and 3.x. We have also tested the Mimikatz modules and several of the launchers. There are still many modules that need to be tested, hence the beta release. 
+
+In addition to the code conversion, there are some minor UI updates, a few new modules, and new functionality. The full list of changes can be reviewed in the changelog.
 
 ## Install
 
@@ -65,3 +77,5 @@ Contributions are more than welcome! The more people who contribute to the proje
 * PowerShell Version 2 compatibility is **STRONGLY** preferred.
 * TEST YOUR MODULE! Be sure to run it from an Empire agent and test both Python 2.x/3.x functionality before submitting a pull to ensure everything is working correctly.
 * For additional guidelines for your PowerShell code itself, check out the [PowerSploit style guide](https://github.com/PowerShellMafia/PowerSploit/blob/master/README.md).
+
+[![alt text][1.1]][1]

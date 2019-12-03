@@ -2,7 +2,7 @@
 ------------
 - Version 3.0 Beta Release
 	- Added Python 2.6/7 and 3.x compatibility (@Cx01N, @Hubbl3, @Vinnybod)
-	- Imporved Windows Defender Evasion 
+	- Improved Windows Defender Evasion 
 	- Updated mimikatz binary in Invoke-Mimikatz to version 2.2.0 20190408 (@Cx01N)
 	- Fixed port assignment feature to listeners (@Cx01N)
 	- Fixed issues with http_Hop listener (@Cx01N)

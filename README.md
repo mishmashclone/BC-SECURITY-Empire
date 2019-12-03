@@ -43,7 +43,7 @@ In addition to the code conversion, there are some minor UI updates, a few new m
 To install and run:
 
 ```sh
-git clone https://github.com/BC-SECURITY/Empire.git
+git clone https://github.com/BC-SECURITY/Empire.git --branch dev
 cd Empire
 sudo ./setup/install.sh
 ```

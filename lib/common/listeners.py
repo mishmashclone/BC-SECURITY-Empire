@@ -139,15 +139,15 @@ class Listeners(object):
                     listenerObject.options[option]['Value'] = value
                     # Check if Port is set and add it to host
                     parts = listenerObject.options['Host']['Value']
-                    if parts.startswith('http'):
-                        address = parts[7:]
-                        address = ''.join(address.split(':')[0])
-                        protocol = "http"
-                        listenerObject.options['Host']['Value'] = "%s://%s:%s" % (protocol, address, listenerObject.options['Port']['Value'])
-                    elif parts.startswith('https'):
+                    if parts.startswith('https'):
                         address = parts[8:]
                         address = ''.join(address.split(':')[0])
                         protocol = "https"
+                        listenerObject.options['Host']['Value'] = "%s://%s:%s" % (protocol, address, listenerObject.options['Port']['Value'])
+                    elif parts.startswith('http'):
+                        address = parts[7:]
+                        address = ''.join(address.split(':')[0])
+                        protocol = "http"
                         listenerObject.options['Host']['Value'] = "%s://%s:%s" % (protocol, address, listenerObject.options['Port']['Value'])
                     return True
 

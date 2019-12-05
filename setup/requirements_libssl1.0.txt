@@ -6,7 +6,7 @@ pydispatcher
 flask
 macholib
 dropbox
-pyOpenSSL==17.2.0
+pyOpenSSL==17.5.0
 pyinstaller
 zlib_wrapper
 netifaces

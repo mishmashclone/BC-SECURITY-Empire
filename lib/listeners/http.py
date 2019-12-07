@@ -684,7 +684,7 @@ class Listener(object):
                 '$Profile = "/admin/get.php,/news.php,/login/process.php|Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"',
                 "$Profile = \"" + str(profile) + "\"")
             code = code.replace('$LostLimit = 60', "$LostLimit = " + str(lostLimit))
-            code = code.replace('$DefaultResponse = ""', '$DefaultResponse = "' + str(b64DefaultResponse) + '"')
+            code = code.replace('$DefaultResponse = ""', '$DefaultResponse = "' + b64DefaultResponse.decode('UTF-8') + '"')
             
             # patch in the killDate and workingHours if they're specified
             if killDate != "":
@@ -713,7 +713,7 @@ class Listener(object):
                 'profile = "%s"' % (profile))
             code = code.replace('lostLimit = 60', 'lostLimit = %s' % (lostLimit))
             code = code.replace('defaultResponse = base64.b64decode("")',
-                                'defaultResponse = base64.b64decode("%s")' % (b64DefaultResponse))
+                                'defaultResponse = base64.b64decode("%s")' % (b64DefaultResponse.decode("UTF-8")))
             
             # patch in the killDate and workingHours if they're specified
             if killDate != "":
@@ -1051,7 +1051,7 @@ def send_message(packets=None):
                                                              obfuscationCommand=self.mainMenu.obfuscateCommand)
                                 return make_response(stage, 200)
                             
-                            elif results.startswith(b'ERROR:'):
+                            elif results.startswith('ERROR:'):
                                 listenerName = self.options['Name']['Value']
                                 message = "[!] Error from agents.handle_agent_data() for {} from {}: {}".format(
                                     request_uri, clientIP, results)

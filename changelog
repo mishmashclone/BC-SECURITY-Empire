@@ -17,6 +17,7 @@
 	- Added Get-KerberosServiceTIcket (@OneLogicalMyth)
 	- Added Invoke-RID_Hijack (@r4wd3r)
 	- Added Invoke-internal_monologue (@audibleblink)
+	- Added Get-LAPSPasswords (@audibleblink)
 	- Added Invoke-SMBLogin (@mvelazc0)
 	- Added Sherlock (@_RastaMouse, @audibleblink)
 	- Added Outlook Sandbox Evasion for Windows Macro launcher (@Cx01N, @Hubbl3)

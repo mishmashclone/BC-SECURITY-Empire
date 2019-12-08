@@ -43,7 +43,7 @@ In addition to the code conversion, there are some minor UI updates, a few new m
 To install and run:
 
 ```sh
-git clone https://github.com/BC-SECURITY/Empire.git --branch dev
+git clone https://github.com/BC-SECURITY/Empire.git
 cd Empire
 sudo ./setup/install.sh
 ```
@@ -77,5 +77,3 @@ Contributions are more than welcome! The more people who contribute to the proje
 * PowerShell Version 2 compatibility is **STRONGLY** preferred.
 * TEST YOUR MODULE! Be sure to run it from an Empire agent and test both Python 2.x/3.x functionality before submitting a pull to ensure everything is working correctly.
 * For additional guidelines for your PowerShell code itself, check out the [PowerSploit style guide](https://github.com/PowerShellMafia/PowerSploit/blob/master/README.md).
-
-[![alt text][1.1]][1]

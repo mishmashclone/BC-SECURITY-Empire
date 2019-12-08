@@ -1051,7 +1051,7 @@ def send_message(packets=None):
                                                              obfuscationCommand=self.mainMenu.obfuscateCommand)
                                 return make_response(stage, 200)
                             
-                            elif results.startswith('ERROR:'):
+                            elif results.startswith(b'ERROR:'):
                                 listenerName = self.options['Name']['Value']
                                 message = "[!] Error from agents.handle_agent_data() for {} from {}: {}".format(
                                     request_uri, clientIP, results)

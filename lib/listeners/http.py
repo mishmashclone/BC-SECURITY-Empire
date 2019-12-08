@@ -1036,7 +1036,9 @@ def send_message(packets=None):
                 if dataResults and len(dataResults) > 0:
                     for (language, results) in dataResults:
                         if results:
-                            if results == 'STAGE0':
+                            if isinstance(results, str):
+                                results = results.encode('UTF-8')
+                            if results == b'STAGE0':
                                 # handle_agent_data() signals that the listener should return the stager.ps1 code
                                 # step 2 of negotiation -> return stager.ps1 (stage 1)
                                 listenerName = self.options['Name']['Value']
@@ -1061,7 +1063,7 @@ def send_message(packets=None):
                                 })
                                 dispatcher.send(signal, sender="listeners/http/{}".format(listenerName))
                                 
-                                if 'not in cache' in results:
+                                if b'not in cache' in results:
                                     # signal the client to restage
                                     print(helpers.color("[*] Orphaned agent from %s, signaling restaging" % (clientIP)))
                                     return make_response(self.default_response(), 401)

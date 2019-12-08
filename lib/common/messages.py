@@ -28,7 +28,7 @@ def title(version):
     """
     Print the tool title, with version.
     """
-    #os.system('clear')
+    os.system('clear')
     print("================================================================================")
     print(" [Empire]  Post-Exploitation Framework")
     print('================================================================================')

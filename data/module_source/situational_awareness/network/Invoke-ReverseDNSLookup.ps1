@@ -164,7 +164,7 @@ function Invoke-ReverseDNSLookup
             Write-Verbose $ip
             # Show Progress
             $record_progress = [int][Math]::Ceiling((($i / $record_count) * 100))
-            # Write-Progress -Activity "Performing DNS Reverse Lookup Discovery" -PercentComplete $record_progress -Status "Reverse Lookup - $record_progress%" -Id 1;
+            Write-Progress -Activity "Performing DNS Reverse Lookup Discovery" -PercentComplete $record_progress -Status "Reverse Lookup - $record_progress%" -Id 1;
 
             while ($($pool.GetAvailableRunspaces()) -le 0) 
             {

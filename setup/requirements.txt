@@ -16,3 +16,5 @@ cryptography
 pyminifier
 xlutils
 pycrypto
+pefile
+simplejson

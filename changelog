@@ -1,8 +1,44 @@
+11/26/2019
+------------
+- Version 3.0 Beta Release
+	- Added Python 2.6/7 and 3.x compatibility (@Cx01N, @Hubbl3, @Vinnybod)
+	- Improved Windows Defender Evasion 
+	- Updated mimikatz binary in Invoke-Mimikatz to version 2.2.0 20191125 (@Cx01N)
+	- Fixed port assignment feature to listeners (@Cx01N)
+	- Fixed issues with http_Hop listener (@Cx01N)
+	- Fixed issues with redirector listener (@Cx01N)
+	- Fixed typos in default http listener payloads (@Hubbl3)
+	- Fixed psinject AV recognition (@Hubbl3) 
+	- Updated Invoke-Obfuscation to version 1.8 (@phra)
+	- Updated Invoke-Kerberoast (@Zero1t0) 
+	- Added ability to uselisteners on main menu (@Cx01N, @Hubbl3)
+	- Added Get-Subnet_Ranges (@benichmt1)
+	- Added Get-WinUpdates (@classity)
+	- Added Get-KerberosServiceTIcket (@OneLogicalMyth)
+	- Added Invoke-RID_Hijack (@r4wd3r)
+	- Added Invoke-internal_monologue (@audibleblink)
+	- Added Get-LAPSPasswords (@audibleblink)
+	- Added Invoke-SMBLogin (@mvelazc0)
+	- Added Sherlock (@_RastaMouse, @audibleblink)
+	- Added Outlook Sandbox Evasion for Windows Macro launcher (@Cx01N, @Hubbl3)
+	- Added Randomized JA3S signature (@Hubbl3) 
+	- Added AMSI Bypass based on Tal Liberman's AMSI Bypass (@Hubbl3)
+	- Added Invoke-CredentialPhisher (@quickbreach)
+	- Made Security Bypasses configurable for launchers (@phra)
+	- Updated Readme to include install instruction, EOL of Core Devloper support, new contribution rules 
+	- Added OSX shellcode stager (@johneiser)
+	- Added Invoke-Phant0m (@leesoh)
+	- Added Get-AppLockerConfig (@matterpreter)
+	- Added HostRecon (@RootUp)
+	- Added more informative PS agent directory listing (@winnie22)
+
+Credit was given based on Commit Author if something is credited incorrectly or we missed an update 
+please contact us at info@bc-security.org 
 
 03/15/2018
 ------------
 - Version 2.5 Master Release
-	- Patched launcher generation bug 
+	- Patched launcher generation bug
 	- Added OSX Mic record module #893 (@s0lst1c3)
 	- More robust password handling in ssh_command and ssh_launcher modules (@retro-engineer)
 	- Updated server responses for http listener (@xorrior) 

@@ -31,9 +31,9 @@ Empire relies heavily on the work from several other projects for its underlying
 Empire is developed by [@harmj0y](https://twitter.com/harmj0y), [@sixdub](https://twitter.com/sixdub), [@enigma0x3](https://twitter.com/enigma0x3), [@rvrsh3ll](https://twitter.com/424f424f), [@killswitch_gui](https://twitter.com/killswitch_gui), [@xorrior](https://twitter.com/xorrior), and [@bcsecurity1](https://twitter.com/BCSecurity1). While the main fork for Empire is no longer maintained, this fork is maintained by [BC-Security](https://www.bc-security.org) and will continue to receive periodic updates.
 
 ## Release Notes
-With the release of the 3.0 beta, there are some major upgrades to Empire. Many of these have lingered on various branches of the Empire project and have finally been consolidated, as well as, there being several new updates. The biggest change to mention is the conversion of the Empire base code from Python 2.7 to Python 2.7/3.x compatible. This will ensure that Empire continues to function as Kali drops Python 2.7 support. The conversion also causes some issues in the way that bytes and strings are handled which will likely cause some unfound errors. 
+There are some major upgrades in Empire 3.0. Many of these have lingered on various branches of the Empire project and have finally been consolidated, as well as, there being several new updates. The biggest change to mention is the conversion of the Empire base code from Python 2.7 to Python 2.7/3.x compatible. This will ensure that Empire continues to function as Kali drops Python 2.7 support. The conversion also causes some issues in the way that bytes and strings are handled which will likely cause some unfound errors. 
 
-We have tested the core http listeners (http, http_hop, http_mapi, redirector) and confirmed that they work in both Python 2.7 and 3.x. We have also tested the Mimikatz modules and several of the launchers. There are still many modules that need to be tested, hence the beta release. 
+We have tested the core http listeners (http, http_hop, http_mapi, redirector) and confirmed that they work in both Python 2.7 and 3.x. We have also tested the Mimikatz modules and several of the launchers.
 
 In addition to the code conversion, there are some minor UI updates, a few new modules, and new functionality. The full list of changes can be reviewed in the changelog.
 

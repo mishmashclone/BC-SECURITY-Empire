@@ -2252,6 +2252,8 @@ class PowerShellAgentMenu(SubMenu):
                 else:
                     # dispatch this event
                     message = "[*] Tasked agent to upload {}, {}".format(uploadname, helpers.get_file_size(file_data))
+                    file_data = file_data.encode('UTF-8')
+
                     signal = json.dumps({
                         'print': True,
                         'message': message,
@@ -2267,7 +2269,7 @@ class PowerShellAgentMenu(SubMenu):
                     
                     # upload packets -> "filename | script data"
                     file_data = helpers.encode_base64(file_data)
-                    data = uploadname + "|" + file_data
+                    data = uploadname + "|" + file_data.decode("UTF-8")
                     self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_UPLOAD", data)
             else:
                 print(helpers.color("[!] Please enter a valid file path to upload"))

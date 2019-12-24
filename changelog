@@ -2,7 +2,7 @@
 ------------
 - Version 3.0 Beta Release
 	- Added Python 2.6/7 and 3.x compatibility (@Cx01N, @Hubbl3, @Vinnybod)
-	- Improved Windows Defender Evasion 
+	- Improved Windows Defender Evasion (@Hubbl3)
 	- Updated mimikatz binary in Invoke-Mimikatz to version 2.2.0 20191125 (@Cx01N)
 	- Fixed port assignment feature to listeners (@Cx01N)
 	- Fixed issues with http_Hop listener (@Cx01N)
@@ -17,15 +17,15 @@
 	- Added Get-KerberosServiceTIcket (@OneLogicalMyth)
 	- Added Invoke-RID_Hijack (@r4wd3r)
 	- Added Invoke-internal_monologue (@audibleblink)
-	- Added Get-LAPSPasswords (@audibleblink)
+	- Added Get-LAPSPasswords (@ippsec)
 	- Added Invoke-SMBLogin (@mvelazc0)
-	- Added Sherlock (@_RastaMouse, @audibleblink)
+	- Added Sherlock (@ippsec)
 	- Added Outlook Sandbox Evasion for Windows Macro launcher (@Cx01N, @Hubbl3)
-	- Added Randomized JA3S signature (@Hubbl3) 
+	- Added Randomized JA3/S signature (@Hubbl3)
 	- Added AMSI Bypass based on Tal Liberman's AMSI Bypass (@Hubbl3)
 	- Added Invoke-CredentialPhisher (@quickbreach)
 	- Made Security Bypasses configurable for launchers (@phra)
-	- Updated Readme to include install instruction, EOL of Core Devloper support, new contribution rules 
+	- Updated Readme to include install instruction, EOL of Core Developer support, new contribution rules (@Hubbl3)
 	- Added OSX shellcode stager (@johneiser)
 	- Added Invoke-Phant0m (@leesoh)
 	- Added Get-AppLockerConfig (@matterpreter)

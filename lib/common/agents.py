@@ -1659,13 +1659,11 @@ class Agents(object):
             # process the packet and extract necessary data
             responsePackets = packets.parse_result_packets(packet)
             results = False
-
             # process each result packet
             for (responseName, totalPacket, packetNum, taskID, length, data) in responsePackets:
                 # process the agent's response
                 self.process_agent_packet(sessionID, responseName, taskID, data)
                 results = True
-
             if results:
                 # signal that this agent returned results
                 message = "[*] Agent {} returned results.".format(sessionID)
@@ -1954,6 +1952,8 @@ class Agents(object):
                     return
 
                 with open(savePath,"a+") as f:
+                    if isinstance(data, bytes):
+                        data = data.decode('UTF-8')
                     new_results = data.replace("\r\n","").replace("[SpaceBar]", "").replace('\b', '').replace("[Shift]", "").replace("[Enter]\r","\r\n")
                     f.write(new_results)
             else:

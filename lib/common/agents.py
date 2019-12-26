@@ -67,7 +67,6 @@ import threading
 from pydispatch import dispatcher
 from zlib_wrapper import compress
 from zlib_wrapper import decompress
-import traceback
 
 # Empire imports
 from . import encryption
@@ -1681,7 +1680,6 @@ class Agents(object):
 
 
         except Exception as e:
-            traceback.print_exc()
             message = "[!] Error processing result packet from {} : {}".format(sessionID, e)
             signal = json.dumps({
                 'print': True,

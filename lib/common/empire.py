@@ -2237,16 +2237,15 @@ class PowerShellAgentMenu(SubMenu):
             else:
                 # if we're uploading the file as a different name
                 uploadname = parts[1].strip()
-            
             if parts[0] != "" and os.path.exists(parts[0]):
                 # Check the file size against the upload limit of 1 mb
                 
                 # read in the file and base64 encode it for transport
-                open_file = open(parts[0], 'r')
+                open_file = open(parts[0], 'r', encoding="utf8", errors='ignore')
                 file_data = open_file.read()
                 open_file.close()
-                
                 size = os.path.getsize(parts[0])
+
                 if size > 1048576:
                     print(helpers.color("[!] File size is too large. Upload limit is 1MB."))
                 else:

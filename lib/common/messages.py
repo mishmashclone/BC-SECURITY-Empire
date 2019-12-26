@@ -476,7 +476,7 @@ def display_credentials(creds):
         domain = cred[2]
         username = cred[3]
         password = cred[4]
-        host = cred[5]
+        host = cred[5].decode('latin-1')
 
         print("  %s%s%s%s%s%s" % ('{0: <8}'.format(credID), '{0: <11}'.format(credType), '{0: <25}'.format(domain), '{0: <17}'.format(username), '{0: <17}'.format(host), password))
 

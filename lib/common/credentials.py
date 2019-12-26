@@ -53,7 +53,6 @@ class Credentials(object):
         """
 
         cur = self.conn.cursor()
-
         # if we're returning a single credential by ID
         if self.is_credential_valid(filterTerm):
             cur.execute("SELECT * FROM credentials WHERE id=? limit 1", [filterTerm])

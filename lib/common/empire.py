@@ -684,7 +684,7 @@ class MainMenu(cmd.Cmd):
         
         else:
             creds = self.credentials.get_credentials(filterTerm=filterTerm)
-        
+
         messages.display_credentials(creds)
     
     

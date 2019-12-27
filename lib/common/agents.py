@@ -1759,6 +1759,7 @@ class Agents(object):
 
         elif responseName == "TASK_SYSINFO":
             # sys info response -> update the host info
+            data = data.decode('utf-8')
             parts = data.split("|")
             if len(parts) < 12:
                 message = "[!] Invalid sysinfo response from {}".format(sessionID)
@@ -1768,19 +1769,19 @@ class Agents(object):
                 })
                 dispatcher.send(signal, sender="agents/{}".format(sessionID))
             else:
-                print("sysinfo:",data)
+                print("sysinfo:", data)
                 # extract appropriate system information
-                listener = str(parts[1], 'utf-8')
-                domainname = str(parts[2], 'utf-8')
-                username = str(parts[3], 'utf-8')
-                hostname = str(parts[4], 'utf-8')
-                internal_ip = str(parts[5], 'utf-8')
-                os_details = str(parts[6], 'utf-8')
-                high_integrity = str(parts[7], 'utf-8')
-                process_name = str(parts[8], 'utf-8')
-                process_id = str(parts[9], 'utf-8')
-                language = str(parts[10], 'utf-8')
-                language_version = str(parts[11], 'utf-8')
+                listener = parts[1]
+                domainname = parts[2]
+                username = parts[3]
+                hostname = parts[4]
+                internal_ip = parts[5]
+                os_details = parts[6]
+                high_integrity = parts[7]
+                process_name = parts[8]
+                process_id = parts[9]
+                language = parts[10]
+                language_version = parts[11]
                 if high_integrity == 'True':
                     high_integrity = 1
                 else:

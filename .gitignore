@@ -17,3 +17,4 @@ setup/bomutils/
 .DS_Store
 venv/
 addons/
+.gitignore

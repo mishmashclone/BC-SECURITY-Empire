@@ -1770,7 +1770,6 @@ class Agents(object):
                 })
                 dispatcher.send(signal, sender="agents/{}".format(sessionID))
             else:
-                print("sysinfo:", data)
                 # extract appropriate system information
                 listener = parts[1]
                 domainname = parts[2]

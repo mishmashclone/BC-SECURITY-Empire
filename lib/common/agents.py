@@ -1674,7 +1674,7 @@ class Agents(object):
                 })
                 dispatcher.send(signal, sender="agents/{}".format(sessionID))
 
-            # return a 200/validsc
+            # return a 200/valid
             return 'VALID'
 
 

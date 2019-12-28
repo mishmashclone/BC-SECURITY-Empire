@@ -16,4 +16,4 @@ setup/bomutils/
 .venv
 .DS_Store
 venv/
-
+addons/

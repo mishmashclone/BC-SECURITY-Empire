@@ -1,19 +1,19 @@
 12/29/2019
 ------------
 - Version 3.0.1 Master Release
-    - Fixed sysinfo error (@Invoke-Mimikatz)
-    - Fixed Debian 10.x docker (@Vinnybod)
-    - Fixed windows/macro stager error (@rossiV1)
-    - Fixed upload file error (@Invoke-Mimikatz)
-    - Fixed download file error (@Cx01N)
-    - Fixed scriptcmd error (@Invoke-Mimikatz)
-    - Fixed print creds error (@bsrinivasguptha)
-    - Cleaned up print results (@Cx01N)
-    - Fixed long running module issue (@Hubbl3)
+	- Fixed sysinfo error - #36 (@Invoke-Mimikatz)
+	- Fixed Debian 10.x docker - #38 (@Vinnybod)
+	- Fixed windows/macro stager error - #30 (@Cx01N)
+	- Fixed upload file error - #30 (@Cx01N)
+	- Fixed meterpreter error - #42 (@Cx01N)
+	- Fixed download file error (@Cx01N)
+	- Fixed scriptcmd error - #45 (@Invoke-Mimikatz)
+	- Fixed print creds error - #31 (@Hubbl3)
+	- Cleaned up print results (@Cx01N)
+	- Fixed long running module issue - #16 (@Hubbl3)
 
-Credit was given to the authors that reported the bug to us as a thank you for
-spending time debugging with our team. Please contact us at Empire@bc-security.org,
-if credit is incorrectly cited.
+Thank you to the contributors for spending time debugging with our team.
+Please contact us at Empire@bc-security.org if credit is incorrectly cited.
 
 12/22/2019
 ------------

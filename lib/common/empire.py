@@ -14,7 +14,7 @@ from __future__ import absolute_import
 from builtins import input
 from builtins import str
 from builtins import range
-VERSION = "3.0 BC-Security Fork"
+VERSION = "3.0.1 BC-Security Fork"
 
 from pydispatch import dispatcher
 
@@ -684,7 +684,7 @@ class MainMenu(cmd.Cmd):
         
         else:
             creds = self.credentials.get_credentials(filterTerm=filterTerm)
-        
+
         messages.display_credentials(creds)
     
     
@@ -1858,7 +1858,7 @@ class PowerShellAgentMenu(SubMenu):
         if '{} returned results'.format(self.sessionID) in signal:
             results = self.mainMenu.agents.get_agent_results_db(self.sessionID)
             if results:
-                print(helpers.color(results))
+                print("\n" + helpers.color(results))
     
     
     def default(self, line):
@@ -2237,21 +2237,22 @@ class PowerShellAgentMenu(SubMenu):
             else:
                 # if we're uploading the file as a different name
                 uploadname = parts[1].strip()
-            
             if parts[0] != "" and os.path.exists(parts[0]):
                 # Check the file size against the upload limit of 1 mb
                 
                 # read in the file and base64 encode it for transport
-                open_file = open(parts[0], 'r')
+                open_file = open(parts[0], 'r', encoding="utf8", errors='ignore')
                 file_data = open_file.read()
                 open_file.close()
-                
                 size = os.path.getsize(parts[0])
+
                 if size > 1048576:
                     print(helpers.color("[!] File size is too large. Upload limit is 1MB."))
                 else:
                     # dispatch this event
                     message = "[*] Tasked agent to upload {}, {}".format(uploadname, helpers.get_file_size(file_data))
+                    file_data = file_data.encode('UTF-8')
+
                     signal = json.dumps({
                         'print': True,
                         'message': message,
@@ -2267,7 +2268,7 @@ class PowerShellAgentMenu(SubMenu):
                     
                     # upload packets -> "filename | script data"
                     file_data = helpers.encode_base64(file_data)
-                    data = uploadname + "|" + file_data
+                    data = uploadname + "|" + file_data.decode("UTF-8")
                     self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_UPLOAD", data)
             else:
                 print(helpers.color("[!] Please enter a valid file path to upload"))
@@ -2290,17 +2291,17 @@ class PowerShellAgentMenu(SubMenu):
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SCRIPT_IMPORT", script_data)
             
             # dispatch this event
-            message = "[*] Tasked agent to import {}: {}".format(path, hashlib.md5(script_data).hexdigest())
+            message = "[*] Tasked agent to import {}: {}".format(path, hashlib.md5(script_data.encode('utf-8')).hexdigest())
             signal = json.dumps({
                 'print': False,
                 'message': message,
                 'import_path': path,
-                'import_md5': hashlib.md5(script_data).hexdigest()
+                'import_md5': hashlib.md5(script_data.encode('utf-8')).hexdigest()
             })
             dispatcher.send(signal, sender="agents/{}".format(self.sessionID))
             
             # update the agent log with the filename and MD5
-            msg = "Tasked agent to import %s : %s" % (path, hashlib.md5(script_data).hexdigest())
+            msg = "Tasked agent to import %s : %s" % (path, hashlib.md5(script_data.encode('utf-8')).hexdigest())
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
             
             # extract the functions from the script so we can tab-complete them
@@ -2834,7 +2835,7 @@ class PythonAgentMenu(SubMenu):
         if '{} returned results'.format(self.sessionID) in signal:
             results = self.mainMenu.agents.get_agent_results_db(self.sessionID)
             if results:
-                print(helpers.color(results))
+                print("\n" + helpers.color(results))
     
     def default(self, line):
         "Default handler"

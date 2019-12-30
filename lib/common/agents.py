@@ -352,14 +352,15 @@ class Agents(object):
                 os.makedirs(save_path)
 
             # save the file out
-            f = open(save_path + "/" + filename, 'w')
+            f = open(save_path + "/" + filename, 'wb')
+
             f.write(data)
             f.close()
         finally:
             self.lock.release()
 
         # notify everyone that the file was downloaded
-        message = "[+] File {} from {} saved".format(path, sessionID)
+        message = "\n[+] File {} from {} saved".format(path, sessionID)
         signal = json.dumps({
             'print': True,
             'message': message
@@ -1659,13 +1660,11 @@ class Agents(object):
             # process the packet and extract necessary data
             responsePackets = packets.parse_result_packets(packet)
             results = False
-
             # process each result packet
             for (responseName, totalPacket, packetNum, taskID, length, data) in responsePackets:
                 # process the agent's response
                 self.process_agent_packet(sessionID, responseName, taskID, data)
                 results = True
-
             if results:
                 # signal that this agent returned results
                 message = "[*] Agent {} returned results.".format(sessionID)
@@ -1761,6 +1760,7 @@ class Agents(object):
 
         elif responseName == "TASK_SYSINFO":
             # sys info response -> update the host info
+            data = data.decode('utf-8')
             parts = data.split("|")
             if len(parts) < 12:
                 message = "[!] Invalid sysinfo response from {}".format(sessionID)
@@ -1770,19 +1770,18 @@ class Agents(object):
                 })
                 dispatcher.send(signal, sender="agents/{}".format(sessionID))
             else:
-                print("sysinfo:",data)
                 # extract appropriate system information
-                listener = str(parts[1], 'utf-8')
-                domainname = str(parts[2], 'utf-8')
-                username = str(parts[3], 'utf-8')
-                hostname = str(parts[4], 'utf-8')
-                internal_ip = str(parts[5], 'utf-8')
-                os_details = str(parts[6], 'utf-8')
-                high_integrity = str(parts[7], 'utf-8')
-                process_name = str(parts[8], 'utf-8')
-                process_id = str(parts[9], 'utf-8')
-                language = str(parts[10], 'utf-8')
-                language_version = str(parts[11], 'utf-8')
+                listener = parts[1]
+                domainname = parts[2]
+                username = parts[3]
+                hostname = parts[4]
+                internal_ip = parts[5]
+                os_details = parts[6]
+                high_integrity = parts[7]
+                process_name = parts[8]
+                process_id = parts[9]
+                language = parts[10]
+                language_version = parts[11]
                 if high_integrity == 'True':
                     high_integrity = 1
                 else:
@@ -1795,9 +1794,9 @@ class Agents(object):
                 self.mainMenu.agents.update_agent_sysinfo_db(sessionID, listener=listener, internal_ip=internal_ip, username=username, hostname=hostname, os_details=os_details, high_integrity=high_integrity, process_name=process_name, process_id=process_id, language_version=language_version, language=language)
 
                 sysinfo = '{0: <18}'.format("Listener:") + listener + "\n"
-                sysinfo += '{0: <16}'.format("Internal IP:") + internal_ip + "\n"
+                sysinfo += '{0: <18}'.format("Internal IP:") + internal_ip + "\n"
                 sysinfo += '{0: <18}'.format("Username:") + username + "\n"
-                sysinfo += '{0: <16}'.format("Hostname:") + hostname + "\n"
+                sysinfo += '{0: <18}'.format("Hostname:") + hostname + "\n"
                 sysinfo += '{0: <18}'.format("OS:") + os_details + "\n"
                 sysinfo += '{0: <18}'.format("High Integrity:") + str(high_integrity) + "\n"
                 sysinfo += '{0: <18}'.format("Process Name:") + process_name + "\n"
@@ -1837,6 +1836,9 @@ class Agents(object):
 
         elif responseName == "TASK_DOWNLOAD":
             # file download
+            if isinstance(data, bytes):
+                data = data.decode('UTF-8')
+
             parts = data.split("|")
             if len(parts) != 3:
                 message = "[!] Received invalid file download response from {}".format(sessionID)
@@ -1848,7 +1850,7 @@ class Agents(object):
             else:
                 index, path, data = parts
                 # decode the file data and save it off as appropriate
-                file_data = helpers.decode_base64(data)
+                file_data = helpers.decode_base64(data.encode('UTF-8'))
                 name = self.get_agent_name_db(sessionID)
 
                 if index == "0":
@@ -1921,12 +1923,13 @@ class Agents(object):
 
 
         elif responseName == "TASK_CMD_WAIT_SAVE":
+
             # dynamic script output -> blocking, save data
             name = self.get_agent_name_db(sessionID)
 
             # extract the file save prefix and extension
-            prefix = data[0:15].strip()
-            extension = data[15:20].strip()
+            prefix = data[0:15].strip().decode('UTF-8')
+            extension = data[15:20].strip().decode('UTF-8')
             file_data = helpers.decode_base64(data[20:])
 
             # save the file off to the appropriate path
@@ -1954,6 +1957,8 @@ class Agents(object):
                     return
 
                 with open(savePath,"a+") as f:
+                    if isinstance(data, bytes):
+                        data = data.decode('UTF-8')
                     new_results = data.replace("\r\n","").replace("[SpaceBar]", "").replace('\b', '').replace("[Shift]", "").replace("[Enter]\r","\r\n")
                     f.write(new_results)
             else:
@@ -2053,7 +2058,7 @@ class Agents(object):
             self.save_agent_log(sessionID, data)
             message = "[+] Listener for '{}' updated to '{}'".format(sessionID, data)
             signal = json.dumps({
-                'print': True,
+                'print': False,
                 'message': message
             })
             dispatcher.send(signal, sender="agents/{}".format(sessionID))

@@ -4,7 +4,6 @@ from builtins import str
 from builtins import object
 from lib.common import helpers
 
-
 class Listener(object):
 
     def __init__(self, mainMenu, params=[]):
@@ -67,8 +66,7 @@ class Listener(object):
 
         return True
 
-
-    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None):
+    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None, scriptLogBypass=None, AMSIBypass=None, AMSIBypass2=None):
         """
         Generate a basic launcher for the specified listener.
         """

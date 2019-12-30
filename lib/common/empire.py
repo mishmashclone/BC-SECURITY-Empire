@@ -1858,7 +1858,7 @@ class PowerShellAgentMenu(SubMenu):
         if '{} returned results'.format(self.sessionID) in signal:
             results = self.mainMenu.agents.get_agent_results_db(self.sessionID)
             if results:
-                print(helpers.color(results))
+                print("\n" + helpers.color(results))
     
     
     def default(self, line):
@@ -2835,7 +2835,7 @@ class PythonAgentMenu(SubMenu):
         if '{} returned results'.format(self.sessionID) in signal:
             results = self.mainMenu.agents.get_agent_results_db(self.sessionID)
             if results:
-                print(helpers.color(results))
+                print("\n" + helpers.color(results))
     
     def default(self, line):
         "Default handler"

@@ -360,7 +360,7 @@ class Agents(object):
             self.lock.release()
 
         # notify everyone that the file was downloaded
-        message = "[+] File {} from {} saved".format(path, sessionID)
+        message = "\n[+] File {} from {} saved".format(path, sessionID)
         signal = json.dumps({
             'print': True,
             'message': message
@@ -1794,9 +1794,9 @@ class Agents(object):
                 self.mainMenu.agents.update_agent_sysinfo_db(sessionID, listener=listener, internal_ip=internal_ip, username=username, hostname=hostname, os_details=os_details, high_integrity=high_integrity, process_name=process_name, process_id=process_id, language_version=language_version, language=language)
 
                 sysinfo = '{0: <18}'.format("Listener:") + listener + "\n"
-                sysinfo += '{0: <16}'.format("Internal IP:") + internal_ip + "\n"
+                sysinfo += '{0: <18}'.format("Internal IP:") + internal_ip + "\n"
                 sysinfo += '{0: <18}'.format("Username:") + username + "\n"
-                sysinfo += '{0: <16}'.format("Hostname:") + hostname + "\n"
+                sysinfo += '{0: <18}'.format("Hostname:") + hostname + "\n"
                 sysinfo += '{0: <18}'.format("OS:") + os_details + "\n"
                 sysinfo += '{0: <18}'.format("High Integrity:") + str(high_integrity) + "\n"
                 sysinfo += '{0: <18}'.format("Process Name:") + process_name + "\n"
@@ -2058,7 +2058,7 @@ class Agents(object):
             self.save_agent_log(sessionID, data)
             message = "[+] Listener for '{}' updated to '{}'".format(sessionID, data)
             signal = json.dumps({
-                'print': True,
+                'print': False,
                 'message': message
             })
             dispatcher.send(signal, sender="agents/{}".format(sessionID))

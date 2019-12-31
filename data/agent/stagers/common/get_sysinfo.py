@@ -60,4 +60,4 @@ def get_sysinfo(nonce='00000000'):
         processName = b" ".join(parts[1].split()[4:])
     else:
         processName = 'python'
-    return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (nonce, server, '', username, hostname, internalIP, osDetails, highIntegrity, processName, processID.decode('UTF'), language, pyVersion)
+    return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (nonce, server, '', username, hostname, internalIP, osDetails, highIntegrity, processName.decode('UTF-8'), processID, language, pyVersion)

@@ -875,7 +875,6 @@ def send_message(packets=None):
         return ('200', data)
 
     except urllib.HTTPError as HTTPError:
-        print("line 880")
         # if the server is reached, but returns an error (like 404)
         missedCheckins = missedCheckins + 1
         #if signaled for restaging, exit.

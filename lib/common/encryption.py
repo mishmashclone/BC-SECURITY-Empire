@@ -173,8 +173,6 @@ def aes_decrypt(key, data):
         backend = default_backend()
         IV = data[0:16]
         cipher = Cipher(algorithms.AES(key), modes.CBC(IV), backend=backend)
-        print(len(data))
-        print(len(data[16:]))
         decryptor = cipher.decryptor()
         pt = depad(decryptor.update(data[16:]) + decryptor.finalize())
         return pt

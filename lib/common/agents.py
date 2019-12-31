@@ -1257,18 +1257,18 @@ class Agents(object):
             dispatcher.send(signal, sender="agents/{}".format(sessionID))
 
             # decrypt the agent's public key
-            #try:
-            message = encryption.aes_decrypt_and_verify(stagingKey, encData)
-         #   except Exception as e:
-         #       print('exception e:' + str(e))
-          #      # if we have an error during decryption
-           #     message = "[!] HMAC verification failed from '{}'".format(sessionID)
-            #    signal = json.dumps({
-             #       'print': True,
-              #      'message': message
-              #  })
-              #  dispatcher.send(signal, sender="agents/{}".format(sessionID))
-              #  return 'ERROR: HMAC verification failed'
+            try:
+                message = encryption.aes_decrypt_and_verify(stagingKey, encData)
+            except Exception as e:
+                print('exception e:' + str(e))
+                # if we have an error during decryption
+                message = "[!] HMAC verification failed from '{}'".format(sessionID)
+                signal = json.dumps({
+                    'print': True,
+                    'message': message
+                })
+                dispatcher.send(signal, sender="agents/{}".format(sessionID))
+                return 'ERROR: HMAC verification failed'
 
             if language.lower() == 'powershell':
                 # strip non-printable characters

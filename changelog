@@ -1,6 +1,23 @@
-11/26/2019
+12/29/2019
 ------------
-- Version 3.0 Beta Release
+- Version 3.0.1 Master Release
+	- Fixed sysinfo error - #36 (@Invoke-Mimikatz)
+	- Fixed Debian 10.x docker - #38 (@Vinnybod)
+	- Fixed windows/macro stager error - #30 (@Cx01N)
+	- Fixed upload file error - #30 (@Cx01N)
+	- Fixed meterpreter error - #42 (@Cx01N)
+	- Fixed download file error (@Cx01N)
+	- Fixed scriptcmd error - #45 (@Invoke-Mimikatz)
+	- Fixed print creds error - #31 (@Hubbl3)
+	- Cleaned up print results (@Cx01N)
+	- Fixed long running module issue - #16 (@Hubbl3)
+
+Thank you to the contributors for spending time debugging with our team.
+Please contact us at Empire@bc-security.org if credit is incorrectly cited.
+
+12/22/2019
+------------
+- Version 3.0 Master Release
 	- Added Python 2.6/7 and 3.x compatibility (@Cx01N, @Hubbl3, @Vinnybod)
 	- Improved Windows Defender Evasion (@Hubbl3)
 	- Updated mimikatz binary in Invoke-Mimikatz to version 2.2.0 20191125 (@Cx01N)
@@ -66,8 +83,6 @@ please contact us at info@bc-security.org
 	- Added onedrive listener for powershell agent (@mr64bit)
 	- Added opsec-safe aliases for ls, pwd, rm, mkdir, whoami, and getuid in the python agent 
 	- Updated office macro stager for python agent (@import-au)
-	
-
 
 01/04/2018
 ------------

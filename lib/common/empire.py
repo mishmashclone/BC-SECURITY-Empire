@@ -1858,7 +1858,7 @@ class PowerShellAgentMenu(SubMenu):
         if '{} returned results'.format(self.sessionID) in signal:
             results = self.mainMenu.agents.get_agent_results_db(self.sessionID)
             if results:
-                print(helpers.color(results))
+                print("\n" + helpers.color(results))
     
     
     def default(self, line):
@@ -2291,17 +2291,17 @@ class PowerShellAgentMenu(SubMenu):
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SCRIPT_IMPORT", script_data)
             
             # dispatch this event
-            message = "[*] Tasked agent to import {}: {}".format(path, hashlib.md5(script_data).hexdigest())
+            message = "[*] Tasked agent to import {}: {}".format(path, hashlib.md5(script_data.encode('utf-8')).hexdigest())
             signal = json.dumps({
                 'print': False,
                 'message': message,
                 'import_path': path,
-                'import_md5': hashlib.md5(script_data).hexdigest()
+                'import_md5': hashlib.md5(script_data.encode('utf-8')).hexdigest()
             })
             dispatcher.send(signal, sender="agents/{}".format(self.sessionID))
             
             # update the agent log with the filename and MD5
-            msg = "Tasked agent to import %s : %s" % (path, hashlib.md5(script_data).hexdigest())
+            msg = "Tasked agent to import %s : %s" % (path, hashlib.md5(script_data.encode('utf-8')).hexdigest())
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
             
             # extract the functions from the script so we can tab-complete them
@@ -2835,7 +2835,7 @@ class PythonAgentMenu(SubMenu):
         if '{} returned results'.format(self.sessionID) in signal:
             results = self.mainMenu.agents.get_agent_results_db(self.sessionID)
             if results:
-                print(helpers.color(results))
+                print("\n" + helpers.color(results))
     
     def default(self, line):
         "Default handler"

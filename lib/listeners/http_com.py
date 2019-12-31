@@ -716,7 +716,7 @@ class Listener(object):
 
                                 # step 2 of negotiation -> return stager.ps1 (stage 1)
                                 listenerName = self.options['Name']['Value']
-                                message = "[*] Sending {} stager (stage 1) to {}".format(language, clientIP)
+                                message = "\n[*] Sending {} stager (stage 1) to {}".format(language, clientIP)
                                 signal = json.dumps({
                                     'print': True,
                                     'message': message

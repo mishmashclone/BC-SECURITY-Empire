@@ -2,14 +2,6 @@
 Implements AES in python as a jinja2 partial.
 AES code from https://github.com/ricmoo/pyaes
 """
-
-from builtins import bytes
-from builtins import chr
-from builtins import zip
-from builtins import str
-from builtins import range
-from builtins import object
-import copy
 import struct
 import hashlib
 import random

@@ -184,7 +184,6 @@ def display_agents(agents):
         print(" ----     -- -----------     ------------      --------                -------            ---    -----    ---------            ----------------")
 
         for agent in agents:
-
             if str(agent['high_integrity']) == '1':
                 # add a * to the username if it's high integrity
                 agent['username'] = '*' + str(agent['username'])

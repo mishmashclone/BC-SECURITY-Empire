@@ -86,8 +86,9 @@ function install_powershell() {
 }
 
 function install_xar() {
-	wget https://github.com/downloads/mackyle/xar/xar-1.6.1.tar.gz
-	tar -xvf xar-1.6.1.tar.gz
+	wget https://github.com/BC-SECURITY/xar/archive/xar-1.6.1-patch.tar.gz
+	tar -xvf xar-1.6.1-patch.tar.gz && mv xar-xar-1.6.1-patch/xar/ xar-1.6.1/
+	(cd xar-1.6.1 && ./autogen.sh)
 	(cd xar-1.6.1 && ./configure)
 	(cd xar-1.6.1 && make)
 	(cd xar-1.6.1 && sudo make install)

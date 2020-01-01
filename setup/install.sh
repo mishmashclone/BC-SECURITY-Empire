@@ -136,11 +136,9 @@ else
 		if [ $(lsb_release -rs | cut -d "." -f 1) -ge 18 ]; then
 				LibSSL_pkgs="libssl1.1 libssl-dev"
 				Pip_file="requirements.txt"
-				Xar_version="xar-1.6.1"
 		else
 				LibSSL_pkgs="libssl1.0.0 libssl-dev"
 				Pip_file="requirements_libssl1.0.txt"
-				Xar_version="xar-1.5.2"
 		fi
 		sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
 		sudo pip install -r $Pip_file

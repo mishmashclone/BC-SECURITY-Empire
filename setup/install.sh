@@ -111,17 +111,17 @@ function install_bomutils() {
 # Because of some dependencies (xar) needing to know which OS has libssl 1.0, we are checking for
 # Ubuntu < 18 and Debian < 9 here.
 function is_libssl_1_0() {
-	if [ lsb_release -d | grep -q "Ubuntu" ]; then
+	if lsb_release -d | grep -q "Ubuntu"; then
 		if [ $(lsb_release -rs | cut -d "." -f 1) -lt 18 ]; then
-	  	return true;
+			return
 		fi
 	fi
 
 	if [ $(cut -d "." -f 1 /etc/debian_version) -lt 9 ]; then
-		return true;
+		return
 	fi
 
-	return false
+	false
 }
 
 # Ask for the administrator password upfront so sudo is no longer required at Installation.
@@ -134,6 +134,8 @@ then
 	cd ./setup
 fi
 
+Pip_file="requirements.txt"
+
 if uname | grep -q "Darwin"; then
 	sudo pip install -r requirements.txt --global-option=build_ext \
 		--global-option="-L/usr/local/opt/openssl/lib" \
@@ -143,34 +145,28 @@ if uname | grep -q "Darwin"; then
 	export CPPFLAGS=-I/usr/local/opt/openssl/include
 elif lsb_release -d | grep -q "Fedora"; then
 	sudo dnf install -y make automake gcc gcc-c++  python-devel m2crypto python-m2ext swig libxml2-devel java-openjdk-headless openssl-devel openssl libffi-devel redhat-rpm-config
-	sudo pip install -r requirements.txt
 elif lsb_release -d | grep -q "Kali"; then
 	apt-get update
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk zlib1g-dev libssl1.1 build-essential libssl-dev libxml2-dev zlib1g-dev
-	sudo pip install -r requirements.txt
 elif lsb_release -d | grep -q "Ubuntu"; then
 	sudo apt-get update
-	if [ is_libssl_1_0 ]; then
+	if is_libssl_1_0; then
 			LibSSL_pkgs="libssl1.0.0 libssl-dev"
 			Pip_file="requirements_libssl1.0.txt"
 	else
 			LibSSL_pkgs="libssl1.1 libssl-dev"
-			Pip_file="requirements.txt"
 	fi
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
-	sudo pip install -r $Pip_file
 else
 	echo "Unknown distro - Debian/Ubuntu Fallback"
 	sudo apt-get update
-	if [ is_libssl_1_0 ]; then
+	if is_libssl_1_0; then
 			LibSSL_pkgs="libssl1.0.0 libssl-dev"
 			Pip_file="requirements_libssl1.0.txt"
 	else
 			LibSSL_pkgs="libssl1.1 libssl-dev"
-			Pip_file="requirements.txt"
 	fi
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk libffi-dev $LibSSL_pkgs build-essential
-	sudo pip install -r $Pip_file
 fi
 
 install_xar
@@ -182,6 +178,7 @@ fi
 
 install_powershell
 
+sudo pip install -r $Pip_file
 
 # set up the database schema
 python ./setup_database.py

@@ -88,12 +88,12 @@ function install_powershell() {
 function install_xar() {
 	# xar-1.6.1 has an incompatability with libssl 1.1.x that is patched here
 	# for older OS on libssl 1.0.x, we continue to use 1.6.1
-	if [ is_libssl_1_0 ]; then
+	if is_libssl_1_0; then
 		wget https://github.com/BC-SECURITY/xar/archive/xar-1.6.1.tar.gz
-		tar -xvf xar-1.6.1-patch.tar.gz && mv xar-xar-1.6.1-patch/xar/ xar-1.6.1/
+		tar -xvf xar-1.6.1.tar.gz && mv xar-xar-1.6.1/xar/ xar-1.6.1/
 	else
 		wget https://github.com/BC-SECURITY/xar/archive/xar-1.6.1-patch.tar.gz
-		tar -xvf xar-1.6.1-patch.tar.gz && mv xar-xar-1.6.1/xar/ xar-1.6.1/
+		tar -xvf xar-1.6.1-patch.tar.gz && mv xar-xar-1.6.1-patch/xar/ xar-1.6.1/
 	fi
 	(cd xar-1.6.1 && ./autogen.sh)
 	(cd xar-1.6.1 && ./configure)
@@ -151,20 +151,20 @@ elif lsb_release -d | grep -q "Kali"; then
 elif lsb_release -d | grep -q "Ubuntu"; then
 	sudo apt-get update
 	if is_libssl_1_0; then
-			LibSSL_pkgs="libssl1.0.0 libssl-dev"
-			Pip_file="requirements_libssl1.0.txt"
+		LibSSL_pkgs="libssl1.0.0 libssl-dev"
+		Pip_file="requirements_libssl1.0.txt"
 	else
-			LibSSL_pkgs="libssl1.1 libssl-dev"
+		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
 else
 	echo "Unknown distro - Debian/Ubuntu Fallback"
 	sudo apt-get update
 	if is_libssl_1_0; then
-			LibSSL_pkgs="libssl1.0.0 libssl-dev"
-			Pip_file="requirements_libssl1.0.txt"
+		LibSSL_pkgs="libssl1.0.0 libssl-dev"
+		Pip_file="requirements_libssl1.0.txt"
 	else
-			LibSSL_pkgs="libssl1.1 libssl-dev"
+		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk libffi-dev $LibSSL_pkgs build-essential
 fi

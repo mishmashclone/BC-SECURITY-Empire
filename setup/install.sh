@@ -135,7 +135,6 @@ then
 fi
 
 if uname | grep -q "Darwin"; then
-	install_powershell
 	sudo pip install -r requirements.txt --global-option=build_ext \
 		--global-option="-L/usr/local/opt/openssl/lib" \
 		--global-option="-I/usr/local/opt/openssl/include"
@@ -149,7 +148,6 @@ elif lsb_release -d | grep -q "Kali"; then
 	apt-get update
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk zlib1g-dev libssl1.1 build-essential libssl-dev libxml2-dev zlib1g-dev
 	sudo pip install -r requirements.txt
-	install_powershell
 elif lsb_release -d | grep -q "Ubuntu"; then
 	sudo apt-get update
 	if [ is_libssl_1_0 ]; then
@@ -161,7 +159,6 @@ elif lsb_release -d | grep -q "Ubuntu"; then
 	fi
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
 	sudo pip install -r $Pip_file
-	install_powershell
 else
 	echo "Unknown distro - Debian/Ubuntu Fallback"
 	sudo apt-get update
@@ -174,7 +171,6 @@ else
 	fi
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk libffi-dev $LibSSL_pkgs build-essential
 	sudo pip install -r $Pip_file
-	install_powershell
 fi
 
 install_xar
@@ -183,6 +179,9 @@ install_xar
 if uname | grep -q "Linux"; then
 	install_bomutils
 fi
+
+install_powershell
+
 
 # set up the database schema
 python ./setup_database.py

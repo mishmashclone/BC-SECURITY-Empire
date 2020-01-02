@@ -61,13 +61,13 @@ docker create -v /empire --name data bcsecurity/empire:{version}
 docker run -it --volumes-from data bcsecurity/empire:{version}
 
 # if you prefer to be dropped into bash instead of directly into empire
-# or docker run -it --volumes-from data bcsecurity/empire:{version} /bin/bash
+# docker run -it --volumes-from data bcsecurity/empire:{version} /bin/bash
 ```
 
 All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
 * The last commit from master will be deployed to the `latest` tag
 * The last commit from the dev branch will be deployed to the `dev` tag
-* All github tagged releases will be deployed using their version numbers (v3.0, v3.1, etc)
+* All github tagged releases will be deployed using their version numbers (v3.0.0, v3.1.0, etc)
 
 ## Quickstart
 

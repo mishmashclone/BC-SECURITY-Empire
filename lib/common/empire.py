@@ -3184,7 +3184,6 @@ class PythonAgentMenu(SubMenu):
         "Task an agent to use a shell command."
         
         line = line.strip()
-        print("3175")
         if line != "":
             # task the agent with this shell command
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SHELL", str(line))

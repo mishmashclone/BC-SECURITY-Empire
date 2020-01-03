@@ -2,6 +2,7 @@
 Implements AES in python as a jinja2 partial.
 AES code from https://github.com/ricmoo/pyaes
 """
+import copy
 import struct
 import hashlib
 import random
@@ -34,6 +35,7 @@ def strip_PKCS7_padding(data):
 
 def _compact_word(word):
     return (word[0] << 24) | (word[1] << 16) | (word[2] << 8) | word[3]
+
 
 class AES(object):
     '''Encapsulates the AES block cipher.
@@ -203,40 +205,6 @@ class AES(object):
         for i in range(0, 4):
             tt = self._Kd[rounds][i]
             result.append((self.Si[(t[ i          ] >> 24) & 0xFF] ^ (tt >> 24)) & 0xFF)
-            result.append((self.Si[(t[(i + s1) % 4] >> 16) & 0xFF] ^ (tt >> 16)) & 0xFF)
-            result.append((self.Si[(t[(i + s2) % 4] >>  8) & 0xFF] ^ (tt >>  8)) & 0xFF)
-            result.append((self.Si[ t[(i + s3) % 4]        & 0xFF] ^  tt       ) & 0xFF)
-
-        return result
-
-
-def decrypt(self, ciphertext):
-
-        if len(ciphertext) != 16:
-            raise ValueError('wrong block length')
-
-        rounds = len(self._Kd) - 1
-        (s1, s2, s3) = [3, 2, 1]
-        a = [0, 0, 0, 0]
-
-        # Convert ciphertext to (ints ^ key)
-        t = [(_compact_word(ciphertext[4 * i:4 * i + 4]) ^ self._Kd[0][i]) for i in range(0, 4)]
-
-        # Apply round transforms
-        for r in range(1, rounds):
-            for i in range(0, 4):
-                a[i] = (self.T5[(t[ i          ] >> 24) & 0xFF] ^
-                        self.T6[(t[(i + s1) % 4] >> 16) & 0xFF] ^
-                        self.T7[(t[(i + s2) % 4] >>  8) & 0xFF] ^
-                        self.T8[ t[(i + s3) % 4]        & 0xFF] ^
-                        self._Kd[r][i])
-            t = copy.copy(a)
-
-        # The last round is special
-        result = [ ]
-        for i in range(0, 4):
-            tt = self._Kd[rounds][i]
-            result.append((self.Si[(t[ i           ] >> 24) & 0xFF] ^ (tt >> 24)) & 0xFF)
             result.append((self.Si[(t[(i + s1) % 4] >> 16) & 0xFF] ^ (tt >> 16)) & 0xFF)
             result.append((self.Si[(t[(i + s2) % 4] >>  8) & 0xFF] ^ (tt >>  8)) & 0xFF)
             result.append((self.Si[ t[(i + s3) % 4]        & 0xFF] ^  tt       ) & 0xFF)

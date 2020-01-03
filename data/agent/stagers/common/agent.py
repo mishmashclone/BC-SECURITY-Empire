@@ -1,4 +1,3 @@
-from __future__ import division
 from future import standard_library
 standard_library.install_aliases()
 from builtins import str
@@ -101,7 +100,7 @@ for headerRaw in headersRaw:
 #
 ################################################
 
-#REPLACE_COMMS
+REPLACE_COMMS
 
 
 ################################################
@@ -540,7 +539,7 @@ _search_order = [('.py', False), ('/__init__.py', True)]
 class ZipImportError(ImportError):
     """Exception raised by zipimporter objects."""
 
-# _get_info() = takes the fullname, then subpackage name (if applicable),
+# _get_info() = takes the fullname, then subpackage name (if applicable), 
 # and searches for the respective module or package
 
 class CFinder(object):
@@ -620,16 +619,16 @@ class CFinder(object):
         submodule, is_package, fullpath, source = self._get_source(self.repoName, fullname)
         return compile(source, fullpath, 'exec')
 
-    def install_hook(repoName):
-        if repoName not in _meta_cache:
-            finder = CFinder(repoName)
-            _meta_cache[repoName] = finder
-            sys.meta_path.append(finder)
+def install_hook(repoName):
+    if repoName not in _meta_cache:
+        finder = CFinder(repoName)
+        _meta_cache[repoName] = finder
+        sys.meta_path.append(finder)
 
-    def remove_hook(repoName):
-        if repoName in _meta_cache:
-            finder = _meta_cache.pop(repoName)
-            sys.meta_path.remove(finder)
+def remove_hook(repoName):
+    if repoName in _meta_cache:
+        finder = _meta_cache.pop(repoName)
+        sys.meta_path.remove(finder)
 
 ################################################
 #

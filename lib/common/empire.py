@@ -2836,25 +2836,37 @@ class PythonAgentMenu(SubMenu):
             results = self.mainMenu.agents.get_agent_results_db(self.sessionID)
             if results:
                 print("\n" + helpers.color(results))
-    
+
     def default(self, line):
         "Default handler"
+
         line = line.strip()
         parts = line.split(' ')
-        
+
         if len(parts) > 0:
             # check if we got an agent command
             if parts[0] in self.agentCommands:
                 shellcmd = ' '.join(parts)
                 # task the agent with this shell command
                 self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SHELL", shellcmd)
+
+                # dispatch this event
+                message = "[*] Tasked agent to run command {}".format(line)
+                signal = json.dumps({
+                    'print': False,
+                    'message': message,
+                    'command': line
+                })
+                dispatcher.send(signal, sender="agents/{}".format(self.sessionID))
+
                 # update the agent log
                 msg = "Tasked agent to run command " + line
                 self.mainMenu.agents.save_agent_log(self.sessionID, msg)
             else:
                 print(helpers.color("[!] Command not recognized."))
                 print(helpers.color("[*] Use 'help' or 'help agentcmds' to see available commands."))
-    
+
+
     def do_help(self, *args):
         "Displays the help menu or syntax for particular commands."
         SubMenu.do_help(self, *args)
@@ -2929,15 +2941,14 @@ class PythonAgentMenu(SubMenu):
         "Change an agent's active directory"
         
         line = line.strip()
-        
         if line != "":
             # have to be careful with inline python and no threading
             # this can cause the agent to crash so we will use try / cath
             # task the agent with this shell command
             if line == "..":
-                self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", 'import os; os.chdir(os.pardir); print "Directory stepped down: %s"' % (line))
+                self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", 'import os; os.chdir(os.pardir); print("Directory stepped down: %s")' % (line))
             else:
-                self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", 'import os; os.chdir("%s"); print "Directory changed to: %s"' % (line, line))
+                self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", 'import os; os.chdir("%s"); print("Directory changed to: %s)"' % (line, line))
             
             # dispatch this event
             message = "[*] Tasked agent to change active directory to {}".format(line)
@@ -2945,9 +2956,11 @@ class PythonAgentMenu(SubMenu):
                 'print': False,
                 'message': message
             })
+            print("empire 2949")
             dispatcher.send(signal, sender="agents/{}".format(self.sessionID))
             
             # update the agent log
+            print("empire 2953")
             msg = "Tasked agent to change active directory to: %s" % (line)
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
     
@@ -3012,7 +3025,7 @@ class PythonAgentMenu(SubMenu):
         
         if delay == "":
             # task the agent to display the delay/jitter
-            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global delay; global jitter; print 'delay/jitter = ' + str(delay)+'/'+str(jitter)")
+            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global delay; global jitter; print('delay/jitter = ' + str(delay)+'/'+str(jitter))")
             
             # dispatch this event
             message = "[*] Tasked agent to display delay/jitter"
@@ -3034,7 +3047,7 @@ class PythonAgentMenu(SubMenu):
             self.mainMenu.agents.set_agent_field_db("delay", delay, self.sessionID)
             self.mainMenu.agents.set_agent_field_db("jitter", jitter, self.sessionID)
             
-            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global delay; global jitter; delay=%s; jitter=%s; print 'delay/jitter set to %s/%s'" % (delay, jitter, delay, jitter))
+            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global delay; global jitter; delay=%s; jitter=%s; print('delay/jitter set to %s/%s')" % (delay, jitter, delay, jitter))
             
             # dispatch this event
             message = "[*] Tasked agent to delay sleep/jitter {}/{}".format(delay, jitter)
@@ -3171,7 +3184,7 @@ class PythonAgentMenu(SubMenu):
         "Task an agent to use a shell command."
         
         line = line.strip()
-        
+        print("3175")
         if line != "":
             # task the agent with this shell command
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SHELL", str(line))

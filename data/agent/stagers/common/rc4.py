@@ -92,7 +92,9 @@ def parse_routing_packet(stagingKey, data):
                 RC4IV = data[0+offset:4+offset]
                 RC4data = data[4+offset:20+offset]
                 routingPacket = rc4(RC4IV+stagingKey.encode('UTF-8'), RC4data)
+
                 sessionID = routingPacket[0:8].decode('UTF-8')
+
 
                 # B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
                 (language, meta, additional, length) = struct.unpack("=BBHL", routingPacket[8:])
@@ -110,7 +112,8 @@ def parse_routing_packet(stagingKey, data):
                     break
 
                 offset += 20 + length
-
+            print("Parse packet:")
+            print(results)
             return results
 
         else:
@@ -172,4 +175,6 @@ def build_routing_packet(stagingKey, sessionID, meta=0, additional=0, encData=''
     if isinstance(rc4EncData, str):
         rc4EncData = rc4EncData.encode('UTF-8')
     packet = RC4IV + rc4EncData + encData
+    print("Build packet:")
+    print(packet)
     return packet

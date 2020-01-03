@@ -859,6 +859,8 @@ def send_message(packets=None):
         data = ''.join(packets)
         # aes_encrypt_then_hmac is in stager.py
         encData = aes_encrypt_then_hmac(key, data)
+        encData = aes_encrypt_then_hmac(key, data)
+        encData = aes_encrypt_then_hmac(key, data)
         data = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)
     else:
         # if we're GETing taskings, then build the routing packet to stuff info a cookie first.

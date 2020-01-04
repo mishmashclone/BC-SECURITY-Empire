@@ -108,8 +108,8 @@ function install_bomutils() {
 	chmod 755 bomutils/build/bin/mkbom && sudo cp bomutils/build/bin/mkbom /usr/local/bin/.
 }
 
-# Because of some dependencies (xar) needing to know which OS has libssl 1.0, we are checking for
-# Ubuntu < 18 and Debian < 9 here.
+# Because of some dependencies (xar) needing to know which OS has libssl 1.0
+# and because some OS are locked into 1.0, we are checking for Ubuntu < 18 and Debian < 9 here.
 function is_libssl_1_0() {
 	if lsb_release -d | grep -q "Ubuntu"; then
 		if [ $(lsb_release -rs | cut -d "." -f 1) -lt 18 ]; then
@@ -149,23 +149,23 @@ elif lsb_release -d | grep -q "Kali"; then
 	apt-get update
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk zlib1g-dev libssl1.1 build-essential libssl-dev libxml2-dev zlib1g-dev
 elif lsb_release -d | grep -q "Ubuntu"; then
-	sudo apt-get update
 	if is_libssl_1_0; then
 		LibSSL_pkgs="libssl1.0.0 libssl-dev"
 		Pip_file="requirements_libssl1.0.txt"
 	else
 		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
+	sudo apt-get update
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
 else
 	echo "Unknown distro - Debian/Ubuntu Fallback"
-	sudo apt-get update
 	if is_libssl_1_0; then
 		LibSSL_pkgs="libssl1.0.0 libssl-dev"
 		Pip_file="requirements_libssl1.0.txt"
 	else
 		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
+	sudo apt-get update
 	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk libffi-dev $LibSSL_pkgs build-essential
 fi
 

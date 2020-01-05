@@ -806,6 +806,9 @@ def decode_base64(data):
     From http://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
     """
     missing_padding = 4 - len(data) % 4
+    if isinstance(data, str):
+        data = data.encode('UTF-8')
+
     if missing_padding:
         data += b'=' * missing_padding
 

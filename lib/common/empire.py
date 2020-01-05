@@ -274,7 +274,6 @@ class MainMenu(cmd.Cmd):
                             
                             # generate the stager
                             menu.do_generate('')
-                            print('empire.py: line 277')
                         else:
                             messages.display_stager(targetStager)
                     
@@ -394,9 +393,9 @@ class MainMenu(cmd.Cmd):
             except NavListeners as e:
                 self.menu_state = "Listeners"
             
-            except Exception as e:
-                print(helpers.color("[!] Exception: %s" % (e)))
-                time.sleep(5)
+            #except Exception as e:
+            #    print(helpers.color("[!] Exception: %s" % (e)))
+            #    time.sleep(5)
     
     
     def print_topics(self, header, commands, cmdlen, maxcol):
@@ -4473,11 +4472,19 @@ class StagerMenu(SubMenu):
             # if we need to write binary output for a .dll
             if ".dll" in savePath:
                 out_file = open(savePath, 'wb')
-                out_file.write(bytearray(stagerOutput))
+
+                if isinstance(stagerOutput, bytes):
+                    stagerOutput = stagerOutput.decode('latin-1')
+
+                out_file.write(bytearray(stagerOutput,encoding='utf8'))
                 out_file.close()
             else:
                 # otherwise normal output
                 out_file = open(savePath, 'w')
+
+                if isinstance(stagerOutput, bytes):
+                    stagerOutput = stagerOutput.decode('latin-1')
+
                 out_file.write(stagerOutput)
                 out_file.close()
             

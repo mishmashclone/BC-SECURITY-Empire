@@ -37,8 +37,8 @@ pp = PrettyPrinter(indent=4)
 
 #---- constants
 
-_SIGNATURE = 'L\x00\x00\x00'
-_GUID = '\x01\x14\x02\x00\x00\x00\x00\x00\xc0\x00\x00\x00\x00\x00\x00F'
+_SIGNATURE = b'L\x00\x00\x00'
+_GUID = b'\x01\x14\x02\x00\x00\x00\x00\x00\xc0\x00\x00\x00\x00\x00\x00F'
 _LINK_INFO_HEADER_DEFAULT = 0x1C
 _LINK_INFO_HEADER_OPTIONAL = 0x24
 
@@ -176,27 +176,27 @@ def read_dos_datetime(buf):
     return datetime(year, month, day, hour, minute, second)
 
 def write_byte(val, buf):
-    buf.write(pack('<B', val))
+    buf.write(pack('<B', val).decode('UTF-8'))
 
 def write_short(val, buf):
-    buf.write(pack('<H', val))
+    buf.write(pack('<H', val).decode('latin-1'))
 
 def write_int(val, buf):
-    buf.write(pack('<I', val))
+    buf.write(pack('<I', val).decode('UTF-8'))
 
 def write_double(val, buf):
-    buf.write(pack('<Q', val))
+    buf.write(pack('<Q', val).decode('UTF-8'))
 
 def write_cstring(val, buf, padding=False):
     #val = val.encode('unicode-escape').replace('\\\\', '\\')
     val = val.encode('cp1252')
-    buf.write(val + '\x00')
+    buf.write((val + b'\x00').decode('UTF-8'))
     if padding and not len(val) % 2:
         buf.write('\x00')
 
 def write_cunicode(val, buf):
     uni = val.encode('utf-16-le')
-    buf.write(uni + '\x00\x00')
+    buf.write((uni + b'\x00\x00').decode('UTF-8'))
 
 def write_sized_string(val, buf, str=True):
     size = len(val)
@@ -212,7 +212,7 @@ def ret_sized_string(val, str=True):
     if str:
         ret += val.encode('utf-16-le')
     else:
-        ret += val
+        ret += val.encode('UTF-8')
     return ret
 
 def put_bits(bits, target, start, count, length=16):
@@ -428,7 +428,8 @@ class PathSegmentEntry(object):
         entry_type = self.type
         short_name_len = len(self.short_name) + 1
         try:
-            self.short_name.decode("ascii")
+            if isinstance(self.short_name, bytes):
+                self.short_name.decode("ascii")
             short_name_is_unicode = False
             short_name_len += short_name_len % 2 # padding
         except (UnicodeEncodeError, UnicodeDecodeError):
@@ -625,12 +626,13 @@ class Lnk(object):
         ret += pack('<I',_SHOW_COMMAND_IDS[self._show_command])
         ret += pack('<B',0) #hotkey
         ret += pack('<B',0) #hotkey
-        ret += ('\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00') # reserved
+        ret += (b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00') # reserved
+        print(ret)
 
         if self.link_flags.has_shell_item_id_list:
             siil = self.shell_item_id_list.bytes
             ret += pack('<H',len(siil))
-            ret += siil
+            ret += siil.encode('UTF-8')
         # TOFIX / TOINVESTIGATE
         #if self.link_flags.has_link_info:
             #self._link_info.write(lnk)
@@ -645,7 +647,7 @@ class Lnk(object):
         if self.link_flags.has_icon:
             ret += ret_sized_string(self.icon, self.link_flags.is_unicode)
 
-        ret += ('\x00\x00\x00\x00') # header_size
+        ret += (b'\x00\x00\x00\x00') # header_size
         return ret
 
     def write(self, lnk):

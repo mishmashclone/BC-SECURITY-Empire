@@ -162,6 +162,7 @@ class Stager(object):
         poshchunks = list(helpers.chunks(poshlauncher, 50))
         poshpayload = "Dim Str As String"
         poshpayload += "\n\t\tstr = \"" + str(poshchunks[0])
+
         for poshchunk in poshchunks[1:]:
             poshpayload += "\n\t\tstr = str + \"" + str(poshchunk)
 

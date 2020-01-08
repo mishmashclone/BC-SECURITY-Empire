@@ -100,6 +100,7 @@ class Stagers(object):
         Abstracted functionality that invokes the generate_launcher() method for a given listener,
         if it exists.
         """
+
         if not listenerName in self.mainMenu.listeners.activeListeners:
             print(helpers.color("[!] Invalid listener: %s" % (listenerName)))
             return ''

@@ -124,14 +124,14 @@ else
 		apt-get update
 		sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk zlib1g-dev libssl1.1 build-essential libssl-dev libxml2-dev zlib1g-dev
 		if ls /usr/bin/ | grep -q "python3"; then
-		  if ! type pip3 > /dev/null; then
-		    sudo apt-get --assume-yes install python3-pip
-      fi
-		  sudo pip3 install -r requirements.txt
-    fi
+			if ! type pip3 > /dev/null; then
+				sudo apt-get --assume-yes install python3-pip
+			fi
+			sudo pip3 install -r requirements.txt
+		fi
 		if ls /usr/bin/ | grep -q "python2"; then
-	    sudo pip install -r requirements.txt
-    fi
+			sudo pip install -r requirements.txt
+		fi
 		install_powershell
 	elif lsb_release -d | grep -q "Ubuntu"; then
 		Release=Ubuntu
@@ -147,14 +147,14 @@ else
 		fi
 		sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
 		if ls /usr/bin/ | grep -q "python3"; then
-		  if ! type pip3 > /dev/null; then
-		    sudo apt-get --assume-yes install python3-pip
-      fi
-		  sudo pip3 install -r requirements.txt
-    fi
+			if ! type pip3 > /dev/null; then
+				sudo apt-get --assume-yes install python3-pip
+			fi
+			sudo pip3 install -r requirements.txt
+		fi
 		if ls /usr/bin/ | grep -q "python2"; then
-	    sudo pip install -r requirements.txt
-    fi
+			sudo pip install -r requirements.txt
+		fi
 		install_powershell
 	else
 		echo "Unknown distro - Debian/Ubuntu Fallback"

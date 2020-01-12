@@ -26,11 +26,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 # set the def shell for ENV
 SHELL ["/bin/bash", "-c"]
 
-COPY . /empire
-
 RUN apt-get update && \
       apt-get -y install sudo && \
       apt-get -y install lsb-release
+
+COPY . /empire
 
 RUN cd /empire/setup/ && \
     ./install.sh && \

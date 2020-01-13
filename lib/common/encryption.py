@@ -169,7 +169,6 @@ def aes_decrypt(key, data):
     Generate an AES cipher object, pull out the IV from the data
     and return the unencrypted data.
     """
-
     if len(data) > 16:
         backend = default_backend()
         IV = data[0:16]
@@ -177,7 +176,6 @@ def aes_decrypt(key, data):
         decryptor = cipher.decryptor()
         pt = depad(decryptor.update(data[16:]) + decryptor.finalize())
         return pt
-
 
 def verify_hmac(key, data):
     """
@@ -201,7 +199,6 @@ def aes_decrypt_and_verify(key, data):
     """
     Decrypt the data, but only if it has a valid MAC.
     """
-
     if len(data) > 32 and verify_hmac(key, data):
         if isinstance(key, str):
             key = bytes(key, 'latin-1')

@@ -1,3 +1,11 @@
+1/13/2020
+------------
+- Version 3.0.3 Master Release
+	- Updated RESTful API to Python 3 - #49 (@Cx01N)
+	- Fixed credential issue - #65 (@Hubbl3)
+	- Fixed python agent - #52 (@Cx01N, @Hubbl3)
+	- Cleaned up install files - #58 (@Vinnybod)
+
 1/7/2020
 ------------
 - Version 3.0.2 Master Release

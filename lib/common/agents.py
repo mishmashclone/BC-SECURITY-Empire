@@ -614,7 +614,6 @@ class Agents(object):
         """
         Return agent results from the backend database.
         """
-
         agent_name = sessionID
 
         # see if we were passed a name instead of an ID
@@ -1061,7 +1060,6 @@ class Agents(object):
         """
         Add a task to the specified agent's buffer in the database.
         """
-
         agentName = sessionID
 
         # see if we were passed a name instead of an ID
@@ -1122,7 +1120,6 @@ class Agents(object):
                         f = open('%s/LastTask' % (self.installPath), 'w')
                         f.write(task)
                         f.close()
-
                     return pk
 
                 finally:

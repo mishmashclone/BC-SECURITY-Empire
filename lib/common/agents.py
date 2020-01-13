@@ -1392,12 +1392,59 @@ class Agents(object):
             if isinstance(sessionKey, str):
                 sessionKey = (self.agents[sessionID]['sessionKey']).encode('UTF-8')
 
-            #try:
-            message = encryption.aes_decrypt_and_verify(sessionKey, encData)
-            parts = message.split(b'|')
+            try:
+                message = encryption.aes_decrypt_and_verify(sessionKey, encData)
+                parts = message.split(b'|')
 
-            if len(parts) < 12:
-                message = "[!] Agent {} posted invalid sysinfo checkin format: {}".format(sessionID, message)
+                if len(parts) < 12:
+                    message = "[!] Agent {} posted invalid sysinfo checkin format: {}".format(sessionID, message)
+                    signal = json.dumps({
+                        'print': True,
+                        'message': message
+                    })
+                    dispatcher.send(signal, sender="agents/{}".format(sessionID))
+                    # remove the agent from the cache/database
+                    self.mainMenu.agents.remove_agent_db(sessionID)
+                    return "ERROR: Agent %s posted invalid sysinfo checkin format: %s" % (sessionID, message)
+
+                # verify the nonce
+                if int(parts[0]) != (int(self.mainMenu.agents.get_agent_nonce_db(sessionID)) + 1):
+                    message = "[!] Invalid nonce returned from {}".format(sessionID)
+                    signal = json.dumps({
+                        'print': True,
+                        'message': message
+                    })
+                    dispatcher.send(signal, sender="agents/{}".format(sessionID))
+                    # remove the agent from the cache/database
+                    self.mainMenu.agents.remove_agent_db(sessionID)
+                    return "ERROR: Invalid nonce returned from %s" % (sessionID)
+
+                message = "[!] Nonce verified: agent {} posted valid sysinfo checkin format: {}".format(sessionID, message)
+                signal = json.dumps({
+                    'print': False,
+                    'message': message
+                })
+                dispatcher.send(signal, sender="agents/{}".format(sessionID))
+
+                listener = str(parts[1], 'utf-8')
+                domainname = str(parts[2], 'utf-8')
+                username = str(parts[3], 'utf-8')
+                hostname = str(parts[4], 'utf-8')
+                external_ip = clientIP
+                internal_ip = str(parts[5], 'utf-8')
+                os_details = str(parts[6], 'utf-8')
+                high_integrity = str(parts[7], 'utf-8')
+                process_name = str(parts[8], 'utf-8')
+                process_id = str(parts[9], 'utf-8')
+                language = str(parts[10], 'utf-8')
+                language_version = str(parts[11], 'utf-8')
+                if high_integrity == "True":
+                    high_integrity = 1
+                else:
+                    high_integrity = 0
+
+            except Exception as e:
+                message = "[!] Exception in agents.handle_agent_staging() for {} : {}".format(sessionID, e)
                 signal = json.dumps({
                     'print': True,
                     'message': message
@@ -1405,54 +1452,7 @@ class Agents(object):
                 dispatcher.send(signal, sender="agents/{}".format(sessionID))
                 # remove the agent from the cache/database
                 self.mainMenu.agents.remove_agent_db(sessionID)
-                return "ERROR: Agent %s posted invalid sysinfo checkin format: %s" % (sessionID, message)
-
-            # verify the nonce
-            if int(parts[0]) != (int(self.mainMenu.agents.get_agent_nonce_db(sessionID)) + 1):
-                message = "[!] Invalid nonce returned from {}".format(sessionID)
-                signal = json.dumps({
-                    'print': True,
-                    'message': message
-                })
-                dispatcher.send(signal, sender="agents/{}".format(sessionID))
-                # remove the agent from the cache/database
-                self.mainMenu.agents.remove_agent_db(sessionID)
-                return "ERROR: Invalid nonce returned from %s" % (sessionID)
-
-            message = "[!] Nonce verified: agent {} posted valid sysinfo checkin format: {}".format(sessionID, message)
-            signal = json.dumps({
-                'print': False,
-                'message': message
-            })
-            dispatcher.send(signal, sender="agents/{}".format(sessionID))
-
-            listener = str(parts[1], 'utf-8')
-            domainname = str(parts[2], 'utf-8')
-            username = str(parts[3], 'utf-8')
-            hostname = str(parts[4], 'utf-8')
-            external_ip = clientIP
-            internal_ip = str(parts[5], 'utf-8')
-            os_details = str(parts[6], 'utf-8')
-            high_integrity = str(parts[7], 'utf-8')
-            process_name = str(parts[8], 'utf-8')
-            process_id = str(parts[9], 'utf-8')
-            language = str(parts[10], 'utf-8')
-            language_version = str(parts[11], 'utf-8')
-            if high_integrity == "True":
-                high_integrity = 1
-            else:
-                high_integrity = 0
-
-            #except Exception as e:
-            #    message = "[!] Exception in agents.handle_agent_staging() for {} : {}".format(sessionID, e)
-            #    signal = json.dumps({
-            #        'print': True,
-            #        'message': message
-            #    })
-            #    dispatcher.send(signal, sender="agents/{}".format(sessionID))
-            #    # remove the agent from the cache/database
-            #    self.mainMenu.agents.remove_agent_db(sessionID)
-            #    return "Error: Exception in agents.handle_agent_staging() for %s : %s" % (sessionID, e)
+                return "Error: Exception in agents.handle_agent_staging() for %s : %s" % (sessionID, e)
 
             if domainname and domainname.strip() != '':
                 username = "%s\\%s" % (domainname, username)

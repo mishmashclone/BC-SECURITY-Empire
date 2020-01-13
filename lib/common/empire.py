@@ -393,9 +393,9 @@ class MainMenu(cmd.Cmd):
             except NavListeners as e:
                 self.menu_state = "Listeners"
             
-            #except Exception as e:
-            #    print(helpers.color("[!] Exception: %s" % (e)))
-            #    time.sleep(5)
+            except Exception as e:
+                print(helpers.color("[!] Exception: %s" % (e)))
+                time.sleep(5)
     
     
     def print_topics(self, header, commands, cmdlen, maxcol):
@@ -2955,11 +2955,9 @@ class PythonAgentMenu(SubMenu):
                 'print': False,
                 'message': message
             })
-            print("empire 2949")
             dispatcher.send(signal, sender="agents/{}".format(self.sessionID))
             
             # update the agent log
-            print("empire 2953")
             msg = "Tasked agent to change active directory to: %s" % (line)
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
     

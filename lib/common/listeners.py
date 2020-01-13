@@ -203,6 +203,9 @@ class Listeners(object):
         name = listenerObject.options['Name']['Value']
         nameBase = name
 
+        if isinstance(name, bytes):
+            name = name.decode('UTF-8')
+
         if not listenerObject.validate_options():
             return
 

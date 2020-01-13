@@ -1,3 +1,23 @@
+1/13/2020
+------------
+- Version 3.0.3 Master Release
+	- Updated RESTful API to Python 3 - #49 (@Cx01N)
+	- Fixed credential issue - #65 (@Hubbl3)
+	- Fixed python agent - #52 (@Cx01N, @Hubbl3)
+	- Cleaned up install files - #58 (@Vinnybod)
+
+1/7/2020
+------------
+- Version 3.0.2 Master Release
+	- Updated SystemRandom() and maintain API compatibility - #29 (@moloch--)
+	- Fixed invoke-shell code (@Hubbl3)
+	- Fixed meterpreter stager generation - #59 (@Hubbl3)
+	- Fixed lnk and dll launchers - #57 (@C01N)
+	- Fixed multi/macro launcher - #60 (@Hubbl3)
+	- Updated orphaned agent handling - #56 (@Hubbl3)
+	- Fixed pip3 install - #50 (@Hubbl3)
+	- Removed unsupported invoke-shellcode options (@Hubbl3)
+
 12/29/2019
 ------------
 - Version 3.0.1 Master Release

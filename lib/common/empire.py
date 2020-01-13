@@ -14,7 +14,7 @@ from __future__ import absolute_import
 from builtins import input
 from builtins import str
 from builtins import range
-VERSION = "3.0.2-Bug-Fixes BC-Security Fork"
+VERSION = "3.0.3 BC-Security Fork"
 
 from pydispatch import dispatcher
 

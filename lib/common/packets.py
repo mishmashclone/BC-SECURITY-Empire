@@ -278,7 +278,10 @@ def parse_routing_packet(stagingKey, data):
                 RC4IV = data[0 + offset:4 + offset]
                 RC4data = data[4 + offset:20 + offset]
                 routingPacket = encryption.rc4(RC4IV + stagingKey.encode('UTF-8'), RC4data)
-                sessionID = routingPacket[0:8].decode('UTF-8')
+                try:
+                    sessionID = routingPacket[0:8].decode('UTF-8')
+                except:
+                    sessionID = routingPacket[0:8].decode('latin-1')
 
                 # B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
                 (language, meta, additional, length) = struct.unpack("=BBHL", routingPacket[8:])
@@ -304,7 +307,6 @@ def parse_routing_packet(stagingKey, data):
                     break
                 
                 offset += 20 + length
-            
             return results
         
         else:
@@ -359,7 +361,7 @@ def build_routing_packet(stagingKey, sessionID, language, meta="NONE", additiona
     rc4EncData = encryption.rc4(key, data)
     # return an rc4 encyption of the routing packet, append an HMAC of the packet, then the actual encrypted data
     if isinstance(encData, str) and sys.version[0] != "2":
-        encData = encData.encode('UTF-8')
+        encData = encData.encode('Latin-1')
 
     packet = RC4IV + rc4EncData + encData
     return packet

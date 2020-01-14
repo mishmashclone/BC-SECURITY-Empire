@@ -201,9 +201,9 @@ def parse_task_packet(packet, offset=0):
         packetData = packet[12+offset:12+offset+length]
         remainingData = packet[12+offset+length:]
 
-    return (packetType, totalPacket, packetNum, resultID, length, packetData, remainingData)
+        return (packetType, totalPacket, packetNum, resultID, length, packetData, remainingData)
     except Exception as e:
-        print "parse_task_packet exception:",e
+        print("parse_task_packet exception:",e)
         return (None, None, None, None, None, None, None)
 
 

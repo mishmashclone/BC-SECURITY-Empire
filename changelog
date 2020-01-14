@@ -1,3 +1,9 @@
+1/14/2020
+------------
+- Version 3.0.4 Master Release
+	- Fixed data/agents.py error - #70 (@sbrun)
+
+
 1/13/2020
 ------------
 - Version 3.0.3 Master Release

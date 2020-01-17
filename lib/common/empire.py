@@ -2241,8 +2241,9 @@ class PowerShellAgentMenu(SubMenu):
                 # Check the file size against the upload limit of 1 mb
                 
                 # read in the file and base64 encode it for transport
-                open_file = open(parts[0], 'r', encoding="utf8", errors='ignore')
+                open_file = open(parts[0], 'rb')
                 file_data = open_file.read()
+                print(str(type(file_data)))
                 open_file.close()
                 size = os.path.getsize(parts[0])
 
@@ -2251,7 +2252,7 @@ class PowerShellAgentMenu(SubMenu):
                 else:
                     # dispatch this event
                     message = "[*] Tasked agent to upload {}, {}".format(uploadname, helpers.get_file_size(file_data))
-                    file_data = file_data.encode('UTF-8')
+                    file_data = file_data
 
                     signal = json.dumps({
                         'print': True,
@@ -2268,7 +2269,7 @@ class PowerShellAgentMenu(SubMenu):
                     
                     # upload packets -> "filename | script data"
                     file_data = helpers.encode_base64(file_data)
-                    data = uploadname + "|" + file_data.decode("UTF-8")
+                    data = uploadname + "|" + file_data.decode("latin-1")
                     self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_UPLOAD", data)
             else:
                 print(helpers.color("[!] Please enter a valid file path to upload"))
@@ -3332,6 +3333,7 @@ class PythonAgentMenu(SubMenu):
                     c = compress.compress()
                     start_crc32 = c.crc32_data(fileData)
                     comp_data = c.comp_data(fileData, 9)
+                    print(str(type(comp_data)))
                     fileData = c.build_header(comp_data, start_crc32)
                     # get final file size
                     fileData = helpers.encode_base64(fileData)

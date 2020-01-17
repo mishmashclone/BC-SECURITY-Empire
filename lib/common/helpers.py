@@ -824,7 +824,7 @@ def encode_base64(data):
     """
     Decode data as a base64 string.
     """
-    return base64.encodestring(data).strip()
+    return base64.encodebytes(data).strip()
 
 
 def complete_path(text, line, arg=False):

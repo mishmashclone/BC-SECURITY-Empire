@@ -2243,7 +2243,7 @@ class PowerShellAgentMenu(SubMenu):
                 # read in the file and base64 encode it for transport
                 open_file = open(parts[0], 'rb')
                 file_data = open_file.read()
-                print(str(type(file_data)))
+
                 open_file.close()
                 size = os.path.getsize(parts[0])
 
@@ -3333,7 +3333,6 @@ class PythonAgentMenu(SubMenu):
                     c = compress.compress()
                     start_crc32 = c.crc32_data(fileData)
                     comp_data = c.comp_data(fileData, 9)
-                    print(str(type(comp_data)))
                     fileData = c.build_header(comp_data, start_crc32)
                     # get final file size
                     fileData = helpers.encode_base64(fileData)

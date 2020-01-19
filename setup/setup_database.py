@@ -28,7 +28,7 @@ if STAGING_KEY == "BLANK":
         # if no password is entered, generation something random
         STAGING_KEY = ''.join(random.sample(string.ascii_letters + string.digits + punctuation, 32))
     else:
-        STAGING_KEY = hashlib.md5(choice).hexdigest()
+        STAGING_KEY = hashlib.md5(choice.encode('utf-8')).hexdigest()
 elif STAGING_KEY == "RANDOM":
     STAGING_KEY = ''.join(random.sample(string.ascii_letters + string.digits + punctuation, 32))
 

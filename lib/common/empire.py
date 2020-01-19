@@ -4483,13 +4483,11 @@ class StagerMenu(SubMenu):
                 os.makedirs(os.path.dirname(savePath))
             
             # if we need to write binary output for a .dll
-            if ".dll" in savePath:
+            if ".dll" or ".bin" in savePath:
                 out_file = open(savePath, 'wb')
-
-                if isinstance(stagerOutput, bytes):
-                    stagerOutput = stagerOutput.decode('latin-1')
-
-                out_file.write(bytearray(stagerOutput,encoding='utf8'))
+                if isinstance(stagerOutput, str):
+                    stagerOutput = stagerOutput.encode('UTF-8')
+                out_file.write(stagerOutput)
                 out_file.close()
             else:
                 # otherwise normal output

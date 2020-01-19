@@ -156,7 +156,6 @@ class Stagers(object):
                 dllRaw = f.read() 
 
                 replacementCode = helpers.decode_base64(poshCode)
-
                 # patch the dll with the new PowerShell code
                 searchString = (("Invoke-Replace").encode("UTF-16"))[2:]
                 index = dllRaw.find(searchString)
@@ -167,7 +166,7 @@ class Stagers(object):
                 
                 sc = ConvertToShellcode(dllPatched)
 
-                return sc 
+                return sc
         
         else:
             print(helpers.color("[!] Original .dll for arch {} does not exist!".format(arch)))

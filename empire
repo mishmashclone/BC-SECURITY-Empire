@@ -717,7 +717,6 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         Returns a list of the loaded listeners that are available for use.
         """
 
-        print(main.listeners.loadedListeners.items())
         return jsonify({'types' : list(main.listeners.loadedListeners.keys())})
 
     @app.route('/api/listeners/options/<string:listener_type>', methods=['GET'])

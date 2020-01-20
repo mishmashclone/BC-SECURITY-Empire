@@ -131,6 +131,7 @@ def get_permanent_token(conn):
 #
 #    GET      http://localhost:1337/api/listeners            return all current listeners
 #    GET      http://localhost:1337/api/listeners/Y          return the listener with id Y
+#    GET      http://localhost:1337/api/listeners/types      Returns a list of the loaded listeners that are available for use
 #    GET      http://localhost:1337/api/listeners/options    return all listener options
 #    POST     http://localhost:1337/api/listeners            starts a new listener with the specified options
 #    DELETE   http://localhost:1337/api/listeners/Y          kills listener Y
@@ -713,13 +714,12 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
     @app.route('/api/listeners/types', methods=['GET'])
     def get_listener_types():
         """
-        TODO
+        Returns a list of the loaded listeners that are available for use.
         """
 
         print(main.listeners.loadedListeners.items())
         return jsonify({'types' : list(main.listeners.loadedListeners.keys())})
 
-# VR
     @app.route('/api/listeners/options/<string:listener_type>', methods=['GET'])
     def get_listener_options(listener_type):
         """

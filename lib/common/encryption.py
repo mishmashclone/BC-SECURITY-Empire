@@ -160,7 +160,7 @@ def aes_encrypt_then_hmac(key, data):
        data = bytes(data, 'UTF-8')
 
     data = aes_encrypt(key, data)
-    mac = hmac.new(key, data, hashlib.sha256).digest()
+    mac = hmac.new(key, data, digestmod=hashlib.sha256).digest()
     return data + mac[0:10]
 
 
@@ -187,10 +187,10 @@ def verify_hmac(key, data):
     if len(data) > 20:
         mac = data[-10:]
         data = data[:-10]
-        expected = hmac.new(key, data, hashlib.sha256).digest()[0:10]
+        expected = hmac.new(key, data, digestmod=hashlib.sha256).digest()[0:10]
         # Double HMAC to prevent timing attacks. hmac.compare_digest() is
         # preferable, but only available since Python 2.7.7.
-        return hmac.new(key, expected).digest() == hmac.new(key, mac).digest()
+        return hmac.new(key, expected, digestmod=hashlib.sha256).digest() == hmac.new(key, mac, digestmod=hashlib.sha256).digest()
     else:
         return False
 

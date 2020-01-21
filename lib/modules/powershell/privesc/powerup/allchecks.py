@@ -56,7 +56,6 @@ class Module(object):
     def generate(self, obfuscate=False, obfuscationCommand=""):
 
         moduleName = self.info["Name"]
-        print('powerup checks')
         # read in the common powerup.ps1 module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/privesc/PowerUp.ps1"
         if obfuscate:
@@ -86,7 +85,6 @@ class Module(object):
 
         scriptEnd += ' | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
         if obfuscate:
-            print('obfuscating script: allchecks.py')
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
         return script

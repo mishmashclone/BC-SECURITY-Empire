@@ -1,8 +1,18 @@
+1/21/2020
+------------
+- Version 3.0.5 Master Release
+	- Fixed setup_database.py python3 issue - #75 (@linxon)
+	- Added loaded listener types to API - #78 (@Vinnybod)
+    - Fixed python launcherBase (@Cx01N)
+    - Updated Python 3.8 compatibility in stager - #72 (@complana)
+    - Fixed Powerup Invoke-allchecks issue - #64 (@SkiddieTech)
+    - Fixed shellcode stager - #76 (@Hubbl3)
+    - Fixed binary upload error - #55 (@Hubbl3)
+
 1/14/2020
 ------------
 - Version 3.0.4 Master Release
 	- Fixed data/agents.py error - #70 (@sbrun)
-
 
 1/13/2020
 ------------

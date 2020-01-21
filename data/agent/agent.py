@@ -730,9 +730,7 @@ class decompress(object):
 
 def agent_exit():
     # exit for proper job / thread cleanup
-    print('exiting agent')
     if len(jobs) > 0:
-        print('jobs still running')
         try:
             for x in jobs:
                 jobs[int(x)].kill()

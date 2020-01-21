@@ -1230,7 +1230,7 @@ def pbkdf2(password, salt, itercount, keylen, hashfn=sha):
     if keylen % BLOCKLEN != 0:
         l += 1
 
-    h = hmac.new(password, None, hashfn)
+    h = hmac.new(password, None, digestmod=hashfn)
 
     T = ""
     for i in range(1, l + 1):

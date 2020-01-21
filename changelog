@@ -8,6 +8,7 @@
     - Fixed Powerup Invoke-allchecks issue - #64 (@SkiddieTech)
     - Fixed shellcode stager - #76 (@Hubbl3)
     - Fixed binary upload error - #55 (@Hubbl3)
+    - Fixed multi/bash error (@Cx01N)
 
 1/14/2020
 ------------

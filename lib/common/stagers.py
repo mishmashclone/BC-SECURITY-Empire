@@ -274,10 +274,10 @@ class Stagers(object):
 
         if Arch == 'x64':
 
-            f = open(self.mainMenu.installPath + "/data/misc/apptemplateResources/x64/launcher.app/Contents/MacOS/launcher")
+            f = open(self.mainMenu.installPath + "/data/misc/apptemplateResources/x64/launcher.app/Contents/MacOS/launcher", "rb")
             directory = self.mainMenu.installPath + "/data/misc/apptemplateResources/x64/launcher.app/"
         else:
-            f = open(self.mainMenu.installPath + "/data/misc/apptemplateResources/x86/launcher.app/Contents/MacOS/launcher")
+            f = open(self.mainMenu.installPath + "/data/misc/apptemplateResources/x86/launcher.app/Contents/MacOS/launcher", "rb")
             directory = self.mainMenu.installPath + "/data/misc/apptemplateResources/x86/launcher.app/"
 
         macho = macholib.MachO.MachO(f.name)
@@ -292,10 +292,10 @@ class Stagers(object):
             count = 0
             if int(cmd[count].cmd) == macholib.MachO.LC_SEGMENT_64 or int(cmd[count].cmd) == macholib.MachO.LC_SEGMENT:
                 count += 1
-                if cmd[count].segname.strip('\x00') == '__TEXT' and cmd[count].nsects > 0:
+                if cmd[count].segname.strip(b'\x00') == b'__TEXT' and cmd[count].nsects > 0:
                     count += 1
                     for section in cmd[count]:
-                        if section.sectname.strip('\x00') == '__cstring':
+                        if section.sectname.strip(b'\x00') == b'__cstring':
                             offset = int(section.offset)
                             placeHolderSz = int(section.size) - 52
 
@@ -304,7 +304,7 @@ class Stagers(object):
 
         if placeHolderSz and offset:
 
-            launcher = launcherCode + "\x00" * (placeHolderSz - len(launcherCode))
+            launcher = launcherCode.encode('utf8') + b'\x00' * (placeHolderSz - len(launcherCode))
             patchedBinary = template[:offset]+launcher+template[(offset+len(launcher)):]
             if AppName == "":
                 AppName = "launcher"

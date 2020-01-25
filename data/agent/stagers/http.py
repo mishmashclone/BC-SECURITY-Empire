@@ -10,9 +10,7 @@ This file is a Jinja2 template.
         stage_1
         stage_2
 """
-from __future__ import print_function
 
-import copy
 import random
 import string
 import urllib.request as urllib

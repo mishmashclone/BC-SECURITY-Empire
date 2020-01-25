@@ -1,13 +1,5 @@
-from __future__ import division
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import range
-from builtins import object
 from past.utils import old_div
-import __future__
 import struct
-import time
 import base64
 import subprocess
 import random
@@ -15,15 +7,12 @@ import time
 import datetime
 import os
 import sys
-import trace
-import shlex
 import zlib
 import threading
 import http.server
 import zipfile
 import io
 import imp
-import marshal
 import re
 import shutil
 import pwd
@@ -31,7 +20,6 @@ import socket
 import math
 import stat
 import grp
-from stat import S_ISREG, ST_CTIME, ST_MODE
 from os.path import expanduser
 from io import StringIO
 from threading import Thread

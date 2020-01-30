@@ -47,8 +47,8 @@ def rc4(key, data):
         i = (i + 1) % 256
         j = (j + S[i]) % 256
         S[i], S[j] = S[j], S[i]
-        if sys.version[0] == "2":
-            char = ord(char)
+       # if sys.version[0] == "2":
+       #     char = ord(char)
         out.append(chr(char ^ S[(S[i] + S[j]) % 256]).encode('latin-1'))
     #out = str(out)
     tmp = b''.join(out)
@@ -150,10 +150,10 @@ def build_routing_packet(stagingKey, sessionID, meta=0, additional=0, encData=''
     #   B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
     if isinstance(sessionID, str):
         sessionID = sessionID.encode('UTF-8')
+    sessionID = bytes(sessionID)
+    data = sessionID + bytes(struct.pack("=BBHL", 2, meta, additional, len(encData)))
 
-    data = sessionID + struct.pack("=BBHL", 2, meta, additional, len(encData))
-    RC4IV = os.urandom(4)
-
+    RC4IV = bytes(os.urandom(4))
     if isinstance(data, str):
         data = data.encode('UTF-8')
     if isinstance(stagingKey, str):
@@ -164,13 +164,15 @@ def build_routing_packet(stagingKey, sessionID, meta=0, additional=0, encData=''
         encData = encData.encode('UTF-8')
 
     key = RC4IV + stagingKey
+    key = bytes(key)
 
     if isinstance(key, str):
         key = key.encode('UTF-8')
 
     rc4EncData = rc4(key, data)
-
+    rc4EncData = bytes(rc4EncData)
     if isinstance(rc4EncData, str):
         rc4EncData = rc4EncData.encode('UTF-8')
     packet = RC4IV + rc4EncData + encData
+    packet = bytes(packet)
     return packet

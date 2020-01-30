@@ -5,7 +5,6 @@ from builtins import str
 from builtins import range
 from builtins import object
 from past.utils import old_div
-import __future__
 import struct
 import time
 import base64

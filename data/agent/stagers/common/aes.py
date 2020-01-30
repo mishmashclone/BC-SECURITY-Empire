@@ -235,7 +235,8 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
         else:
             if isinstance(iv, str):
                 self._last_cipherblock = _string_to_bytes(iv)
-            self._last_cipherblock = iv
+            else:
+                self._last_cipherblock = iv
 
         AESBlockModeOfOperation.__init__(self, key)
 
@@ -244,7 +245,7 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
             raise ValueError('plaintext block must be 16 bytes')
 
         plaintext = plaintext
-        precipherblock = [(p ^ l) for (p, l) in zip(plaintext, self._last_cipherblock)]
+        precipherblock = [(p ^ l) for (p, l) in zip(plaintext, bytes(self._last_cipherblock))]
         self._last_cipherblock = self._aes.encrypt(precipherblock)
 
         return _bytes_to_string(self._last_cipherblock)
@@ -267,14 +268,15 @@ def CBCenc(aesObj, plaintext, base64=False):
 
     # The we break the padded plaintext in 16 byte chunks
     blocks = [paddedPlaintext[0+i:16+i] for i in range(0, len(paddedPlaintext), 16)]
-
     # Finally we encypt each block
     #ciphertext = ""
     ciphertext = ("")
     for block in blocks:
         ciphertext = "".join([ciphertext, aesObj.encrypt(block)])
         #ciphertext += aesObj.encrypt(block)
+
     ciphertext = ciphertext.encode('latin-1')
+
     return ciphertext
 
 
@@ -309,8 +311,10 @@ def aes_encrypt(key, data):
     if isinstance(key, str):
         key = key.encode('UTF-8')
     IV = os.urandom(16)
+    IV = bytes(IV)
     aes = AESModeOfOperationCBC(key, iv=IV)
     CBC = CBCenc(aes, data)
+    CBC = bytes(CBC)
     if isinstance(CBC, str):
         CBC = CBC.encode('UTF-8')
     return IV + CBC
@@ -323,7 +327,8 @@ def aes_encrypt_then_hmac(key, data):
        key = bytes(key, 'UTF-8')
     if isinstance(data, str):
        data = bytes(data, 'UTF-8')
-
+    key = bytes(key)
+    data = bytes(data)
     data = aes_encrypt(key, data)
     mac = hmac.new(key, data, digestmod=hashlib.sha256).digest()
     return data + mac[0:10]

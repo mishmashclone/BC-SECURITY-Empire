@@ -104,8 +104,12 @@ class DiffieHellman(object):
         Since a safe prime is used, verify that the Legendre symbol == 1
         """
         if(otherKey > 2 and otherKey < self.prime - 1):
-            if(pow(otherKey, (self.prime - 1)//2, self.prime) == 1):
-                return True
+            try:
+                if(pow(long(otherKey), long((self.prime - 1)//2), long(self.prime)) == 1):
+                    return True
+            except:
+                if (pow((otherKey), ((self.prime - 1) // 2), (self.prime)) == 1):
+                    return True
         return False
 
     def genSecret(self, privateKey, otherKey):
@@ -114,7 +118,10 @@ class DiffieHellman(object):
         private key to generate a shared secret.
         """
         if(self.checkPublicKey(otherKey) is True):
-            sharedSecret = pow(otherKey, privateKey, self.prime)
+            try:
+                sharedSecret = pow(long(otherKey), long(privateKey), long(self.prime))
+            except:
+                sharedSecret = pow((otherKey), (privateKey), (self.prime))
             return sharedSecret
         else:
             raise Exception("Invalid public key.")
@@ -134,7 +141,7 @@ class DiffieHellman(object):
             _sharedSecretBytes = str(self.sharedSecret)
 
         s = hashlib.sha256()
-        s.update(bytes(_sharedSecretBytes))
+        s.update((_sharedSecretBytes))
         self.key = s.digest()
 
     def getKey(self):

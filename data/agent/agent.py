@@ -19,6 +19,7 @@ import socket
 import math
 import stat
 import grp
+import numbers
 from os.path import expanduser
 from io import StringIO
 from threading import Thread
@@ -518,6 +519,15 @@ def process_packet(packetType, data, resultID):
     else:
         send_message(build_response_packet(0, "invalid tasking ID: %s" %(taskingID), resultID))
 
+def old_div(a, b):
+    """
+    Equivalent to ``a / b`` on Python 2 without ``from __future__ import
+    division``.
+    """
+    if isinstance(a, numbers.Integral) and isinstance(b, numbers.Integral):
+        return a // b
+    else:
+        return a / b
 
 ################################################
 #

@@ -235,7 +235,8 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
         else:
             if isinstance(iv, str):
                 self._last_cipherblock = _string_to_bytes(iv)
-            self._last_cipherblock = iv
+            else:
+                self._last_cipherblock = iv
 
         AESBlockModeOfOperation.__init__(self, key)
 

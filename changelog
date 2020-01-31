@@ -1,14 +1,25 @@
+1/31/2020
+------------
+- Version 3.0.6 Master Release
+	- Fixed osx stager generation byte/str errors - #84 (@hypnoticpattern)
+	- Fixed osx appbundle generation which was stripping the wrong string - #84 (@hypnoticpattern)
+	- Removed future imports from python3 launcher, so it works without any extra libraries - #81 (@Cx01N)
+	- Staging key no longer needs to be exactly 32 characters - #85 (@Cx01N)
+	- Add "stale" property to agents endpoint - #90 (@Vinnybod)
+	- Agents endpoint now returns agents without failing due to session_key encoding - #90 (@Vinnybod)
+	- Fixed an indentation bug in aes.py (@Cx01N)
+
 1/21/2020
 ------------
 - Version 3.0.5 Master Release
-    - Fixed setup_database.py python3 issue - #75 (@linxon)
-    - Added loaded listener types to API - #78 (@Vinnybod)
-    - Fixed python launcherBase (@Cx01N)
-    - Updated Python 3.8 compatibility in stager - #72 (@complana)
-    - Fixed Powerup Invoke-allchecks issue - #64 (@SkiddieTech)
-    - Fixed shellcode stager - #76 (@Hubbl3)
-    - Fixed binary upload error - #55 (@Hubbl3)
-    - Fixed multi/bash error (@Cx01N)
+	- Fixed setup_database.py python3 issue - #75 (@linxon)
+	- Added loaded listener types to API - #78 (@Vinnybod)
+	- Fixed python launcherBase (@Cx01N)
+	- Updated Python 3.8 compatibility in stager - #72 (@complana)
+	- Fixed Powerup Invoke-allchecks issue - #64 (@SkiddieTech)
+	- Fixed shellcode stager - #76 (@Hubbl3)
+	- Fixed binary upload error - #55 (@Hubbl3)
+	- Fixed multi/bash error (@Cx01N)
 
 1/14/2020
 ------------

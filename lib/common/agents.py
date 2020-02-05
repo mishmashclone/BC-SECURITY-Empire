@@ -245,11 +245,12 @@ class Agents(object):
         """
         Save a file download for an agent to the appropriately constructed path.
         """
+        nameid = self.get_agent_id_db(sessionID)
+        if nameid:
+            sessionID = nameid
 
-        sessionID = self.get_agent_name_db(sessionID)
         lang = self.get_language_db(sessionID)
         parts = path.split("\\")
-        parts
 
         # construct the appropriate save path
         save_path = "%sdownloads/%s/%s" % (self.installPath, sessionID, "/".join(parts[0:-1]))
@@ -1496,10 +1497,10 @@ class Agents(object):
                     #this will cause the cmdloop() to start processing the autoruns
                     self.mainMenu.do_agents("kickit")
                 except Exception as e:
-                    if e.message == "endautorun":
+                    if e == "endautorun":
                         pass
                     else:
-                        raise e
+                        print(helpers.color("[!] End of Autorun Queue" ))
 
             return "STAGE2: %s" % (sessionID)
 
@@ -1940,7 +1941,7 @@ class Agents(object):
 
 
         elif responseName == "TASK_CMD_JOB":
-	    #check if this is the powershell keylogging task, if so, write output to file instead of screen
+        #check if this is the powershell keylogging task, if so, write output to file instead of screen
             if keyLogTaskID and keyLogTaskID == taskID:
                 safePath = os.path.abspath("%sdownloads/" % self.mainMenu.installPath)
                 savePath = "%sdownloads/%s/keystrokes.txt" % (self.mainMenu.installPath,sessionID)

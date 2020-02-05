@@ -1,3 +1,10 @@
+2/6/2020
+------------
+- Version 3.0.7 Master Release
+	- Fixed string decode error in API - #92 (@Cx01N)
+	- Fixed python3 conversion errors in backdoorlnkmacro, multi/war, osx/dylib, osx/pkg, and osx/macho launchers (@Cx01N & @hypnoticpattern)
+	- Fixed exception error in autorun queue - #95 (@Cx01N)
+
 1/31/2020
 ------------
 - Version 3.0.6 Master Release

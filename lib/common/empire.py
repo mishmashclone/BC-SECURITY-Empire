@@ -15,7 +15,7 @@ from builtins import input
 from builtins import str
 from builtins import range
 
-VERSION = "3.0.6 BC-Security Fork"
+VERSION = "3.0.7 BC-Security Fork"
 
 from pydispatch import dispatcher
 
@@ -1139,8 +1139,7 @@ class SubMenu(cmd.Cmd):
     
     def emptyline(self):
         pass
-    
-    
+
     def postcmd(self, stop, line):
         if line == "back":
             return True
@@ -1149,8 +1148,7 @@ class SubMenu(cmd.Cmd):
             if nextcmd == "lastautoruncmd":
                 raise Exception("endautorun")
             self.cmdqueue.append(nextcmd)
-    
-    
+
     def do_back(self, line):
         "Go back a menu."
         return True
@@ -4469,7 +4467,7 @@ class StagerMenu(SubMenu):
         "Generate/execute the given Empire stager."
         if not self.validate_options():
             return
-        
+
         stagerOutput = self.stager.generate()
         
         savePath = ''

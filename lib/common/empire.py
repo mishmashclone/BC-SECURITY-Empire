@@ -959,33 +959,49 @@ class MainMenu(cmd.Cmd):
             f = open('data/credentials.csv','w')
             f.write('Domain, Username, Host, Cred Type, Password\n')
             for row in rows:
+                row = list(row)
+                for n in range(len(row)):
+                    if isinstance(row[n], bytes):
+                        row[n] = row[n].decode('UTF-8')
                 f.write(row[0]+ ','+ row[1]+ ','+ row[2]+ ','+ row[3]+ ','+ row[4]+'\n')
             f.close()
             
             # Empire Log
             cur.execute("""
             SELECT
-                reporting.time_stamp
-                ,reporting.event_type
-                ,reporting.name as "AGENT_ID"
-                ,a.hostname
-                ,reporting.taskID
-                ,t.data AS "Task"
-                ,r.data AS "Results"
+                time_stamp,
+                event_type,
+                substr(reporting.name, pos+1) as agent_name,
+                a.hostname,
+                taskID,
+                t.data as "Task",
+                r.data as "Results"
             FROM
-                reporting
-                JOIN agents a on reporting.name = a.session_id
-                LEFT OUTER JOIN taskings t on (reporting.taskID = t.id) AND (reporting.name = t.agent)
-                LEFT OUTER JOIN results r on (reporting.taskID = r.id) AND (reporting.name = r.agent)
-            WHERE
-                reporting.event_type == 'task' OR reporting.event_type == 'checkin'
+            (
+                SELECT
+                    time_stamp,
+                    event_type,
+                    name,
+                    instr(name, '/') as pos,
+                    taskID
+                FROM reporting
+                WHERE name LIKE 'agent%'
+                AND reporting.event_type == 'task' OR reporting.event_type == 'checkin') reporting
+            LEFT OUTER JOIN taskings t on (reporting.taskID = t.id) AND (agent_name = t.agent)
+            LEFT OUTER JOIN results r on (reporting.taskID = r.id) AND (agent_name = r.agent)
+            JOIN agents a on agent_name = a.session_id
             """)
             rows = cur.fetchall()
             print(helpers.color("[*] Writing data/master.log"))
             f = open('data/master.log', 'w')
             f.write('Empire Master Taskings & Results Log by timestamp\n')
             f.write('='*50 + '\n\n')
+            print(rows)
             for row in rows:
+                row = list(row)
+                for n in range(len(row)):
+                    if isinstance(row[n], bytes):
+                        row[n] = row[n].decode('UTF-8')
                 f.write('\n' + row[0] + ' - ' + row[3] + ' (' + row[2] + ')> ' + str(row[5]) + '\n' + str(row[6]) + '\n')
             f.close()
             cur.close()

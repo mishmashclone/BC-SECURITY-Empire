@@ -4,6 +4,7 @@
 	- Fixed string decode error in API - #92 (@Cx01N)
 	- Fixed python3 conversion errors in backdoorlnkmacro, multi/war, osx/dylib, osx/pkg, and osx/macho launchers (@Cx01N & @hypnoticpattern)
 	- Fixed exception error in autorun queue - #95 (@Cx01N)
+	- Fixed report generation and SQL database errors (@Vinnybod & @Cx01N)
 
 1/31/2020
 ------------

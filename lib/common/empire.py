@@ -996,7 +996,6 @@ class MainMenu(cmd.Cmd):
             f = open('data/master.log', 'w')
             f.write('Empire Master Taskings & Results Log by timestamp\n')
             f.write('='*50 + '\n\n')
-            print(rows)
             for row in rows:
                 row = list(row)
                 for n in range(len(row)):

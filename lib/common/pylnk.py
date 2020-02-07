@@ -627,7 +627,6 @@ class Lnk(object):
         ret += pack('<B',0) #hotkey
         ret += pack('<B',0) #hotkey
         ret += (b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00') # reserved
-        print(ret)
 
         if self.link_flags.has_shell_item_id_list:
             siil = self.shell_item_id_list.bytes

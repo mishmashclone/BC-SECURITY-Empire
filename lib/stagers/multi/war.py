@@ -143,7 +143,7 @@ Process p=Runtime.getRuntime().exec("'''+str(launcher)+'''");
 ''' %(appName, appName)
 
             # build the in-memory ZIP and write the three files in
-            warFile = io.StringIO() 
+            warFile = io.BytesIO()
             zipData = zipfile.ZipFile(warFile, 'w', zipfile.ZIP_DEFLATED)
 
             zipData.writestr("META-INF/MANIFEST.MF", manifest)

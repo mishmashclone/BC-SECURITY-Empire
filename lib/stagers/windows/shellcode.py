@@ -13,7 +13,7 @@ class Stager(object):
 
             'Description': ('Generate a windows shellcode stager'),
 
-            'Commemts': [
+            'Comments': [
                 ''
             ]
         }

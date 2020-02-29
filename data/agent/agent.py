@@ -1057,7 +1057,7 @@ while(True):
             except Exception as e:
                 result = build_response_packet(0, str('[!] Failed to check job buffer!: ' + str(e)))
                 process_job_tasking(result)
-            if data == defaultResponse:
+            if data.strip() == defaultResponse.strip():
                 missedCheckins = 0
             else:
                 decode_routing_packet(data)

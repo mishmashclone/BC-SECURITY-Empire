@@ -2215,7 +2215,7 @@ class PowerShellAgentMenu(SubMenu):
     
     
     def do_download(self, line):
-        "Task an agent to download a file."
+        "Task an agent to download a file into the C2."
         
         line = line.strip()
         
@@ -2236,7 +2236,7 @@ class PowerShellAgentMenu(SubMenu):
     
     
     def do_upload(self, line):
-        "Task an agent to upload a file."
+        "Task the C2 to upload a file into an agent."
         
         # "upload /path/file.ext" or "upload /path/file/file.ext newfile.ext"
         # absolute paths accepted
@@ -3286,7 +3286,7 @@ class PythonAgentMenu(SubMenu):
     
     
     def do_download(self, line):
-        "Task an agent to download a file."
+        "Task an agent to download a file into the C2."
         
         line = line.strip()
         
@@ -3308,7 +3308,7 @@ class PythonAgentMenu(SubMenu):
     
     
     def do_upload(self, line):
-        "Task an agent to upload a file."
+        "Task the C2 to upload a file into an agent."
         
         # "upload /path/file.ext" or "upload /path/file/file.ext newfile.ext"
         # absolute paths accepted
@@ -3327,7 +3327,7 @@ class PythonAgentMenu(SubMenu):
                 # TODO: reimplement Python file upload
                 
                 # # read in the file and base64 encode it for transport
-                f = open(parts[0], 'r')
+                f = open(parts[0], 'rb')
                 fileData = f.read()
                 f.close()
                 # Get file size
@@ -3350,6 +3350,8 @@ class PythonAgentMenu(SubMenu):
                     # get final file size
                     fileData = helpers.encode_base64(fileData)
                     # upload packets -> "filename | script data"
+                    if isinstance(fileData, bytes):
+                        fileData = fileData.decode("utf-8")
                     data = uploadname + "|" + fileData
                     
                     # dispatch this event

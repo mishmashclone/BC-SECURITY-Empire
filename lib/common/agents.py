@@ -242,7 +242,7 @@ class Agents(object):
             return True
 
 
-    def save_file(self, sessionID, path, data, append=False):
+    def save_file(self, sessionID, path, data, filesize, append=False):
         """
         Save a file download for an agent to the appropriately constructed path.
         """
@@ -300,8 +300,10 @@ class Agents(object):
         finally:
             self.lock.release()
 
+        percent = round(int(os.path.getsize("%s/%s" % (save_path, filename)))/int(filesize)*100,2)
+
         # notify everyone that the file was downloaded
-        message = "[+] Part of file {} from {} saved".format(filename, sessionID)
+        message = "[+] Part of file {} from {} saved [{}%]".format(filename, sessionID, percent)
         signal = json.dumps({
             'print': True,
             'message': message
@@ -1843,7 +1845,7 @@ class Agents(object):
                 data = data.decode('UTF-8')
 
             parts = data.split("|")
-            if len(parts) != 3:
+            if len(parts) != 4:
                 message = "[!] Received invalid file download response from {}".format(sessionID)
                 signal = json.dumps({
                     'print': True,
@@ -1851,15 +1853,15 @@ class Agents(object):
                 })
                 dispatcher.send(signal, sender="agents/{}".format(sessionID))
             else:
-                index, path, data = parts
+                index, path, filesize, data = parts
                 # decode the file data and save it off as appropriate
                 file_data = helpers.decode_base64(data.encode('UTF-8'))
                 name = self.get_agent_name_db(sessionID)
 
                 if index == "0":
-                    self.save_file(name, path, file_data)
+                    self.save_file(name, path, file_data, filesize)
                 else:
-                    self.save_file(name, path, file_data, append=True)
+                    self.save_file(name, path, file_data, filesize, append=True)
                 # update the agent log
                 msg = "file download: %s, part: %s" % (path, index)
                 self.save_agent_log(sessionID, msg)

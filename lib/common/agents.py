@@ -74,6 +74,7 @@ from . import helpers
 from . import packets
 from . import messages
 from . import events
+from . import users
 
 
 class Agents(object):
@@ -1057,14 +1058,15 @@ class Agents(object):
     #
     ###############################################################
 
-    def add_agent_task_db(self, sessionID, taskName, task=''):
+    def add_agent_task_db(self, sessionID, taskName, task='',uid=None):
         """
         Add a task to the specified agent's buffer in the database.
         """
         agentName = sessionID
-
         # see if we were passed a name instead of an ID
         nameid = self.get_agent_id_db(sessionID)
+        timestamp = helpers.get_datetime()
+
         if nameid:
             sessionID = nameid
 
@@ -1096,11 +1098,19 @@ class Agents(object):
                     if pk is None:
                         pk = 0
                     pk = (pk + 1) % 65536
-                    cur.execute("INSERT INTO taskings (id, agent, data) VALUES(?, ?, ?)", [pk, sessionID, task[:100]])
+                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, time_stamp) VALUES(?, ?, ?, ?, ?)", [pk, sessionID, task[:100], uid, timestamp])
+
+                    # Create result for data when it arrives
+                    cur.execute("INSERT INTO results (id, agent, user_id) VALUES (?,?,?)", (pk, sessionID, uid))
 
                     # append our new json-ified task and update the backend
                     agent_tasks.append([taskName, task, pk])
                     cur.execute("UPDATE agents SET taskings=? WHERE session_id=?", [json.dumps(agent_tasks), sessionID])
+
+                    # update last seen time for user
+                    last_logon = helpers.get_datetime()
+                    cur.execute("UPDATE users SET last_logon_time = ? WHERE id = ?",
+                                (last_logon, uid))
 
                     # dispatch this event
                     message = "[*] Agent {} tasked with task ID {}".format(sessionID, pk)
@@ -1721,20 +1731,15 @@ class Agents(object):
 
             # insert task results into the database, if it's not a file
             if taskID != 0 and responseName not in ["TASK_DOWNLOAD", "TASK_CMD_JOB_SAVE", "TASK_CMD_WAIT_SAVE"] and data != None:
-                # if the taskID does not exist for this agent, create it
-                if cur.execute("SELECT * FROM results WHERE id=? AND agent=?", [taskID, sessionID]).fetchone() is None:
-                    pk = cur.execute("SELECT max(id) FROM results WHERE agent=?", [sessionID]).fetchone()[0]
-                    if pk is None:
-                        pk = 0
-                    # only 2 bytes for the task ID, so wraparound
-                    pk = (pk + 1) % 65536
-                    cur.execute("INSERT INTO results (id, agent, data) VALUES (?,?,?)",(pk, sessionID, data))
-                else:
-                    try:
-                        keyLogTaskID = cur.execute("SELECT id FROM taskings WHERE agent=? AND data LIKE \"function Get-Keystrokes%\"", [sessionID]).fetchone()[0]
-                    except Exception as e:
-                        pass
-                    cur.execute("UPDATE results SET data=data||? WHERE id=? AND agent=?", [data, taskID, sessionID])
+                # Update result with data
+                cur.execute("UPDATE results SET data=? WHERE id=?",(data, taskID))
+
+            else:
+                try:
+                    keyLogTaskID = cur.execute("SELECT id FROM taskings WHERE agent=? AND data LIKE \"function Get-Keystrokes%\"", [sessionID]).fetchone()[0]
+                except Exception as e:
+                    pass
+                cur.execute("UPDATE results SET data=data||? WHERE id=? AND agent=?", [data, taskID, sessionID])
 
         finally:
             cur.close()

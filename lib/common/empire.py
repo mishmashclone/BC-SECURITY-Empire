@@ -43,10 +43,10 @@ from . import modules
 from . import stagers
 from . import credentials
 from . import plugins
+from . import users
 from .events import log_event
 from zlib_wrapper import compress
 from zlib_wrapper import decompress
-
 
 # custom exceptions used for nested menu navigation
 class NavMain(Exception):
@@ -1369,7 +1369,7 @@ class AgentsMenu(SubMenu):
                 self.mainMenu.agents.set_agent_field_db('delay', delay, sessionID)
                 self.mainMenu.agents.set_agent_field_db('jitter', jitter, sessionID)
                 # task the agent
-                self.mainMenu.agents.add_agent_task_db(sessionID, 'TASK_SHELL', 'Set-Delay ' + str(delay) + ' ' + str(jitter))
+                self.mainMenu.agents.add_agent_task_db(sessionID,'TASK_SHELL', 'Set-Delay ' + str(delay) + ' ' + str(jitter))
                 
                 # dispatch this event
                 message = "[*] Tasked agent to delay sleep/jitter {}/{}".format(delay, jitter)
@@ -1396,7 +1396,7 @@ class AgentsMenu(SubMenu):
                 # update this agent's information in the database
                 self.mainMenu.agents.set_agent_field_db('delay', delay, sessionID)
                 self.mainMenu.agents.set_agent_field_db('jitter', jitter, sessionID)
-                
+
                 self.mainMenu.agents.add_agent_task_db(sessionID, 'TASK_SHELL', 'Set-Delay ' + str(delay) + ' ' + str(jitter))
                 
                 # dispatch this event
@@ -1832,7 +1832,6 @@ class PowerShellAgentMenu(SubMenu):
     The main class used by Empire to drive an individual 'agent' menu.
     """
     def __init__(self, mainMenu, sessionID):
-        
         SubMenu.__init__(self, mainMenu)
         
         self.sessionID = sessionID
@@ -2014,7 +2013,6 @@ class PowerShellAgentMenu(SubMenu):
         "Task an agent to 'sleep interval [jitter]'"
         
         parts = line.strip().split(' ')
-        
         if len(parts) > 0 and parts[0] != "":
             delay = parts[0]
             jitter = 0.0

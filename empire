@@ -3,7 +3,7 @@
 from __future__ import print_function
 import sqlite3, argparse, sys, argparse, logging, json, string, subprocess
 import os, re, time, signal, copy, base64, pickle, random
-from flask import Flask, request, jsonify, make_response, abort, url_for
+from flask import Flask, request, jsonify, make_response, abort, url_for, g
 from time import localtime, strftime, sleep
 import hashlib
 from OpenSSL import SSL
@@ -11,7 +11,7 @@ import ssl
 import ast
 
 # Empire imports
-from lib.common import empire, helpers
+from lib.common import empire, helpers, users
 
 # if running in python 2.7 set global utf8 encoding otherwise python 3 is already UTF-8 by default
 if sys.version[0] == '2':
@@ -71,38 +71,7 @@ def execute_db_query(conn, query, args=None):
     return results
 
 
-def refresh_api_token(conn):
-    """
-    Generates a randomized RESTful API token and updates the value
-    in the config stored in the backend database.
-    """
-
-    # generate a randomized API token
-    rng = random.SystemRandom()
-    apiToken = ''.join(rng.choice(string.ascii_lowercase + string.digits) for x in range(40))
-
-    execute_db_query(conn, "UPDATE config SET api_current_token=?", [apiToken])
-
-    return apiToken
-
-
-def get_permanent_token(conn):
-    """
-    Returns the permanent API token stored in empire.db.
-
-    If one doesn't exist, it will generate one and store it before returning.
-    """
-
-    permanentToken = execute_db_query(conn, "SELECT api_permanent_token FROM config")[0]
-    permanentToken = permanentToken[0]
-    if not permanentToken:
-        rng = random.SystemRandom()
-        permanentToken = ''.join(rng.choice(string.ascii_lowercase + string.digits) for x in range(40))
-        execute_db_query(conn, "UPDATE config SET api_permanent_token=?", [permanentToken])
-
-    return permanentToken
-
-
+#TODO: Update with new commads
 ####################################################################
 #
 # The Empire RESTful API.
@@ -110,15 +79,15 @@ def get_permanent_token(conn):
 # Adapted from http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask
 #   example code at https://gist.github.com/miguelgrinberg/5614326
 #
-#    Verb     URI                                            Action
-#    ----     ---                                            ------
-#    GET      http://localhost:1337/api/version              return the current Empire version
+#    Verb     URI                                                   Action
+#    ----     ---                                                   ------
+#    GET      http://localhost:1337/api/version                     return the current Empire version
+#    GET      http://localhost:1337/api/map                         return list of all API routes
+#    GET      http://localhost:1337/api/config                      return the current default config
 #
-#    GET      http://localhost:1337/api/config               return the current default config
-#
-#    GET      http://localhost:1337/api/stagers              return all current stagers
-#    GET      http://localhost:1337/api/stagers/X            return the stager with name X
-#    POST     http://localhost:1337/api/stagers              generate a stager given supplied options (need to implement)
+#    GET      http://localhost:1337/api/stagers                     return all current stagers
+#    GET      http://localhost:1337/api/stagers/X                   return the stager with name X
+#    POST     http://localhost:1337/api/stagers                     generate a stager given supplied options (need to implement)
 #
 #    GET      http://localhost:1337/api/modules                     return all current modules
 #    GET      http://localhost:1337/api/modules/<name>              return the module with the specified name
@@ -126,40 +95,49 @@ def get_permanent_token(conn):
 #    POST     http://localhost:1337/api/modules/search              searches modulesfor a passed term
 #    POST     http://localhost:1337/api/modules/search/modulename   searches module names for a specific term
 #    POST     http://localhost:1337/api/modules/search/description  searches module descriptions for a specific term
-#    POST     http://localhost:1337/api/modules/search/description  searches module comments for a specific term
+#    POST     http://localhost:1337/api/modules/search/comments     searches module comments for a specific term
 #    POST     http://localhost:1337/api/modules/search/author       searches module authors for a specific term
 #
-#    GET      http://localhost:1337/api/listeners            return all current listeners
-#    GET      http://localhost:1337/api/listeners/Y          return the listener with id Y
-#    GET      http://localhost:1337/api/listeners/types      Returns a list of the loaded listeners that are available for use
-#    GET      http://localhost:1337/api/listeners/options    return all listener options
-#    POST     http://localhost:1337/api/listeners            starts a new listener with the specified options
-#    DELETE   http://localhost:1337/api/listeners/Y          kills listener Y
+#    GET      http://localhost:1337/api/listeners                   return all current listeners
+#    GET      http://localhost:1337/api/listeners/Y                 return the listener with id Y
+#    DELETE   http://localhost:1337/api/listeners/Y                 kills listener Y
+#    GET      http://localhost:1337/api/listeners/types             returns a list of the loaded listeners that are available for use
+#    GET      http://localhost:1337/api/listeners/options/Y         return listener options for Y
+#    POST     http://localhost:1337/api/listeners/Y                 starts a new listener with the specified options
 #
-#    GET      http://localhost:1337/api/agents               return all current agents
-#    GET      http://localhost:1337/api/agents/stale         return all stale agents
-#    DELETE   http://localhost:1337/api/agents/stale         removes stale agents from the database
-#    DELETE   http://localhost:1337/api/agents/Y             removes agent Y from the database
-#    GET      http://localhost:1337/api/agents/Y             return the agent with name Y
-#    GET      http://localhost:1337/api/agents/Y/results     return tasking results for the agent with name Y
-#    DELETE   http://localhost:1337/api/agents/Y/results     deletes the result buffer for agent Y
-#    POST     http://localhost:1337/api/agents/Y/shell       task agent Y to execute a shell command
-#    POST     http://localhost:1337/api/agents/Y/rename      rename agent Y
-#    GET/POST http://localhost:1337/api/agents/Y/clear       clears the result buffer for agent Y
-#    GET/POST http://localhost:1337/api/agents/Y/kill        kill agent Y
+#    GET      http://localhost:1337/api/agents                      return all current agents
+#    GET      http://localhost:1337/api/agents/stale                return all stale agents
+#    DELETE   http://localhost:1337/api/agents/stale                removes stale agents from the database
+#    DELETE   http://localhost:1337/api/agents/Y                    removes agent Y from the database
+#    GET      http://localhost:1337/api/agents/Y                    return the agent with name Y
+#    GET      http://localhost:1337/api/agents/Y/results            return tasking results for the agent with name Y
+#    DELETE   http://localhost:1337/api/agents/Y/results            deletes the result buffer for agent Y
+#    POST     http://localhost:1337/api/agents/Y/download           task agent Y to download a file
+#    POST     http://localhost:1337/api/agents/Y/upload             task agent Y to upload a file
+#    POST     http://localhost:1337/api/agents/Y/shell              task agent Y to execute a shell command
+#    POST     http://localhost:1337/api/agents/Y/rename             rename agent Y
+#    GET/POST http://localhost:1337/api/agents/Y/clear              clears the result buffer for agent Y
+#    GET/POST http://localhost:1337/api/agents/Y/kill               kill agent Y
 #
-#    GET      http://localhost:1337/api/reporting            return all logged events
-#    GET      http://localhost:1337/api/reporting/agent/X    return all logged events for the given agent name X
-#    GET      http://localhost:1337/api/reporting/type/Y     return all logged events of type Y (checkin, task, result, rename)
-#    GET      http://localhost:1337/api/reporting/msg/Z      return all logged events matching message Z, wildcards accepted
+#    GET      http://localhost:1337/api/creds                       return stored credentials
+#    POST     http://localhost:1337/api/creds                       add creds to the database
 #
-#    GET      http://localhost:1337/api/creds                return stored credentials
-#    POST     http://localhost:1337/api/creds                add creds to the database
+#    GET      http://localhost:1337/api/reporting                   return all logged events
+#    GET      http://localhost:1337/api/reporting/agent/X           return all logged events for the given agent name X
+#    GET      http://localhost:1337/api/reporting/type/Y            return all logged events of type Y (checkin, task, result, rename)
+#    GET      http://localhost:1337/api/reporting/msg/Z             return all logged events matching message Z, wildcards accepted
 #
-#    GET      http://localhost:1337/api/admin/login          retrieve the API token given the correct username and password
-#    GET      http://localhost:1337/api/admin/permanenttoken retrieve the permanent API token, generating/storing one if it doesn't already exist
-#    GET      http://localhost:1337/api/admin/shutdown       shutdown the RESTful API
-#    GET      http://localhost:1337/api/admin/restart        restart the RESTful API
+#
+#    POST     http://localhost:1337/api/admin/login                 retrieve the API token given the correct username and password
+#    POST     http://localhost:1337/api/admin/logout                logout of current user account
+#    GET      http://localhost:1337/api/admin/restart               restart the RESTful API
+#    GET      http://localhost:1337/api/admin/shutdown              shutdown the RESTful API
+#
+#    GET      http://localhost:1337/api/users                       return all users from database
+#    GET      http://localhost:1337/api/users/me                    return the user for the given token
+#    POST     http://localhost:1337/api/users                       add a new user
+#    PUT      http://localhost:1337/api/users/Y/disable             disable/enable user Y
+#    PUT      http://localhost:1337/api/users/Y/updatepassword      update password for user Y
 #
 ####################################################################
 
@@ -180,37 +158,21 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
     main = empireMenu
 
+    u = users.Users(main)
+
     global serverExitCommand
 
     # if a username/password were not supplied, use the creds stored in the db
+    #(dbUsername, dbPassword) = execute_db_query(conn, "SELECT api_username, api_password FROM config")[0]
 
-    (dbUsername, dbPassword) = execute_db_query(conn, "SELECT api_username, api_password FROM config")[0]
+    if username:
+        u.update_username(1, username[0])
 
-    if not username:
-        username = dbUsername
-    else:
-        execute_db_query(conn, "UPDATE config SET api_username=?", username)
-        username = username[0]
-
-    if not password:
-        password = dbPassword
-    else:
-        execute_db_query(conn, "UPDATE config SET api_password=?", password)
-        password = password[0]
-
+    if password:
+        u.update_password(1, password[0])
 
     print('')
-
-
-
     print(" * Starting Empire RESTful API on port: %s" %(port))
-
-    # refresh the token for the RESTful API
-    apiToken = refresh_api_token(conn)
-    print(" * RESTful API token: %s" %(apiToken))
-
-    permanentApiToken = get_permanent_token(conn)
-    tokenAllowed = re.compile("^[0-9a-z]{40}")
 
     oldStdout = sys.stdout
     if suppress:
@@ -221,18 +183,24 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         # suppress all stdout and don't initiate the main cmdloop
         sys.stdout = open(os.devnull, 'w')
 
+
     # validate API token before every request except for the login URI
     @app.before_request
     def check_token():
         """
         Before every request, check if a valid token is passed along with the request.
         """
-        if request.path != '/api/admin/login':
-            token = request.args.get('token')
-            if (not token) or (not tokenAllowed.match(token)):
-                return make_response('', 401)
-            if (token != apiToken) and (token != permanentApiToken):
-                return make_response('', 401)
+        try:
+            if request.path != '/api/admin/login':
+                token = request.args.get('token')
+                user = u.get_user_from_token(token)
+                if user:
+                    g.user = user
+                else:
+                    return make_response('', 401)
+        except:
+            return make_response('', 401)
+
 
     @app.after_request
     def add_cors(response):
@@ -245,8 +213,8 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         """
         Generic exception handler.
         """
-        return repr(error)
-
+        code = error.code if hasattr(error, 'code') else '500'
+        return make_response(jsonify({'error': repr(error)}), code)
 
     @app.errorhandler(404)
     def not_found(error):
@@ -269,7 +237,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         """
         List all of the current registered API routes.
         """
-        import urllib
+        import urllib.request as urllib
         output = []
         for rule in app.url_map.iter_rules():
 
@@ -293,10 +261,10 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         """
         Returns JSON of the current Empire config.
         """
-        configRaw = execute_db_query(conn, 'SELECT staging_key, install_path, ip_whitelist, ip_blacklist, autorun_command, autorun_data, rootuser, api_username, api_password, api_current_token, api_permanent_token FROM config')
+        configRaw = execute_db_query(conn, 'SELECT staging_key, install_path, ip_whitelist, ip_blacklist, autorun_command, autorun_data, rootuser, api_username, api_password, api_current_token FROM config')
 
-        [staging_key, install_path, ip_whitelist, ip_blacklist, autorun_command, autorun_data, rootuser, api_username, api_password, api_current_token, api_permanent_token] = configRaw[0]
-        config = [{"api_password":api_password, "api_username":api_username, "autorun_command":autorun_command, "autorun_data":autorun_data, "current_api_token":api_current_token, "install_path":install_path, "ip_blacklist":ip_blacklist, "ip_whitelist":ip_whitelist, "permanent_api_token":api_permanent_token, "staging_key":staging_key, "version":empire.VERSION}]
+        [staging_key, install_path, ip_whitelist, ip_blacklist, autorun_command, autorun_data, rootuser, api_username, api_password, api_current_token] = configRaw[0]
+        config = [{"api_password":api_password, "api_username":api_username, "autorun_command":autorun_command, "autorun_data":autorun_data, "current_api_token":api_current_token, "install_path":install_path, "ip_blacklist":ip_blacklist, "ip_whitelist":ip_whitelist, "staging_key":staging_key, "version":empire.VERSION}]
 
         return jsonify({'config': config})
 
@@ -519,7 +487,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
             for agent in main.agents.get_agents():
                 sessionID = agent[1]
-                taskID = main.agents.add_agent_task_db(sessionID, taskCommand, moduleData)
+                taskID = main.agents.add_agent_task_db(sessionID, taskCommand, moduleData, uid=g.user['id'])
                 msg = "tasked agent %s to run module %s" %(sessionID, module_name)
                 main.agents.save_agent_log(sessionID, msg)
 
@@ -528,7 +496,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         else:
             # set the agent's tasking in the cache
-            taskID = main.agents.add_agent_task_db(sessionID, taskCommand, moduleData)
+            taskID = main.agents.add_agent_task_db(sessionID, taskCommand, moduleData, uid=g.user['id'])
 
             # update the agent log
             msg = "tasked agent %s to run module %s" %(sessionID, module_name)
@@ -910,12 +878,24 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         for agentNameID in agentNameIDs:
             [agentName, agentSessionID] = agentNameID
 
-            agentResults = execute_db_query(conn, "SELECT results.id,taskings.data AS command,results.data AS response FROM results INNER JOIN taskings ON results.id = taskings.id AND results.agent = taskings.agent where results.agent=?;", [agentSessionID])
+            agentResults = execute_db_query(conn,
+                """
+                SELECT
+                    results.id,
+                    taskings.data AS command,
+                    results.data AS response,
+                    users.id as user_id,
+                    users.username as username
+                FROM results
+                INNER JOIN taskings ON results.id = taskings.id AND results.agent = taskings.agent
+                LEFT JOIN users on results.user_id = users.id
+                WHERE results.agent=?;
+                """, [agentSessionID])
 
             results = []
             if len(agentResults) > 0:
-                for taskID, command, result in agentResults:
-                    results.append({'taskID': taskID, 'command': command, 'results': result})
+                for taskID, command, result, user_id, username in agentResults:
+                    results.append({'taskID': taskID, 'command': command, 'results': result, 'user_id': user_id, 'username': username})
 
                 agentTaskResults.append({"AgentName": agentSessionID, "AgentResults": results})
             else:
@@ -945,6 +925,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             execute_db_query(conn, 'UPDATE agents SET results=? WHERE session_id=?', ['', agentSessionID])
 
         return jsonify({'success': True})
+
     @app.route('/api/agents/<string:agent_name>/download', methods=['POST'])
     def task_agent_download(agent_name):
         """
@@ -969,7 +950,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
             msg = "Tasked agent to download %s" % (fileName)
             main.agents.save_agent_log(agentSessionID, msg)
-            taskID = main.agents.add_agent_task_db(agentSessionID, 'TASK_DOWNLOAD', fileName)
+            taskID = main.agents.add_agent_task_db(agentSessionID, 'TASK_DOWNLOAD', fileName, uid=g.user['id'])
 
         return jsonify({'success': True, 'taskID': taskID})
 
@@ -1008,9 +989,10 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             msg = "Tasked agent to upload %s : %s" % (fileName, hashlib.md5(rawBytes).hexdigest())
             main.agents.save_agent_log(agentSessionID, msg)
             data = fileName + "|" + fileData
-            taskID = main.agents.add_agent_task_db(agentSessionID, 'TASK_UPLOAD', data)
+            taskID = main.agents.add_agent_task_db(agentSessionID, 'TASK_UPLOAD', data, uid=g.user['id'])
 
         return jsonify({'success': True, 'taskID': taskID})
+
 
     @app.route('/api/agents/<string:agent_name>/shell', methods=['POST'])
     def task_agent_shell(agent_name):
@@ -1029,16 +1011,15 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             return make_response(jsonify({'error': 'agent name %s not found' %(agent_name)}), 404)
 
         command = request.json['command']
-
         for agentNameID in agentNameIDs:
             (agentName, agentSessionID) = agentNameID
 
             # add task command to agent taskings
             msg = "tasked agent %s to run command %s" %(agentSessionID, command)
             main.agents.save_agent_log(agentSessionID, msg)
-            taskID = main.agents.add_agent_task_db(agentSessionID, "TASK_SHELL", command)
-
+            taskID = main.agents.add_agent_task_db(agentSessionID, "TASK_SHELL", command, uid=g.user['id'])
         return jsonify({'success': True, 'taskID': taskID})
+
 
     @app.route('/api/agents/<string:agent_name>/rename', methods=['POST'])
     def task_agent_rename(agent_name):
@@ -1110,7 +1091,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             # task the agent to exit
             msg = "tasked agent %s to exit" %(agentSessionID)
             main.agents.save_agent_log(agentSessionID, msg)
-            main.agents.add_agent_task_db(agentSessionID, 'TASK_EXIT')
+            main.agents.add_agent_task_db(agentSessionID, 'TASK_EXIT', uid=g.user['id'])
 
         return jsonify({'success': True})
 
@@ -1268,7 +1249,6 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         Takes a supplied username and password and returns the current API token
         if authentication is accepted.
         """
-
         if not request.json or not 'username' in request.json or not 'password' in request.json:
             abort(400)
 
@@ -1277,20 +1257,21 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         # try to prevent some basic bruting
         time.sleep(2)
+        token = u.user_login(suppliedUsername, suppliedPassword)
 
-        if suppliedUsername == username and suppliedPassword == password:
-            return jsonify({'token': apiToken})
+        if token:
+            return jsonify({'token': token})
         else:
             return make_response('', 401)
 
 
-    @app.route('/api/admin/permanenttoken', methods=['GET'])
-    def get_server_perm_token():
+    @app.route('/api/admin/logout', methods=['POST'])
+    def server_logout():
         """
-        Returns the 'permanent' API token for the server.
+        Logs out current user
         """
-        permanentToken = get_permanent_token(conn)
-        return jsonify({'token': permanentToken})
+        u.user_logout(g.user['id'])
+        return jsonify({'success': True})
 
 
     @app.route('/api/admin/restart', methods=['GET', 'POST', 'PUT'])
@@ -1309,6 +1290,71 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         """
         shutdown_server()
         return jsonify({'success': True})
+
+
+    @app.route('/api/users', methods=['GET'])
+    def get_users():
+        """
+        Returns JSON of the users from the backend database.
+        """
+        reportingRaw = execute_db_query(conn, 'SELECT ID, username, last_logon_time, enabled, admin FROM users')
+        reporting_users = []
+        user_report = []
+
+        for reporting_users in reportingRaw:
+            [ID, username, last_logon_time, enabled, admin] = reporting_users
+            data = {"ID": ID, "username": username, "last_logon_time": last_logon_time, "enabled": bool(enabled), "admin": bool(admin)}
+            user_report.append(data)
+
+        return jsonify({'users': user_report})
+
+
+    @app.route('/api/users/me', methods=['GET'])
+    def get_user_me():
+        """
+        Returns the current user.
+        """
+        return g.user
+
+    @app.route('/api/users', methods=['POST'])
+    def create_user():
+        #Check that input is a valid request
+        if not request.json or not 'username' in request.json or not 'password' in request.json:
+            abort(400)
+
+        # Check if user is an admin
+        if not u.is_admin(g.user['id']):
+            abort(403)
+
+        status = u.add_new_user(request.json['username'], request.json['password'])
+        return jsonify({'success': status})
+
+    @app.route('/api/users/<int:uid>/disable', methods=['PUT'])
+    def disable_user(uid):
+        # Don't disable yourself
+        if not request.json or not 'disable' in request.json or uid == g.user['id']:
+            abort(400)
+
+        # User performing the action should be an admin.
+        # User being updated should not be an admin.
+        if not u.is_admin(g.user['id']) or u.is_admin(uid):
+            abort(403)
+
+        status = u.disable_user(uid, request.json['disable'])
+        return jsonify({'success': status})
+
+
+    @app.route('/api/users/<int:uid>/updatepassword', methods=['PUT'])
+    def update_user_password(uid):
+        if not request.json or not 'password' in request.json:
+            abort(400)
+
+        # Must be an admin or updating self.
+        if not (u.is_admin(g.user['id']) or uid == g.user['id']):
+            abort(403)
+
+        status = u.update_password(uid, request.json['password'])
+        return jsonify({'success': status})
 
 
     if not os.path.exists('./data/empire-chain.pem'):

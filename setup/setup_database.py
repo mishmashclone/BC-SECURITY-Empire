@@ -76,10 +76,6 @@ c.execute('''CREATE TABLE config (
     "autorun_command" text,
     "autorun_data" text,
     "rootuser" boolean,
-    "api_username" text,
-    "api_password" text,
-    "api_current_token" text,
-    "api_permanent_token" text,
     "obfuscate" integer,
     "obfuscate_command" text
     )''')
@@ -186,15 +182,6 @@ c.execute('''CREATE TABLE "users" (
 )''')
 
 c.execute("INSERT INTO users VALUES (?,?,?,?,?,?,?)", ("1", API_USERNAME, API_PASSWORD, "", "", True, True))
-
-c.execute('''CREATE TABLE "functions" (
-    "Invoke_Empire" text,
-    "Invoke_Mimikatz" text 
-)''')
-
-rand1 = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
-rand2 = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
-c.execute("INSERT INTO functions VALUES(?,?)", (rand1, rand2))
 
 # commit the changes and close everything off
 conn.commit()

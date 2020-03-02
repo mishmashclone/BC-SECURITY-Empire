@@ -12,7 +12,6 @@ import time
 import copy
 import json
 import sys
-import threading
 from pydispatch import dispatcher
 from flask import Flask, request, make_response, send_from_directory
 # Empire imports
@@ -167,27 +166,13 @@ class Listener(object):
         
         # randomize the length of the default_response and index_page headers to evade signature based scans
         self.header_offset = random.randint(0, 64)
-
-        # used to protect self.http and self.mainMenu.conn during threaded listener access
-        self.lock = threading.Lock()
-
+        
         self.session_cookie = ''
         
         # check if the current session cookie not empty and then generate random cookie
         if self.session_cookie == '':
             self.options['Cookie']['Value'] = self.generate_cookie()
-
-    # this might not be necessary. Could probably be achieved by just callingg mainmenu.get_db but all the other files have
-    # implemented it in place. Might be worthwhile to just make a database handling file
-    def get_db_connection(self):
-        """
-        Returns the cursor for SQLlite DB
-        """
-        self.lock.acquire()
-        self.mainMenu.conn.row_factory = None
-        self.lock.release()
-        return self.mainMenu.conn
-
+    
     def default_response(self):
         """
         Returns an IIS 7.5 404 not found page.
@@ -573,17 +558,7 @@ class Listener(object):
             f = open("%s/data/agent/stagers/http.ps1" % (self.mainMenu.installPath))
             stager = f.read()
             f.close()
-
-            # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
-            cur.close()
-            self.lock.release()
-            stager = stager.replace("Invoke-Empire", replacement[0])
-
+            
             # make sure the server ends with "/"
             if not host.endswith("/"):
                 host += "/"
@@ -703,17 +678,6 @@ class Listener(object):
             f = open(self.mainMenu.installPath + "./data/agent/agent.ps1")
             code = f.read()
             f.close()
-
-            # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
-            cur.close()
-            self.lock.release()
-
-            code = code.replace("Invoke-Empire", replacement[0])
             
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)

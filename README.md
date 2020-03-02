@@ -24,10 +24,9 @@
 Keep up-to-date on our blog at [https://www.bc-security.org/blog][7]
 
 # Empire
-## The beta release of [Empire 3.0](https://github.com/BC-SECURITY/Empire/tree/dev) is available on the dev branch ##
 Empire 3.0 is a post-exploitation framework that includes a pure-PowerShell 2.0 Windows agent, and compatibility with Python 2.x/3.x Linux/OS X agents. It is the merger of the previous PowerShell Empire and Python EmPyre projects. The framework offers cryptologically-secure communications and a flexible architecture. On the PowerShell side, Empire implements the ability to run PowerShell agents without needing powershell.exe, rapidly deployable post-exploitation modules ranging from key loggers to Mimikatz, and adaptable communications to evade network detection, all wrapped up in a usability-focused framework. PowerShell Empire premiered at [BSidesLV in 2015](https://www.youtube.com/watch?v=Pq9t59w0mUI) and Python EmPyre premeiered at HackMiami 2016. BC-Security presented updates to further evade Microsoft Antimalware Scan Interface (AMSI) and JA3/S signatures at [DEF CON 27](https://github.com/BC-SECURITY/DEFCON27).
 
-Empire relies heavily on the work from several other projects for its underlying functionality. We have tried to call out a few of those people we've interacted with [heavily here](http://www.powershellempire.com/?page_id=2) and have included author/reference link information in the source of each Empire module as appropriate. If we have failed to improperly cite existing or prior work, please let us know.
+Empire relies heavily on the work from several other projects for its underlying functionality. We have tried to call out a few of those people we've interacted with [heavily here](http://www.powershellempire.com/?page_id=2) and have included author/reference link information in the source of each Empire module as appropriate. If we have failed to properly cite existing or prior work, please let us know at Empire@BC-Security.org.
 
 Empire is developed by [@harmj0y](https://twitter.com/harmj0y), [@sixdub](https://twitter.com/sixdub), [@enigma0x3](https://twitter.com/enigma0x3), [@rvrsh3ll](https://twitter.com/424f424f), [@killswitch_gui](https://twitter.com/killswitch_gui), [@xorrior](https://twitter.com/xorrior), and [@bcsecurity1](https://twitter.com/BCSecurity1). While the main fork for Empire is no longer maintained, this fork is maintained by [BC-Security](https://www.bc-security.org) and will continue to receive periodic updates.
 
@@ -76,13 +75,13 @@ Check out the [Empire wiki](https://github.com/EmpireProject/Empire/wiki/Quickst
 
 ## To Do List
 
-* Port code to work with Python 3
+* ~~Port code to work with Python 3~~
 * [Invoke-SocksProxy](https://github.com/p3nt4/Invoke-SocksProxy)
 * Function name randomization
-* JA3/S signature randomization
-* Multi-menu function calls
+* ~~JA3/S signature randomization~~
+* ~~Multi-menu function calls~~
 * Function name aliasing
-* Update to [Mimikatz 2.2.0](https://github.com/gentilkiwi/mimikatz)
+* ~~Update to [Mimikatz 2.2.0](https://github.com/gentilkiwi/mimikatz)~~
 
 ## Contribution Rules
 

@@ -1,3 +1,16 @@
+3/2/2020
+------------
+- Version 3.1.0 Master Release
+	- Added Multi-user Collaboration to API - #105 (@Cx01N & @Vinnybod)
+	- Updated to Mimikatz 2.2.0 20200208 - #104 (@Cx01N)
+	- Fixed incorrect header on python response packet (@Cx01N)
+	- Added progress bar to download function - #106 (@Cx01N)
+	- Expanded API functionality (@Vinnybod)
+	- Fixed str/byte in empire.py - #103 (@hypnoticpattern)
+	- Fixed typos in helpers.py - #103 (@hypnoticpattern)
+	- Fixed unsupported formatting for null hostname - #103 (@hypnoticpattern)
+	- Added function name aliasing to Invoke-Empire & Mimikatz - #109 (@Hubbl3)
+
 2/6/2020
 ------------
 - Version 3.0.7 Master Release

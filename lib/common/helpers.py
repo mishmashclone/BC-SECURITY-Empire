@@ -822,7 +822,7 @@ def decode_base64(data):
 
 def encode_base64(data):
     """
-    Decode data as a base64 string.
+    Encode data as a base64 string.
     """
     return base64.encodebytes(data).strip()
 

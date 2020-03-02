@@ -4,6 +4,7 @@ from __future__ import print_function
 from builtins import input
 from builtins import range
 import sqlite3, os, string, hashlib, random
+import bcrypt
 
 
 ###################################################
@@ -46,10 +47,7 @@ IP_BLACKLIST = ""
 
 # default credentials used to log into the RESTful API
 API_USERNAME = "empireadmin"
-API_PASSWORD = ''.join(random.sample(string.ascii_letters + string.digits + punctuation, 32))
-
-# the 'permanent' API token (doesn't change)
-API_PERMANENT_TOKEN = ''.join(random.choice(string.ascii_lowercase + string.digits) for x in range(40))
+API_PASSWORD = bcrypt.hashpw(b"password123", bcrypt.gensalt())
 
 # default obfuscation setting
 OBFUSCATE = 0
@@ -78,16 +76,12 @@ c.execute('''CREATE TABLE config (
     "autorun_command" text,
     "autorun_data" text,
     "rootuser" boolean,
-    "api_username" text,
-    "api_password" text,
-    "api_current_token" text,
-    "api_permanent_token" text,
     "obfuscate" integer,
     "obfuscate_command" text
     )''')
 
 # kick off the config component of the database
-c.execute("INSERT INTO config VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", (STAGING_KEY, INSTALL_PATH, IP_WHITELIST, IP_BLACKLIST, '', '', False, API_USERNAME, API_PASSWORD, '', API_PERMANENT_TOKEN, OBFUSCATE, OBFUSCATE_COMMAND))
+c.execute("INSERT INTO config VALUES (?,?,?,?,?,?,?,?,?)", (STAGING_KEY, INSTALL_PATH, IP_WHITELIST, IP_BLACKLIST, '', '', False, OBFUSCATE, OBFUSCATE_COMMAND))
 
 c.execute('''CREATE TABLE "agents" (
     "id" integer PRIMARY KEY,
@@ -149,17 +143,20 @@ c.execute('''CREATE TABLE "credentials" (
     "notes" text
     )''')
 
-c.execute( '''CREATE TABLE "taskings" (
+c.execute('''CREATE TABLE "taskings" (
     "id" integer,
     "data" text,
     "agent" text,
+    "user_id" text,
+    "time_stamp" text,
     PRIMARY KEY(id, agent)
 )''')
 
-c.execute( '''CREATE TABLE "results" (
+c.execute('''CREATE TABLE "results" (
     "id" integer,
     "data" text,
     "agent" text,
+    "user_id" text,
     PRIMARY KEY(id, agent)
 )''')
 
@@ -173,6 +170,27 @@ c.execute('''CREATE TABLE "reporting" (
     "taskID" integer,
     FOREIGN KEY(taskID) REFERENCES results(id)
 )''')
+
+c.execute('''CREATE TABLE "users" (
+    "id" integer PRIMARY KEY,
+    "username" text unique,
+    "password" text,
+    "api_token" text,
+    "last_logon_time" text,
+    "enabled" boolean,
+    "admin" boolean
+)''')
+
+c.execute("INSERT INTO users VALUES (?,?,?,?,?,?,?)", ("1", API_USERNAME, API_PASSWORD, "", "", True, True))
+
+c.execute('''CREATE TABLE "functions" (
+    "Invoke_Empire" text,
+    "Invoke_Mimikatz" text 
+)''')
+
+rand1 = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
+rand2 = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
+c.execute("INSERT INTO functions VALUES(?,?)", (rand1, rand2))
 
 # commit the changes and close everything off
 conn.commit()

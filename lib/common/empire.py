@@ -15,7 +15,7 @@ from builtins import input
 from builtins import str
 from builtins import range
 
-VERSION = "3.0.7 BC-Security Fork"
+VERSION = "3.1.0 BC-Security Fork"
 
 from pydispatch import dispatcher
 
@@ -43,10 +43,10 @@ from . import modules
 from . import stagers
 from . import credentials
 from . import plugins
+from . import users
 from .events import log_event
 from zlib_wrapper import compress
 from zlib_wrapper import decompress
-
 
 # custom exceptions used for nested menu navigation
 class NavMain(Exception):
@@ -1369,7 +1369,7 @@ class AgentsMenu(SubMenu):
                 self.mainMenu.agents.set_agent_field_db('delay', delay, sessionID)
                 self.mainMenu.agents.set_agent_field_db('jitter', jitter, sessionID)
                 # task the agent
-                self.mainMenu.agents.add_agent_task_db(sessionID, 'TASK_SHELL', 'Set-Delay ' + str(delay) + ' ' + str(jitter))
+                self.mainMenu.agents.add_agent_task_db(sessionID,'TASK_SHELL', 'Set-Delay ' + str(delay) + ' ' + str(jitter))
                 
                 # dispatch this event
                 message = "[*] Tasked agent to delay sleep/jitter {}/{}".format(delay, jitter)
@@ -1396,7 +1396,7 @@ class AgentsMenu(SubMenu):
                 # update this agent's information in the database
                 self.mainMenu.agents.set_agent_field_db('delay', delay, sessionID)
                 self.mainMenu.agents.set_agent_field_db('jitter', jitter, sessionID)
-                
+
                 self.mainMenu.agents.add_agent_task_db(sessionID, 'TASK_SHELL', 'Set-Delay ' + str(delay) + ' ' + str(jitter))
                 
                 # dispatch this event
@@ -1832,7 +1832,6 @@ class PowerShellAgentMenu(SubMenu):
     The main class used by Empire to drive an individual 'agent' menu.
     """
     def __init__(self, mainMenu, sessionID):
-        
         SubMenu.__init__(self, mainMenu)
         
         self.sessionID = sessionID
@@ -2014,7 +2013,6 @@ class PowerShellAgentMenu(SubMenu):
         "Task an agent to 'sleep interval [jitter]'"
         
         parts = line.strip().split(' ')
-        
         if len(parts) > 0 and parts[0] != "":
             delay = parts[0]
             jitter = 0.0
@@ -2215,7 +2213,7 @@ class PowerShellAgentMenu(SubMenu):
     
     
     def do_download(self, line):
-        "Task an agent to download a file."
+        "Task an agent to download a file into the C2."
         
         line = line.strip()
         
@@ -2236,7 +2234,7 @@ class PowerShellAgentMenu(SubMenu):
     
     
     def do_upload(self, line):
-        "Task an agent to upload a file."
+        "Task the C2 to upload a file into an agent."
         
         # "upload /path/file.ext" or "upload /path/file/file.ext newfile.ext"
         # absolute paths accepted
@@ -3286,7 +3284,7 @@ class PythonAgentMenu(SubMenu):
     
     
     def do_download(self, line):
-        "Task an agent to download a file."
+        "Task an agent to download a file into the C2."
         
         line = line.strip()
         
@@ -3308,7 +3306,7 @@ class PythonAgentMenu(SubMenu):
     
     
     def do_upload(self, line):
-        "Task an agent to upload a file."
+        "Task the C2 to upload a file into an agent."
         
         # "upload /path/file.ext" or "upload /path/file/file.ext newfile.ext"
         # absolute paths accepted
@@ -3327,7 +3325,7 @@ class PythonAgentMenu(SubMenu):
                 # TODO: reimplement Python file upload
                 
                 # # read in the file and base64 encode it for transport
-                f = open(parts[0], 'r')
+                f = open(parts[0], 'rb')
                 fileData = f.read()
                 f.close()
                 # Get file size
@@ -3350,6 +3348,8 @@ class PythonAgentMenu(SubMenu):
                     # get final file size
                     fileData = helpers.encode_base64(fileData)
                     # upload packets -> "filename | script data"
+                    if isinstance(fileData, bytes):
+                        fileData = fileData.decode("utf-8")
                     data = uploadname + "|" + fileData
                     
                     # dispatch this event

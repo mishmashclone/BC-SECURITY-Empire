@@ -74,6 +74,7 @@ from . import helpers
 from . import packets
 from . import messages
 from . import events
+from . import users
 
 
 class Agents(object):
@@ -241,7 +242,7 @@ class Agents(object):
             return True
 
 
-    def save_file(self, sessionID, path, data, append=False):
+    def save_file(self, sessionID, path, data, filesize, append=False):
         """
         Save a file download for an agent to the appropriately constructed path.
         """
@@ -299,8 +300,10 @@ class Agents(object):
         finally:
             self.lock.release()
 
+        percent = round(int(os.path.getsize("%s/%s" % (save_path, filename)))/int(filesize)*100,2)
+
         # notify everyone that the file was downloaded
-        message = "[+] Part of file {} from {} saved".format(filename, sessionID)
+        message = "[+] Part of file {} from {} saved [{}%]".format(filename, sessionID, percent)
         signal = json.dumps({
             'print': True,
             'message': message
@@ -1057,14 +1060,15 @@ class Agents(object):
     #
     ###############################################################
 
-    def add_agent_task_db(self, sessionID, taskName, task=''):
+    def add_agent_task_db(self, sessionID, taskName, task='',uid=None):
         """
         Add a task to the specified agent's buffer in the database.
         """
         agentName = sessionID
-
         # see if we were passed a name instead of an ID
         nameid = self.get_agent_id_db(sessionID)
+        timestamp = helpers.get_datetime()
+
         if nameid:
             sessionID = nameid
 
@@ -1096,11 +1100,19 @@ class Agents(object):
                     if pk is None:
                         pk = 0
                     pk = (pk + 1) % 65536
-                    cur.execute("INSERT INTO taskings (id, agent, data) VALUES(?, ?, ?)", [pk, sessionID, task[:100]])
+                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, time_stamp) VALUES(?, ?, ?, ?, ?)", [pk, sessionID, task[:100], uid, timestamp])
+
+                    # Create result for data when it arrives
+                    cur.execute("INSERT INTO results (id, agent, user_id) VALUES (?,?,?)", (pk, sessionID, uid))
 
                     # append our new json-ified task and update the backend
                     agent_tasks.append([taskName, task, pk])
                     cur.execute("UPDATE agents SET taskings=? WHERE session_id=?", [json.dumps(agent_tasks), sessionID])
+
+                    # update last seen time for user
+                    last_logon = helpers.get_datetime()
+                    cur.execute("UPDATE users SET last_logon_time = ? WHERE id = ?",
+                                (last_logon, uid))
 
                     # dispatch this event
                     message = "[*] Agent {} tasked with task ID {}".format(sessionID, pk)
@@ -1721,20 +1733,15 @@ class Agents(object):
 
             # insert task results into the database, if it's not a file
             if taskID != 0 and responseName not in ["TASK_DOWNLOAD", "TASK_CMD_JOB_SAVE", "TASK_CMD_WAIT_SAVE"] and data != None:
-                # if the taskID does not exist for this agent, create it
-                if cur.execute("SELECT * FROM results WHERE id=? AND agent=?", [taskID, sessionID]).fetchone() is None:
-                    pk = cur.execute("SELECT max(id) FROM results WHERE agent=?", [sessionID]).fetchone()[0]
-                    if pk is None:
-                        pk = 0
-                    # only 2 bytes for the task ID, so wraparound
-                    pk = (pk + 1) % 65536
-                    cur.execute("INSERT INTO results (id, agent, data) VALUES (?,?,?)",(pk, sessionID, data))
-                else:
-                    try:
-                        keyLogTaskID = cur.execute("SELECT id FROM taskings WHERE agent=? AND data LIKE \"function Get-Keystrokes%\"", [sessionID]).fetchone()[0]
-                    except Exception as e:
-                        pass
-                    cur.execute("UPDATE results SET data=data||? WHERE id=? AND agent=?", [data, taskID, sessionID])
+                # Update result with data
+                cur.execute("UPDATE results SET data=? WHERE id=?",(data, taskID))
+
+            else:
+                try:
+                    keyLogTaskID = cur.execute("SELECT id FROM taskings WHERE agent=? AND data LIKE \"function Get-Keystrokes%\"", [sessionID]).fetchone()[0]
+                except Exception as e:
+                    pass
+                cur.execute("UPDATE results SET data=data||? WHERE id=? AND agent=?", [data, taskID, sessionID])
 
         finally:
             cur.close()
@@ -1838,7 +1845,7 @@ class Agents(object):
                 data = data.decode('UTF-8')
 
             parts = data.split("|")
-            if len(parts) != 3:
+            if len(parts) != 4:
                 message = "[!] Received invalid file download response from {}".format(sessionID)
                 signal = json.dumps({
                     'print': True,
@@ -1846,15 +1853,15 @@ class Agents(object):
                 })
                 dispatcher.send(signal, sender="agents/{}".format(sessionID))
             else:
-                index, path, data = parts
+                index, path, filesize, data = parts
                 # decode the file data and save it off as appropriate
                 file_data = helpers.decode_base64(data.encode('UTF-8'))
                 name = self.get_agent_name_db(sessionID)
 
                 if index == "0":
-                    self.save_file(name, path, file_data)
+                    self.save_file(name, path, file_data, filesize)
                 else:
-                    self.save_file(name, path, file_data, append=True)
+                    self.save_file(name, path, file_data, filesize, append=True)
                 # update the agent log
                 msg = "file download: %s, part: %s" % (path, index)
                 self.save_agent_log(sessionID, msg)

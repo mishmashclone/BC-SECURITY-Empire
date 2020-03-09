@@ -108,7 +108,7 @@ class Users():
         try:
             self.lock.acquire()
             cur = conn.cursor()
-            user = cur.execute("SELECT password from users WHERE username = ? AND enabled = true LIMIT 1", (user_name,)).fetchone()
+            user = cur.execute("SELECT password from users WHERE username = ? AND enabled = 1 LIMIT 1", (user_name,)).fetchone()
             
             if user == None:
                 return None

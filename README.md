@@ -37,7 +37,7 @@ Empire is developed by [@harmj0y](https://twitter.com/harmj0y), [@sixdub](https:
 ## Release Notes
 In Empire 3.1, we will no longer be actively supporting the Python 2.7 base code. If you wish to continue to leverage Python 2.7 then please use the [3.0.x Releases](https://github.com/BC-SECURITY/Empire/releases), since they were built to ensure backward compatibility.
 
-One of the most significant updates in 3.1 is the addition of Multi-User Collaboration to the API. This update adds the ability of users to interact with Empire in an entirely new way. Previously, API users would share a single login and be unable to track individual taskings. This has been completely reworked to allow User Management through the API. This feature is essential for the upcoming release of [Starkiller](https://twitter.com/BCSecurity1/status/1231992100394160130).
+One of the most significant updates in 3.1 is the addition of Multi-User Collaboration to the API. This update adds the ability of users to interact with Empire in an entirely new way. Previously, API users would share a single login and be unable to track individual taskings. This has been completely reworked to allow User Management through the API. This feature is essential for integration with [Starkiller](https://github.com/BC-SECURITY/Starkiller).
 
 Next, we have added Function Name Aliasing, which automates the ability to randomize function names inside of Empire. This proof of concept is a huge step forward in evasion since it tests the ability to mask individual functions inside of Empire. Function name aliasing is currently only built for Invoke-Empire and Invoke-Mimikatz currently, but we will be expanding this functionality in the future.
 

@@ -1314,7 +1314,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         """
         Returns the current user.
         """
-        return jsonify(str({g.user['id']}))
+        return jsonify(g.user)
 
     @app.route('/api/users', methods=['POST'])
     def create_user():

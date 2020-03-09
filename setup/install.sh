@@ -58,19 +58,7 @@ function install_powershell() {
 		sudo apt-get install -y powershell
 	#Kali Linux
 	elif lsb_release -d | grep -q "Kali"; then
-		# Download & Install prerequisites
-		wget http://ftp.us.debian.org/debian/pool/main/i/icu/libicu57_57.1-6+deb9u2_amd64.deb
-		dpkg -i libicu57_57.1-6+deb9u2_amd64.deb
-		apt-get update && apt-get install -y curl gnupg apt-transport-https
-
-		# Add Microsoft public repository key to APT
-		curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-
-		# Add Microsoft package repository to the source list
-		echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" | tee /etc/apt/sources.list.d/powershell.list
-
-		# Install PowerShell package
-		apt-get update && apt-get install -y powershell
+		apt update && apt -y install powershell
 	fi
 	if ls /opt/microsoft/powershell/*/DELETE_ME_TO_DISABLE_CONSOLEHOST_TELEMETRY; then
 		rm /opt/microsoft/powershell/*/DELETE_ME_TO_DISABLE_CONSOLEHOST_TELEMETRY
@@ -132,7 +120,7 @@ Pip_file="requirements.txt"
 
 if lsb_release -d | grep -q "Kali"; then
 	apt-get update
-	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk zlib1g-dev libssl1.1 build-essential libssl-dev libxml2-dev zlib1g-dev
+	sudo apt-get install -y make autoconf g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk zlib1g-dev libssl1.1 build-essential libssl-dev libxml2-dev zlib1g-dev
 elif lsb_release -d | grep -q "Ubuntu"; then
 	if is_libssl_1_0; then
 		LibSSL_pkgs="libssl1.0.0 libssl-dev"
@@ -141,7 +129,7 @@ elif lsb_release -d | grep -q "Ubuntu"; then
 		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
 	sudo apt-get update
-	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
+	sudo apt-get install -y make autoconf g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
 else
 	echo "Unknown distro - Debian/Ubuntu Fallback"
 	if is_libssl_1_0; then
@@ -151,7 +139,7 @@ else
 		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
 	sudo apt-get update
-	sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk libffi-dev $LibSSL_pkgs build-essential
+	sudo apt-get install -y make autoconf g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk libffi-dev $LibSSL_pkgs build-essential
 fi
 
 install_xar

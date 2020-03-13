@@ -1,4 +1,11 @@
+3/13/2020
+------------
+- Version 3.1.2 Master Release
+	- Fixed REST login error 500 on some version of SQLite - #125 (@justsly)
+	- Fixed generate launcher bug for redirector listener - #120 (@RedBulletTooling)
+
 3/8/2020
+------------
 - Version 3.1.1 Master Release
 	- Updated the /me endpoint that was added in 3.1.0 to return the full user object (@Vinnybod)
 	- Updated install script for Kali Powershell install - #118 (@Vinnybod)

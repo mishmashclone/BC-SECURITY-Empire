@@ -1304,7 +1304,6 @@ class Agents(object):
                             'message': message
                         })
                         dispatcher.send(signal, sender="agents/{}".format(sessionID))
-
                         nonce = helpers.random_string(16, charset=string.digits)
                         delay = listenerOptions['DefaultDelay']['Value']
                         jitter = listenerOptions['DefaultJitter']['Value']

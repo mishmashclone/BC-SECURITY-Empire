@@ -261,11 +261,12 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         """
         Returns JSON of the current Empire config.
         """
-        configRaw = execute_db_query(conn, 'SELECT staging_key, install_path, ip_whitelist, ip_blacklist, autorun_command, autorun_data, rootuser, api_username, api_password, api_current_token FROM config')
+        api_username = g.user['username']
+        api_current_token = g.user['api_token']
+        configRaw = execute_db_query(conn, 'SELECT staging_key, install_path, ip_whitelist, ip_blacklist, autorun_command, autorun_data, rootuser FROM config')
 
-        [staging_key, install_path, ip_whitelist, ip_blacklist, autorun_command, autorun_data, rootuser, api_username, api_password, api_current_token] = configRaw[0]
-        config = [{"api_password":api_password, "api_username":api_username, "autorun_command":autorun_command, "autorun_data":autorun_data, "current_api_token":api_current_token, "install_path":install_path, "ip_blacklist":ip_blacklist, "ip_whitelist":ip_whitelist, "staging_key":staging_key, "version":empire.VERSION}]
-
+        [staging_key, install_path, ip_whitelist, ip_blacklist, autorun_command, autorun_data, rootuser] = configRaw[0]
+        config = [{"api_username":api_username, "autorun_command":autorun_command, "autorun_data":autorun_data, "current_api_token":api_current_token, "install_path":install_path, "ip_blacklist":ip_blacklist, "ip_whitelist":ip_whitelist, "staging_key":staging_key, "version":empire.VERSION}]
         return jsonify({'config': config})
 
 

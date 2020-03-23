@@ -24,6 +24,7 @@
 
 Keep up-to-date on our blog at [https://www.bc-security.org/blog][7]
 
+Check out the Empire GUI: [Starkiller](https://github.com/BC-SECURITY/Starkiller)
 # Empire
 Empire 3.1 is a post-exploitation framework that includes a pure-PowerShell 2.0 Windows agent, and compatibility with Python 3.x Linux/OS X agents. It is the merger of the previous PowerShell Empire and Python EmPyre projects. The framework offers cryptologically-secure communications and flexible architecture.
 

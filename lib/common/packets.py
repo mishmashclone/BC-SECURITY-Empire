@@ -165,7 +165,7 @@ def build_task_packet(taskName, data, resultID):
     totalPacket = struct.pack('=H', 1)
     packetNum = struct.pack('=H', 1)
     resultID = struct.pack('=H', resultID)
-    length = struct.pack('=L', len(data))
+    length = struct.pack('=L', len(data.encode("UTF-8")))
     return taskType + totalPacket + packetNum + resultID + length + data.encode("UTF-8")
 
 def parse_result_packet(packet, offset=0):

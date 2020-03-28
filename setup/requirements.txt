@@ -15,7 +15,6 @@ jinja2
 cryptography
 pyminifier
 xlutils
-pycrypto
 pefile
 simplejson
 bcrypt

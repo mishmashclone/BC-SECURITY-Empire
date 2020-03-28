@@ -538,7 +538,6 @@ class MainMenu(cmd.Cmd):
     
     def do_uselistener(self, line):
         "Use an Empire listener module."
-        print("uselistener")
         parts = line.split(' ')
 
         if parts[0] not in self.listeners.loadedListeners:

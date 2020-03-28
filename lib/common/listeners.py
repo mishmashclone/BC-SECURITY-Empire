@@ -11,7 +11,7 @@ from builtins import str
 from builtins import object
 import sys
 import fnmatch
-import imp
+import importlib.util
 from . import helpers
 import os
 import pickle
@@ -65,8 +65,10 @@ class Listeners(object):
                 listenerName = filePath.split("/lib/listeners/")[-1][0:-3]
 
                 # instantiate the listener module and save it to the internal cache
-                self.loadedListeners[listenerName] = imp.load_source(listenerName, filePath).Listener(self.mainMenu, [])
-
+                spec = importlib.util.spec_from_file_location(listenerName, filePath)
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                self.loadedListeners[listenerName] = mod.Listener(self.mainMenu, [])
 
     def set_listener_option(self, listenerName, option, value):
         """

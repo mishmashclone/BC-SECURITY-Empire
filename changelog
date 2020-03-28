@@ -4,7 +4,6 @@
 	- Fixed errors with OneDrive listener - #40 (@Cx01N)
 	- Fixed REST API get config error - #131 (@chenxiangfang)
 	- Increased timer for stale agent checkins - #130 (@C01N)
-	- Added reset flag for running Empire - (@Hubbl3)
 
 3/13/2020
 ------------

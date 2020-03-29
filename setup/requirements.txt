@@ -18,3 +18,4 @@ xlutils
 pefile
 simplejson
 bcrypt
+pycrypto

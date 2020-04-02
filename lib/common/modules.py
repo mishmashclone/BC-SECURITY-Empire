@@ -12,7 +12,7 @@ from __future__ import absolute_import
 from builtins import object
 import fnmatch
 import os
-import imp
+import importlib.util
 from . import messages
 from . import helpers
 
@@ -60,8 +60,10 @@ class Modules(object):
                     moduleName = "external/%s" %(moduleName)
 
                 # instantiate the module and save it to the internal cache
-                self.modules[moduleName] = imp.load_source(moduleName, filePath).Module(self.mainMenu, [])
-
+                spec = importlib.util.spec_from_file_location(moduleName, filePath)
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                self.modules[moduleName] = mod.Module(self.mainMenu, [])
 
     def reload_module(self, moduleToReload):
         """
@@ -84,8 +86,10 @@ class Modules(object):
                 # check to make sure we've found the specific module
                 if moduleName.lower() == moduleToReload.lower():
                     # instantiate the module and save it to the internal cache
-                    self.modules[moduleName] = imp.load_source(moduleName, filePath).Module(self.mainMenu, [])
-
+                    spec = importlib.util.spec_from_file_location(moduleName, filePath)
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    self.modules[moduleName] = mod.Module(self.mainMenu, [])
 
     def search_modules(self, searchTerm):
         """

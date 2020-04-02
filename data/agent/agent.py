@@ -11,7 +11,8 @@ import threading
 import http.server
 import zipfile
 import io
-import imp
+import importlib.util
+import types
 import re
 import shutil
 import pwd
@@ -594,7 +595,7 @@ class CFinder(object):
     def load_module(self, fullname):
         submodule, is_package, fullpath, source = self._get_source(self.repoName, fullname)
         code = compile(source, fullpath, 'exec')
-        mod = sys.modules.setdefault(fullname, imp.new_module(fullname))
+        mod = sys.modules.setdefault(fullname, types.ModuleType(fullname))
         mod.__loader__ = self
         mod.__file__ = fullpath
         mod.__name__ = fullname

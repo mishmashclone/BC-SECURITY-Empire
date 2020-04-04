@@ -1,11 +1,12 @@
-4/1/2020
+4/4/2020
 ------------
 - Version 3.1.4 Master Release
 	- Fixed non-ascii filename download error - #141 (@tyraniter)
-	- Updated payload evasion agsinst Defender - #147 (@Hubbl3)
+	- Updated payload evasion against Defender - #147 (@Hubbl3)
 	- Added reset flag to empire launcher - #147 (@Cx01N)
 	- Replaced imp package with importlib - #108 (@Cx01N)
-	- Removed random print statement in uselistener...thanks Hubbl3
+	- Fixed internal monologue issue with only running once - #43 (@Cx01N)
+	- Fixed ascii encode error in powerbreach modules - #150 (@CykuTW)
 
 3/22/2020
 ------------

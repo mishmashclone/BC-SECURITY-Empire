@@ -1990,8 +1990,6 @@ def kcdecrypt(key, iv, data):
         return data
 
     cipher = triple_des(key, CBC, iv)
-    # the line below is for pycrypto instead
-    #cipher = DES3.new( key, DES3.MODE_CBC, iv )
 
     plain = cipher.decrypt(data)
 

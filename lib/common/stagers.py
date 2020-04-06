@@ -23,7 +23,7 @@ from builtins import str
 from builtins import object
 from past.utils import old_div
 import fnmatch
-import imp
+import importlib.util
 from . import helpers
 import errno
 import os
@@ -73,7 +73,10 @@ class Stagers(object):
                 stagerName = filePath.split("/lib/stagers/")[-1][0:-3]
 
                 # instantiate the module and save it to the internal cache
-                self.stagers[stagerName] = imp.load_source(stagerName, filePath).Stager(self.mainMenu, [])
+                spec = importlib.util.spec_from_file_location(stagerName, filePath)
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                self.stagers[stagerName] = mod.Stager(self.mainMenu, [])
 
 
     def set_stager_option(self, option, value):

@@ -15,7 +15,7 @@ from builtins import input
 from builtins import str
 from builtins import range
 
-VERSION = "3.1.3 BC-Security Fork"
+VERSION = "3.1.4 BC-Security Fork"
 
 from pydispatch import dispatcher
 
@@ -538,7 +538,6 @@ class MainMenu(cmd.Cmd):
     
     def do_uselistener(self, line):
         "Use an Empire listener module."
-        print("uselistener")
         parts = line.split(' ')
 
         if parts[0] not in self.listeners.loadedListeners:

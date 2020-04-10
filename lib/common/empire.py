@@ -968,8 +968,9 @@ class MainMenu(cmd.Cmd):
             # Empire Log
             cur.execute("""
             SELECT
-                time_stamp,
+                reporting.time_stamp,
                 event_type,
+                u.username,
                 substr(reporting.name, pos+1) as agent_name,
                 a.hostname,
                 taskID,
@@ -986,9 +987,10 @@ class MainMenu(cmd.Cmd):
                 FROM reporting
                 WHERE name LIKE 'agent%'
                 AND reporting.event_type == 'task' OR reporting.event_type == 'checkin') reporting
-            LEFT OUTER JOIN taskings t on (reporting.taskID = t.id) AND (agent_name = t.agent)
-            LEFT OUTER JOIN results r on (reporting.taskID = r.id) AND (agent_name = r.agent)
-            JOIN agents a on agent_name = a.session_id
+                LEFT OUTER JOIN taskings t on (reporting.taskID = t.id) AND (agent_name = t.agent)
+                LEFT OUTER JOIN results r on (reporting.taskID = r.id) AND (agent_name = r.agent)
+                JOIN agents a on agent_name = a.session_id
+                LEFT OUTER JOIN users u on t.user_id = u.id
             """)
             rows = cur.fetchall()
             print(helpers.color("[*] Writing data/master.log"))
@@ -1000,7 +1002,7 @@ class MainMenu(cmd.Cmd):
                 for n in range(len(row)):
                     if isinstance(row[n], bytes):
                         row[n] = row[n].decode('UTF-8')
-                f.write('\n' + row[0] + ' - ' + row[3] + ' (' + row[2] + ')> ' + str(row[5]) + '\n' + str(row[6]) + '\n')
+                f.write('\n' + row[0] + ' - ' + row[3] + ' (' + row[2] + ')> ' + str(row[5]) + '\n' + str(row[6]) + '\n' + str(row[7]) + '\n')
             f.close()
             cur.close()
         finally:

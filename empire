@@ -1178,12 +1178,38 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         """
         Returns JSON describing the reporting events from the backend database.
         """
-        reportingRaw = execute_db_query(conn, 'SELECT ID, name, event_type, message, time_stamp, taskID FROM reporting')
+        reportingRaw = execute_db_query(conn, '''
+        SELECT
+                reporting.time_stamp,
+                event_type,
+                u.username,
+                substr(reporting.name, pos+1) as agent_name,
+                a.hostname,
+                taskID,
+                t.data as "Task",
+                r.data as "Results"
+            FROM
+            (
+                SELECT
+                    time_stamp,
+                    event_type,
+                    name,
+                    instr(name, '/') as pos,
+                    taskID
+                FROM reporting
+                WHERE name LIKE 'agent%'
+                AND reporting.event_type == 'task' OR reporting.event_type == 'checkin') reporting
+                LEFT OUTER JOIN taskings t on (reporting.taskID = t.id) AND (agent_name = t.agent)
+                LEFT OUTER JOIN results r on (reporting.taskID = r.id) AND (agent_name = r.agent)
+                JOIN agents a on agent_name = a.session_id
+                LEFT OUTER JOIN users u on t.user_id = u.id
+                ORDER BY reporting.time_stamp DESC
+        ''')
         reportingEvents = []
 
         for reportingEvent in reportingRaw:
-            [ID, name, event_type, message, time_stamp, taskID] = reportingEvent
-            reportingEvents.append({"ID":ID, "agentname":name, "event_type":event_type, "message":json.loads(message), "timestamp":time_stamp, "taskID":taskID})
+            [time_stamp, event_type, user_name, agent_name, host_name, taskID, task, results] = reportingEvent
+            reportingEvents.append({"timestamp":time_stamp, "event_type":event_type, "username":user_name, "agent_name":agent_name, "host_name":host_name, "taskID":taskID, "task":task, "results":results})
 
         return jsonify({'reporting' : reportingEvents})
 

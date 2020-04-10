@@ -163,8 +163,7 @@ Invoke-DeadUserBackdoor"""
                 return ""
             else:
                 script = script.replace("REPLACE_LAUNCHER", stagerCode)
-                script = script.encode('ascii', 'ignore')
-        
+
         for option,values in self.options.items():
             if option.lower() != "agent" and option.lower() != "listener" and option.lower() != "outfile":
                 if values['Value'] and values['Value'] != '':

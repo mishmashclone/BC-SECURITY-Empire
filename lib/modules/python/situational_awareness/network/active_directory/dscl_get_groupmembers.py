@@ -83,7 +83,7 @@ import subprocess
 
 
 cmd = \"""dscl /Search read "/Groups/%s" GroupMembership\"""
-print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.read()
+print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.read())
 
 """ % (group)
         return script

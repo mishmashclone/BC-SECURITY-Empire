@@ -154,9 +154,9 @@ try:
     request.add_header('Content-Type', 'application/json')
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     content = opener.open(request).read()
-    print str(content)
+    print(str(content))
 except Exception as e:
-    print "Failure sending payload: " + str(e)
+    print("Failure sending payload: " + str(e))
 
 print "Finished"
 """ %(target, port, name, command, owner, ownerName, description, schedule, last)

@@ -137,7 +137,7 @@ def printCIDR(c):
     subnet = int(parts[1])
 
     if subnet == 32:
-        print bin2ip(baseIP)
+        print(bin2ip(baseIP))
 
     else:
         ipPrefix = baseIP[:-(32-subnet)]
@@ -150,7 +150,7 @@ def validateCIDRBlock(b):
 
     p = re.compile("^([0-9]{1,3}\.){0,3}[0-9]{1,3}(/[0-9]{1,2}){1}$")
     if not p.match(b):
-        print "Error: Invalid CIDR format!"
+        print("Error: Invalid CIDR format!")
         return False
 
     prefix, subnet = b.split("/")
@@ -158,11 +158,11 @@ def validateCIDRBlock(b):
     quads = prefix.split(".")
     for q in quads:
         if (int(q) < 0) or (int(q) > 255):
-            print "Error: quad "+str(q)+" wrong size."
+            print("Error: quad "+str(q)+" wrong size.")
             return False
 
     if (int(subnet) < 1) or (int(subnet) > 32):
-        print "Error: subnet "+str(subnet)+" wrong size."
+        print("Error: subnet "+str(subnet)+" wrong size.")
         return False
 
     return True
@@ -176,9 +176,9 @@ def portscan(target,port):
         s.connect((target, port))
     except Exception:
         failvar = 0
-        print "Host {} {}/tcp closed".format(target, port)
+        print("Host {} {}/tcp closed".format(target, port))
     else:
-        print "Host {} {}/tcp open".format(target, port)
+        print("Host {} {}/tcp open".format(target, port))
     s.close()
 
 

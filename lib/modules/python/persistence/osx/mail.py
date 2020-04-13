@@ -183,7 +183,7 @@ plist = \"\"\"%s\"\"\"
 plist2 = \"\"\"%s\"\"\"
 payload = \'\'\'%s\'\'\'
 payload = payload.replace('&\"', '& ')
-payload += "kill `ps -ax | grep ScriptMonitor |grep -v grep |  awk \'{print $1}\'`"
+payload += "kill `ps -ax | grep ScriptMonitor |grep -v grep |  awk \'{print($1)}\'`"
 payload += '\"'
 script = home + "/Library/Application Scripts/com.apple.mail/" + AppleScript
 
@@ -221,15 +221,14 @@ with open("/System/Library/CoreServices/SystemVersion.plist", 'r') as a:
             a.close()
 
 if os.path.isfile(home + "/Library/Mobile Documents/com~apple~mail/Data/" + version + "/MailData/ubiquitous_SyncedRules.plist"):
-    print "Trying to write to Mobile"
+    print("Trying to write to Mobile")
     os.system("/usr/libexec/PlistBuddy -c 'Merge " + SyncedRules + "' " + home + "/Library/Mobile\ Documents/com~apple~mail/Data/" + version + "/MailData/ubiquitous_SyncedRules.plist")
 else:
     os.system("/usr/libexec/PlistBuddy -c 'Merge " + SyncedRules + "' " + home + "/Library/Mail/" + version + "/MailData/SyncedRules.plist")
-    print "Writing to main rules"
+    print("Writing to main rules")
 
 os.system("/usr/libexec/PlistBuddy -c 'Merge " + RulesActiveState + "' "+ home + "/Library/Mail/" + version + "/MailData/RulesActiveState.plist")
 os.system("rm " + SyncedRules)
 os.system("rm " + RulesActiveState)
-
         """ % (AppleScript, SyncedRules, RulesActiveState, plist, plist2, launcher)
         return script

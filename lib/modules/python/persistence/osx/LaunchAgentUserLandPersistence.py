@@ -141,7 +141,7 @@ e.close()
 os.chmod(plistPath, 0644)
 
 
-print "\\n[+] Persistence has been installed: /Library/LaunchAgents/%s"
+print("\\n[+] Persistence has been installed: /Library/LaunchAgents/%s")
 
 """ % (PLISTName,plistSettings,PLISTName)
 

@@ -91,9 +91,9 @@ f.write(base64.b64decode(keychaindump))
 f.close()
 os.popen('chmod a+x %sdebug')
 if "%s" != "":
-    print os.popen('%sdebug "%s"').read()
+    print(os.popen('%sdebug "%s"').read())
 else:
-    print os.popen('%sdebug').read()
+    print(os.popen('%sdebug').read())
 os.popen('rm -f %sdebug')
 """ % (tempDir, tempDir, keyChain, tempDir, keyChain, tempDir, tempDir)
 

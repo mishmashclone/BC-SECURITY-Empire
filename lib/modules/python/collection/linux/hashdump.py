@@ -89,7 +89,7 @@ for line in passwd:
     username = parts[0]
     info = ":".join(parts[2:])
     if username in users:
-        print "%s:%s:%s" %(username, users[username], info)
+        print("%s:%s:%s" %(username, users[username], info))
 """
 
         return script

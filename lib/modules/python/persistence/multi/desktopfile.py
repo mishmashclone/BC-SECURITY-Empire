@@ -108,9 +108,9 @@ writeFile = filePath + "%s.desktop"
 if remove.lower() == "true":
     if os.path.isfile(writeFile):
         os.remove(writeFile)
-        print "\\n[+] Persistence has been removed"
+        print("\\n[+] Persistence has been removed")
     else:
-        print "\\n[-] Persistence file does not exist, nothing removed"
+        print("\\n[-] Persistence file does not exist, nothing removed")
 
 else:
     if not os.path.exists(filePath):
@@ -119,8 +119,8 @@ else:
     e.write(dtFile)
     e.close()
 
-    print "\\n[+] Persistence has been installed: ~/.config/autostart/%s"
-    print "\\n[+] Empire daemon has been written to %s"
+    print("\\n[+] Persistence has been installed: ~/.config/autostart/%s")
+    print("\\n[+] Empire daemon has been written to %s")
 
 """ % (remove, dtSettings, fileName, fileName, fileName)
 

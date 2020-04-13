@@ -178,7 +178,7 @@ try:
                         if debug:
                             print(" [Debug] Isssue at object creation (line 40): " + str(e))
                         pass
-                        #print e
+                        print(e)
                 conn.close()
                 x = 0
                 for dic in dictList:

@@ -158,7 +158,7 @@ try:
 except Exception as e:
     print("Failure sending payload: " + str(e))
 
-print "Finished"
+print("Finished")
 """ %(target, port, name, command, owner, ownerName, description, schedule, last)
 
         return script

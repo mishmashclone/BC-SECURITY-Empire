@@ -424,14 +424,14 @@ def callFunctionLinux():
     print("    Note: Exploits relying on a compile/scripting language not detected on this system are marked with a '**' but should still be tested!")
     print
 
-    print "    The following exploits are ranked higher in probability of success because this script detected a related running process, OS, or mounted file system" 
+    print("    The following exploits are ranked higher in probability of success because this script detected a related running process, OS, or mounted file system")
     for exploit in highprob:
-        print "    - " + exploit
-    print
+        print("    - " + exploit)
+    print("")
 
-    print "    The following exploits are applicable to this kernel version and should be investigated as well"
+    print("    The following exploits are applicable to this kernel version and should be investigated as well")
     for exploit in avgprob:
-        print "    - " + exploit
+        print("    - " + exploit)
 
     print("Finished")
     print(bigline)

@@ -75,6 +75,6 @@ while True:
         job_message_buffer(msg)
         x += 1
     except Exception as e:
-        print e
+        print(e)
 """
         return script

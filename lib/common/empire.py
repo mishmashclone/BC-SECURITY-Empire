@@ -3393,7 +3393,7 @@ class PythonAgentMenu(SubMenu):
     
     def do_osx_screenshot(self, line):
         "Use the python-mss module to take a screenshot, and save the image to the server. Not opsec safe"
-        
+
         if self.mainMenu.modules.modules['python/collection/osx/native_screenshot']:
             module = self.mainMenu.modules.modules['python/collection/osx/native_screenshot']
             module.options['Agent']['Value'] = self.mainMenu.agents.get_agent_name_db(self.sessionID)
@@ -3427,9 +3427,9 @@ try:
         for line in f:
             output += line
 
-    print output
+    print(output)
 except Exception as e:
-    print str(e)
+    print(str(e))
 """ % (line)
             # task the agent with this shell command
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", str(cmd))

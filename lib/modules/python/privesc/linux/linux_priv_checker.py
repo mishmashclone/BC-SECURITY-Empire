@@ -433,9 +433,8 @@ def callFunctionLinux():
     for exploit in avgprob:
         print "    - " + exploit
 
-    print   
-    print "Finished"
-    print bigline
+    print("Finished")
+    print(bigline)
 
 
 callFunctionLinux()

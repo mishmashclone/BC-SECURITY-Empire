@@ -75,8 +75,8 @@ class Listeners(object):
         Sets an option for the given listener module or all listener module.
         """
 
-        # for name, listener in self.listeners.iteritems():
-        #     for listenerOption, optionValue in listener.options.iteritems():
+        # for name, listener in self.listeners.items():
+        #     for listenerOption, optionValue in listener.options.items():
         #         if listenerOption == option:
         #             listener.options[option]['Value'] = str(value)
 

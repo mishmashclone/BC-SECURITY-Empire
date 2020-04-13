@@ -653,7 +653,7 @@ def send_message(packets=None):
     def post_message(uri, data, headers):
         req = urllib2.Request(uri)
         headers['Authorization'] = "Bearer REPLACE_API_TOKEN"
-        for key, value in headers.iteritems():
+        for key, value in headers.items():
             req.add_header("%s"%(key),"%s"%(value))
 
         if data:

@@ -1239,9 +1239,9 @@ def send_message(packets=None):
                 
                 context = ssl.SSLContext(proto)
                 context.load_cert_chain("%s/empire-chain.pem" % (certPath), "%s/empire-priv.key" % (certPath))
-                cipherlist = ["ECDHE-RSA-AES256-GCM-SHA384", "ECDHE-RSA-AES128-GCM-SHA256", "ECDHE-RSA-AES256-SHA384",
-                              "ECDHE-RSA-AES256-SHA", "AES256-SHA256", "AES128-SHA256"]
-                selectciph = random.choice(cipherlist)
+                cipherlist_tls12 = ["ECDHE-RSA-AES256-GCM-SHA384", "ECDHE-RSA-AES128-GCM-SHA256", "ECDHE-RSA-AES256-SHA384", "AES256-SHA256", "AES128-SHA256"]
+                cipherlist_tls10 = ["ECDHE-RSA-AES256-SHA"]
+                selectciph = random.choice(cipherlist_tls12)+':'+random.choice(cipherlist_tls10)
                 context.set_ciphers(selectciph)
                 app.run(host=bindIP, port=int(port), threaded=True, ssl_context=context)
             else:

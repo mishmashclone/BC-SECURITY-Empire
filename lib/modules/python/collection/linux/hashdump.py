@@ -91,7 +91,6 @@ for line in passwd:
     tmp = parts[2:]
     info = ':'.join(tmp)
     time.sleep(0.01)
-    print(info)
     if username in users:
         time.sleep(0.01)
         print("%s:%s:%s" %(username, users[username], info))

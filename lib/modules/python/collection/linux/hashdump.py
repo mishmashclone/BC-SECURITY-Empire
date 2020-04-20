@@ -33,7 +33,7 @@ class Module(object):
             'Language' : 'python',
 
             # the minimum language version needed
-            'MinLanguageVersion' : '2.6',
+            'MinLanguageVersion' : '3.6',
 
             # list of any references/other comments
             'Comments': []
@@ -69,14 +69,38 @@ class Module(object):
     def generate(self, obfuscate=False, obfuscationCommand=""):
 
         script = """
-f = open("/etc/passwd")
-passwd = f.readlines()
-f.close()
-
 f2 = open("/etc/shadow")
 shadow = f2.readlines()
 f2.close()
 
+users = {}
+
+for line in shadow:
+    parts = line.strip().split(":")
+    username, pwdhash = parts[0], parts[1]
+    users[username] = pwdhash
+
+f = open("/etc/passwd")
+passwd = f.readlines()
+f.close()
+
+
+for line in passwd:
+    parts = line.strip().split(":")
+    username = parts[0]
+    tmp = parts[2:]
+    print(tmp)
+    print(":".join(tmp));
+    #info = ":".join(tmp)
+    #print(info)
+    #if username in users:
+    #    print("%s:%s:%s" %(username, users[username], info))
+"""
+
+        script2 = """
+f = open("/etc/passwd")
+passwd = f.readlines()
+f.close()
 users = {}
 
 for line in shadow:
@@ -89,7 +113,6 @@ for line in passwd:
     username = parts[0]
     info = ":".join(parts[2:])
     if username in users:
-        print("%s:%s:%s" %(username, users[username], info))
-"""
+        print("%s:%s:%s" %(username, users[username], info))        """
 
         return script

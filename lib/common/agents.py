@@ -64,9 +64,11 @@ import os
 import json
 import string
 import threading
+import base64
 from pydispatch import dispatcher
 from zlib_wrapper import compress
 from zlib_wrapper import decompress
+from io import BytesIO
 
 # Empire imports
 from . import encryption
@@ -337,6 +339,7 @@ class Agents(object):
                 })
                 dispatcher.send(signal, sender="agents/{}".format(nameid))
             data = dec_data['data']
+            print(data)
 
         try:
             self.lock.acquire()
@@ -352,11 +355,15 @@ class Agents(object):
                 return
 
             # make the recursive directory structure if it doesn't already exist
-            if not os.path.exists(save_path):
-                os.makedirs(save_path)
-
+            #save_path = save_path.encode('UTF-8').decode('latin-1')
+            #print(save_path)
+            #if not os.path.exists(save_path):
+            #    os.makedirs(save_path)
+            save_path = "/root/Empire/downloads"
+            filename = "test.png"
             # save the file out
-            f = open(save_path + "/" + filename, 'wb')
+            #f = open(save_path + "/" + filename, 'wb')
+            f = open("%s/%s" % (save_path, filename), 'wb')
 
             f.write(data)
             f.close()
@@ -1662,44 +1669,44 @@ class Agents(object):
         if update_lastseen:
             self.update_agent_lastseen_db(sessionID)
 
-        try:
-            # verify, decrypt and depad the packet
-            packet = encryption.aes_decrypt_and_verify(sessionKey, encData)
+        #try:
+        # verify, decrypt and depad the packet
+        packet = encryption.aes_decrypt_and_verify(sessionKey, encData)
 
-            # process the packet and extract necessary data
-            responsePackets = packets.parse_result_packets(packet)
-            results = False
-            # process each result packet
-            for (responseName, totalPacket, packetNum, taskID, length, data) in responsePackets:
-                # process the agent's response
-                self.process_agent_packet(sessionID, responseName, taskID, data)
-                results = True
-            if results:
-                # signal that this agent returned results
-                message = "[*] Agent {} returned results.".format(sessionID)
-                signal = json.dumps({
-                    'print': False,
-                    'message': message
-                })
-                dispatcher.send(signal, sender="agents/{}".format(sessionID))
-
-            # return a 200/valid
-            return 'VALID'
-
-
-        except Exception as e:
-            message = "[!] Error processing result packet from {} : {}".format(sessionID, e)
+        # process the packet and extract necessary data
+        responsePackets = packets.parse_result_packets(packet)
+        results = False
+        # process each result packet
+        for (responseName, totalPacket, packetNum, taskID, length, data) in responsePackets:
+            # process the agent's response
+            self.process_agent_packet(sessionID, responseName, taskID, data)
+            results = True
+        if results:
+            # signal that this agent returned results
+            message = "[*] Agent {} returned results.".format(sessionID)
             signal = json.dumps({
-                'print': True,
+                'print': False,
                 'message': message
             })
             dispatcher.send(signal, sender="agents/{}".format(sessionID))
+
+        # return a 200/valid
+        return 'VALID'
+
+
+        #except Exception as e:
+        #    message = "[!] Error processing result packet from {} : {}".format(sessionID, e)
+        #    signal = json.dumps({
+        ##        'print': True,
+        #        'message': message
+        #    })
+        #    dispatcher.send(signal, sender="agents/{}".format(sessionID))
 
             # TODO: stupid concurrency...
             #   when an exception is thrown, something causes the lock to remain locked...
             # if self.lock.locked():
             #     self.lock.release()
-            return None
+         #   return None
 
 
     def process_agent_packet(self, sessionID, responseName, taskID, data):

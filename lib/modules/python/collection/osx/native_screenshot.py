@@ -85,9 +85,13 @@ imageRef = CG.CGWindowListCreateImageFromArray(CG.CGRectInfinite, desktopElement
 rep = NSBitmapImageRep.alloc().initWithCGImage_(imageRef)
 props = NSDictionary()
 imageData = rep.representationUsingType_properties_(NSPNGFileType,props)
-imageString = str(imageData).strip('<').strip('>>').strip('native-selector bytes of')
-hexstring = binascii.hexlify(imageString.encode('UTF-8'))
-hex_data = hexstring.decode('UTF-8')
-print(hex_data)
+time.sleep(.1)
+imageData = bytes(imageData)
+#print("test 1")
+time.sleep(.1)
+imageData = imageData.decode('latin-1')
+time.sleep(.1)
+print(imageData)
+time.sleep(.1)
 """
         return script

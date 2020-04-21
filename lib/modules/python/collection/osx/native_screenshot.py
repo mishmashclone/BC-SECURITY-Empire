@@ -87,7 +87,7 @@ props = NSDictionary()
 imageData = rep.representationUsingType_properties_(NSPNGFileType,props)
 time.sleep(.1)
 imageData = bytes(imageData)
-#print("test 1")
+#Don't ask why but you need the sleep statements
 time.sleep(.1)
 imageData = imageData.decode('latin-1')
 time.sleep(.1)

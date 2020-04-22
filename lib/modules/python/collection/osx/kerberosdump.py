@@ -83,7 +83,7 @@ do
 done
 ""\"
 try:
-    print("Executing...)"
+    print("Executing...")
     output = subprocess.Popen(kerbdump, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.read()
     print(output)
 except Exception as e:

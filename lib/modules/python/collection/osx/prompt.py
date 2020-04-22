@@ -96,7 +96,7 @@ choices = []
 for x in xrange(len(apps)):
     choices.append("[%s] %s " %(x+1, apps[x]) )
 
-print("\\nAvailable applications:\\n"_
+print("\\nAvailable applications:\\n")
 print('\\n'.join(choices))
 """
 

@@ -101,7 +101,7 @@ def callFunctionLinux():
     smlline = "-------------------------------------------------------------------------------------------------"
 
     print(bigline)
-    print("LINUX PRIVILEGE ESCALATION CHECKER"_
+    print("LINUX PRIVILEGE ESCALATION CHECKER")
     print(bigline)
     print("")
 

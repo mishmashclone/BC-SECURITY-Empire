@@ -142,7 +142,7 @@ print("")
 
 
 print("")
-print?(subprocess.Popen('diskutil unmount force /Volumes/{}', shell=True, stdout=subprocess.PIPE).stdout.read().format(mountpoint))
+print(subprocess.Popen('diskutil unmount force /Volumes/{}', shell=True, stdout=subprocess.PIPE).stdout.read().format(mountpoint))
 print("")
 print("Finished")
 

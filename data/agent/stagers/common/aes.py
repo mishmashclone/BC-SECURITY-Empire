@@ -269,12 +269,9 @@ def CBCenc(aesObj, plaintext, base64=False):
     blocks = [paddedPlaintext[0+i:16+i] for i in range(0, len(paddedPlaintext), 16)]
 
     # Finally we encrypt each block
-    #ciphertext = ""
     ciphertext = ("")
-    count = 0
     for block in blocks:
         ciphertext = "".join([ciphertext, aesObj.encrypt(block)])
-        #ciphertext += aesObj.encrypt(block)
 
     ciphertext = ciphertext.encode('latin-1')
 

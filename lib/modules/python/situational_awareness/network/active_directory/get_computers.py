@@ -113,7 +113,7 @@ output2 = subprocess.Popen(["grep", "name:"],stdin=output.stdout, stdout=subproc
 output.stdout.close()
 out,err = output2.communicate()
 print("")
-print(out_
+print(out)
 
 """ % (BindDN, LDAPAddress, password)
         return script

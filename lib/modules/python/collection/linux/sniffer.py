@@ -260,7 +260,7 @@ def socketSniffer(fileName,ipFilter,portFilter,maxSize, maxPackets, inMemory):
             packetCounter += 1
   try:
     if inMemory:
-        print(memoryPcap_
+        print(memoryPcap)
     else:
         f = open('%s', 'rb')
         data = base64.b64encode(f.read())

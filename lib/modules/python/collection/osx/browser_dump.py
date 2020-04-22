@@ -83,12 +83,12 @@ number = ''
 class browser_dump():
     def __init__(self):
         try:
-            print("[*] Dump Started!)"
+            print("[*] Dump Started!")
         except Exception as e:
             print(e)
 
     def func(self, number):
-        print("Dumping safari...)"
+        print("Dumping safari...")
         print("")
         try:
 

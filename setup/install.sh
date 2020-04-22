@@ -159,7 +159,7 @@ if ls /usr/bin/ | grep -q "python2"; then
 fi
 
 # set up the database schema
-python ./setup_database.py
+python3 ./setup_database.py
 
 # generate a cert
 ./cert.sh

@@ -1012,5 +1012,5 @@ class KThread(threading.Thread):
 def slackMessage(slackToken, slackChannel, slackText):
     url = "https://slack.com/api/chat.postMessage"
     data = urllib.parse.urlencode({'token': slackToken, 'channel': slackChannel, 'text': slackText})
-    req = urllib.request.Request(url, data)
+    req = urllib.request.Request(url, data.encode('UTF-8'))
     resp = urllib.request.urlopen(req)

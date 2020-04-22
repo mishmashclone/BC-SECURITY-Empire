@@ -408,7 +408,7 @@ def process_packet(packetType, data, resultID):
             send_message(build_response_packet(101, '{0: <15}'.format(prefix) + '{0: <5}'.format(extension) + encodedPart, resultID))
         except Exception as e:
             # Also return partial code that has been executed
-            errorData = str(buffer.getvalue())
+            errorData = buffer.getvalue()
             send_message(build_response_packet(0, "error executing specified Python data %s \nBuffer data recovered:\n%s" %(e, errorData), resultID))
 
     elif packetType == 102:

@@ -120,7 +120,7 @@ Pip_file="requirements.txt"
 
 if lsb_release -d | grep -q "Kali"; then
 	apt-get update
-	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip python3-m2crypto libxml2-dev default-jdk zlib1g-dev libssl1.1 build-essential libssl-dev libxml2-dev zlib1g-dev
+	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip libxml2-dev default-jdk zlib1g-dev libssl1.1 build-essential libssl-dev libxml2-dev zlib1g-dev
 elif lsb_release -d | grep -q "Ubuntu"; then
 	if is_libssl_1_0; then
 		LibSSL_pkgs="libssl1.0.0 libssl-dev"
@@ -129,7 +129,7 @@ elif lsb_release -d | grep -q "Ubuntu"; then
 		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
 	sudo apt-get update
-	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip python3-m2crypto libxml2-dev default-jdk $LibSSL_pkgs build-essential
+	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
 else
 	echo "Unknown distro - Debian/Ubuntu Fallback"
 	if is_libssl_1_0; then
@@ -139,7 +139,7 @@ else
 		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
 	sudo apt-get update
-	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip python3-m2crypto libxml2-dev default-jdk libffi-dev $LibSSL_pkgs build-essential
+	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip libxml2-dev default-jdk libffi-dev $LibSSL_pkgs build-essential
 fi
 
 install_xar

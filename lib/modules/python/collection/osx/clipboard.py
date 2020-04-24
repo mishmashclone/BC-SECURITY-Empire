@@ -107,16 +107,16 @@ def func(monitortime=0):
                     f = file(outFile, 'a+')
                     f.write(pbstring)
                     f.close()
-                    print "clipboard written to",outFile
+                    print("clipboard written to",outFile)
                 else:
                     ts = time.time()
                     st = datetime.datetime.fromtimestamp(ts).strftime('%%Y-%%m-%%d %%H:%%M:%%S')
-                    print st + ": %%s".encode("utf-8") %% repr(pbstring)
+                    print(st + ": %%s".encode("utf-8") %% repr(pbstring))
             last = pbstring
             time.sleep(1)
             sleeptime += 1
         except Exception as e:
-            print e
+            print(e)
 
 func(monitortime=%s)""" % (outFile,monitorTime)
 

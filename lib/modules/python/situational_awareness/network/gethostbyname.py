@@ -82,9 +82,9 @@ def main(target):
     return_Str = ''
     try:
         return_Str = str(socket.gethostbyname(target))
-        print "{} resolved to {} !".format(target, return_Str)
+        print("{} resolved to {} !".format(target, return_Str))
     except socket.error:
-        print "{} failed to resolve :(".format(target)
+        print("{} failed to resolve :(".format(target))
 
 target = "%s"
 

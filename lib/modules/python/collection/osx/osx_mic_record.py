@@ -153,7 +153,7 @@ if __name__ == '__main__':
     run_command('rm -f ' + output_path)
 
     # return captured audio to agent
-    print captured_audio
+    print(captured_audio)
 
     del pool
     

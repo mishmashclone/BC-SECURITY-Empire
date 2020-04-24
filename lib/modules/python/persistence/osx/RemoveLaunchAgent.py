@@ -96,8 +96,8 @@ process.communicate()
 process = subprocess.Popen('rm %s', stdout=subprocess.PIPE, shell=True)
 process.communicate()
 
-print "\\n [+] %s has been removed"
-print "\\n [+] %s has been removed"
+print("\\n [+] %s has been removed")
+print("\\n [+] %s has been removed")
 """ %(plistpath,plistpath,programpath,plistpath,programpath)
 
         return script

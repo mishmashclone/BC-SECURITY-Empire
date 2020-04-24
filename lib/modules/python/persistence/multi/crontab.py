@@ -100,24 +100,23 @@ Hour = "%s"
 
 if Remove == "True":
     cmd = 'crontab -l | grep -v "%s"  | crontab -'
-    print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
-    print subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read()
-    print "Finished"
+    print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
+    print(subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read())
+    print("Finished")
 
 else:
     if Hourly == "True":
         cmd = 'crontab -l | { cat; echo "0 * * * * %s"; } | crontab -'
-        print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
-        print subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read()
-        print subprocess.Popen('chmod +x %s', shell=True, stdout=subprocess.PIPE).stdout.read()
-        print "Finished"
+        print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
+        print(subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read())
+        print(subprocess.Popen('chmod +x %s', shell=True, stdout=subprocess.PIPE).stdout.read())
+        print("Finished")
 
     elif Hour:
             cmd = 'crontab -l | { cat; echo "0 %s * * * %s"; } | crontab -'
-            print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
-            print subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read()
-            print subprocess.Popen('chmod +x %s', shell=True, stdout=subprocess.PIPE).stdout.read()
-            print "Finished"
-
+            print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
+            print(subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read())
+            print(subprocess.Popen('chmod +x %s', shell=True, stdout=subprocess.PIPE).stdout.read())
+            print("Finished")
 """ % (Remove, Hourly, Hour, FileName, FileName, FileName, Hour, FileName, FileName)
         return script

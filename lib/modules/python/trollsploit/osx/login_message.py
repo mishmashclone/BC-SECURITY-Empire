@@ -94,20 +94,20 @@ try:
     if remove == True:
         cmd = \"""defaults delete /Library/Preferences/com.apple.loginwindow LoginwindowText""\"
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-        print "Login message removed"
+        print("Login message removed")
 
 
     elif remove == False:
         cmd = \"""defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText '%s' ""\"
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-        print "Login message added"
+        print("Login message added")
 
     else:
-        print "Invalid options"
+        print("Invalid options")
 
 except Exception as e:
-    print "Module failed"
-    print e
+    print("Module failed")
+    print(e)
 
 
 """ % (remove, message)

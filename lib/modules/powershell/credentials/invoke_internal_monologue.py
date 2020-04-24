@@ -99,7 +99,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print (helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()

@@ -293,7 +293,7 @@ def run():
                     #save
                     
                     binaries.append(fullName)
-        print "Finished with installed binaries\\n"
+        print("Finished with installed binaries\\n")
         return binaries
 
     def resolvePath(binaryPath, unresolvedPath):
@@ -438,7 +438,7 @@ def run():
                 else:
                     f.seek(size - LC_Header_Sz, io.SEEK_CUR)
                     
-        print "finished parsing load commands"
+        print("finished parsing load commands")
         return parsedBinaries
 
     def processBinaries(parsedBinaries):
@@ -565,46 +565,46 @@ def run():
     if len(vulnerableBinaries['rpathExes']):
 
         #dbg msg
-        print '\\nfound %%d binaries vulnerable to multiple rpaths:' %% len(vulnerableBinaries['rpathExes'])
+        print('\\nfound %%d binaries vulnerable to multiple rpaths:' %% len(vulnerableBinaries['rpathExes']))
 
         #iterate over all and print
         for binary in vulnerableBinaries['rpathExes']:
 
             #dbg msg
-            print '%%s has an rpath vulnerability: (%%s%%s)\\n' %% (binary['binary'], binary['LC_RPATH'],binary['importedDylib'])
+            print('%%s has an rpath vulnerability: (%%s%%s)\\n' %% (binary['binary'], binary['LC_RPATH'],binary['importedDylib']))
 
     #binary didn't have any
     else:
 
         #dbg msg
-        print '\\ndid not find any vulnerable to multiple rpaths'
+        print('\\ndid not find any vulnerable to multiple rpaths')
 
     #display binaries that are vulnerable to weak import hijack
     if len(vulnerableBinaries['weakBins']):
 
             #dbg msg
-            print '\\nfound %%d binaries vulnerable to weak dylibs:' %% len(vulnerableBinaries['weakBins'])
+            print('\\nfound %%d binaries vulnerable to weak dylibs:' %% len(vulnerableBinaries['weakBins']))
 
             #iterate over all and print
             for binary in vulnerableBinaries['weakBins']:
 
                 #dbg msg
-                print '%%s has weak import (%%s)\\n' %% (binary['binary'], binary)
+                print('%%s has weak import (%%s)\\n' %% (binary['binary'], binary))
 
     #binary didn't have any
     else:
 
         #dbg msg
-        print '\\ndid not find any missing LC_LOAD_WEAK_DYLIBs'
+        print('\\ndid not find any missing LC_LOAD_WEAK_DYLIBs')
 
 
     #dbg msg
     
-    print "Scan completed in " + str(datetime.now() - startTime) + "\\n"
+    print("Scan completed in " + str(datetime.now() - startTime) + "\\n")
 
-    print "[+] To abuse an rpath vulnerability...\\n"
-    print "[+] Find the legitimate dylib: find / -name <dylibname>, and note the path\\n"
-    print "[+] Run the CreateHijacker module in /persistence/osx/. Set the DylibPath to the path of the legitimate dylib.\\n"
+    print("[+] To abuse an rpath vulnerability...\\n")
+    print("[+] Find the legitimate dylib: find / -name <dylibname>, and note the path\\n")
+    print("[+] Run the CreateHijacker module in /persistence/osx/. Set the DylibPath to the path of the legitimate dylib.\\n")
 
 run()
 """ % (scanPath, LoadedProcesses)

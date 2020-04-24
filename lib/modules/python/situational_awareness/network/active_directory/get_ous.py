@@ -112,8 +112,8 @@ output = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
 output2 = subprocess.Popen(["grep", "ou:"],stdin=output.stdout, stdout=subprocess.PIPE,universal_newlines=True)
 output.stdout.close()
 out,err = output2.communicate()
-print ""
-print out
+print("")
+print(out)
 
 """ % (BindDN, LDAPAddress, password)
         return script

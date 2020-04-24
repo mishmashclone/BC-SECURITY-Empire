@@ -135,8 +135,8 @@ def wall(host, pw):
     return status, ''.join(result)
 
 status, output = wall('%s','%s')
-print status
-print output
+print(status)
+print(output)
 
 """ % (launcher, login, password)
         return script

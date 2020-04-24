@@ -95,7 +95,7 @@ def getUserHash(userName):
             return (userName, "$ml$%s$%s$%s" %(iterations, saltHex, entropyHex))
 
     except Exception as e:
-        print "getUserHash() exception: %s" %(e)
+        print("getUserHash() exception: %s" %(e))
         pass
 
 
@@ -107,7 +107,7 @@ for userName in userNames:
     if(userHash):
         userHashes.append(getUserHash(userName))
 
-print userHashes
+print(userHashes)
 """
 
         return script

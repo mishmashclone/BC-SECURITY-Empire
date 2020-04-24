@@ -119,11 +119,11 @@ try:
                    'Gecko/20140205     Firefox/27.0 Iceweasel/25.3.0')
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     content = opener.open(request).read()
-    print str(content)
+    print(str(content))
 except Exception as e:
-    print "Failure sending payload: " + str(e)
+    print("Failure sending payload: " + str(e))
 
-print "Finished"
+print("Finished")
 """ %(target, port, name)
 
         return script

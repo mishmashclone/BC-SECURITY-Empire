@@ -120,8 +120,8 @@ def wall(host, pw):
     return status, ''.join(result)
 
 status, output = wall('%s','%s')
-print status
-print output
+print(status)
+print(output)
 
 """ % (command, login, password)
         return script

@@ -100,10 +100,10 @@ def callFunctionLinux():
     bigline = "================================================================================================="
     smlline = "-------------------------------------------------------------------------------------------------"
 
-    print bigline 
-    print "LINUX PRIVILEGE ESCALATION CHECKER"
-    print bigline
-    print
+    print(bigline)
+    print("LINUX PRIVILEGE ESCALATION CHECKER")
+    print(bigline)
+    print("")
 
     # loop through dictionary, execute the commands, store the results, return updated dict
     def execCmd(cmdDict):
@@ -123,10 +123,10 @@ def callFunctionLinux():
         for item in cmdDict:
             msg = cmdDict[item]["msg"]
             results = cmdDict[item]["results"]
-            print "[+] " + msg
+            print("[+] " + msg)
             for result in results:
                 if result.strip() != "":
-                    print "    " + result.strip()
+                    print("    " + result.strip())
             print
         return
 
@@ -140,7 +140,7 @@ def callFunctionLinux():
         return
 
     # Basic system info
-    print "[*] GETTING BASIC SYSTEM INFO...\\n"
+    print("[*] GETTING BASIC SYSTEM INFO...\\n")
 
     results=[]
 
@@ -154,7 +154,7 @@ def callFunctionLinux():
 
     # Networking Info
 
-    print "[*] GETTING NETWORKING INFO...\\n"
+    print("[*] GETTING NETWORKING INFO...\\n")
 
     netInfo = {"NETINFO":{"cmd":"/sbin/ifconfig -a", "msg":"Interfaces", "results":results},
            "ROUTE":{"cmd":"route", "msg":"Route", "results":results},
@@ -165,7 +165,7 @@ def callFunctionLinux():
     printResults(netInfo)
 
     # File System Info
-    print "[*] GETTING FILESYSTEM INFO...\\n"
+    print("[*] GETTING FILESYSTEM INFO...\\n")
 
     driveInfo = {"MOUNT":{"cmd":"mount","msg":"Mount results", "results":results},
              "FSTAB":{"cmd":"cat /etc/fstab 2>/dev/null", "msg":"fstab entries", "results":results}
@@ -183,12 +183,12 @@ def callFunctionLinux():
     printResults(cronInfo)
 
     # User Info
-    print "\\n[*] ENUMERATING USER AND ENVIRONMENTAL INFO...\\n"
+    print("\\n[*] ENUMERATING USER AND ENVIRONMENTAL INFO...\\n")
 
     userInfo = {"WHOAMI":{"cmd":"whoami", "msg":"Current User", "results":results},
             "ID":{"cmd":"id","msg":"Current User ID", "results":results},
             "ALLUSERS":{"cmd":"cat /etc/passwd", "msg":"All users", "results":results},
-            "SUPUSERS":{"cmd":"grep -v -E '^#' /etc/passwd | awk -F: '$3 == 0{print $1}'", "msg":"Super Users Found:", "results":results},
+            "SUPUSERS":{"cmd":"grep -v -E '^#' /etc/passwd | awk -F: '$3 == 0{print($1)}'", "msg":"Super Users Found:", "results":results},
             "HISTORY":{"cmd":"ls -la ~/.*_history; ls -la /root/.*_history 2>/dev/null", "msg":"Root and current user history (depends on privs)", "results":results},
             "ENV":{"cmd":"env 2>/dev/null | grep -v 'LS_COLORS'", "msg":"Environment", "results":results},
             "SUDOERS":{"cmd":"cat /etc/sudoers 2>/dev/null | grep -v '#' 2>/dev/null", "msg":"Sudoers (privileged)", "results":results},
@@ -199,10 +199,10 @@ def callFunctionLinux():
     printResults(userInfo)
 
     if "root" in userInfo["ID"]["results"][0]:
-        print "[!] ARE YOU SURE YOU'RE NOT ROOT ALREADY?\\n"
+        print("[!] ARE YOU SURE YOU'RE NOT ROOT ALREADY?\\n")
 
     # File/Directory Privs
-    print "[*] ENUMERATING FILE AND DIRECTORY PERMISSIONS/CONTENTS...\\n"
+    print("[*] ENUMERATING FILE AND DIRECTORY PERMISSIONS/CONTENTS...\\n")
 
     fdPerms = {"WWDIRSROOT":{"cmd":"find / \\( -wholename '/home/homedir*' -prune \\) -o \\( -type d -perm -0002 \\) -exec ls -ld '{}' ';' 2>/dev/null | grep root", "msg":"World Writeable Directories for User/Group 'Root'", "results":results},
            "WWDIRS":{"cmd":"find / \\( -wholename '/home/homedir*' -prune \\) -o \\( -type d -perm -0002 \\) -exec ls -ld '{}' ';' 2>/dev/null | grep -v root", "msg":"World Writeable Directories for Users other than Root", "results":results},
@@ -223,14 +223,14 @@ def callFunctionLinux():
     printResults(pwdFiles)
 
     # Processes and Applications
-    print "[*] ENUMERATING PROCESSES AND APPLICATIONS...\\n"
+    print("[*] ENUMERATING PROCESSES AND APPLICATIONS...\\n")
 
     if "debian" in sysInfo["KERNEL"]["results"][0] or "ubuntu" in sysInfo["KERNEL"]["results"][0]:
-        getPkgs = "dpkg -l | awk '{$1=$4=\\"\\"; print $0}'" # debian
+        getPkgs = "dpkg -l | awk '{$1=$4=\\"\\"; print($0)}'" # debian
     else:
         getPkgs = "rpm -qa | sort -u" # RH/other
 
-    getAppProc = {"PROCS":{"cmd":"ps aux | awk '{print $1,$2,$9,$10,$11}'", "msg":"Current processes", "results":results},
+    getAppProc = {"PROCS":{"cmd":"ps aux | awk '{print($1,$2,$9,$10,$11)}'", "msg":"Current processes", "results":results},
                   "PKGS":{"cmd":getPkgs, "msg":"Installed Packages", "results":results}
              }
 
@@ -245,7 +245,7 @@ def callFunctionLinux():
     otherApps = execCmd(otherApps)
     printResults(otherApps)
 
-    print "[*] IDENTIFYING PROCESSES AND PACKAGES RUNNING AS ROOT OR OTHER SUPERUSER...\\n"
+    print("[*] IDENTIFYING PROCESSES AND PACKAGES RUNNING AS ROOT OR OTHER SUPERUSER...\\n")
 
     # find the package information for the processes currently running
     # under root or another super user
@@ -276,12 +276,12 @@ def callFunctionLinux():
             pass
 
     for key in procdict:
-        print "    " + key # print the process name
+        print("    " + key) # print the process name
         try:
             if not procdict[key][0] == "": # only print the rest if related packages were found
-                print "        Possible Related Packages: " 
+                print("        Possible Related Packages: ")
                 for entry in procdict[key]: 
-                    print "            " + entry # print each related package
+                    print("            " + entry) # print each related package
         except:
             pass
 
@@ -289,21 +289,21 @@ def callFunctionLinux():
 
     # First discover the avaialable tools 
     print
-    print "[*] ENUMERATING INSTALLED LANGUAGES/TOOLS FOR SPLOIT BUILDING...\\n"
+    print("[*] ENUMERATING INSTALLED LANGUAGES/TOOLS FOR SPLOIT BUILDING...\\n")
 
     devTools = {"TOOLS":{"cmd":"which awk perl python ruby gcc cc vi vim nmap find netcat nc wget tftp ftp 2>/dev/null", "msg":"Installed Tools", "results":results}}
     devTools = execCmd(devTools)
     printResults(devTools)
 
-    print "[+] Related Shell Escape Sequences...\\n"
+    print("[+] Related Shell Escape Sequences...\\n")
     escapeCmd = {"vi":[":!bash", ":set shell=/bin/bash:shell"], "awk":["awk 'BEGIN {system(\\"/bin/bash\\")}'"], "perl":["perl -e 'exec \\"/bin/bash\\";'"], "find":["find / -exec /usr/bin/awk 'BEGIN {system(\\"/bin/bash\\")}' \\\\;"], "nmap":["--interactive"]}
     for cmd in escapeCmd:
         for result in devTools["TOOLS"]["results"]:
             if cmd in result:
                 for item in escapeCmd[cmd]:
-                    print "    " + cmd + "-->\\t" + item
+                    print("    " + cmd + "-->\\t" + item)
     print
-    print "[*] FINDING RELEVENT PRIVILEGE ESCALATION EXPLOITS...\\n"
+    print("[*] FINDING RELEVENT PRIVILEGE ESCALATION EXPLOITS...\\n")
 
     # Now check for relevant exploits (note: this list should be updated over time; source: Exploit-DB)
     # sploit format = sploit name : {minversion, maxversion, exploitdb#, language, {keywords for applicability}} -- current keywords are 'kernel', 'proc', 'pkg' (unused), and 'os'
@@ -421,21 +421,20 @@ def callFunctionLinux():
                 else:
                     avgprob.append(sploitout) # otherwise, consider average probability/applicability based only on kernel version
 
-    print "    Note: Exploits relying on a compile/scripting language not detected on this system are marked with a '**' but should still be tested!"
+    print("    Note: Exploits relying on a compile/scripting language not detected on this system are marked with a '**' but should still be tested!")
     print
 
-    print "    The following exploits are ranked higher in probability of success because this script detected a related running process, OS, or mounted file system" 
+    print("    The following exploits are ranked higher in probability of success because this script detected a related running process, OS, or mounted file system")
     for exploit in highprob:
-        print "    - " + exploit
-    print
+        print("    - " + exploit)
+    print("")
 
-    print "    The following exploits are applicable to this kernel version and should be investigated as well"
+    print("    The following exploits are applicable to this kernel version and should be investigated as well")
     for exploit in avgprob:
-        print "    - " + exploit
+        print("    - " + exploit)
 
-    print   
-    print "Finished"
-    print bigline
+    print("Finished")
+    print(bigline)
 
 
 callFunctionLinux()

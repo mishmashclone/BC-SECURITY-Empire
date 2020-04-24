@@ -87,7 +87,7 @@ class Module(object):
 import os
 import subprocess
 cmd = "find %s -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print"
-print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
+print)subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
 
 """ % (path)
 

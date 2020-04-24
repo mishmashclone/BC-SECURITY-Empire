@@ -81,7 +81,7 @@ f = open('%s', 'rb')
 data = f.read()
 f.close()
 run_command('rm -f %s')
-print data
+print(data)
 """ % (savePath, savePath, savePath)
 
         return script

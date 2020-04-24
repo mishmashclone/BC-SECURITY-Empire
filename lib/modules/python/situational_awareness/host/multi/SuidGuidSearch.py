@@ -87,7 +87,7 @@ class Module(object):
 import os
 import subprocess
 cmd = "find %s -type f \( -perm -g=s -o -perm -u=s \) \-exec ls -lg \{\} \;"
-print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
+print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
 
 """ % (path)
 

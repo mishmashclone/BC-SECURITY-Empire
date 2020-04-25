@@ -134,6 +134,7 @@ def execute_db_query(conn, query, args=None):
 #    GET      http://localhost:1337/api/admin/shutdown              shutdown the RESTful API
 #
 #    GET      http://localhost:1337/api/users                       return all users from database
+#    GET      http://localhost:1337/api/users/X                     return the user with id X
 #    GET      http://localhost:1337/api/users/me                    return the user for the given token
 #    POST     http://localhost:1337/api/users                       add a new user
 #    PUT      http://localhost:1337/api/users/Y/disable             disable/enable user Y
@@ -1334,6 +1335,19 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             user_report.append(data)
 
         return jsonify({'users': user_report})
+
+    @app.route('/api/users/<int:uid>', methods=['GET'])
+    def get_user(uid):
+        """
+        return the user for an id
+        """
+        user = execute_db_query(conn, 'SELECT ID, username, last_logon_time, enabled, admin FROM users WHERE id = ?', [uid,])
+
+        if len(user) == 0:
+            make_response(jsonify({'error': 'user %s not found' % uid}), 404)
+
+        [ID, username, last_logon_time, enabled, admin] = user[0]
+        return jsonify({"ID": ID, "username": username, "last_logon_time": last_logon_time, "enabled": bool(enabled), "admin": bool(admin)})
 
 
     @app.route('/api/users/me', methods=['GET'])

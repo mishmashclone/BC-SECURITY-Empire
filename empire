@@ -1339,7 +1339,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
     @app.route('/api/users/<int:uid>', methods=['GET'])
     def get_user(uid):
         """
-        Returns JSON of the users from the backend database.
+        return the user for an id
         """
         user = execute_db_query(conn, 'SELECT ID, username, last_logon_time, enabled, admin FROM users WHERE id = ?', [uid,])
 

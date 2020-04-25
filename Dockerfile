@@ -27,17 +27,41 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update && \
-      apt-get -y install sudo && \
-      apt-get -y install lsb-release
+      apt-get -y install \
+        sudo \
+        lsb-release \
+	    make \
+	    g++ \
+	    python3-dev \
+	    swig \
+	    python-pip \
+	    libxml2-dev \
+	    default-jdk \
+	    libffi-dev \
+	    libssl1.1 \
+	    libssl-dev \
+	    build-essential \
+	    apt-transport-https \
+	    curl \
+	    gnupg
 
-COPY . /empire
-
-RUN cd /empire/setup/ && \
-    ./install.sh && \
-    rm -rf /empire/data/empire*
-
-RUN python /empire/setup/setup_database.py
+RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb && \
+    sudo dpkg -i packages-microsoft-prod.deb && \
+    sudo apt-get update && \
+    sudo apt-get install -y powershell
 
 WORKDIR /empire
 
-CMD ["python", "empire"]
+COPY setup/requirements.txt /empire
+
+RUN pip install -r requirements.txt
+
+COPY . /empire
+
+RUN rm -rf /empire/data/empire*
+
+RUN cd setup && ./reset.sh
+
+RUN cd setup && ./cert.sh
+
+CMD ["python", "empire", "--rest"]

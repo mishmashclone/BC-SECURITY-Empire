@@ -3,9 +3,9 @@
 - Version 3.2.0 Master Release
     - Added SharpChromium module - #185 (@tyraniter)
     - Added BloodHound 3 module - #123 (@RaphAlmeida)
-	- Updated to Mimikatz 2.2.0 20200308 Masterkey - #189 (@Cx01N)
-	- Fixed issue with first character in randomizing function names - #169 (@Hubbl3)
-	- Updated to Mimikatz 2.2.0 20200308 Masterkey - #189 (@Cx01N)
+    - Updated to Mimikatz 2.2.0 20200308 Masterkey - #189 (@Cx01N)
+    - Fixed issue with first character in randomizing function names - #169 (@Hubbl3)
+    - Updated to Mimikatz 2.2.0 20200308 Masterkey - #189 (@Cx01N)
     - Fixed encoding error for slack tokens - #181 (@Cx01N)
     - Fixed typo in python/persistence/multi/desktopfile.py - #182 (@Vinnybod)
     - Updated install script - #187 (@Cx01N, @Vinnybod)

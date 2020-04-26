@@ -16,6 +16,7 @@
 	- Fixed errors in collection/linux/hashdump - #187 (@Cx01N)
 	- Fixed errors in osx/native-screenshot - #187 (@Cx01N)
 	- Fixed error handling issue for failed python modules - #187 (@Cx01N)
+	- Added prompt before reset script is ran using --reset flag - #190 (@Cx01N)
 
 4/13/2020
 ------------

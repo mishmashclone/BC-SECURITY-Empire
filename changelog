@@ -7,7 +7,7 @@
 	- Fixed issue with first character in randomizing function names - #169 (@Hubbl3)
 	- Fixed encoding error for slack tokens - #181 (@Cx01N)
 	- Fixed typo in python/persistence/multi/desktopfile.py - #182 (@Vinnybod)
-	- Updated install script - #187 (@Cx01N, @Vinnybod)
+	- install.sh - Updated Debian 10 powershell install and python3 library installs - #187 (@Cx01N, @Vinnybod)
 	- Added single user endpoint to API - #188 (@Vinnybod)
 	- Updated default python launcher to use | python3 - #184 (@Cx01N)
 	- Converted python modules to python3 formatting - #187 (@Cx01N)

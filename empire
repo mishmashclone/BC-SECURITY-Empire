@@ -1501,7 +1501,7 @@ if __name__ == '__main__':
         print(empire.VERSION)
 
     if args.reset:
-        choice = input("\n [>] Would you like to reset your Empire instance? [Y or N]: ")
+        choice = input("\n [>] Would you like to reset your Empire instance? [y/N]: ")
         if choice.lower() == "y":
             subprocess.call("./setup/reset.sh")
         else:

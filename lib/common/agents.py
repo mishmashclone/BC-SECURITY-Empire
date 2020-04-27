@@ -356,7 +356,7 @@ class Agents(object):
                 os.makedirs(save_path)
 
             # save the file out
-            f = open(save_path + "/" + filename, 'wb')
+            f = open("%s/%s" % (save_path, filename), 'wb')
 
             f.write(data)
             f.close()
@@ -1751,13 +1751,16 @@ class Agents(object):
 
         if responseName == "ERROR":
             # error code
-            message = "[!] Received error response from {}".format(sessionID)
+            message = "\n[!] Received error response from {}".format(sessionID)
             signal = json.dumps({
                 'print': True,
                 'message': message
             })
             dispatcher.send(signal, sender="agents/{}".format(sessionID))
             self.update_agent_results_db(sessionID, data)
+
+            if isinstance(data,bytes):
+                data = data.decode('UTF-8')
             # update the agent log
             self.save_agent_log(sessionID, "[!] Error response: " + data)
 

@@ -17,3 +17,5 @@ pyminifier==2.1
 xlutils
 pefile
 pycrypto
+bcrypt
+simplejson

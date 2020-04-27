@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Author: Nick Landers (@monogas)
 
 import sys

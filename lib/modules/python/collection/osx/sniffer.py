@@ -139,40 +139,40 @@ class pcap_stat(ctypes.Structure):
 def pkthandler(pkthdr,packet):
     cp = pkthdr.contents.caplen
     if DEBUG:
-        print "packet capture length: " + str(pkthdr.contents.caplen)
-        print "packet tottal length: " + str(pkthdr.contents.len)
-        print(pkthdr.contents.tv_sec,pkthdr.contents.caplen,pkthdr.contents.len)
-        print packet.contents[:cp]
+        print("packet capture length: " + str(pkthdr.contents.caplen))
+        print("packet tottal length: " + str(pkthdr.contents.len))
+        print((pkthdr.contents.tv_sec,pkthdr.contents.caplen,pkthdr.contents.len))
+        print(packet.contents[:cp])
 
 if DEBUG:
-    print "-------------------------------------------"
+    print("-------------------------------------------")
 libc = ctypes.CDLL(OSX_LIBC_DYLIB, use_errno=True)
 if not libc:
     if DEBUG:
-        print "Error loading C libary: %s" % errno.errorcode[ctypes.get_errno()]
+        print("Error loading C libary: %s" % errno.errorcode[ctypes.get_errno()])
 if DEBUG:
-    print "* C runtime libary loaded: %s" % OSX_LIBC_DYLIB
+    print("* C runtime libary loaded: %s" % OSX_LIBC_DYLIB)
 pcap = ctypes.CDLL(OSX_PCAP_DYLIB, use_errno=True)
 if not pcap:
     if DEBUG:
-        print "Error loading C libary: %s" % errno.errorcode[ctypes.get_errno()]
+        print("Error loading C libary: %s" % errno.errorcode[ctypes.get_errno()])
 if DEBUG:
-    print "* C runtime libary loaded: %s" % OSX_PCAP_DYLIB
-    print "* C runtime handle at: %s" % pcap
-    print "-------------------------------------------"
+    print("* C runtime libary loaded: %s" % OSX_PCAP_DYLIB)
+    print("* C runtime handle at: %s" % pcap)
+    print("-------------------------------------------")
 if not INTERFACE:
     pcap_lookupdev = pcap.pcap_lookupdev
     pcap_lookupdev.restype = ctypes.c_char_p
     INTERFACE = pcap.pcap_lookupdev()
 if DEBUG:
-    print "* Device handle at: %s" % INTERFACE
+    print("* Device handle at: %s" % INTERFACE)
 
 net = ctypes.c_uint()
 mask = ctypes.c_uint()
 pcap.pcap_lookupnet(INTERFACE,ctypes.byref(net),ctypes.byref(mask),err_buf)
 if DEBUG:
-    print "* Device IP to bind: %s" % net
-    print "* Device net mask: %s" % mask
+    print("* Device IP to bind: %s" % net)
+    print("* Device net mask: %s" % mask)
 
 #pcap_t *pcap_open_live(const char *device, int snaplen,int promisc, int to_ms, char *errbuf)
 pcap_open_live = pcap.pcap_open_live
@@ -182,27 +182,27 @@ pcap_create.restype = ctypes.c_void_p
 #pcap_handle = pcap.pcap_create(INTERFACE, err_buf)
 pcap_handle = pcap.pcap_open_live(INTERFACE, 1024, packet_count_limit, timeout_limit, err_buf)
 if DEBUG:
-    print "* Live capture device handle at: %s" % pcap_handle 
+    print("* Live capture device handle at: %s" % pcap_handle) 
 
 pcap_can_set_rfmon = pcap.pcap_can_set_rfmon
 pcap_can_set_rfmon.argtypes = [ctypes.c_void_p]
 if (pcap_can_set_rfmon(pcap_handle) == 1):
     if DEBUG:
-        print "* Can set interface in monitor mode"
+        print("* Can set interface in monitor mode")
 
 pcap_pkthdr_p = ctypes.POINTER(pcap_pkthdr)()
 packetdata = ctypes.POINTER(ctypes.c_ubyte*65536)()
 #print pcap.pcap_next(pcap_handle,ctypes.byref(pcap_pkthdr_p))
 if DEBUG:
-    print "-------------------------------------------"
+    print("-------------------------------------------")
 pcap_dump_open = pcap.pcap_dump_open
 pcap_dump_open.restype = ctypes.POINTER(ctypes.c_void_p)
 pcap_dumper_t = pcap.pcap_dump_open(pcap_handle,PCAP_FILENAME)
 if DEBUG:
-    print "* Pcap dump handle created: %s" % pcap_dumper_t 
-    print "* Pcap data dump to file: %s" % (PCAP_FILENAME) 
-    print "* Max Packets to capture: %s" % (PCAP_CAPTURE_COUNT)
-    print "-------------------------------------------"
+    print("* Pcap dump handle created: %s" % pcap_dumper_t) 
+    print("* Pcap data dump to file: %s" % (PCAP_FILENAME)) 
+    print("* Max Packets to capture: %s" % (PCAP_CAPTURE_COUNT))
+    print("-------------------------------------------")
 
 # CMPFUNC = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p)
 # def pkthandler_callback(pcap_pkthdr,pdata):
@@ -218,17 +218,17 @@ while True:
         c += 1
     if c > PCAP_CAPTURE_COUNT:
         if DEBUG:
-            print "* Max packet count reached!"
+            print("* Max packet count reached!")
         break
 if DEBUG:
-    print "-------------------------------------------"
-    print "* Pcap dump handle now freeing"
+    print("-------------------------------------------")
+    print("* Pcap dump handle now freeing")
 pcap.pcap_dump_close(pcap_dumper_t)
 if DEBUG:
-    print "* Device handle now closing"
+    print("* Device handle now closing")
 if not (pcap.pcap_close(pcap_handle)):
     if DEBUG:
-        print "* Device handle failed to close!"
+        print("* Device handle failed to close!")
 if not IN_MEMORY:
     f = open(PCAP_FILENAME, 'rb')
     data = f.read()

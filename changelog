@@ -1,3 +1,23 @@
+4/26/2020
+------------
+- Version 3.2.0 Master Release
+	- Added SharpChromium module - #185 (@tyraniter)
+	- Added BloodHound 3 module - #123 (@RaphAlmeida)
+	- Updated to Mimikatz 2.2.0 20200308 Masterkey - #189 (@Cx01N)
+	- Fixed issue with first character in randomizing function names - #169 (@Hubbl3)
+	- Fixed encoding error for slack tokens - #181 (@Cx01N)
+	- Fixed typo in python/persistence/multi/desktopfile.py - #182 (@Vinnybod)
+	- install.sh - Updated Debian 10 powershell install and python3 library installs - #187 (@Cx01N, @Vinnybod)
+	- Added single user endpoint to API - #188 (@Vinnybod)
+	- Updated default python launcher to use | python3 - #184 (@Cx01N)
+	- Converted python modules to python3 formatting - #187 (@Cx01N)
+	- Removed duplicate exec in python agent tasking - #187 (@Cx01N)
+	- Fixed errors in collection/linux/hashdump - #187 (@Cx01N)
+	- Fixed errors in osx/native-screenshot - #187 (@Cx01N)
+	- Fixed error handling issue for failed python modules - #187 (@Cx01N)
+	- Added prompt before reset script is ran using --reset flag - #190 (@Cx01N)
+	- Docker builds no longer require a database reset the first time and the certs are already generated. Default cmd starts the rest api. - #188 (@vinnybod)
+
 4/13/2020
 ------------
 - Version 3.1.5 Master Release

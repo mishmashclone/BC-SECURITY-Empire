@@ -188,8 +188,8 @@ c.execute('''CREATE TABLE "functions" (
     "Invoke_Mimikatz" text 
 )''')
 
-rand1 = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
-rand2 = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
+rand1 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+rand2 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
 c.execute("INSERT INTO functions VALUES(?,?)", (rand1, rand2))
 
 # commit the changes and close everything off

@@ -126,7 +126,7 @@ def get_etcd_keys(target, port, path, depth):
 
 def main():
         k = get_etcd_keys(target, port, "/", depth)
-        print str(k)
+        print(str(k))
 
 main()
 

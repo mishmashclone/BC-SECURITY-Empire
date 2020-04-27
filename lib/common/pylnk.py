@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Python library for reading and writing Windows shortcut files (.lnk)
 # Copyright 2011 Tim-Christian Mundt

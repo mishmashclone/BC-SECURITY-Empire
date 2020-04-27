@@ -93,7 +93,7 @@ data = f.read()
 f.close()
 run_command('rm -f %sdebug')
 run_command('rm -f %sdebug.png')
-print data
+print(data)
 """ % (tempDir, tempDir, tempDir, tempDir, tempDir, tempDir, tempDir)
 
         return script

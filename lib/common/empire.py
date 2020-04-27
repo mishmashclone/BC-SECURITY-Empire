@@ -15,7 +15,7 @@ from builtins import input
 from builtins import str
 from builtins import range
 
-VERSION = "3.1.5 BC-Security Fork"
+VERSION = "3.2.0 BC-Security Fork"
 
 from pydispatch import dispatcher
 
@@ -3081,7 +3081,7 @@ class PythonAgentMenu(SubMenu):
         
         if lostLimit == "":
             # task the agent to display the lostLimit
-            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global lostLimit; print 'lostLimit = ' + str(lostLimit)")
+            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global lostLimit; print('lostLimit = ' + str(lostLimit))")
             
             # dispatch this event
             message = "[*] Tasked agent to display lost limit"
@@ -3097,7 +3097,7 @@ class PythonAgentMenu(SubMenu):
             self.mainMenu.agents.set_agent_field_db("lost_limit", lostLimit, self.sessionID)
             
             # task the agent with the new lostLimit
-            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global lostLimit; lostLimit=%s; print 'lostLimit set to %s'"%(lostLimit, lostLimit))
+            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global lostLimit; lostLimit=%s; print('lostLimit set to %s')"%(lostLimit, lostLimit))
             
             # dispatch this event
             message = "[*] Tasked agent to change lost limit {}".format(lostLimit)
@@ -3121,7 +3121,7 @@ class PythonAgentMenu(SubMenu):
         if killDate == "":
             
             # task the agent to display the killdate
-            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global killDate; print 'killDate = ' + str(killDate)")
+            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global killDate; print('killDate = ' + str(killDate))")
             
             # dispatch this event
             message = "[*] Tasked agent to display killDate"
@@ -3137,7 +3137,7 @@ class PythonAgentMenu(SubMenu):
             self.mainMenu.agents.set_agent_field_db("kill_date", killDate, self.sessionID)
             
             # task the agent with the new killDate
-            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global killDate; killDate='%s'; print 'killDate set to %s'" % (killDate, killDate))
+            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global killDate; killDate='%s'; print('killDate set to %s')" % (killDate, killDate))
             
             # dispatch this event
             message = "[*] Tasked agent to set killDate to {}".format(killDate)
@@ -3159,7 +3159,7 @@ class PythonAgentMenu(SubMenu):
         hours = parts[0]
         
         if hours == "":
-            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global workingHours; print 'workingHours = ' + str(workingHours)")
+            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", "global workingHours; print('workingHours = ' + str(workingHours))")
             
             # dispatch this event
             message = "[*] Tasked agent to get working hours"
@@ -3395,7 +3395,7 @@ class PythonAgentMenu(SubMenu):
     
     def do_osx_screenshot(self, line):
         "Use the python-mss module to take a screenshot, and save the image to the server. Not opsec safe"
-        
+
         if self.mainMenu.modules.modules['python/collection/osx/native_screenshot']:
             module = self.mainMenu.modules.modules['python/collection/osx/native_screenshot']
             module.options['Agent']['Value'] = self.mainMenu.agents.get_agent_name_db(self.sessionID)
@@ -3429,9 +3429,9 @@ try:
         for line in f:
             output += line
 
-    print output
+    print(output)
 except Exception as e:
-    print str(e)
+    print(str(e))
 """ % (line)
             # task the agent with this shell command
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_CMD_WAIT", str(cmd))

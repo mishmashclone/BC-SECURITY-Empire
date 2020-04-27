@@ -23,7 +23,7 @@ import time
 def post_message(uri, data):
     global headers
     req = urllib2.Request(uri)
-    for key, value in headers.iteritems():
+    for key, value in headers.items():
         req.add_header("%s"%(key),"%s"%(value))
 
     if data:

@@ -116,8 +116,8 @@ ext = BindDN.split('.')[1]
 
 
 cmd = \"""ldapsearch -x -h {} -b "dc={},dc={}" -D {} -w {} "(samAccountName="{}")" ""\".format(LDAPAddress, tld, ext, BindDN, password, user)
-print ""
-print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
+print("")
+print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
 
 """ % (BindDN, LDAPAddress, password, user)
         return script

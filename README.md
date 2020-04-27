@@ -26,7 +26,7 @@ Keep up-to-date on our blog at [https://www.bc-security.org/blog][7]
 
 Check out the Empire GUI: [Starkiller](https://github.com/BC-SECURITY/Starkiller)
 # Empire
-Empire 3.1 is a post-exploitation framework that includes a pure-PowerShell 2.0 Windows agent, and compatibility with Python 3.x Linux/OS X agents. It is the merger of the previous PowerShell Empire and Python EmPyre projects. The framework offers cryptologically-secure communications and flexible architecture.
+Empire 3 is a post-exploitation framework that includes a pure-PowerShell 2.0 Windows agent, and compatibility with Python 3.x Linux/OS X agents. It is the merger of the previous PowerShell Empire and Python EmPyre projects. The framework offers cryptologically-secure communications and flexible architecture.
 
 On the PowerShell side, Empire implements the ability to run PowerShell agents without needing powershell.exe, rapidly deployable post-exploitation modules ranging from key loggers to Mimikatz, and adaptable communications to evade network detection, all wrapped up in a usability-focused framework. PowerShell Empire premiered at [BSidesLV in 2015](https://www.youtube.com/watch?v=Pq9t59w0mUI) and Python EmPyre premiered at HackMiami 2016. BC-Security presented updates to further evade Microsoft Antimalware Scan Interface (AMSI) and JA3/S signatures at [DEF CON 27](https://github.com/BC-SECURITY/DEFCON27).
 
@@ -36,23 +36,24 @@ Empire is developed by [@harmj0y](https://twitter.com/harmj0y), [@sixdub](https:
 
 
 ## Release Notes
-In Empire 3.1, we will no longer be actively supporting the Python 2.7 base code. If you wish to continue to leverage Python 2.7 then please use the [3.0.x Releases](https://github.com/BC-SECURITY/Empire/releases), since they were built to ensure backward compatibility.
-
-One of the most significant updates in 3.1 is the addition of Multi-User Collaboration to the API. This update adds the ability of users to interact with Empire in an entirely new way. Previously, API users would share a single login and be unable to track individual taskings. This has been completely reworked to allow User Management through the API. This feature is essential for integration with [Starkiller](https://github.com/BC-SECURITY/Starkiller).
-
-Next, we have added Function Name Aliasing, which automates the ability to randomize function names inside of Empire. This proof of concept is a huge step forward in evasion since it tests the ability to mask individual functions inside of Empire. Function name aliasing is currently only built for Invoke-Empire and Invoke-Mimikatz currently, but we will be expanding this functionality in the future.
+As of Empire 3.1, we will no longer be actively supporting the Python 2.7 base code. If you wish to continue to leverage Python 2.7 then please use the [3.0.x Releases](https://github.com/BC-SECURITY/Empire/releases), since they were built to ensure backward compatibility.
 
 Please see our [Releases](https://github.com/BC-SECURITY/Empire/releases) or [Changelog](/changelog) page for detailed release notes.
-## Install
-As of Empire 3.1.0, Empire only officially supports Python 3. If you still need Python 2 support, please use the [3.0.x branch](https://github.com/BC-SECURITY/Empire/tree/v3.0.7) or releases. Also consider using our [Prebuilt Docker containers](#Docker) which use Python 3.
 
-__Note:__ Run ```./setup/reset.sh``` before starting Empire 3.1 for the first time.
+## Install
+The following operating systems have been tested for Empire compatibility. We will be unable to provide support for other OSs at this time. Consider using our [Prebuilt Docker containers](#Docker) which can run on any system.
+- Kali Linux
+- Ubuntu
+- Debian
+
+__Note:__ Newer versions of Kali require you to run ```sudo``` before starting Empire.
+
 ### Kali
 
 You can install the latest version of Empire by running the following:
 
 ```sh
-apt install powershell-empire
+sudo apt install powershell-empire
 ```
 
 ### Github

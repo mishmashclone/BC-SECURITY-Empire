@@ -262,20 +262,19 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
 
 
 def CBCenc(aesObj, plaintext, base64=False):
-
     # First we pad the plaintext
     paddedPlaintext = append_PKCS7_padding(plaintext)
 
     # The we break the padded plaintext in 16 byte chunks
     blocks = [paddedPlaintext[0+i:16+i] for i in range(0, len(paddedPlaintext), 16)]
 
-    # Finally we encypt each block
-    #ciphertext = ""
+    # Finally we encrypt each block
     ciphertext = ("")
     for block in blocks:
         ciphertext = "".join([ciphertext, aesObj.encrypt(block)])
-        #ciphertext += aesObj.encrypt(block)
+
     ciphertext = ciphertext.encode('latin-1')
+
     return ciphertext
 
 
@@ -324,7 +323,6 @@ def aes_encrypt_then_hmac(key, data):
        key = bytes(key, 'UTF-8')
     if isinstance(data, str):
        data = bytes(data, 'UTF-8')
-
     data = aes_encrypt(key, data)
     mac = hmac.new(key, data, digestmod=hashlib.sha256).digest()
     return data + mac[0:10]

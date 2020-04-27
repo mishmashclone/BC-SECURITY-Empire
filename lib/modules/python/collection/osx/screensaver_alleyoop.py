@@ -153,15 +153,15 @@ def run(exitCount, verbose=False):
                     correct = unlockchain(password)
                     if correct:
                         # we found the right password!
-                        print '[!] unlock-keychain passed: ' + str(password)
+                        print('[!] unlock-keychain passed: ' + str(password))
                         break
                     else:
-                        print "[*] Bad password: " + str(password)
+                        print("[*] Bad password: " + str(password))
                         text = retrypassword()
             else:
                 text = retrypassword()
     except Exception as e:
-        print e
+        print(e)
 
 exitCount = %s
 verbose = %s

@@ -102,7 +102,7 @@ def run(data):
     file = m.shot(mon=%s,output='%s')
     raw = open(file, 'rb').read()
     run_command('rm -f %%s' %% (file))
-    print raw
+    print(raw)
 
 run(data)
 """ % (module_data, self.options['Monitor']['Value'], self.options['SavePath']['Value'])

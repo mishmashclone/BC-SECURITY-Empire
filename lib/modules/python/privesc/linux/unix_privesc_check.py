@@ -1593,7 +1593,7 @@ if [ "$MODE" = "detailed" ]; then
         echo "[UPC042] WARNING: SSP not enabled"
       fi
     done
-    find / -type f -exec /sbin/getcap {} \\; 2>/dev/null | grep "=" | awk '{print($1_}' | while read PROGPATH; do
+    find / -type f -exec /sbin/getcap {} \\; 2>/dev/null | grep "=" | awk '{print($1)}' | while read PROGPATH; do
       echo "Program path: $PROGPATH"
       /sbin/getcap $PROGPATH
       SSP=`objdump -D $PROGPATH | grep stack_chk`

@@ -41,11 +41,7 @@ As of Empire 3.1, we will no longer be actively supporting the Python 2.7 base c
 Please see our [Releases](https://github.com/BC-SECURITY/Empire/releases) or [Changelog](/changelog) page for detailed release notes.
 
 ## Install
-As of Empire 3.1, Empire only officially supports Python 3. If you still need Python 2 support, please use the [3.0.x branch](https://github.com/BC-SECURITY/Empire/tree/v3.0.7) or releases. Also consider using our [Prebuilt Docker containers](#Docker) which use Python 3.
-
-__Supported OSs__
-
-To ensure compability your OS is compatibile with Empire. Be sure to only run in the following operating systems. We will not be unable to provide support for other OS.
+The following operating systems have been tested for Empire compatibility. We will be unable to provide support for other OSs at this time. Consider using our [Prebuilt Docker containers](#Docker) which can run on any system.
 - Kali Linux
 - Ubuntu
 - Debian

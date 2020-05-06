@@ -48,6 +48,12 @@ from .events import log_event
 from zlib_wrapper import compress
 from zlib_wrapper import decompress
 
+def xstr(s):
+    """Safely cast to a string with a handler for None"""
+    if s is None:
+        return ''
+    return str(s)
+
 # custom exceptions used for nested menu navigation
 class NavMain(Exception):
     """
@@ -137,7 +143,6 @@ class MainMenu(cmd.Cmd):
         self.conn.row_factory = None
         self.lock.release()
         return self.conn
-    
     
     def handle_event(self, signal, sender):
         """
@@ -1002,12 +1007,12 @@ class MainMenu(cmd.Cmd):
                 for n in range(len(row)):
                     if isinstance(row[n], bytes):
                         row[n] = row[n].decode('UTF-8')
-                f.write('\n' + row[0] + ' - ' + row[3] + ' (' + row[2] + ')> ' + str(row[5]) + '\n' + str(row[6]) + '\n' + str(row[7]) + '\n')
+                f.write('\n' + xstr(row[0]) + ' - ' + xstr(row[3]) + ' (' + xstr(row[2]) + ')> ' + xstr(row[5]) + '\n' + xstr(row[6]) + '\n' + xstr(row[7]) + '\n')
             f.close()
             cur.close()
         finally:
             self.lock.release()
-    
+
     def complete_usemodule(self, text, line, begidx, endidx, language=None):
         "Tab-complete an Empire module path."
         

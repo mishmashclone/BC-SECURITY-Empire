@@ -19,6 +19,8 @@ VERSION = "3.2.0 BC-Security Fork"
 
 from pydispatch import dispatcher
 
+#from xdo import Xdo
+import keyboard
 import sys
 import cmd
 import sqlite3
@@ -1872,7 +1874,8 @@ class PowerShellAgentMenu(SubMenu):
             results = self.mainMenu.agents.get_agent_results_db(self.sessionID)
             if results:
                 print("\n" + helpers.color(results))
-    
+                time.sleep(0.01)
+                keyboard.press_and_release('enter')
     
     def default(self, line):
         "Default handler"

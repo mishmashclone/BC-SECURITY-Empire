@@ -4,7 +4,8 @@ from builtins import range
 from builtins import object
 from lib.common import helpers
 import base64
-
+import string
+import random
 
 class Module(object):
     

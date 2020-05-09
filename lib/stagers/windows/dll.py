@@ -124,7 +124,7 @@ class Stager(object):
                 return ""
             else:
                 launcherCode = launcher.split(" ")[-1]
-
+                print(launcherCode)
                 dll = self.mainMenu.stagers.generate_dll(launcherCode, arch)
 
                 return dll

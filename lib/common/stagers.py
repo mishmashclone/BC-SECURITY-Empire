@@ -522,7 +522,7 @@ $filename = "FILE_UPLOAD_FULL_PATH_GOES_HERE"
 
 """
 
-        file_encoded = base64.b64encode(file)
+        file_encoded = base64.b64encode(file).decode('UTF-8')
 
         script = script.replace("BASE64_BLOB_GOES_HERE", file_encoded)
         script = script.replace("FILE_UPLOAD_FULL_PATH_GOES_HERE", path)

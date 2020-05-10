@@ -63,11 +63,6 @@ class Module(object):
                 'Required'      :   False,
                 'Value'         :   ''
             },
-            'ForceASLR' : {
-                'Description'   :   'Optional, will force the use of ASLR on the PE being loaded even if the PE indicates it doesn\'t support ASLR.',
-                'Required'      :   True,
-                'Value'         :   'False'
-            },
             'ComputerName' : {
                 'Description'   :   'Optional an array of computernames to run the script on.',
                 'Required'      :   False,
@@ -114,17 +109,18 @@ class Module(object):
             if option.lower() != "agent":
                 if option.lower() == "dllpath":
                     if values['Value'] != "":
-                        #try:
+                       try:
                             f = open(values['Value'], 'rb')
                             dllbytes = f.read()
                             f.close()
 
-                            base64bytes = base64.b64encode(dllbytes)
-                            scriptEnd = "\n$PE =  [System.Convert]::FromBase64String(\'" + base64bytes.decode('latin-1') + "\')" + scriptEnd
+                            base64bytes = base64.b64encode(dllbytes).decode('UTF-8')
+
+                            scriptEnd = "\n$PE =  [Convert]::FromBase64String(\'" + base64bytes + "\')" + scriptEnd
                             scriptEnd += " -PEBytes $PE"
 
-                        #except:
-                            #print(helpers.color("[!] Error in reading/encoding dll: " + str(values['Value'])))
+                       except:
+                            print(helpers.color("[!] Error in reading/encoding dll: " + str(values['Value'])))
                 elif values['Value'].lower() == "true":
                     scriptEnd += " -" + str(option)
                 elif values['Value'] and values['Value'] != '':
@@ -133,7 +129,7 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-        f = open('/home/kali/output.txt', 'w')
+        f = open('/root/output.txt', 'w')
         f.write(script)
         f.close()
         return script

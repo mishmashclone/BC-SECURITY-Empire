@@ -1,19 +1,6 @@
 ![Empire](https://user-images.githubusercontent.com/20302208/70022749-1ad2b080-154a-11ea-9d8c-1b42632fd9f9.jpg)
 
-[1.1]: http://i.imgur.com/tXSoThF.png (twitter icon with padding)
-[2.1]: http://i.imgur.com/P3YfQoD.png (facebook icon with padding)
-[3.1]: http://i.imgur.com/yCsTjba.png (google plus icon with padding)
-[4.1]: http://i.imgur.com/YckIOms.png (tumblr icon with padding)
-[5.1]: http://i.imgur.com/1AGmwO3.png (dribbble icon with padding)
-[6.1]: http://i.imgur.com/0o48UoR.png (github icon with padding)
-
-[1]: https://twitter.com/bcsecurity1
-[2]: http://www.facebook.com/XXXXXXX
-[3]: https://plus.google.com/XXXXXXX
-[4]: http://XXXXXXX.tumblr.com
-[5]: http://dribbble.com/XXXXXXX
-[6]: http://www.github.com/BC-SECURITY
-[7]: https://www.bc-security.org/blog
+[1]: https://www.bc-security.org/blog
 
 ![GitHub Release](https://img.shields.io/github/v/release/BC-SECURITY/Empire)
 ![GitHub contributors](https://img.shields.io/github/contributors/BC-SECURITY/Empire)
@@ -22,7 +9,7 @@
 ![GitHub](https://img.shields.io/github/license/BC-Security/Empire)
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/fold_left.svg?style=flat)](https://twitter.com/BCSecurity1)
 
-Keep up-to-date on our blog at [https://www.bc-security.org/blog][7]
+Keep up-to-date on our blog at [https://www.bc-security.org/blog][1]
 
 Check out the Empire GUI: [Starkiller](https://github.com/BC-SECURITY/Starkiller)
 # Empire

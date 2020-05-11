@@ -1,3 +1,14 @@
+5/10/2020
+------------
+- Version 3.2.1 Master Release
+	- Updated reflective PE injection to work in Windows 10 - #202 (@Hubbl3)
+	- Updated Mimikatz to 20200502 TPM, IF & XOR - #200 (@Cx01N)
+	- Added option to run Mimikatz commands as non-elevated user - #193 (@Cx01N)
+	- Added safe string cast for reporting log - #203 (@Vinnybod)
+	- Fixed byte encoding error in invoke_wmi_debugger - #203 (@Cx01N)
+	- Removed Get-ExploitableSystem due to function being removed from PowerView- #194 (@Cx01N)
+	- Replaced Invoke-ReflectivePEInjection.ps1 with newer version - #202 (@Hubbl3)
+
 4/26/2020
 ------------
 - Version 3.2.0 Master Release

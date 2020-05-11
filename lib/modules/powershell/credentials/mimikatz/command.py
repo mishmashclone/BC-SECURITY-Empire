@@ -14,13 +14,14 @@ class Module(object):
             'Author': ['@JosephBialek', '@gentilkiwi'],
 
             'Description': ("Runs PowerSploit's Invoke-Mimikatz function "
-                            "with a custom command."),
+                            "with a custom command. Note: Not all functions "
+                            "require admin, but many do."),
 
             'Background' : True,
 
             'OutputExtension' : None,
             
-            'NeedsAdmin' : True,
+            'NeedsAdmin' : False,
 
             'OpsecSafe' : True,
 

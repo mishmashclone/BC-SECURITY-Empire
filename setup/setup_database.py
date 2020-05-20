@@ -192,6 +192,18 @@ rand1 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.asc
 rand2 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
 c.execute("INSERT INTO functions VALUES(?,?)", (rand1, rand2))
 
+c.execute("""
+CREATE TABLE "file_directory" (
+	"id"	INTEGER PRIMARY KEY,
+	"session_id" TEXT,
+	"name"	TEXT,
+	"path" TEXT,
+	"parent_id"	INTEGER NULLABLE,
+	"is_file"	NUMERIC,
+	FOREIGN KEY (parent) REFERENCES file_directory(id) on delete cascade
+);
+""")
+
 # commit the changes and close everything off
 conn.commit()
 conn.close()

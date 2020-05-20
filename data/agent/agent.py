@@ -1,3 +1,4 @@
+import json
 import struct
 import base64
 import subprocess
@@ -939,7 +940,25 @@ def directory_listing(path):
 
 # additional implementation methods
 def run_command(command, cmdargs=None):
-    
+
+    if re.compile("(vrls)").match(command):
+        path = '/'  # default to root # todo special rules for windows drives :(
+        if cmdargs is not None:  # strip trailing slash for uniformity
+            path = cmdargs.rstrip('/')
+        if path[0] is not '/':  # always scan relative to root for uniformity
+            path = '/{0}'.format(path)
+        if not os.path.isdir(path):
+            return 'Directory {} not found.'.format(path)
+        items = []
+        with os.scandir(path) as it:
+            for entry in it:
+                items.append({'path': entry.path, 'name': entry.name, 'is_file': entry.is_file()})
+
+        return '{}|{}'.format('vrls', json.dumps({
+            'directory_name': path if len(path) == 1 else path.split('/')[-1],
+            'directory_path': path,
+            'items': items
+        }))
     if re.compile("(ls|dir)").match(command):
         if cmdargs == None or not os.path.exists(cmdargs):
             cmdargs = '.'

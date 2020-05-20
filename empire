@@ -862,6 +862,31 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         return jsonify({'agents' : activeAgents})
 
+    @app.route('/api/agents/<string:agent_name>/directory', methods=['GET'])
+    def get_agent_directory(agent_name):
+        directory = request.args.get('directory')
+        stuff = execute_db_query(conn, """
+            SELECT
+                base.id,
+                base.session_id,
+                base.name,
+                base.path,
+                base.parent_id,
+                base.is_file,
+                p.name,
+                p.path,
+                p.parent_id
+            FROM file_directory base
+            join file_directory p on base.parent_id = p.id
+            WHERE base.session_id = ? and p.path = ?
+        """, [agent_name, directory])
+
+        things = []
+        for thing in stuff:
+            [id, session_id, name, path, parent_id, is_file, parent_name, parent_path, parent_parent] = thing
+            things.append({'id': id, 'session_id': session_id, 'name': name, 'path': path, 'parent_id': parent_id, 'is_file': is_file,
+                           'parent_name': parent_name, 'parent_path': parent_path, 'parent_parent': parent_parent})
+        return jsonify(things)
 
     @app.route('/api/agents/<string:agent_name>/results', methods=['GET'])
     def get_agent_results(agent_name):
@@ -1019,6 +1044,9 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             # add task command to agent taskings
             msg = "tasked agent %s to run command %s" %(agentSessionID, command)
             main.agents.save_agent_log(agentSessionID, msg)
+
+            # TODO Maybe we need to use a new task type (see packets.py) specifically for directory tree listing so that we can handle
+            # it differently. Right now it returns back the json, but we still have to do some workarounds.
             taskID = main.agents.add_agent_task_db(agentSessionID, "TASK_SHELL", command, uid=g.user['id'])
         return jsonify({'success': True, 'taskID': taskID})
 

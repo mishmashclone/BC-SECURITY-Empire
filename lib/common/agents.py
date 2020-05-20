@@ -58,6 +58,7 @@ Most methods utilize self.lock to deal with the concurreny issue of kicking off 
 from __future__ import print_function
 from __future__ import absolute_import
 # -*- encoding: utf-8 -*-
+import sqlite3
 from builtins import str
 from builtins import object
 import os
@@ -855,6 +856,44 @@ class Agents(object):
     # Methods to update agent information fields.
     #
     ###############################################################
+
+    def update_dir_tree(self, sessionID, response):
+        """"
+        Update the directory tree
+        """
+        nameid = self.get_agent_id_db(sessionID)
+        if nameid:
+            sessionID = nameid
+
+        if sessionID in self.agents:
+            conn = self.get_db_connection()
+            try:
+                self.lock.acquire()
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+
+                # get existing files/dir that are in this directory.
+                # delete them and their children so that we stay fresh. Children deleted cascading delete.
+                this_directory = cur.execute("SELECT * FROM file_directory where session_id = ? and path = ?", [sessionID, response['directory_path']]).fetchone()
+                if this_directory:
+                    cur.execute("DELETE FROM file_directory WHERE session_id = ? and parent_id = ?", [sessionID, this_directory['id']])
+                else: # if the directory doesn't exist we have to create one
+                    # parent is none for now even though it might have one. This is self correcting. If it's true parent
+                    # is scraped, then this entry will get rewritted (??).
+                    # Doesn't seem to be the case.
+                    cur.execute(
+                        "INSERT INTO file_directory  (\"name\", \"path\", \"parent_id\", \"is_file\", \"session_id\") VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(
+                            response['directory_name'], response['directory_path'], None, False, sessionID))
+                    this_directory = cur.execute("SELECT * FROM file_directory where session_id = ? and path = ?",
+                                                 [sessionID, response['directory_path']]).fetchone()
+
+                # insert all the new items
+                for item in response['items']:
+                    cur.execute("DELETE FROM file_directory WHERE session_id = {} AND path = \"{}\"".format(sessionID, item['path'])) # Delete it if its already there so that we can be self correcting
+                    cur.execute("INSERT INTO file_directory  (\"name\", \"path\", \"parent_id\", \"is_file\", \"session_id\") VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(item['name'], item['path'], None if not this_directory else this_directory['id'], item['is_file'], sessionID))
+                cur.close()
+            finally:
+                self.lock.release()
 
     def update_agent_results_db(self, sessionID, results):
         """
@@ -1834,7 +1873,13 @@ class Agents(object):
             self.remove_agent_db(sessionID)
 
 
-        elif responseName == "TASK_SHELL":
+        elif responseName == "TASK_SHELL": # TODO Maybe here we can parse it with a special condition
+            data = data.decode('utf-8')
+            split = data.split("|")
+            if (split[0] == 'vrls'):
+                split[1].replace('..Command execution completed.', '')
+                self.update_dir_tree(sessionID, json.loads(split[1].replace('..Command execution completed.', '')))
+
             # shell command response
             self.update_agent_results_db(sessionID, data)
             # update the agent log

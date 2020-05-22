@@ -1397,14 +1397,37 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         status = u.update_password(uid, request.json['password'])
         return jsonify({'success': status})
 
-    @app.route('/api/plugin/<string:plugin_name>/load', methods=['GET'])
-    def load_plugin(plugin_name):
+    @app.route('/api/plugin/<string:plugin_name>', methods=['GET'])
+    def get_plugin(plugin_name):
+        #check if the plugin has already been loaded
         if plugin_name not in empireMenu.loadedPlugins.keys():
-            empireMenu.do_plugin(plugin_name)
-            return jsonify({'success': True})
-        else:
-            abort(404)
+            try:
+                empireMenu.do_plugin(plugin_name)
+            except:
+                return make_response(jsonify({'error': 'plugin %s not found' % (plugin_name)}), 400)
+        #get the commands available to the user. This can probably be done in one step if desired
+        commands = empireMenu.loadedPlugins[plugin_name].get_commands()
+        return jsonify(commands)
 
+    @app.route('/api/plugin/<string:plugin_name>', methods=['POST'])
+    def execute_plugin(plugin_name):
+        #check if the plugin has been loaded
+        if plugin_name not in empireMenu.loadedPlugins.keys():
+            return make_response(jsonify({'error': 'plugin %s not loaded' % (plugin_name)}), 400)
+        else:
+            usePlug = empireMenu.loadedPlugins[plugin_name]
+            command = request.json['command']
+            #check if the requested command is valid
+            if command not in usePlug.commands.keys():
+                return make_response(jsonify({'error': ' %s is not a valid plugin command' % (command)}), 400)
+            #check if the command arguments are valid
+            for key, value in request.json['arguments'].items():
+                if key not in usePlug.commands[command]:
+                    return make_response(jsonify({'error': 'invalid command argument'}), 400)
+            results = usePlug.execute(request.json)
+            if results == False:
+                return make_response(jsonify({'error': 'internal plugin error'}), 400)
+            return jsonify(results)
 
     if not os.path.exists('./data/empire-chain.pem'):
         print("[!] Error: cannot find certificate ./data/empire-chain.pem")

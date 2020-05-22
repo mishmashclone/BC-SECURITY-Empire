@@ -1397,6 +1397,14 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         status = u.update_password(uid, request.json['password'])
         return jsonify({'success': status})
 
+    @app.route('/api/plugin/<string:plugin_name>/load', methods=['GET'])
+    def load_plugin(plugin_name):
+        if plugin_name not in empireMenu.loadedPlugins.keys():
+            empireMenu.do_plugin(plugin_name)
+            return jsonify({'success': True})
+        else:
+            abort(404)
+
 
     if not os.path.exists('./data/empire-chain.pem'):
         print("[!] Error: cannot find certificate ./data/empire-chain.pem")

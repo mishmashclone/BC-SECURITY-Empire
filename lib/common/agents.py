@@ -1909,15 +1909,14 @@ class Agents(object):
                 self.save_agent_log(sessionID, msg)
 
         elif responseName == "TASK_DIR_LIST":
-            result = data
             try:
                 result = json.loads(data.decode('utf-8'))
                 self.update_dir_list(sessionID, result)
             except ValueError as e:
                 pass
 
-            self.update_agent_results_db(sessionID, result)
-            self.save_agent_log(sessionID, result)
+            self.update_agent_results_db(sessionID, data)
+            self.save_agent_log(sessionID, data)
 
         elif responseName == "TASK_GETDOWNLOADS":
             if not data or data.strip().strip() == "":

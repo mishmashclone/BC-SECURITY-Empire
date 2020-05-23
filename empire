@@ -862,8 +862,15 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         return jsonify({'agents' : activeAgents})
 
+    @app.route('/api/agents/<string:agent_name>/directory', methods=['POST'])
+    def scrape_agent_directory(agent_name):
+        directory = '/' if request.args.get('directory') is None else request.args.get('directory')
+        main.agents.add_agent_task_db(agent_name, "TASK_DIR_LIST", directory, g.user['id'])
+        return ''
+
     @app.route('/api/agents/<string:agent_name>/directory', methods=['GET'])
     def get_agent_directory(agent_name):
+        # Would be cool to add a "depth" param
         directory = '/' if request.args.get('directory') is None else request.args.get('directory')
         results = execute_db_query(conn, """
             SELECT

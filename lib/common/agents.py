@@ -1908,6 +1908,7 @@ class Agents(object):
                 self.save_agent_log(sessionID, msg)
 
         elif responseName == "TASK_DIR_LIST":
+            # todo check if dir not found
             self.update_dir_tree(sessionID, json.loads(data.decode('utf-8')))
 
         elif responseName == "TASK_GETDOWNLOADS":

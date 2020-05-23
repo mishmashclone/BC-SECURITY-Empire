@@ -1915,6 +1915,10 @@ class PowerShellAgentMenu(SubMenu):
             print("     " + messages.wrap_columns(", ".join(self.agentCommands), ' ', width1=50, width2=10, indent=5) + "\n")
         else:
             SubMenu.do_help(self, *args)
+
+    def do_dirlist(self, line):
+        "Tasks an agent to store the contents of a directory in the database."
+        self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_DIR_LIST", line)
     
     def do_list(self, line):
         "Lists all active agents (or listeners)."

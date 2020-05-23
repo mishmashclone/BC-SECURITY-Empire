@@ -861,7 +861,6 @@ class Agents(object):
         """"
         Update the directory tree
         """
-        print('update_dir_tree')
         nameid = self.get_agent_id_db(sessionID)
         if nameid:
             sessionID = nameid
@@ -875,7 +874,6 @@ class Agents(object):
 
                 # get existing files/dir that are in this directory.
                 # delete them and their children to keep everything up to date. There's a cascading delete on the table.
-                print('this_directory')
                 this_directory = cur.execute("SELECT * FROM file_directory where session_id = ? and path = ?", [sessionID, response['directory_path']]).fetchone()
                 if this_directory:
                     cur.execute("DELETE FROM file_directory WHERE session_id = ? and parent_id = ?", [sessionID, this_directory['id']])
@@ -888,7 +886,6 @@ class Agents(object):
                                                  [sessionID, response['directory_path']]).fetchone()
 
                 # insert all the new items
-                print('item loop')
                 for item in response['items']:
                     cur.execute("DELETE FROM file_directory WHERE session_id = ? AND path = ?", [sessionID, item['path']])  # Delete it if its already there so that we can be self correcting
                     cur.execute("INSERT INTO file_directory  ('name', 'path', 'parent_id', 'is_file', 'session_id') VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')"
@@ -1877,15 +1874,6 @@ class Agents(object):
 
         elif responseName == "TASK_SHELL": # TODO Maybe here we can parse it with a special condition
             data = data.decode('utf-8')
-            split = data.split("|")
-            print('task shell response')
-            print('split ' + split[0])
-            print('equality ' + split[0] == 'vrls')
-            if ('vrls' in split[0]):
-                print('vrls found')
-                split[1].replace('..Command execution completed.', '')
-                self.update_dir_tree(sessionID, json.loads(split[1].replace('..Command execution completed.', '')))
-
             # shell command response
             self.update_agent_results_db(sessionID, data)
             # update the agent log
@@ -1918,6 +1906,9 @@ class Agents(object):
                 # update the agent log
                 msg = "file download: %s, part: %s" % (path, index)
                 self.save_agent_log(sessionID, msg)
+
+        elif responseName == "TASK_DIR_LIST":
+            self.update_dir_tree(sessionID, json.loads(data.decode('utf-8')))
 
         elif responseName == "TASK_GETDOWNLOADS":
             if not data or data.strip().strip() == "":

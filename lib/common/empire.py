@@ -1750,8 +1750,7 @@ class AgentsMenu(SubMenu):
         mline = line.partition(' ')[2]
         offs = len(mline) - len(text)
         return [s[offs:] for s in names if s.startswith(mline)]
-    
-    
+
     def complete_remove(self, text, line, begidx, endidx):
         "Tab-complete a remove command"
         
@@ -2198,8 +2197,7 @@ class PowerShellAgentMenu(SubMenu):
             # update the agent log
             msg = "Tasked agent to run shell command " + line
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
-    
-    
+
     def do_sysinfo(self, line):
         "Task an agent to get system information."
         
@@ -2884,6 +2882,9 @@ class PythonAgentMenu(SubMenu):
                 print(helpers.color("[!] Command not recognized."))
                 print(helpers.color("[*] Use 'help' or 'help agentcmds' to see available commands."))
 
+    def do_dirlist(self, line):
+        "Tasks an agent to store the contents of a directory in the database."
+        self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_DIR_LIST", line)
 
     def do_help(self, *args):
         "Displays the help menu or syntax for particular commands."

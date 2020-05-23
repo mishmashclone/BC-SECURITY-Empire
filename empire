@@ -864,8 +864,8 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
     @app.route('/api/agents/<string:agent_name>/directory', methods=['GET'])
     def get_agent_directory(agent_name):
-        directory = request.args.get('directory')
-        stuff = execute_db_query(conn, """
+        directory = '/' if request.args.get('directory') is None else request.args.get('directory')
+        results = execute_db_query(conn, """
             SELECT
                 base.id,
                 base.session_id,
@@ -881,12 +881,12 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             WHERE base.session_id = ? and p.path = ?
         """, [agent_name, directory])
 
-        things = []
-        for thing in stuff:
-            [id, session_id, name, path, parent_id, is_file, parent_name, parent_path, parent_parent] = thing
-            things.append({'id': id, 'session_id': session_id, 'name': name, 'path': path, 'parent_id': parent_id, 'is_file': is_file,
+        response = []
+        for result in results:
+            [id, session_id, name, path, parent_id, is_file, parent_name, parent_path, parent_parent] = result
+            response.append({'id': id, 'session_id': session_id, 'name': name, 'path': path, 'parent_id': parent_id, 'is_file': is_file,
                            'parent_name': parent_name, 'parent_path': parent_path, 'parent_parent': parent_parent})
-        return jsonify(things)
+        return jsonify(response)
 
     @app.route('/api/agents/<string:agent_name>/results', methods=['GET'])
     def get_agent_results(agent_name):

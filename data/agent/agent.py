@@ -938,11 +938,11 @@ def directory_listing(path):
 
     return res
 
+
 # additional implementation methods
 def run_command(command, cmdargs=None):
-
     if re.compile("(vrls)").match(command):
-        path = '/'  # default to root # todo special rules for windows drives :(
+        path = '/'  # default to root
         if cmdargs is not None:  # strip trailing slash for uniformity
             path = cmdargs.rstrip('/')
         if path[0] is not '/':  # always scan relative to root for uniformity

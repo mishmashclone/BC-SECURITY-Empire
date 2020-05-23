@@ -200,7 +200,7 @@ CREATE TABLE "file_directory" (
 	"path" TEXT,
 	"parent_id"	INTEGER NULLABLE,
 	"is_file"	NUMERIC,
-	FOREIGN KEY (parent) REFERENCES file_directory(id) on delete cascade
+	FOREIGN KEY (parent_id) REFERENCES file_directory(id) on delete cascade
 );
 """)
 

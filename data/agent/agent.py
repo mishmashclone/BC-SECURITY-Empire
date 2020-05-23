@@ -963,7 +963,6 @@ def directory_listing(path):
 
     return res
 
-
 # additional implementation methods
 def run_command(command, cmdargs=None):
     if re.compile("(ls|dir)").match(command):

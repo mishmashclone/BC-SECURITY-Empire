@@ -857,9 +857,9 @@ class Agents(object):
     #
     ###############################################################
 
-    def update_dir_tree(self, sessionID, response):
+    def update_dir_list(self, sessionID, response):
         """"
-        Update the directory tree
+        Update the directory list
         """
         nameid = self.get_agent_id_db(sessionID)
         if nameid:
@@ -1908,8 +1908,15 @@ class Agents(object):
                 self.save_agent_log(sessionID, msg)
 
         elif responseName == "TASK_DIR_LIST":
-            # todo check if dir not found
-            self.update_dir_tree(sessionID, json.loads(data.decode('utf-8')))
+            result = data
+            try:
+                result = json.loads(data.decode('utf-8'))
+                self.update_dir_list(sessionID, result)
+            except ValueError as e:
+                pass
+
+            self.update_agent_results_db(sessionID, result)
+            self.save_agent_log(sessionID, result)
 
         elif responseName == "TASK_GETDOWNLOADS":
             if not data or data.strip().strip() == "":

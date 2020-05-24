@@ -872,6 +872,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
     def get_agent_directory(agent_name):
         # Would be cool to add a "depth" param
         directory = '/' if request.args.get('directory') is None else request.args.get('directory')
+
         results = execute_db_query(conn, """
             SELECT
                 base.id,
@@ -893,7 +894,8 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             [id, session_id, name, path, parent_id, is_file, parent_name, parent_path, parent_parent] = result
             response.append({'id': id, 'session_id': session_id, 'name': name, 'path': path, 'parent_id': parent_id, 'is_file': is_file,
                            'parent_name': parent_name, 'parent_path': parent_path, 'parent_parent': parent_parent})
-        return jsonify(response)
+
+        return jsonify({'items': response})
 
     @app.route('/api/agents/<string:agent_name>/results', methods=['GET'])
     def get_agent_results(agent_name):

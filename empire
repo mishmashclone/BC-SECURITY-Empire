@@ -955,7 +955,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
                 users.username AS username
              FROM taskings
              LEFT JOIN users ON taskings.user_id = users.id
-             LEFT JOIN results on results.id = taskings.id
+             LEFT JOIN results on results.id = taskings.id AND results.agent = taskings.agent
              WHERE taskings.agent = ?
              AND taskings.id = ?
              """, [agent_name, task_id])

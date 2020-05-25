@@ -67,7 +67,7 @@ Function Invoke-Thunderstruck
     Param (
         [Parameter(Mandatory = $False, Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [String] $VideoURL = "https://www.youtube.com/watch?v=leJ_wj7mDa0"
+        [String] $VideoURL = "https://www.youtube.com/watch?v=1JGkJ6bezDQ"
     )
     
     Function Set-Speaker($Volume){$wshShell = new-object -com wscript.shell;1..50 | % {$wshShell.SendKeys([char]174)};1..$Volume | % {$wshShell.SendKeys([char]175)}}

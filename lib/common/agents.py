@@ -886,11 +886,17 @@ class Agents(object):
                     this_directory = cur.execute("SELECT * FROM file_directory where session_id = ? and path = ?",
                                                  [sessionID, response['directory_path']]).fetchone()
 
+                delete = ""
+                insert = "INSERT INTO file_directory  ('name', 'path', 'parent_id', 'is_file', 'session_id') VALUES "
+                insertArr = []
                 # insert all the new items
                 for item in response['items']:
-                    cur.execute("DELETE FROM file_directory WHERE session_id = ? AND path = ?", [sessionID, item['path']])  # Delete it if its already there so that we can be self correcting
-                    cur.execute("INSERT INTO file_directory  ('name', 'path', 'parent_id', 'is_file', 'session_id') VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')"
-                                .format(item['name'], item['path'], None if not this_directory else this_directory['id'], item['is_file'], sessionID))
+                    # Delete it if its already there so that we can be self correcting
+                    delete += f"\nDELETE FROM file_directory WHERE session_id = '{sessionID}' AND path = '{item['path']}';"
+                    insertArr.append(f"('{item['name']}', '{item['path']}', '{None if not this_directory else this_directory['id']}', '{item['is_file']}', '{sessionID}')")
+
+                cur.executescript(delete)
+                cur.execute(insert + ','.join(insertArr) + ';')
                 cur.close()
             finally:
                 conn.row_factory = old_factory

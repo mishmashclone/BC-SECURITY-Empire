@@ -894,7 +894,7 @@ function Invoke-Empire {
                 }
             }
             # directory list
-            elseif($type -eq 43) { # still getting errors with no path
+            elseif($type -eq 43) {
                 $output = ""
                 $path = "/"
                 if ($data.length -gt 1) { # Use user supplied directory

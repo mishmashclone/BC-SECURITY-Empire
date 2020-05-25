@@ -351,8 +351,7 @@ def process_packet(packetType, data, resultID):
 
     elif packetType == 43:
         # directory list
-        parts = data.split(" ")
-        cmdargs = parts[0]
+        cmdargs = data
 
         path = '/'  # default to root
         if cmdargs is not None and cmdargs is not '' and cmdargs is not '/':  # strip trailing slash for uniformity

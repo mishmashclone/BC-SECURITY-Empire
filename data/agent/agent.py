@@ -355,12 +355,12 @@ def process_packet(packetType, data, resultID):
         cmdargs = parts[0]
 
         path = '/'  # default to root
-        if cmdargs is not None and cmdargs is not '':  # strip trailing slash for uniformity
+        if cmdargs is not None and cmdargs is not '' and cmdargs is not '/':  # strip trailing slash for uniformity
             path = cmdargs.rstrip('/')
         if path[0] is not '/':  # always scan relative to root for uniformity
             path = '/{0}'.format(path)
         if not os.path.isdir(path):
-            return 'Directory {} not found.'.format(path)
+            send_message(build_response_packet(43, 'Directory {} not found.'.format(path), resultID))
         items = []
         with os.scandir(path) as it:
             for entry in it:

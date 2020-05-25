@@ -865,13 +865,18 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
     @app.route('/api/agents/<string:agent_name>/directory', methods=['POST'])
     def scrape_agent_directory(agent_name):
         directory = '/' if request.args.get('directory') is None else request.args.get('directory')
-        main.agents.add_agent_task_db(agent_name, "TASK_DIR_LIST", directory, g.user['id'])
-        return ''
+        task_id = main.agents.add_agent_task_db(agent_name, "TASK_DIR_LIST", directory, g.user['id'])
+        return jsonify({'taskID': task_id})
 
     @app.route('/api/agents/<string:agent_name>/directory', methods=['GET'])
     def get_agent_directory(agent_name):
         # Would be cool to add a "depth" param
         directory = '/' if request.args.get('directory') is None else request.args.get('directory')
+
+        found = execute_db_query(conn, "SELECT * FROM file_directory WHERE session_id = ? AND path = ? AND is_file = 'False'", # todo make is_file a bool
+                                 [agent_name, directory])
+        if len(found) == 0:
+            return make_response(jsonify({'error': "Directory not found."}), 404)
 
         results = execute_db_query(conn, """
             SELECT
@@ -939,6 +944,27 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         return jsonify({'results': agentTaskResults})
 
+    @app.route('/api/agents/<string:agent_name>/task/<int:task_id>', methods=['GET'])
+    def get_task(agent_name, task_id):
+        results = execute_db_query(conn, """
+            SELECT
+                taskings.id AS task,
+                taskings.data AS command,
+                results.data AS response,
+                users.id AS user_id,
+                users.username AS username
+             FROM taskings
+             LEFT JOIN users ON taskings.user_id = users.id
+             LEFT JOIN results on results.id = taskings.id
+             WHERE taskings.agent = ?
+             AND taskings.id = ?
+             """, [agent_name, task_id])
+
+        if len(results) > 0:
+            [taskID, command, results, user_id, username] = results[0]
+            return make_response(jsonify({'taskID': taskID, 'command': command, 'results': results, 'user_id': user_id, 'username': username}))
+
+        return make_response(jsonify({'error': 'task not found.'}), 404)
 
     @app.route('/api/agents/<string:agent_name>/results', methods=['DELETE'])
     def delete_agent_results(agent_name):

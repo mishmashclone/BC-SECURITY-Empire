@@ -1,4 +1,4 @@
-data/empire.db
+*.db
 data/empire-chain.pem
 data/empire-priv.key
 data/credentials.csv

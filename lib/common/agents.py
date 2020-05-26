@@ -895,8 +895,9 @@ class Agents(object):
                     delete += f"\nDELETE FROM file_directory WHERE session_id = '{sessionID}' AND path = '{item['path']}';"
                     insertArr.append(f"('{item['name']}', '{item['path']}', '{None if not this_directory else this_directory['id']}', '{item['is_file']}', '{sessionID}')")
 
-                cur.executescript(delete)
-                cur.execute(insert + ','.join(insertArr) + ';')
+                if len(insertArr) > 0:
+                    cur.executescript(delete)
+                    cur.execute(insert + ','.join(insertArr) + ';')
                 cur.close()
             finally:
                 conn.row_factory = old_factory

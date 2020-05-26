@@ -431,7 +431,7 @@ class MainMenu(cmd.Cmd):
     def do_plugins(self, args):
         "List all available and active plugins."
         pluginPath = os.path.abspath("plugins")
-        print(helpers.color("[*] Searching for plugins at {}".format(pluginPath)))
+        print(helpers.color("\n[*] Searching for plugins at {}".format(pluginPath)))
         # From walk_packages: "Note that this function must import all packages
         # (not all modules!) on the given path, in order to access the __path__
         # attribute to find submodules."
@@ -461,7 +461,7 @@ class MainMenu(cmd.Cmd):
     def do_plugin(self, pluginName):
         "Load a plugin file to extend Empire."
         pluginPath = os.path.abspath("plugins")
-        print(helpers.color("[*] Searching for plugins at {}".format(pluginPath)))
+        print(helpers.color("\n[*] Searching for plugins at {}".format(pluginPath)))
         # From walk_packages: "Note that this function must import all packages
         # (not all modules!) on the given path, in order to access the __path__
         # attribute to find submodules."

@@ -1,3 +1,12 @@
+5/25/2020
+------------
+- Version 3.2.2 Master Release
+	- Added Invoke-PrintDemon module (@Hubbl3, @Cx01N)
+	- Updated Mimikatz 2.2.0 20200519 Windows 10 2004 (build 19041) (@Cx01N)
+	- Fixed youtube URL in trollsploit/thunderstruck (@Gutters2Gardens)
+	- Added API endpoints for plugins (@Hubbl3)
+	- Fixed keylogger issue when writing to file (@Cx01N)
+
 5/10/2020
 ------------
 - Version 3.2.1 Master Release

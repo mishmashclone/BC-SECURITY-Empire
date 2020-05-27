@@ -850,13 +850,11 @@ class Agents(object):
 
         return autoruns
 
-
     ###############################################################
     #
     # Methods to update agent information fields.
     #
     ###############################################################
-
     def update_dir_list(self, sessionID, response):
         """"
         Update the directory list

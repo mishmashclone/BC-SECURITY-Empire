@@ -71,7 +71,6 @@ def execute_db_query(conn, query, args=None):
     return results
 
 
-#TODO: Update with new commads
 ####################################################################
 #
 # The Empire RESTful API.
@@ -110,8 +109,11 @@ def execute_db_query(conn, query, args=None):
 #    DELETE   http://localhost:1337/api/agents/stale                removes stale agents from the database
 #    DELETE   http://localhost:1337/api/agents/Y                    removes agent Y from the database
 #    GET      http://localhost:1337/api/agents/Y                    return the agent with name Y
+#    GET      http://localhost:1337/api/agents/Y/directory          return the directory with the name given by the query parameter 'directory'
+#    POST     http://localhost:1337/api/agents/Y/directory          task the agent Y to scrape the directory given by the query parameter 'directory'
 #    GET      http://localhost:1337/api/agents/Y/results            return tasking results for the agent with name Y
 #    DELETE   http://localhost:1337/api/agents/Y/results            deletes the result buffer for agent Y
+#    GET      http://localhost:1337/api/agents/Y/task/Z             return the tasking Z for agent Y
 #    POST     http://localhost:1337/api/agents/Y/download           task agent Y to download a file
 #    POST     http://localhost:1337/api/agents/Y/upload             task agent Y to upload a file
 #    POST     http://localhost:1337/api/agents/Y/shell              task agent Y to execute a shell command
@@ -897,7 +899,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         response = []
         for result in results:
             [id, session_id, name, path, parent_id, is_file, parent_name, parent_path, parent_parent] = result
-            response.append({'id': id, 'session_id': session_id, 'name': name, 'path': path, 'parent_id': parent_id, 'is_file': is_file,
+            response.append({'id': id, 'session_id': session_id, 'name': name, 'path': path, 'parent_id': parent_id, 'is_file': bool(is_file),
                            'parent_name': parent_name, 'parent_path': parent_path, 'parent_parent': parent_parent})
 
         return jsonify({'items': response})

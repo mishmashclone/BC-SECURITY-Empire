@@ -875,7 +875,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         # Would be cool to add a "depth" param
         directory = '/' if request.args.get('directory') is None else request.args.get('directory')
 
-        found = execute_db_query(conn, "SELECT * FROM file_directory WHERE session_id = ? AND path = ? AND is_file = 'False'", # todo make is_file a bool
+        found = execute_db_query(conn, "SELECT * FROM file_directory WHERE session_id = ? AND path = ? AND is_file = 0",
                                  [agent_name, directory])
         if len(found) == 0:
             return make_response(jsonify({'error': "Directory not found."}), 404)

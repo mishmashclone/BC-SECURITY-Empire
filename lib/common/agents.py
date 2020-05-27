@@ -880,7 +880,7 @@ class Agents(object):
                     # parent is None for now even though it might have one. This is self correcting.
                     # If it's true parent is scraped, then this entry will get rewritted
                     cur.execute("INSERT INTO file_directory  ('name', 'path', 'parent_id', 'is_file', 'session_id')VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')"
-                                .format(response['directory_name'], response['directory_path'], None, False, sessionID))
+                                .format(response['directory_name'], response['directory_path'], None, 0, sessionID))
                     this_directory = cur.execute("SELECT * FROM file_directory where session_id = ? and path = ?",
                                                  [sessionID, response['directory_path']]).fetchone()
 
@@ -891,7 +891,7 @@ class Agents(object):
                 for item in response['items']:
                     # Delete it if its already there so that we can be self correcting
                     delete += f"\nDELETE FROM file_directory WHERE session_id = '{sessionID}' AND path = '{item['path']}';"
-                    insertArr.append(f"('{item['name']}', '{item['path']}', '{None if not this_directory else this_directory['id']}', '{item['is_file']}', '{sessionID}')")
+                    insertArr.append(f"('{item['name']}', '{item['path']}', '{None if not this_directory else this_directory['id']}', '{1 if item['is_file'] is True else 0}', '{sessionID}')")
 
                 if len(insertArr) > 0:
                     cur.executescript(delete)

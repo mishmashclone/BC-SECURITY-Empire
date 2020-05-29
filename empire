@@ -3,7 +3,10 @@
 from __future__ import print_function
 import sqlite3, argparse, sys, argparse, logging, json, string, subprocess
 import os, re, time, signal, copy, base64, pickle, random
+from datetime import datetime, timezone
+
 from flask import Flask, request, jsonify, make_response, abort, url_for, g
+from flask.json import JSONEncoder
 from time import localtime, strftime, sleep
 import hashlib
 from OpenSSL import SSL
@@ -38,14 +41,37 @@ def database_check_docker():
             subprocess.call(['./setup/reset.sh'])
 
 
+
+# Taken from sqlite3/dbapi2.py
+# converted " " to T to fit iso-8601
+def adapt_datetime(val):
+    return val.isoformat(" ")
+
+# taken from sqlite3/dbapi2.py
+# added tzinfo so that it generates datetimes that are timezone-aware
+def convert_timestamp(val):
+    datepart, timepart = val.split(b" ")
+    year, month, day = map(int, datepart.split(b"-"))
+    timepart_full = timepart.split(b".")
+    hours, minutes, seconds = map(int, timepart_full[0].split(b":"))
+    if len(timepart_full) == 2:
+        microseconds = int('{:0<6.6}'.format(timepart_full[1].decode()))
+    else:
+        microseconds = 0
+
+    val = datetime(year, month, day, hours, minutes, seconds, microseconds, tzinfo=timezone.utc)
+    return val
+
 def database_connect():
     """
     Connect with the backend ./empire.db sqlite database and return the
     connection object.
     """
     try:
+        # sqlite3.register_adapter(datetime.datetime, adapt_datetime)
+        sqlite3.register_converter("timestamp", convert_timestamp)
         # set the database connectiont to autocommit w/ isolation level
-        conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
+        conn = sqlite3.connect('./data/empire.db', check_same_thread=False, detect_types=sqlite3.PARSE_DECLTYPES)
         conn.text_factory = str
         conn.isolation_level = None
         return conn
@@ -141,6 +167,13 @@ def execute_db_query(conn, query, args=None):
 #    PUT      http://localhost:1337/api/users/Y/updatepassword      update password for user Y
 #
 ####################################################################
+class MyJsonEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+
+        return super().default(o)
+
 
 def start_restful_api(empireMenu, suppress=False, username=None, password=None, port=1337):
     """
@@ -152,8 +185,9 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
     password    -   optional password to use for the API, otherwise pulls from the empire.db config
     port        -   port to start the API on, defaults to 1337 ;)
     """
-
     app = Flask(__name__)
+
+    app.json_encoder = MyJsonEncoder
 
     conn = database_connect()
 
@@ -637,12 +671,12 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         """
         Returns JSON describing all currently registered listeners.
         """
-        activeListenersRaw = execute_db_query(conn, 'SELECT id, name, module, listener_type, listener_category, options FROM listeners')
+        activeListenersRaw = execute_db_query(conn, 'SELECT id, name, module, listener_type, listener_category, options, created_at FROM listeners')
         listeners = []
 
         for activeListener in activeListenersRaw:
-            [ID, name, module, listener_type, listener_category, options] = activeListener
-            listeners.append({'ID':ID, 'name':name, 'module':module, 'listener_type':listener_type, 'listener_category':listener_category, 'options':pickle.loads(activeListener[5]) })
+            [ID, name, module, listener_type, listener_category, options, created_at] = activeListener
+            listeners.append({'ID':ID, 'name':name, 'module':module, 'listener_type':listener_type, 'listener_category':listener_category, 'options':pickle.loads(options), 'created_at': created_at})
 
 
         return jsonify({'listeners' : listeners})

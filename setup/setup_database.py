@@ -125,7 +125,8 @@ c.execute('''CREATE TABLE "listeners" (
     "listener_type" text,
     "listener_category" text,
     "enabled" boolean,
-    "options" blob
+    "options" blob,
+    "created_at" timestamp
     )''')
 
 # type = hash, plaintext, token
@@ -176,7 +177,7 @@ c.execute('''CREATE TABLE "users" (
     "username" text unique,
     "password" text,
     "api_token" text,
-    "last_logon_time" text,
+    "last_logon_time" timestamp,
     "enabled" boolean,
     "admin" boolean
 )''')

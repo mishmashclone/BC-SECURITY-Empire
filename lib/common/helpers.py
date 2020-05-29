@@ -70,7 +70,7 @@ import uuid
 import ipaddress
 import simplejson as json
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 ###############################################################
 #
@@ -638,6 +638,8 @@ def get_datetime():
     """
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+def getutcnow():
+    return datetime.now(timezone.utc)
 
 def utc_to_local(utc):
     """

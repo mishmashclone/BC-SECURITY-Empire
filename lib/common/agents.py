@@ -144,7 +144,7 @@ class Agents(object):
         Add an agent to the internal cache and database.
         """
 
-        currentTime = helpers.get_datetime()
+        currentTime = helpers.getutcnow()
         checkinTime = currentTime
         lastSeenTime = currentTime
 
@@ -169,7 +169,7 @@ class Agents(object):
             signal = json.dumps({
                 'print': True,
                 'message': message,
-                'timestamp': checkinTime,
+                'timestamp': checkinTime.isoformat(), # todo convert time_stamp on reporting
                 'event_type': 'checkin'
             })
             dispatcher.send(signal, sender="agents/{}".format(sessionID))
@@ -923,7 +923,7 @@ class Agents(object):
         """
 
         if not current_time:
-            current_time = helpers.get_datetime()
+            current_time = helpers.getutcnow()
         conn = self.get_db_connection()
         try:
             self.lock.acquire()

@@ -817,13 +817,9 @@ class MainMenu(cmd.Cmd):
                 agentsToDisplay = []
                 
                 for agent in allAgents:
-                    
-                    # max check in -> delay + delay*jitter
-                    intervalMax = (agent['delay'] + agent['delay'] * agent['jitter']) + 30
-                    
-                    # get the agent last check in time
-                    agentTime = time.mktime(time.strptime(agent['lastseen_time'], "%Y-%m-%d %H:%M:%S"))
-                    if agentTime < time.mktime(time.localtime()) - intervalMax:
+                    stale = helpers.is_stale(agent['lastseen_time', agent['delay'], agent['jitter']])
+
+                    if not stale:
                         # if the last checkin time exceeds the limit, remove it
                         agentsToDisplay.append(agent)
                 
@@ -838,9 +834,10 @@ class MainMenu(cmd.Cmd):
                     # grab just the agents active within the specified window (in minutes)
                     agentsToDisplay = []
                     for agent in allAgents:
-                        agentTime = time.mktime(time.strptime(agent['lastseen_time'], "%Y-%m-%d %H:%M:%S"))
-                        
-                        if agentTime > time.mktime(time.localtime()) - (int(minutes) * 60):
+                        diff = helpers.getutcnow() - agent['lastseen_time']
+                        too_old = diff.total_seconds() > int(minutes) * 60
+
+                        if not too_old:
                             agentsToDisplay.append(agent)
                     
                     messages.display_agents(agentsToDisplay)
@@ -1622,13 +1619,9 @@ class AgentsMenu(SubMenu):
                 
                 sessionID = agent['session_id']
                 
-                # max check in -> delay + delay*jitter
-                intervalMax = (agent['delay'] + agent['delay'] * agent['jitter']) + 30
+                stale = helpers.is_stale(agent['lastseen_time'], agent['delay'], agent['jitter'])
                 
-                # get the agent last check in time
-                agentTime = time.mktime(time.strptime(agent['lastseen_time'], "%Y-%m-%d %H:%M:%S"))
-                
-                if agentTime < time.mktime(time.localtime()) - intervalMax:
+                if stale:
                     # if the last checkin time exceeds the limit, remove it
                     self.mainMenu.agents.remove_agent_db(sessionID)
         
@@ -1644,11 +1637,11 @@ class AgentsMenu(SubMenu):
                 for agent in allAgents:
                     
                     sessionID = agent['session_id']
-                    
-                    # get the agent last check in time
-                    agentTime = time.mktime(time.strptime(agent['lastseen_time'], "%Y-%m-%d %H:%M:%S"))
-                    
-                    if agentTime < time.mktime(time.localtime()) - (int(minutes) * 60):
+
+                    diff = helpers.getutcnow() - agent['lastseen_time']
+                    too_old = diff.total_seconds() > int(minutes) * 60
+
+                    if too_old:
                         # if the last checkin time exceeds the limit, remove it
                         self.mainMenu.agents.remove_agent_db(sessionID)
             

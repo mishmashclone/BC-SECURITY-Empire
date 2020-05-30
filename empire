@@ -762,12 +762,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         for activeAgent in activeAgentsRaw:
             [ID, session_id, listener, name, language, language_version, delay, jitter, external_ip, internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results] = activeAgent
 
-            intervalMax = (delay + delay * jitter)+30
-
-            # get the agent last check in time
-            agentTime = time.mktime(time.strptime(lastseen_time, "%Y-%m-%d %H:%M:%S"))
-
-            stale = agentTime < time.mktime(time.localtime()) - intervalMax
+            stale = helpers.is_stale(lastseen_time, delay, jitter)
 
             if isinstance(session_key, bytes):
                 session_key = session_key.decode('latin-1').encode('utf-8')
@@ -790,12 +785,9 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         for agent in agentsRaw:
             [ID, session_id, listener, name, language, language_version, delay, jitter, external_ip, internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results] = agent
 
-            intervalMax = (delay + delay * jitter)+30
+            stale = helpers.is_stale(lastseen_time, delay, jitter)
 
-            # get the agent last check in time
-            agentTime = time.mktime(time.strptime(lastseen_time, "%Y-%m-%d %H:%M:%S"))
-
-            if agentTime < time.mktime(time.localtime()) - intervalMax:
+            if stale:
                 if isinstance(session_key, bytes):
                     session_key = session_key.decode('latin-1').encode('utf-8')
 
@@ -815,12 +807,9 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         for agent in agentsRaw:
             [ID, sessionID, listener, name, language, language_version, delay, jitter, external_ip, internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results] = agent
 
-            intervalMax = (delay + delay * jitter)+30
+            stale = helpers.is_stale(lastseen_time, delay, jitter)
 
-            # get the agent last check in time
-            agentTime = time.mktime(time.strptime(lastseen_time, "%Y-%m-%d %H:%M:%S"))
-
-            if agentTime < time.mktime(time.localtime()) - intervalMax:
+            if stale:
                 execute_db_query(conn, "DELETE FROM agents WHERE session_id LIKE ?", [sessionID])
 
         return jsonify({'success': True})

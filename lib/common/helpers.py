@@ -754,12 +754,19 @@ def color(string, color=None):
             return string
 
 
+def is_stale(lastseen : datetime, delay: int, jitter: float):
+    """Convenience function for calculating staleness"""
+    interval_max = (delay + delay * jitter) + 30
+    diff = getutcnow() - lastseen
+    stale = diff.total_seconds() > interval_max
+    return stale
+
 def lastseen(stamp, delay, jitter):
     """
     Colorize the Last Seen field based on measured delays
     """
     try:
-        delta = datetime.now() - datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S")
+        delta = getutcnow() - stamp
 
         # Set min threshold for delay/jitter
         if delay < 1:
@@ -767,9 +774,9 @@ def lastseen(stamp, delay, jitter):
         if jitter < 1:
             jitter = 1
 
-        if delta.seconds > delay * (jitter + 1) * 7:
+        if delta.total_seconds() > delay * (jitter + 1) * 7:
             return color(stamp, "red")
-        elif delta.seconds > delay * (jitter + 1) * 3:
+        elif delta.total_seconds() > delay * (jitter + 1) * 3:
             return color(stamp, "yellow")
         else:
             return color(stamp, "green")

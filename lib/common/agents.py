@@ -169,7 +169,7 @@ class Agents(object):
             signal = json.dumps({
                 'print': True,
                 'message': message,
-                'timestamp': checkinTime,
+                'timestamp': checkinTime.isoformat(),
                 'event_type': 'checkin'
             })
             dispatcher.send(signal, sender="agents/{}".format(sessionID))

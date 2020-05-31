@@ -634,7 +634,7 @@ def get_listener_options(listenerName):
 
 def get_datetime():
     """
-    Return the current date/time
+    Return the local current date/time
     """
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -760,6 +760,7 @@ def is_stale(lastseen : datetime, delay: int, jitter: float):
     diff = getutcnow() - lastseen
     stale = diff.total_seconds() > interval_max
     return stale
+
 
 def lastseen(stamp, delay, jitter):
     """

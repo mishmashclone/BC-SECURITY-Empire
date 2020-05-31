@@ -160,7 +160,7 @@ class MainMenu(cmd.Cmd):
         # this should probably be set in the event itself but we can check
         # here (and for most the time difference won't matter so it's fine)
         if 'timestamp' not in signal_data:
-            signal_data['timestamp'] = helpers.getutcnow()
+            signal_data['timestamp'] = helpers.getutcnow().isoformat()
         
         # if this is related to a task, set task_id; this is its own column in
         # the DB (else the column will be set to None/null)

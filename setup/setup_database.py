@@ -149,7 +149,7 @@ c.execute('''CREATE TABLE "taskings" (
     "data" text,
     "agent" text,
     "user_id" text,
-    "time_stamp" text,
+    "timestamp" timestamp,
     PRIMARY KEY(id, agent)
 )''')
 
@@ -167,7 +167,7 @@ c.execute('''CREATE TABLE "reporting" (
     "name" text,
     "event_type" text,
     "message" text,
-    "time_stamp" text,
+    "timestamp" timestamp,
     "taskID" integer,
     FOREIGN KEY(taskID) REFERENCES results(id)
 )''')

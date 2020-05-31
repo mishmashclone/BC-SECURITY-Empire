@@ -160,7 +160,7 @@ class MainMenu(cmd.Cmd):
         # this should probably be set in the event itself but we can check
         # here (and for most the time difference won't matter so it's fine)
         if 'timestamp' not in signal_data:
-            signal_data['timestamp'] = helpers.get_datetime()
+            signal_data['timestamp'] = helpers.getutcnow()
         
         # if this is related to a task, set task_id; this is its own column in
         # the DB (else the column will be set to None/null)
@@ -970,7 +970,7 @@ class MainMenu(cmd.Cmd):
             # Empire Log
             cur.execute("""
             SELECT
-                reporting.time_stamp,
+                reporting.timestamp,
                 event_type,
                 u.username,
                 substr(reporting.name, pos+1) as agent_name,
@@ -981,7 +981,7 @@ class MainMenu(cmd.Cmd):
             FROM
             (
                 SELECT
-                    time_stamp,
+                    timestamp,
                     event_type,
                     name,
                     instr(name, '/') as pos,

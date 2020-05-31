@@ -169,7 +169,7 @@ class Agents(object):
             signal = json.dumps({
                 'print': True,
                 'message': message,
-                'timestamp': checkinTime.isoformat(), # todo convert time_stamp on reporting
+                'timestamp': checkinTime,
                 'event_type': 'checkin'
             })
             dispatcher.send(signal, sender="agents/{}".format(sessionID))
@@ -1067,7 +1067,7 @@ class Agents(object):
         agentName = sessionID
         # see if we were passed a name instead of an ID
         nameid = self.get_agent_id_db(sessionID)
-        timestamp = helpers.get_datetime()
+        timestamp = helpers.getutcnow()
 
         if nameid:
             sessionID = nameid
@@ -1100,7 +1100,7 @@ class Agents(object):
                     if pk is None:
                         pk = 0
                     pk = (pk + 1) % 65536
-                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, time_stamp) VALUES(?, ?, ?, ?, ?)", [pk, sessionID, task[:100], uid, timestamp])
+                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, timestamp) VALUES(?, ?, ?, ?, ?)", [pk, sessionID, task[:100], uid, timestamp])
 
                     # Create result for data when it arrives
                     cur.execute("INSERT INTO results (id, agent, user_id) VALUES (?,?,?)", (pk, sessionID, uid))

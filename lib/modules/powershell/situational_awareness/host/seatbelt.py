@@ -51,7 +51,7 @@ class Module(object):
             #   value_name : {description, required, default_value}
             'Agent': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description':   'Agent to grab a screenshot from.',
+                'Description':   'Agent to run on.',
                 'Required'   :   True,
                 'Value'      :   ''
             },

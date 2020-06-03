@@ -56,9 +56,10 @@ class Module(object):
                 'Value'      :   ''
             },
             'Command': {
-                'Description':   'Use available Seatbelt commandes (e.g., AntiVirus, PowerShellEvents, UAC)',
+                'Description':   'Use available Seatbelt commands (e.g., AntiVirus, PowerShellEvents, UAC). '
+                                 'Default is all enumeration checks and full results.',
                 'Required'   :   True,
-                'Value'      :   ''
+                'Value'      :   '-group=all -full'
             }
         }
 
@@ -104,7 +105,7 @@ class Module(object):
                         # if we're just adding a switch
                         scriptEnd += " -" + str(option)
                     else:
-                        scriptEnd += " -" + str(option) + " " + str(values['Value'])
+                        scriptEnd += " -" + str(option) + " '" + str(values['Value']) + "'"
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

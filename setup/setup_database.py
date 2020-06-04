@@ -188,6 +188,12 @@ c.execute('''CREATE TABLE "functions" (
     "Invoke_Mimikatz" text 
 )''')
 
+c.execute('''CREATE TABLE "profiles" (
+    "id" INTEGER PRIMARY KEY,
+    "name" TEXT,
+    "value" TEXT
+)''')
+
 rand1 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
 rand2 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
 c.execute("INSERT INTO functions VALUES(?,?)", (rand1, rand2))

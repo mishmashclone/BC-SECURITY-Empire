@@ -1270,6 +1270,35 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         return jsonify({'reporting' : reportingEvents})
 
+    @app.route('/api/profiles', methods=['GET'])
+    def get_profiles():
+        profiles_raw = execute_db_query(conn, "SELECT ID, name, value FROM profiles")
+        profiles = []
+
+        for profile in profiles_raw:
+            [uid, name, value] = profile
+            profiles.append({"ID": uid, "name": name, "value": value})
+
+        return jsonify({'profiles': profiles})
+
+    @app.route('/api/profiles/<string:uid>', methods=['GET'])
+    def get_profile(uid):
+        profile_raw = execute_db_query(conn, "SELECT ID, name, value FROM profiles WHERE id = ?", [uid, ])
+
+        if len(profile_raw) > 0:
+            [uid, name, value] = profile_raw[0]
+            return jsonify({"ID": uid, "name": name, "value": value})
+
+        abort(404)
+
+    @app.route('/api/profiles', methods=['POST'])
+    def create_profiles():
+        if not request.json or not 'value' in request.json or not 'name' in request.json:
+            abort(400)
+
+        execute_db_query(conn, "INSERT INTO profiles (name, value) VALUES (?, ?)", [request.json['name'], request.json['value']])
+
+        return '', 200
 
     @app.route('/api/admin/login', methods=['POST'])
     def server_login():

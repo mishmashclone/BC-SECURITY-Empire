@@ -80,6 +80,12 @@ c.execute('''CREATE TABLE config (
     "obfuscate_command" text
     )''')
 
+c.execute('''CREATE TABLE ip_list (
+    "id" PRIMARY KEY INTEGER,
+    "list_name" TEXT
+    "ip" TEXT,
+    )''')
+
 # kick off the config component of the database
 c.execute("INSERT INTO config VALUES (?,?,?,?,?,?,?,?,?)", (STAGING_KEY, INSTALL_PATH, IP_WHITELIST, IP_BLACKLIST, '', '', False, OBFUSCATE, OBFUSCATE_COMMAND))
 

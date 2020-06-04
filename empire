@@ -1270,6 +1270,29 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         return jsonify({'reporting' : reportingEvents})
 
+    @app.route('/api/admin/ip/<string:list_name>', methods=['GET'])
+    def get_ip_list(list_name):
+        if list_name not in ['whitelist', 'blacklist']:
+            abort(400)
+        list = execute_db_query(conn, "SELECT id, list_name, ip FROM ip_list WHERE list_name = ?", [list_name, ])
+        arr = []
+        for item in list:
+            [id, list_name, ip] = item
+            arr.append({'id': id, 'ip': ip})
+
+        return jsonify({f'{list_name}': arr})
+
+    @app.route('/api/admin/ip/<string:list_name>', methods=['POST'])
+    def add_ip_list(list_name, body):
+        ip = body['ip']  # validate ip address
+        result = execute_db_query(conn, "INSERT INTO ip_list (list_name, ip) VALUES (?, ?)", [list_name, ip])
+
+        return jsonify(result)
+
+    @app.route('/api/admin/ip/<string:list_name>', methods=['DELETE'])
+    def remove_ip_list(list_name, id):
+        execute_db_query(conn, "DELETE FROM ip_list WHERE list_name = ? AND id = ?", [list_name, id])
+        return '', 200
 
     @app.route('/api/admin/login', methods=['POST'])
     def server_login():

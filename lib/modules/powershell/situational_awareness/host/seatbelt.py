@@ -56,11 +56,42 @@ class Module(object):
                 'Value'      :   ''
             },
             'Command': {
-                'Description':   'Use available Seatbelt commands (e.g., AntiVirus, PowerShellEvents, UAC). '
-                                 'Default is all enumeration checks and full results.',
-                'Required'   :   True,
-                'Value'      :   '-group=all -full'
-            }
+                'Description':   'Use available Seatbelt commands (AntiVirus, PowerShellEvents, UAC, etc). ',
+                'Required'   :   False,
+                'Value'      :   ''
+            },
+            'Group': {
+                'Description': 'Runs a predefined group of commands (All, User, System, Slack, Chrome, Remote'
+                               ', Misc)',
+                'Required': False,
+                'Value': 'all'
+            },
+            'Computername': {
+                'Description': 'Remote system to run enumeration against. This is performed over WMI via queries'
+                               'for WMI classes and WMI StdRegProv for registry enumeration.',
+                'Required': False,
+                'Value': ''
+            },
+            'Username': {
+                'Description': 'Alternate username for remote enumeration.',
+                'Required': False,
+                'Value': ''
+            },
+            'Password': {
+                'Description': 'Alternate password for remote enumeration.',
+                'Required': False,
+                'Value': ''
+            },
+            'Full': {
+                'Description': 'Display all results.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'Quiet': {
+                'Description': 'Runs in Quiet Mode.',
+                'Required': False,
+                'Value': 'False'
+            },
         }
 
         # Save off a copy of the mainMenu object to access external
@@ -95,17 +126,26 @@ class Module(object):
         f.close()
 
         script = moduleCode
-        scriptEnd = "Invoke-Seatbelt"
+        scriptEnd = 'Invoke-Seatbelt -Command "'
 
         # Add any arguments to the end execution of the script
         for option, values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":
-                        # if we're just adding a switch
+                        if option.lower() == "quiet":
+                            option = 'q'
                         scriptEnd += " -" + str(option)
+                    elif values['Value'].lower() == "false":
+                        pass
+                    elif option.lower() == "command":
+                        scriptEnd += " " + str(values['Value'])
                     else:
-                        scriptEnd += " -" + str(option) + " '" + str(values['Value']) + "'"
+                        scriptEnd += " -" + str(option) + "=" + str(values['Value'])
+
+        scriptEnd = scriptEnd.replace('" ', '"')
+        scriptEnd += '"'
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

@@ -15,6 +15,10 @@ class Module(object):
 
             'Description': ('Backup backdoor for a backdoor user.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0003'],
+
             'Background' : False,
 
             'OutputExtension' : None,

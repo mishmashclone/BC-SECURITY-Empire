@@ -11,9 +11,10 @@ class Module(object):
             'Name': 'Get-SQLQuery',
             'Author': ['@_nullbind', '@0xbadjuju'],
             'Description': ('Executes a query on target SQL servers.'),
+            'Software': '',
+            'Techniques': [''],
             'Background' : True,
             'OutputExtension' : None,
-            
             'NeedsAdmin' : False,
             'OpsecSafe' : True,
             'Language' : 'powershell',

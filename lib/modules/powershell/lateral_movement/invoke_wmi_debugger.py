@@ -16,6 +16,10 @@ class Module(object):
             'Description': ('Uses WMI to set the debugger for a target binary on a remote '
                             'machine to be cmd.exe or a stager.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0008', 'T1047'],
+
             'Background' : False,
 
             'OutputExtension' : None,

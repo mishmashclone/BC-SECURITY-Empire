@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Executes a stager on remote hosts using PsExec type functionality.'),
 
+            'Software': 'S0029',
+
+            'Techniques': ['TA0008', 'T1035', 'T1077'],
+
             'Background' : True,
 
             'OutputExtension' : None,

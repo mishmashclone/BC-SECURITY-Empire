@@ -162,7 +162,7 @@ c.execute('''CREATE TABLE "results" (
 
 # event_types -> checkin, task, result, rename
 c.execute('''CREATE TABLE "reporting" (
-    "id" integer PRIMARY KEY,
+    "id" integer PRIMARY KEY AUTOINCREMENT,
     "name" text,
     "event_type" text,
     "message" text,
@@ -172,7 +172,7 @@ c.execute('''CREATE TABLE "reporting" (
 )''')
 
 c.execute('''CREATE TABLE "users" (
-    "id" integer PRIMARY KEY,
+    "id" integer PRIMARY KEY AUTOINCREMENT,
     "username" text unique,
     "password" text,
     "api_token" text,
@@ -189,7 +189,7 @@ c.execute('''CREATE TABLE "functions" (
 )''')
 
 c.execute('''CREATE TABLE "profiles" (
-    "id" INTEGER PRIMARY KEY,
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "name" TEXT,
     "value" TEXT
 )''')

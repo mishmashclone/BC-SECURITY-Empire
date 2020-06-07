@@ -1302,15 +1302,41 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         abort(404)
 
     @app.route('/api/profiles', methods=['POST'])
-    def create_profiles():
+    def create_profile():
         """
         Create a profile.
         body {"name": "Profile", "value": "thisistheprofile"}
         """
+        # todo vr add user id
         if not request.json or not 'value' in request.json or not 'name' in request.json:
             abort(400)
 
         execute_db_query(conn, "INSERT INTO profiles (name, value) VALUES (?, ?)", [request.json['name'], request.json['value']])
+
+        return '', 200
+
+    @app.route('/api/profiles/<int:uid>', methods=['PUT'])
+    def update_profile(uid):
+        """
+        update a profile.
+        body {"name": "Profile", "value": "thisistheprofile"}
+        """
+        # todo vr add user id
+        if not request.json or not 'value' in request.json or not 'name' in request.json:
+            abort(400)
+
+        exists = execute_db_query(conn, "SELECT * FROM profiles WHERE id = ?", [uid, ])
+        if not exists[0]:
+            abort(404)
+
+        execute_db_query(conn, "UPDATE profiles SET (name, value) WHERE VALUES (?, ?)", [request.json['name'], request.json['value']])
+
+    @app.route('/api/profiles/<int:uid>', methods=['DELETE'])
+    def delete_profile(uid):
+        """
+        Delete a profile.
+        """
+        execute_db_query(conn, "DELETE FROM profiles WHERE id = ?", [uid, ])
 
         return '', 200
 

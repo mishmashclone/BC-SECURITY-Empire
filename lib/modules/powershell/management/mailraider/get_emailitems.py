@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Returns all of the items for the specified folder."),
 
+            'Software': '',
+
+            'Techniques': ['T1114'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Executes time-stomp like functionality by '
                             'invoking Set-MacAttribute.'),
 
+            'Software': '',
+
+            'Techniques': ['T1099'],
+
             'Background' : False,
 
             'OutputExtension' : None,

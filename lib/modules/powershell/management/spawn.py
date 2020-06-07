@@ -13,6 +13,10 @@ class Module(object):
 
             'Description': ('Spawns a new agent in a new powershell.exe process.'),
 
+            'Software': '',
+
+            'Techniques': ['T1055'],
+
             'Background' : False,
 
             'OutputExtension' : None,

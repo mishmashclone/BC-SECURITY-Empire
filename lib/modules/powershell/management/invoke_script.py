@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Run a custom script. Useful for mass-taskings or script autoruns.'),
 
+            'Software': '',
+
+            'Techniques': ['T1064'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Spawn an agent with the specified logon credentials.'),
 
+            'Software': '',
+
+            'Techniques': ['T1055'],
+
             'Background' : False,
 
             'OutputExtension' : None,

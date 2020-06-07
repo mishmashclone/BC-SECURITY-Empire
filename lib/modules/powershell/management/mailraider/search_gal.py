@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("returns any exchange users that match the specified search criteria. Searchable fields are FirstName, LastName, JobTitle, Email-Address, and Department."),
 
+            'Software': '',
+
+            'Techniques': ['T1114'],
+
             'Background' : True,
 
             'OutputExtension' : None,

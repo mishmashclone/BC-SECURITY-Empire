@@ -12,6 +12,10 @@ class Module(object):
 
             'Description': ("Restarts the specified machine."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : False,
 
             'OutputExtension' : None,

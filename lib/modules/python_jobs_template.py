@@ -11,6 +11,10 @@ class Module(object):
             # list of one or more authors for the module
             'Author': ['@Killswitch-GUI'],
 
+            'Software': 'SXXXX',
+
+            'Techniques': ['TXXXX', 'TXXXX'],
+
             # more verbose multi-line description of the module
             'Description': ('A quick example how to feed your data to a background job.'),
 

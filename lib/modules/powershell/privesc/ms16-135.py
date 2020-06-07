@@ -18,6 +18,11 @@ class Module(object):
                             ' Note: the exploit performs fast windows switching, victim\'s desktop'
                             ' may flash. A named pipe is also created.'
                             ' Thus, opsec is not guaranteed'),
+
+            'Software': '',
+
+            'Techniques': ['T1068','TA0004'],
+
             'Background' : True,
 
             'OutputExtension' : None,

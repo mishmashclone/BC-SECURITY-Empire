@@ -9,12 +9,12 @@ class Module:
             'Name': 'Sherlock',
             'Author': ['@_RastaMouse'],
             'Description': ('Find Windows local privilege escalation vulnerabilities.'),
+            'Software': '',
+            'Techniques': [''],
             'Background': True,
             'OutputExtension': None,
-
             'NeedsAdmin': False,
             'OpsecSafe': True,
-
             'Language': 'powershell',
             'MinLanguageVersion': '2',
 

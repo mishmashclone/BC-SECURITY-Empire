@@ -14,7 +14,11 @@ class Module(object):
 
             'Description': ("Bypasses UAC by performing an registry modification for sdclt (based on"
                             "https://enigma0x3.net/2017/03/17/fileless-uac-bypass-using-sdclt-exe/)"),
-        
+
+            'Software': '',
+
+            'Techniques': ['T1088'],
+
             'Background' : True,
 
             'OutputExtension' : None,

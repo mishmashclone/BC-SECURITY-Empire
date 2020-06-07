@@ -20,6 +20,10 @@ class Module(object):
             # More verbose multi-line description of the module
             'Description': ('Bypass UAC module based on the script released by Matt Nelson @enigma0x3 at Derbycon 2017'),
 
+            'Software': '',
+
+            'Techniques': ['T1088'],
+
             # True if the module needs to run in the background
             'Background': False,
 

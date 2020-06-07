@@ -17,6 +17,10 @@ class Module(object):
                             "triggering a suspicious Event ID 4648 (Explicit "
                             "Credential Logon)."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1214', 'T1003'],
+
             'Background' : False,
 
             'OutputExtension' : None,

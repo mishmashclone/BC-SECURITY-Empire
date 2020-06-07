@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Requests kerberos tickets for all users with a non-null service principal name (SPN) and extracts them into a format ready for John or Hashcat.'),
 
+            'Software': '',
+
+            'Techniques': ['T1208'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Queries the domain for current computer objects. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1082'],
+
             'Background' : True,
 
             'OutputExtension' : None,

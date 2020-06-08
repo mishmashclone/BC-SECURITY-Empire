@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Performs a DNS Reverse Lookup of a given IPv4 IP Range.'),
 
+            'Software': '',
+
+            'Techniques': ['T1046'],
+
             'Background' : True,
 
             'OutputExtension' : None,

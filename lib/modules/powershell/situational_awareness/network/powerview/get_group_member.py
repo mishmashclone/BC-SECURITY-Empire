@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Returns the members of a given group, with the option to "Recurse" to find all effective group members. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

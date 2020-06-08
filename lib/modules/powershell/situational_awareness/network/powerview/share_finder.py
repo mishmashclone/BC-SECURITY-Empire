@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Finds shares on machines in the domain. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1135'],
+
             'Background' : True,
 
             'OutputExtension' : None,

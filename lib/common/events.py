@@ -64,7 +64,7 @@ def log_event(cur, name, event_type, message, timestamp, task_id=None):
                  queries of an agent's task and its result together.
     """
     cur.execute(
-        "INSERT INTO reporting (name, event_type, message, time_stamp, taskID) VALUES (?,?,?,?,?)",
+        "INSERT INTO reporting (name, event_type, message, timestamp, taskID) VALUES (?,?,?,?,?)",
         (
             name,
             event_type,

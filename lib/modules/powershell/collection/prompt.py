@@ -14,6 +14,10 @@ class Module(object):
             'Description': ("Prompts the current user to enter their credentials "
                             "in a forms box and returns the results."),
 
+            'Software': '',
+
+            'Techniques': ['T1141', 'T1514'],
+
             'Background' : False,
 
             'OutputExtension' : None,

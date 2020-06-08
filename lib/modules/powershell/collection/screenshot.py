@@ -14,6 +14,10 @@ class Module(object):
             'Description': ('Takes a screenshot of the current desktop and '
                             'returns the output as a .PNG.'),
 
+            'Software': '',
+
+            'Techniques': ['T1113'],
+
             'Background' : False,
 
             'OutputExtension' : 'png',

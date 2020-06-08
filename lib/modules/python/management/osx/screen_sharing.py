@@ -17,6 +17,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Enables ScreenSharing to allow you to connect to the host via VNC.'),
 
+            'Software': '',
+
+            'Techniques': ['T1021'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

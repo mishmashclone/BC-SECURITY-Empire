@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Launches a specified application with an prompt for credentials with osascript.'),
 
+            'Software': '',
+
+            'Techniques': ['T1141', 'T1514'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

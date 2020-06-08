@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Query information for a given user or users in the specified domain. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1033'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -17,6 +17,10 @@ class Module(object):
                             "a DLL/EXE in to the PowerShell process or reflectively load a DLL in to a "
                             "remote process."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1055', 'TA0001'],
+
             'Background' : False,
 
             'OutputExtension' : None,

@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Returns the SID for the current of specified domain.'),
 
+            'Software': '',
+
+            'Techniques': ['T1178'],
+
             'Background' : True,
 
             'OutputExtension' : None,

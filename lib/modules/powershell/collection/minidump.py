@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Generates a full-memory dump of a process. Note: To dump another user\'s process, you must be running from an elevated prompt (e.g to dump lsass)'),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : True,
 
             'OutputExtension' : None,

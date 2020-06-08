@@ -21,6 +21,10 @@ class Module(object):
                             "correct format and matches the architecture of the process "
                             "you're injecting into."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1064'],
+
             'Background' : True,
 
             'OutputExtension' : None,

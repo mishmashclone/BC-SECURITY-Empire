@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Returns the domain controllers for the current domain or '
                             'the specified domain. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

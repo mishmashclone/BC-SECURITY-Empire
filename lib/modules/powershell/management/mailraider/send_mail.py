@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Sends emails using a custom or default template to specified target email addresses."),
 
+            'Software': '',
+
+            'Techniques': ['T1114'],
+
             'Background' : True,
 
             'OutputExtension' : None,

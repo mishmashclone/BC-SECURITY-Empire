@@ -18,6 +18,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('This module will logon to a member server using the agents account or a provided account, fetch the local accounts and perform a network based brute force attack.'),
 
+            'Software': '',
+
+            'Techniques': ['T1110'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

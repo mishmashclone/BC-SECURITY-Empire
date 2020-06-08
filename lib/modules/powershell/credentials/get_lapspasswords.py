@@ -9,6 +9,8 @@ class Module:
             'Name': 'Get-LAPSPasswords',
             'Author': ['kfosaaen', 'n0decaf'],
             'Description': "Dumps user readable LAPS passwords using kfosaaen's Get-LAPSPasswords.",
+            'Software': '',
+            'Techniques': ['T1003'],
             'Background' : True,
             'OutputExtension' : None,
 

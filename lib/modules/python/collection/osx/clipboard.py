@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': 'This module will write log output of clipboard to stdout (or disk).',
 
+            'Software': '',
+
+            'Techniques': ['T1115', 'T1414'],
+
             # True if the module needs to run in the background
             'Background': False,
 

@@ -11,15 +11,15 @@ class Module(object):
             'Name': 'Get-SQLServerInfo',
             'Author': ['@_nullbind', '@0xbadjuju'],
             'Description': ('Returns basic server and user information from target SQL Servers.'),
+            'Software': '',
+            'Techniques': ['T1046'],
             'Background' : True,
             'OutputExtension' : None,
-			
             'NeedsAdmin' : False,
             'OpsecSafe' : True,
             'Language' : 'powershell',
 			'MinPSVersion' : '2',
             'MinLanguageVersion' : '2',
-            
             'Comments': [
                 'https://github.com/NetSPI/PowerUpSQL/blob/master/PowerUpSQL.ps1'
             ]

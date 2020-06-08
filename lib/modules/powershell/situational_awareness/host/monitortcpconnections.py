@@ -19,6 +19,10 @@ class Module(object):
             'Description': ('Monitors hosts for TCP connections to a specified domain name or IPv4 address.'
                             ' Useful for session hijacking and finding users interacting with sensitive services.'),
 
+            'Software': '',
+
+            'Techniques': ['T1049'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

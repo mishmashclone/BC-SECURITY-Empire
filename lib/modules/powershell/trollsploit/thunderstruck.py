@@ -14,6 +14,10 @@ class Module(object):
             'Description': ("Play's a hidden version of AC/DC's Thunderstruck video while "
                             "maxing out a computer's volume."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : True,
 
             'OutputExtension' : None,

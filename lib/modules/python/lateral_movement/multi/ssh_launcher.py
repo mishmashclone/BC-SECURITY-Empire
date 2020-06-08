@@ -15,6 +15,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': 'This module will send an launcher via ssh.',
 
+            'Software': '',
+
+            'Techniques': ['T1021'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

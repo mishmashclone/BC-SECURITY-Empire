@@ -13,6 +13,10 @@ class Module(object):
 
             'Description': ('Enumerates all loaded security packages (SSPs).'),
 
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1101'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -12,6 +12,10 @@ class Module(object):
 
             'Description': ("Converts a specified domain\\user to a domain sid."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : False,
 
             'OutputExtension' : None,

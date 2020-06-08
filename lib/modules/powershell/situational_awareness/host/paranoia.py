@@ -16,6 +16,10 @@ class Module(object):
             
             'Description': ('Continuously check running processes for the presence of suspicious users, members of groups, process names, and for any processes running off of USB drives.'),
 
+            'Software': '',
+
+            'Techniques': ['T1057'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -19,6 +19,10 @@ class Module(object):
                             "execution on a given DC, but needs to be run from"
                             "a user context with DA equivalent privileges."),
 
+            'Software': 'S0002',
+
+            'Techniques': ['T1098', 'T1003', 'T1081', 'T1207', 'T1075', 'T1097', 'T1145', 'T1101', 'T1178'],
+
             'Background' : True,
 
             'OutputExtension' : None,

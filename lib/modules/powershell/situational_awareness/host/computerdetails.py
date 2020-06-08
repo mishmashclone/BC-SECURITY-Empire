@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Enumerates useful information on the system. By default, all checks are run.'),
 
+            'Software': '',
+
+            'Techniques': ['T1082'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -16,6 +16,10 @@ class Module(object):
                             "function to patch the Windows terminal service to allow "
                             "multiple users to establish simultaneous RDP connections."),
 
+            'Software': '',
+
+            'Techniques': ['T1076'],
+
             'Background' : True,
 
             'OutputExtension' : None,

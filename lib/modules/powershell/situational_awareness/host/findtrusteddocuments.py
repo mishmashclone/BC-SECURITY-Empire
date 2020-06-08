@@ -21,6 +21,10 @@ class Module(object):
                             'exist on the host.  It will also enumerate trusted locations.'
                             ),
 
+            'Software': '',
+
+            'Techniques': ['T1135'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

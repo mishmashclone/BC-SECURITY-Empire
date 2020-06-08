@@ -16,6 +16,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Interacts with a HTTP REST API and returns the results back to the screen.'),
 
+            'Software': '',
+
+            'Techniques': ['T1006'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

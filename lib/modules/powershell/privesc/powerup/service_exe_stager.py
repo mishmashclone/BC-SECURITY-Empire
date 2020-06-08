@@ -15,6 +15,10 @@ class Module(object):
             'Description': ("Backs up a service's binary and replaces the original "
                             "with a binary that launches a stager.bat."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1087', 'T1038', 'T1031', 'T1034', 'T1057', 'T1012'],
+
             'Background' : True,
 
             'OutputExtension' : None,

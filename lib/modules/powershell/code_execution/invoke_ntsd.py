@@ -15,7 +15,11 @@ class Module(object):
             'Author': ['james fitts'],
             
             'Description': ("Use NT Symbolic Debugger to execute Empire launcher code"),
-            
+
+            'Software': '',
+
+            'Techniques': ['T1127'],
+
             'Background': True,
             
             'OutputExtension': None,

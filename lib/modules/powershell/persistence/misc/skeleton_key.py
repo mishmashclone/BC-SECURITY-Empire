@@ -16,6 +16,10 @@ class Module(object):
                             "to execute misc::skeleton to implant a skeleton key w/ password 'mimikatz'. "
                             "ONLY APPLICABLE ON DOMAIN CONTROLLERS!"),
 
+            'Software': 'S0194',
+
+            'Techniques': ['TA0003', 'T1098'],
+
             'Background' : True,
 
             'OutputExtension' : None,

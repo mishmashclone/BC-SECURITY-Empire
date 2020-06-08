@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Returns a list of all current users in a specified local group '
                             'on a local or remote machine. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

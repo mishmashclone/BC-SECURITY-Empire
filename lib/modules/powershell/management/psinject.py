@@ -17,6 +17,10 @@ class Module(object):
                             "from memory in a remote process. ProcID or "
                             "ProcName must be specified."),
 
+            'Software': '',
+
+            'Techniques': ['T1055'],
+
             'Background' : True,
 
             'OutputExtension' : None,

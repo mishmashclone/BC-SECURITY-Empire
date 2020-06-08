@@ -13,7 +13,11 @@ class Module(object):
             
             'Description': ('Disables the machine account for the target system '
                             'from changing its password automatically.'),
-            
+
+            'Software': '',
+
+            'Techniques': ['TA0003'],
+
             'Background': False,
             
             'OutputExtension': None,

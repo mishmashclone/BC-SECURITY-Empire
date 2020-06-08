@@ -23,6 +23,10 @@ class Module(object):
 			    'Run "shell net accounts" on a valid agent to determine the lockout '
 		            'threshold. VERY noisy! Generates a ton of traffic on the DCs.' ),
 
+            'Software': '',
+
+            'Techniques': ['T1135', 'T1187'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

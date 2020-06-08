@@ -42,7 +42,7 @@ class Users():
         """
         Add new user to cache
         """
-        last_logon = helpers.get_datetime()
+        last_logon = helpers.getutcnow()
         conn = self.get_db_connection()
         message = False
 
@@ -102,7 +102,7 @@ class Users():
         return message
 
     def user_login(self, user_name, password):
-        last_logon = helpers.get_datetime()
+        last_logon = helpers.getutcnow()
         conn = self.get_db_connection()
 
         try:

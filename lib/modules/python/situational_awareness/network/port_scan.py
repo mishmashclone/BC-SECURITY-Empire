@@ -16,6 +16,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Simple Port Scanner.'),
 
+            'Software': '',
+
+            'Techniques': ['T1046'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

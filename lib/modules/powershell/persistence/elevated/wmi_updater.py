@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Persist a stager (or script) using a permanent WMI subscription. This has a difficult detection/removal rating.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1084'],
+
             'Background' : False,
 
             'OutputExtension' : None,

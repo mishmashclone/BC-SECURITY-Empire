@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': 'This module will enumerate the basic items needed for OP.',
 
+            'Software': '',
+
+            'Techniques': ['T1082'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

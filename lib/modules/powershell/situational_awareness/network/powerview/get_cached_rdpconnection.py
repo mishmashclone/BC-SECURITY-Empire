@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Uses remote registry functionality to query all entries for the '
                             'Windows Remote Desktop Connection Client" on a machine. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1076'],
+
             'Background' : True,
 
             'OutputExtension' : None,

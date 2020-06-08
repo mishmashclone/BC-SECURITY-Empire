@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Set reversible encryption on a given domain account and then '
                             'force the password to be set on next user login.'),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : True,
 
             'OutputExtension' : None,

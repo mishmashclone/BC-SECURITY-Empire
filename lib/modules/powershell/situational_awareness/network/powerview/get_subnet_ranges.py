@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Pulls hostnames from AD, performs a Reverse DNS lookup, and parses the output into ranges.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1016'],
+
             'Background' : True,
 
             'OutputExtension' : None,

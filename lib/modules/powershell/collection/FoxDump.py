@@ -19,6 +19,10 @@ class Module(object):
             'Description': ('This module will dump any saved passwords from Firefox to the console. This should work for any version'
                             'of Firefox above version 32. This will only be successful if the master password is blank or has not been set.'),
 
+            'Software': '',
+
+            'Techniques': ['T1503'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

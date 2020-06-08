@@ -18,6 +18,10 @@ class Module:
                 'LSASS.\n'
                 'https://github.com/eladshamir/Internal-Monologue'),
 
+            'Software': '',
+
+            'Techniques': ['T1003'],
+
             'Background': False,
 
             'OutputExtension': None,

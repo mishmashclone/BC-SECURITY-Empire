@@ -18,6 +18,10 @@ class Module(object):
             'Description': ('This module will dump ccache kerberos'
                             'tickets to the specified directory'),
 
+            'Software': '',
+
+            'Techniques': ['T1208'],
+
             # True if the module needs to run in the background
             'Background': False,
 

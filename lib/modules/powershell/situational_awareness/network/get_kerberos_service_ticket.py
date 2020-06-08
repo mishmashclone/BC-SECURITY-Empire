@@ -19,6 +19,10 @@ class Module(object):
             # More verbose multi-line description of the module
             'Description': ('Retrieves IP addresses and usernames using event ID 4769 this can allow identification of a users machine. Can only run on a domain controller.'),
 
+            'Software': '',
+
+            'Techniques': ['T1097'],
+
             # True if the module needs to run in the background
             'Background': False,
 

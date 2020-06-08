@@ -16,6 +16,10 @@ class Module(object):
                             'that this module exposes only a subset of Inveigh\'s parameters. Inveigh can be used '
                             'through Empire\'s scriptimport and scriptcmd if additional parameters are needed.'),
 
+            'Software': '',
+
+            'Techniques': ['T1171'],
+
             'Background' : True,
 
             'OutputExtension' : None,

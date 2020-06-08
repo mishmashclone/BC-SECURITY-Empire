@@ -21,6 +21,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Spawn an AROX relay to extend a SOCKS proxy through your agent.'),
 
+            'Software': '',
+
+            'Techniques': ['T1090'],
+
             # True if the module needs to run in the background
             'Background': True,
 

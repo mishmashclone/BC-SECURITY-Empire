@@ -15,7 +15,11 @@ class Module(object):
             'Description': ("Bypasses UAC (even with Always Notify level set) by by performing an registry modification"
                             " of the \"windir\" value in \"Environment\" based on James Forshaw findings"
                             "(https://tyranidslair.blogspot.cz/2017/05/exploiting-environment-variables-in.html)"),
-        
+
+            'Software': '',
+
+            'Techniques': ['T1088'],
+
             'Background' : True,
 
             'OutputExtension' : None,

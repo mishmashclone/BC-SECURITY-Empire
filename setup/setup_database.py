@@ -102,8 +102,8 @@ c.execute('''CREATE TABLE "agents" (
     "os_details" text,
     "session_key" text,
     "nonce" text,
-    "checkin_time" text,
-    "lastseen_time" text,
+    "checkin_time" timestamp,
+    "lastseen_time" timestamp,
     "parent" text,
     "children" text,
     "servers" text,
@@ -125,7 +125,8 @@ c.execute('''CREATE TABLE "listeners" (
     "listener_type" text,
     "listener_category" text,
     "enabled" boolean,
-    "options" blob
+    "options" blob,
+    "created_at" timestamp
     )''')
 
 # type = hash, plaintext, token
@@ -148,7 +149,7 @@ c.execute('''CREATE TABLE "taskings" (
     "data" text,
     "agent" text,
     "user_id" text,
-    "time_stamp" text,
+    "timestamp" timestamp,
     PRIMARY KEY(id, agent)
 )''')
 
@@ -166,7 +167,7 @@ c.execute('''CREATE TABLE "reporting" (
     "name" text,
     "event_type" text,
     "message" text,
-    "time_stamp" text,
+    "timestamp" timestamp,
     "taskID" integer,
     FOREIGN KEY(taskID) REFERENCES results(id)
 )''')
@@ -176,7 +177,7 @@ c.execute('''CREATE TABLE "users" (
     "username" text unique,
     "password" text,
     "api_token" text,
-    "last_logon_time" text,
+    "last_logon_time" timestamp,
     "enabled" boolean,
     "admin" boolean
 )''')

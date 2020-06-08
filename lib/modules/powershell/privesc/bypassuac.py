@@ -17,6 +17,10 @@ class Module(object):
                             "Empire uses components of MSF's bypassuac injection implementation as well as "
                             "an adapted version of PowerSploit's Invoke--Shellcode.ps1 script for backend lifting."),
 
+            'Software': '',
+
+            'Techniques': ['T1088'],
+
             'Background' : True,
 
             'OutputExtension' : None,

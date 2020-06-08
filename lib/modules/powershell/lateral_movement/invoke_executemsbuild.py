@@ -18,6 +18,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('This module utilizes WMI and MSBuild to compile and execute an xml file containing an Empire launcher'),
 
+            'Software': '',
+
+            'Techniques': ['TA0008', 'T1127', 'T1047'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

@@ -16,6 +16,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('This module can be used to identify applications vulnerable to dylib hijacking on a target system. This has been modified from the original to remove the dependancy for the macholib library.'),
 
+            'Software': '',
+
+            'Techniques': ['T1157'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

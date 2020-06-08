@@ -16,7 +16,11 @@ class Module(object):
             
             # more verbose multi-line description of the module
             'Description': ('Pull keys and values from an etcd configuration store'),
-            
+
+            'Software': '',
+
+            'Techniques': ['T1426'],
+
             # True if the module needs to run in the background
             'Background': True,
             

@@ -16,6 +16,10 @@ class Module(object):
                             "to execute misc::addsid to add sid history for a user. "
                             "ONLY APPLICABLE ON DOMAIN CONTROLLERS!"),
 
+            'Software': 'S0194',
+
+            'Techniques': ['TA0003', 'T1178'],
+
             'Background' : True,
 
             'OutputExtension' : None,

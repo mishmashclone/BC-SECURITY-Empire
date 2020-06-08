@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': 'This module will enumerate the entire chat and IMessage SQL Database.',
 
+            'Software': '',
+
+            'Techniques': ['T1081'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

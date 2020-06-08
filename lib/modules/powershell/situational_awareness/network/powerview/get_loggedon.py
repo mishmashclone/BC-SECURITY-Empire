@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Execute the NetWkstaUserEnum Win32API call to query a given host for actively logged on users. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['1134'],
+
             'Background' : True,
 
             'OutputExtension' : None,

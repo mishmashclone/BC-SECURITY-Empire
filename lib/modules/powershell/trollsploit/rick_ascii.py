@@ -12,6 +12,10 @@ class Module(object):
 
             'Description': ("Spawns a a new powershell.exe process that runs Lee Holmes' ASCII Rick Roll."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : False,
 
             'OutputExtension' : None,

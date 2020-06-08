@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Takes a computer (or GPO) object and determines what users/groups have administrative access over it. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1069'],
+
             'Background' : True,
 
             'OutputExtension' : None,

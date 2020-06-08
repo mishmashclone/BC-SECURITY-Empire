@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Uploads a .jpg image to the target and sets it as the desktop wallpaper.'),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : False,
 
             'OutputExtension' : None,

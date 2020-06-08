@@ -15,6 +15,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': 'This module will sniff all interfaces on the target, and write in pcap format.',
 
+            'Software': '',
+
+            'Techniques': ['T1040'],
+
             # True if the module needs to run in the background
             'Background': False,
 

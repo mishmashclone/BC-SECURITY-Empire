@@ -16,6 +16,10 @@ class Module(object):
                             "WARNING: Will prompt user for access to each key."
                             "On Newer versions of Sierra and High Sierra, this will also ask the user for their password for each key."),
 
+            'Software': '',
+
+            'Techniques': ['T1142'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

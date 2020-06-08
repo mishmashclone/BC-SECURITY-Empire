@@ -17,6 +17,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Takes a screenshot of an OSX desktop using the Python mss module. The python-mss module utilizes ctypes and the CoreFoundation library.'),
 
+            'Software': '',
+
+            'Techniques': ['T1113'],
+
             # True if the module needs to run in the background
             'Background': False,
 

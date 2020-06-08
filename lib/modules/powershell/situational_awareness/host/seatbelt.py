@@ -129,19 +129,20 @@ class Module(object):
         scriptEnd = 'Invoke-Seatbelt -Command "'
 
         # Add any arguments to the end execution of the script
-        for option, values in self.options.items():
-            if option.lower() != "agent":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
-                        if option.lower() == "quiet":
-                            option = 'q'
-                        scriptEnd += " -" + str(option)
-                    elif values['Value'].lower() == "false":
-                        pass
-                    elif option.lower() == "command":
-                        scriptEnd += " " + str(values['Value'])
-                    else:
-                        scriptEnd += " -" + str(option) + "=" + str(values['Value'])
+        if self.options['Command']['Value']:
+            scriptEnd += " " + str(self.options['Command']['Value'])
+        if self.options['Group']['Value']:
+            scriptEnd += " -group=" + str(self.options['Group']['Value'])
+        if self.options['Computername']['Value']:
+            scriptEnd += " -computername=" + str(self.options['Computername']['Value'])
+        if self.options['Username']['Value']:
+            scriptEnd += " -username=" + str(self.options['Username']['Value'])
+        if self.options['Password']['Value']:
+            scriptEnd += " -password=" + str(self.options['Password']['Value'])
+        if self.options['Full']['Value'].lower() == 'true':
+            scriptEnd += " -full"
+        if self.options['Quiet']['Value'] .lower() == 'true':
+            scriptEnd += " -q"
 
         scriptEnd = scriptEnd.replace('" ', '"')
         scriptEnd += '"'

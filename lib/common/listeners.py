@@ -6,6 +6,8 @@ Listener handling functionality for Empire.
 """
 from __future__ import print_function
 from __future__ import absolute_import
+
+from datetime import datetime
 from builtins import filter
 from builtins import str
 from builtins import object
@@ -226,7 +228,7 @@ class Listeners(object):
                 self.activeListeners[name] = {'moduleName': moduleName, 'options':listenerOptions}
                 pickledOptions = pickle.dumps(listenerObject.options)
                 cur = self.conn.cursor()
-                cur.execute("INSERT INTO listeners (name, module, listener_category, enabled, options) VALUES (?,?,?,?,?)", [name, moduleName, category, True, pickledOptions])
+                cur.execute("INSERT INTO listeners (name, module, listener_category, enabled, options, created_at) VALUES (?,?,?,?,?, ?)", [name, moduleName, category, True, pickledOptions, helpers.getutcnow()])
                 cur.close()
 
                 # dispatch this event

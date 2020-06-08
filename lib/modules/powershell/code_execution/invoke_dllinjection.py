@@ -16,6 +16,10 @@ class Module(object):
             'Description': ("Uses PowerSploit's Invoke-DLLInjection to inject "
                             " a Dll into the process ID of your choosing."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1055', 'TA0001'],
+
             'Background' : False,
 
             'OutputExtension' : None,

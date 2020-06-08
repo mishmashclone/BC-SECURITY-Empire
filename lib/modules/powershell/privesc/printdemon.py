@@ -22,13 +22,12 @@ class Module(object):
                             ' threat through Windows Print Spooler. The vulnerability allows an'
                             ' unprivileged user to gain system-level privileges. Based on'
                             ' @ionescu007 PoC. The module prints a dll named ualapi.dll which' 
-                            ' is loaded to System32. The mdoule then places a launcher in the'
-                            ' registry which executes code as system on restart. This is an'
-                            ' Empire launcher PoC using PrintDemon, the CVE-2020-1048 is a'
-                            ' privilege escalation vulnerability that allows a persistent'
-                            ' threat through Windows Print Spooler. The vulnerability allows an'
-                            ' unprivileged user to gain system-level privileges. Based on '
-                            ' @ionescu007 PoC.',
+                            ' is loaded to System32. The module then places a launcher in the'
+                            ' registry which executes code as system on restart.',
+
+            'Software': '',
+
+            'Techniques': ['TA0004'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -49,7 +48,7 @@ class Module(object):
             'MinLanguageVersion' : '5',
 
             # list of any references/other comments
-            'Comments': ['']
+            'Comments': ['https://github.com/BC-SECURITY/Invoke-PrintDemon']
         }
 
         # any options needed by the module, settable during runtime

@@ -15,6 +15,10 @@ class Module(object):
             'Description': ("Pillages the current user for their bash_history, ssh known hosts, "
                             "recent folders, etc. "),
 
+            'Software': '',
+
+            'Techniques': ['T1139'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

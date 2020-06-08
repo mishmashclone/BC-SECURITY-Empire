@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Invoke-Vnc executes a VNC agent in-memory and initiates a reverse connection, or binds to a specified port. Password authentication is supported.'),
 
+            'Software': '',
+
+            'Techniques': ['T1021'],
+
             'Background' : True,
 
             'OutputExtension' : None,

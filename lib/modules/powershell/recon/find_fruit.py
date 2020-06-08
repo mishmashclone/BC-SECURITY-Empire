@@ -15,6 +15,10 @@ class Module(object):
 
             'Description': ("Searches a network range for potentially vulnerable web services."),
 
+            'Software': '',
+
+            'Techniques': ['T1102', 'T1256'],
+
             'Background' : True,
 
             'OutputExtension' : None,

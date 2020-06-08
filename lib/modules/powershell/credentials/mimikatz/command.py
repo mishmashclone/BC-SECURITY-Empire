@@ -17,6 +17,10 @@ class Module(object):
                             "with a custom command. Note: Not all functions "
                             "require admin, but many do."),
 
+            'Software': 'S0002',
+
+            'Techniques': ['T1098', 'T1003', 'T1081', 'T1207', 'T1075', 'T1097', 'T1145', 'T1101', 'T1178'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Tests a username/password combination across a number of machines.'),
 
+            'Software': '',
+
+            'Techniques': ['T1135', 'T1187'],
+
             'Background' : True,
 
             'OutputExtension' : None,

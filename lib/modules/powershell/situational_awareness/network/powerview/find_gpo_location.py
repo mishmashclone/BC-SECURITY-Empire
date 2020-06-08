@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Takes a user/group name and optional domain, and determines the computers in the domain the user/group has local admin (or RDP) rights to. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1069'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Collects revelant information about a host and the current user context.'),
 
+            'Software': '',
+
+            'Techniques': ['T1082'],
+
             'Background' : True,
 
             'OutputExtension' : None,

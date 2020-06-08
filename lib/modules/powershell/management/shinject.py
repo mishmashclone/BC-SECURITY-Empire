@@ -19,6 +19,10 @@ class Module(object):
             # More verbose multi-line description of the module
             'Description': ('Injects a PIC shellcode payload into a target process, via Invoke-Shellcode'),
 
+            'Software': '',
+
+            'Techniques': ['T1055'],
+
             # True if the module needs to run in the background
             'Background': True,
 

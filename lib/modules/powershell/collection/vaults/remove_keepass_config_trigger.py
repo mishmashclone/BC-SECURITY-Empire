@@ -18,6 +18,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('This module removes all triggers from all KeePass configs found by Find-KeePassConfig.'),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             # True if the module needs to run in the background
             'Background' : True,
 

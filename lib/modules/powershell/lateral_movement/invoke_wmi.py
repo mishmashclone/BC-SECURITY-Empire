@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Executes a stager on remote hosts using WMI.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0008', 'T1047'],
+
             'Background' : False,
 
             'OutputExtension' : None,

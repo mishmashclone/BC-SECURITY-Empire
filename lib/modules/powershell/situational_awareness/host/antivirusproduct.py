@@ -13,6 +13,10 @@ class Module(object):
 
             'Description': ('Get antivirus product information.'),
 
+            'Software': '',
+
+            'Techniques': ['T1063'],
+
             'Background' : True,
 
             'OutputExtension' : None,

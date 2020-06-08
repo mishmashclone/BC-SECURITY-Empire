@@ -16,6 +16,10 @@ class Module(object):
                             "Windows vault credential objects including "
                             "cleartext web credentials."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1503'],
+
             'Background' : True,
 
             'OutputExtension' : None,

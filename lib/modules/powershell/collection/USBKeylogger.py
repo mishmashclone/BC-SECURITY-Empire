@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Logs USB keys pressed using Event Tracing for Windows (ETW)'),
 
+            'Software': '',
+
+            'Techniques': ['T1056'],
+
             'Background' : True,
 
             'OutputExtension' : None,

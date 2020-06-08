@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Runs @SadProcessor's beeping rickroll."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : True,
 
             'OutputExtension' : None,

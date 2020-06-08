@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Query the process lists of remote machines, searching for processes with a specific name or owned by a specific user. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1057'],
+
             'Background' : True,
 
             'OutputExtension' : None,

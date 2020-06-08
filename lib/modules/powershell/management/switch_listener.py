@@ -7,12 +7,16 @@ class Module(object):
     def __init__(self, mainMenu, params=[]):
 
         self.info = {
-            'Name': 'Spawn',
+            'Name': 'Switch-Listener',
 
             'Author': ['@harmj0y'],
 
             'Description': ('Overwrites the listener controller logic with the agent with the '
                             'logic from generate_comms() for the specified listener.'),
+
+            'Software': '',
+
+            'Techniques': [''],
 
             'Background' : False,
 

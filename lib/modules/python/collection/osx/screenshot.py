@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Takes a screenshot of an OSX desktop using screencapture and returns the data.'),
 
+            'Software': '',
+
+            'Techniques': ['T1113'],
+
             # True if the module needs to run in the background
             'Background': False,
 

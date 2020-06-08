@@ -12,6 +12,10 @@ class Module(object):
 
             'Description': ("Enables RDP on the remote machine and adds a firewall exception."),
 
+            'Software': '',
+
+            'Techniques': ['T1076'],
+
             'Background' : False,
 
             'OutputExtension' : None,

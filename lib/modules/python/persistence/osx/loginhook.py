@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Installs Empire agent via LoginHook.'),
 
+            'Software': '',
+
+            'Techniques': ['T1037'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

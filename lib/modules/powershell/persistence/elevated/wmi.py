@@ -12,8 +12,11 @@ class Module(object):
 
             'Author': ['@mattifestation', '@harmj0y', '@jbooz1'],
 
-            'Description': (
-            'Persist a stager (or script) using a permanent WMI subscription. This has a difficult detection/removal rating.'),
+            'Description': ('Persist a stager (or script) using a permanent WMI subscription. This has a difficult detection/removal rating.'),
+
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1047'],
 
             'Background': False,
 

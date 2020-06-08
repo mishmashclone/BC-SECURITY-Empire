@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Executes a command on a remote host via SSH.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0008', 'T1071'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Backdoor a specified .LNK file with a version that launches the original binary and then an Empire stager."),
 
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1204', 'T1023'],
+
             'Background' : True,
 
             'OutputExtension' : None,

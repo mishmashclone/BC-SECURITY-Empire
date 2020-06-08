@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': "Dumps hashes from the local system using Posh-SecMod's Invoke-PowerDump",
 
+            'Software': '',
+
+            'Techniques': ['T1003'],
+
             'Background' : True,
 
             'OutputExtension' : None,

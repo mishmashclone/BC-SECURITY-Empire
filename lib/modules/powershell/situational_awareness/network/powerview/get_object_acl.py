@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Returns the ACLs associated with a specific active directory object. Part of PowerView. '
                 'WARNING: specify a specific object, otherwise a huge amount of data will be returned.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1003'],
+
             'Background' : True,
 
             'OutputExtension' : None,

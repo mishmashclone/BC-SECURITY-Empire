@@ -20,7 +20,11 @@ class Module(object):
             'Description': ("Utilizes Powershell to to inject a Stephen Fewer "
                             "formed ReflectivePick which executes PS code"
                             "from memory in a remote process"),
-            
+
+            'Software': '',
+
+            'Techniques': ['T1055'],
+
             'Background': True,
             
             'OutputExtension': None,

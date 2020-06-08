@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Builds an 'Immediate' schtask to push out through a specified GPO."),
 
+            'Software': 'S0111',
+
+            'Techniques': ['TA0008', 'T1053'],
+
             'Background' : True,
 
             'OutputExtension' : None,

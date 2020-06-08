@@ -15,6 +15,11 @@ class Module(object):
             'Description': ('Spawns a new Listener as SYSTEM by'
                             ' leveraging the MS16-032 local exploit.'
                             ' Note: ~1/6 times the exploit won\'t work, may need to retry.'),
+
+            'Software': '',
+
+            'Techniques': ['T1068','TA0004'],
+
             'Background' : True,
 
             'OutputExtension' : None,

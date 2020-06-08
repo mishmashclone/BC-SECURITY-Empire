@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Monitors the clipboard on a specified interval for changes to copied text.'),
 
+            'Software': '',
+
+            'Techniques': ['T1115', 'T1414'],
+
             'Background' : True,
 
             'OutputExtension' : None,

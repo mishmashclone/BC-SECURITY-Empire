@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Reads text aloud via synthesized voice on target."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : True,
 
             'OutputExtension' : None,

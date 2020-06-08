@@ -18,6 +18,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('This module retrieves database mastey key information for unlocked KeePass database.'),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             # True if the module needs to run in the background
             'Background' : True,
 

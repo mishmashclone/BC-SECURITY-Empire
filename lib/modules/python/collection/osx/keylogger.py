@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ("Logs keystrokes to the specified file. Ruby based and heavily adapted from MSF's osx/capture/keylog_recorder. Kill the resulting PID when keylogging is finished and download the specified LogFile."),
 
+            'Software': '',
+
+            'Techniques': ['T1056'],
+
             # True if the module needs to run in the background
             'Background': False,
 

@@ -16,6 +16,10 @@ class Module(object):
                             'domain object, and then sets a specified "PropertyName" to a '
                             'specified "PropertyValue". Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1487'],
+
             'Background' : True,
 
             'OutputExtension' : None,

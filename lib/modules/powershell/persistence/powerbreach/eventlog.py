@@ -16,6 +16,10 @@ class Module(object):
 
             'Description': ('Starts the event-loop backdoor.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0003'],
+
             'Background' : False,
 
             'OutputExtension' : None,

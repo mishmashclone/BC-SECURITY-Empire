@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Runas knockoff. Will bypass GPO path restrictions.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0005', 'TA0004'],
+
             'Background' : False,
 
             'OutputExtension' : None,

@@ -18,6 +18,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('This module extracts out the trigger specifications from a KeePass 2.X configuration XML file.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0010'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

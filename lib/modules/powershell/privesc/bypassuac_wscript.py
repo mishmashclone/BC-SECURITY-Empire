@@ -15,7 +15,11 @@ class Module(object):
             'Description': ("Drops wscript.exe and a custom manifest into C:\\Windows\\ "
                             "and then proceeds to execute VBScript using the wscript executable"
                             "with the new manifest. The VBScript executed by C:\\Windows\\wscript.exe will run elevated."),
-        
+
+            'Software': '',
+
+            'Techniques': ['T1088'],
+
             'Background' : True,
 
             'OutputExtension' : None,

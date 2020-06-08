@@ -16,6 +16,10 @@ class Module(object):
                             "prompts the current user to enter their credentials into a native looking prompt. Notification stays on screen for ~25 seconds. "
                             "Requires Windows >= 8.1/2012"),
 
+            'Software': '',
+
+            'Techniques': ['T1141', 'T1514'],
+
             'Background': False,
 
             'OutputExtension': None,

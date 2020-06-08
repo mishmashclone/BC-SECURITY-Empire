@@ -9,6 +9,8 @@ class Module(object):
             'Name': 'enum_cred_store',
             'Author': ['BeetleChunks'],
             'Description': ('Dumps plaintext credentials from the Windows Credential Manager for the current interactive user.'),
+            'Software': '',
+            'Techniques': ['T1003'],
             'Background' : True,
             'OutputExtension' : None,
             'NeedsAdmin' : False,

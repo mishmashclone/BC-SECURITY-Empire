@@ -767,7 +767,8 @@ def lastseen(stamp, delay, jitter):
     Colorize the Last Seen field based on measured delays
     """
     try:
-        delta = getutcnow() - stamp
+        stamp_date = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S.%f%z")
+        delta = getutcnow() - stamp_date
 
         # Set min threshold for delay/jitter
         if delay < 1:
@@ -776,13 +777,13 @@ def lastseen(stamp, delay, jitter):
             jitter = 1
 
         if delta.total_seconds() > delay * (jitter + 1) * 7:
-            return color(stamp, "red")
+            return color(stamp[:-13], "red")
         elif delta.total_seconds() > delay * (jitter + 1) * 3:
-            return color(stamp, "yellow")
+            return color(stamp[:-13], "yellow")
         else:
-            return color(stamp, "green")
+            return color(stamp[:-13], "green")
     except Exception:
-        return stamp
+        return stamp[:-13]
 
 
 def unique(seq, idfun=None):

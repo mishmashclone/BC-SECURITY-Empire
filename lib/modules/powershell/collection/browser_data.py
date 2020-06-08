@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Search through browser history or bookmarks'),
 
+            'Software': '',
+
+            'Techniques': ['T1503'],
+
             'Background' : True,
 
             'OutputExtension' : None,

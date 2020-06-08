@@ -13,6 +13,10 @@ class Module(object):
 
             'Description': ("Displays a balloon reminder in the taskbar."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : True,
 
             'OutputExtension' : None,

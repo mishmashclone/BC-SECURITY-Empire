@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Maps all reachable domain trusts with .CSV output. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -15,6 +15,10 @@ class Module:
             # More verbose multi-line description of the module
             'Description': ('Validates username & password combination(s) across a host or group of hosts using the SMB protocol.'),
 
+            'Software': '',
+
+            'Techniques': ['T1135', 'T1187'],
+
             'Background': False,
 
             'OutputExtension': None,

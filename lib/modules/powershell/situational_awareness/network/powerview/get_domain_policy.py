@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Returns the default domain or DC policy for a given domain or domain controller. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -16,6 +16,10 @@ class Module(object):
                             "recent folders, etc. For logon.keychain, use https://github.com/n0fate/chainbreaker ."
                             "For other .plist files, check https://davidkoepi.wordpress.com/2013/07/06/macforensics5/"),
 
+            'Software': '',
+
+            'Techniques': ['T1139'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

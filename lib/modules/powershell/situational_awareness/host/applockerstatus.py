@@ -13,6 +13,8 @@ class Module(object):
             'Description': ('This script is used to query the current AppLocker '
                             'policy on the target and check the status of a user-defined '
                             'executable or all executables in a path.'),
+            'Software': '',
+            'Techniques': ['T1012'],
             'Background': False,
             'OutputExtension': None,
             'NeedsAdmin': False,

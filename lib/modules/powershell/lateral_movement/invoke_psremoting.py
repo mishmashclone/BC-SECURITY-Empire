@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Executes a stager on remote hosts using PSRemoting.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0008'],
+
             'Background' : False,
 
             'OutputExtension' : None,

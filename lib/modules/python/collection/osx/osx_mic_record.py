@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Records audio through the MacOS webcam mic '
                             'by leveraging the Apple AVFoundation API.'),
 
+            'Software': '',
+
+            'Techniques': ['T1512'],
+
             # True if the module needs to run in the background
             'Background': False,
 

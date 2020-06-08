@@ -16,6 +16,10 @@ class Module(object):
                             "to execute misc::memssp to log all authentication events "
                             "to C:\\Windows\\System32\\mimisla.log."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['TA0003', 'T1101'],
+
             'Background' : True,
 
             'OutputExtension' : None,

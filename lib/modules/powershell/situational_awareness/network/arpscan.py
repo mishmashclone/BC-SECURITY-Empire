@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Performs an ARP scan against a given range of IPv4 IP Addresses.'),
 
+            'Software': 'S0099',
+
+            'Techniques': ['T1016'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Executes a stager on remote hosts using SMBExec.ps1'),
 
+            'Software': '',
+
+            'Techniques': ['TA0008', 'T1187', 'T1135', 'T1047'],
+
             'Background' : False,
 
             'OutputExtension' : None,

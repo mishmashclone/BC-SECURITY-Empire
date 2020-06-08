@@ -20,6 +20,10 @@ class Module(object):
             'Description': ('description line 1'
                             'description line 2'),
 
+            'Software': 'SXXXX',
+
+            'Techniques': ['TXXXX', 'TXXXX'],
+
             # True if the module needs to run in the background
             'Background': False,
 

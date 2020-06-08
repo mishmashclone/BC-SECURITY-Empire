@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Adds a domain user or a local user to the current (or remote) machine, if permissions allow,"),
 
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1033'],
+
             'Background' : True,
 
             'OutputExtension' : None,

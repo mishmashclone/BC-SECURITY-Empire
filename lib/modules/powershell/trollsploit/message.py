@@ -13,6 +13,10 @@ class Module(object):
 
             'Description': ("Displays a specified message to the user."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : True,
 
             'OutputExtension' : None,

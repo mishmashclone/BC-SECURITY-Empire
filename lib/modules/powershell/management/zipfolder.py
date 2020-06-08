@@ -13,6 +13,10 @@ class Module(object):
 
             'Description': ('Zips up a target folder for later exfiltration.'),
 
+            'Software': '',
+
+            'Techniques': ['T1002'],
+
             'Background' : False,
 
             'OutputExtension' : None,

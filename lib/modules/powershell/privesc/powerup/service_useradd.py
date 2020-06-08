@@ -15,6 +15,10 @@ class Module(object):
             'Description': ("Modifies a target service to create a local user and add it "
                             "to the local administrators."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1087', 'T1038', 'T1031', 'T1034', 'T1057', 'T1012'],
+
             'Background' : True,
 
             'OutputExtension' : None,

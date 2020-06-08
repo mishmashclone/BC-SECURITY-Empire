@@ -12,6 +12,10 @@ class Module(object):
 
             'Description': ("Logs the current user (or all users) off the machine."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : False,
 
             'OutputExtension' : None,

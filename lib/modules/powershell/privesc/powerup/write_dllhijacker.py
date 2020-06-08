@@ -17,6 +17,10 @@ class Module(object):
                             "wlbsctrl.dll works well for Windows 7. "
                             "The machine will need to be restarted for the privesc to work."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1087', 'T1038', 'T1031', 'T1034', 'T1057', 'T1012'],
+
             'Background' : True,
 
             'OutputExtension' : None,

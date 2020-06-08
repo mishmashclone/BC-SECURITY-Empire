@@ -18,6 +18,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('This module adds a KeePass exfiltration trigger to all KeePass configs found by Find-KeePassConfig.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0010'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

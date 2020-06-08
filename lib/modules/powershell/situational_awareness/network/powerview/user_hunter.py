@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Finds which machines users of a specified group are logged into. '
                             'Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1033'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -17,6 +17,10 @@ class Module(object):
                             'related functions from a low privileged user, being able to capture both '
                             'plain-text traffic and encrypted traffic before encryption/after decryption.'),
 
+            'Software': '',
+
+            'Techniques': ['T1179', 'T1410'],
+
             'Background' : True,
 
             'OutputExtension' : None,

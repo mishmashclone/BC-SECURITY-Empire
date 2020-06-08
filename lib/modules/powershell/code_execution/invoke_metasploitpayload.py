@@ -13,6 +13,8 @@ class Module(object):
             'Description': ('Spawns a new, hidden PowerShell window that downloads'
                             'and executes a Metasploit payload. This relies on the' 
                             'exploit/multi/scripts/web_delivery metasploit module.'),
+            'Software': '',
+            'Techniques': ['T1055', 'TA0001'],
             'Background' : False,
             'OutputExtension' : None,
             'NeedsAdmin' : False,

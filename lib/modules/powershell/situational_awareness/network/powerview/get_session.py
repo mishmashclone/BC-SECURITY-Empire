@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Execute the NetSessionEnum Win32API call to query a given host for active sessions on the host. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

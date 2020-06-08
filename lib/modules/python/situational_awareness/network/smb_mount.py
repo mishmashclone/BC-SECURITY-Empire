@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': 'This module will attempt mount an smb share and execute a command on it.',
 
+            'Software': '',
+
+            'Techniques': ['T1135'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

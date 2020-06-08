@@ -14,7 +14,11 @@ class Module(object):
 
             'Description': ("Bypasses UAC by performing an image hijack on the .msc file extension and starting eventvwr.exe. "
                             "No files are dropped to disk, making this opsec safe."),
-        
+
+            'Software': '',
+
+            'Techniques': ['T1088'],
+
             'Background' : True,
 
             'OutputExtension' : None,

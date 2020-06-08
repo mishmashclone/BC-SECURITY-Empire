@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Returns a list of all the folders in the specified top level folder."),
 
+            'Software': '',
+
+            'Techniques': ['T1114'],
+
             'Background' : True,
 
             'OutputExtension' : None,

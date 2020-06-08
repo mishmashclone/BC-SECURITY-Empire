@@ -16,6 +16,10 @@ class Module(object):
                             'This locks the user out until the password can unlock the user keychain. '
                             'This allows you to prevent Sudo/su failed logon attempts. (credentials till I get them!)'),
 
+            'Software': '',
+
+            'Techniques': ['T1113'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

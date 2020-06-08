@@ -11,18 +11,15 @@ class Module(object):
         # Metadata info about the module, not modified during runtime
         self.info = {
             # Name for the module that will appear in module menus
-            'Name': 'Invoke-Something',
+            'Name': 'Invoke-Seatbelt',
 
             # List of one or more authors for the module
-            'Author': ['@yourname'],
+            'Author': ['@S3cur3Th1sSh1t', '@Cx01N'],
 
             # More verbose multi-line description of the module
-            'Description': ('description line 1 '
-                            'description line 2'),
-
-            'Software': 'SXXXX',
-
-            'Techniques': ['TXXXX', 'TXXXX'],
+            'Description': ('Seatbelt is a C# project that performs a number of security oriented '
+                            'host-survey "safety checks" relevant from both offensive and defensive '
+                            'security perspectives.'),
 
             # True if the module needs to run in the background
             'Background': False,
@@ -44,8 +41,7 @@ class Module(object):
 
             # List of any references/other comments
             'Comments': [
-                'comment',
-                'http://link/'
+                'https://github.com/GhostPack/Seatbelt'
             ]
         }
 
@@ -55,15 +51,47 @@ class Module(object):
             #   value_name : {description, required, default_value}
             'Agent': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description':   'Agent to grab a screenshot from.',
+                'Description':   'Agent to run on.',
                 'Required'   :   True,
                 'Value'      :   ''
             },
             'Command': {
-                'Description':   'Command to execute',
-                'Required'   :   True,
-                'Value'      :   'test'
-            }
+                'Description':   'Use available Seatbelt commands (AntiVirus, PowerShellEvents, UAC, etc). ',
+                'Required'   :   False,
+                'Value'      :   ''
+            },
+            'Group': {
+                'Description': 'Runs a predefined group of commands (All, User, System, Slack, Chrome, Remote'
+                               ', Misc)',
+                'Required': False,
+                'Value': 'all'
+            },
+            'Computername': {
+                'Description': 'Remote system to run enumeration against. This is performed over WMI via queries'
+                               'for WMI classes and WMI StdRegProv for registry enumeration.',
+                'Required': False,
+                'Value': ''
+            },
+            'Username': {
+                'Description': 'Alternate username for remote enumeration.',
+                'Required': False,
+                'Value': ''
+            },
+            'Password': {
+                'Description': 'Alternate password for remote enumeration.',
+                'Required': False,
+                'Value': ''
+            },
+            'Full': {
+                'Description': 'Display all results.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'Quiet': {
+                'Description': 'Runs in Quiet Mode.',
+                'Required': False,
+                'Value': 'False'
+            },
         }
 
         # Save off a copy of the mainMenu object to access external
@@ -83,23 +111,8 @@ class Module(object):
 
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
-
-        # The PowerShell script itself, with the command to invoke for
-        #   execution appended to the end. Scripts should output everything
-        #   to the pipeline for proper parsing.
-        #
-        # If you're planning on storing your script in module_source as a ps1,
-        #   or if you're importing a shared module_source, use the first
-        #   method to import it and the second to add any additional code and
-        #   launch it.
-        #
-        # If you're just going to inline your script, you can delete the first
-        #   method entirely and just use the second. The script should be
-        #   stripped of comments, with a link to any original reference script
-        #   included in the comments.
-        #
         # First method: Read in the source script from module_source
-        moduleSource = self.mainMenu.installPath + "/data/module_source/..."
+        moduleSource = self.mainMenu.installPath + "/data/module_source/situational_awareness/host/Invoke-Seatbelt.ps1"
         if obfuscate:
             helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
@@ -112,40 +125,30 @@ class Module(object):
         moduleCode = f.read()
         f.close()
 
-        # If you'd just like to import a subset of the functions from the
-        #   module source, use the following:
-        #   script = helpers.generate_dynamic_powershell_script(moduleCode, ["Get-Something", "Set-Something"])
         script = moduleCode
-
-        # Second method: For calling your imported source, or holding your
-        #   inlined script. If you're importing source using the first method,
-        #   ensure that you append to the script variable rather than set.
-        #
-        # The script should be stripped of comments, with a link to any
-        #   original reference script included in the comments.
-        #
-        # If your script is more than a few lines, it's probably best to use
-        #   the first method to source it.
-        #
-        # script += """
-        script = """
-function Invoke-Something {
-
-}
-Invoke-Something"""
-
-        scriptEnd = ""
+        scriptEnd = 'Invoke-Seatbelt -Command "'
 
         # Add any arguments to the end execution of the script
-        for option, values in self.options.items():
-            if option.lower() != "agent":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
-                        # if we're just adding a switch
-                        scriptEnd += " -" + str(option)
-                    else:
-                        scriptEnd += " -" + str(option) + " " + str(values['Value'])
+        if self.options['Command']['Value']:
+            scriptEnd += " " + str(self.options['Command']['Value'])
+        if self.options['Group']['Value']:
+            scriptEnd += " -group=" + str(self.options['Group']['Value'])
+        if self.options['Computername']['Value']:
+            scriptEnd += " -computername=" + str(self.options['Computername']['Value'])
+        if self.options['Username']['Value']:
+            scriptEnd += " -username=" + str(self.options['Username']['Value'])
+        if self.options['Password']['Value']:
+            scriptEnd += " -password=" + str(self.options['Password']['Value'])
+        if self.options['Full']['Value'].lower() == 'true':
+            scriptEnd += " -full"
+        if self.options['Quiet']['Value'] .lower() == 'true':
+            scriptEnd += " -q"
+
+        scriptEnd = scriptEnd.replace('" ', '"')
+        scriptEnd += '"'
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        # Restore the regular STDOUT object
         return script

@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Retrieves the plaintext password and other information for '
                             'accounts pushed through Group Policy Preferences.'),
 
+            'Software': '',
+
+            'Techniques': ['T1003'],
+
             'Background' : True,
 
             'OutputExtension' : None,

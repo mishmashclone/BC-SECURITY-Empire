@@ -16,9 +16,10 @@ class Module(object):
                             'principal names. The function will default to the current user\'s '
                             'domain and logon server, but an alternative domain controller '
                             'can be provided. UDP scanning of management servers is optional.'),
+            'Software': '',
+            'Techniques': ['T1046'],
             'Background': True,
             'OutputExtension': None,
-            
             'NeedsAdmin': False,
             'OpsecSafe': True,
             'Language': 'powershell',

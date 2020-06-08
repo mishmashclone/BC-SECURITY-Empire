@@ -12,6 +12,10 @@ class Module(object):
 
             'Description': ('Starts a packet capture on a host using netsh.'),
 
+            'Software': '',
+
+            'Techniques': ['T1040'],
+
             'Background' : False,
 
             'OutputExtension' : None,

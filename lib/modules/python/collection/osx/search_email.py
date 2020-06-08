@@ -13,7 +13,11 @@ class Module(object):
 
             # more verbose multi-line description of the module
             'Description': ("Searches for Mail .emlx messages, optionally only returning "
-                            "messages with the specified SeachTerm."),
+                            "messages with the specified SearchTerm."),
+
+            'Software': '',
+
+            'Techniques': ['T1114'],
 
             # True if the module needs to run in the background
             'Background' : False,

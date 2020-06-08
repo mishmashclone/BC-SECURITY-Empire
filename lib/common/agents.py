@@ -144,7 +144,7 @@ class Agents(object):
         Add an agent to the internal cache and database.
         """
 
-        currentTime = helpers.get_datetime()
+        currentTime = helpers.getutcnow()
         checkinTime = currentTime
         lastSeenTime = currentTime
 
@@ -169,7 +169,7 @@ class Agents(object):
             signal = json.dumps({
                 'print': True,
                 'message': message,
-                'timestamp': checkinTime,
+                'timestamp': checkinTime.isoformat(),
                 'event_type': 'checkin'
             })
             dispatcher.send(signal, sender="agents/{}".format(sessionID))
@@ -923,7 +923,7 @@ class Agents(object):
         """
 
         if not current_time:
-            current_time = helpers.get_datetime()
+            current_time = helpers.getutcnow()
         conn = self.get_db_connection()
         try:
             self.lock.acquire()
@@ -1067,7 +1067,7 @@ class Agents(object):
         agentName = sessionID
         # see if we were passed a name instead of an ID
         nameid = self.get_agent_id_db(sessionID)
-        timestamp = helpers.get_datetime()
+        timestamp = helpers.getutcnow()
 
         if nameid:
             sessionID = nameid
@@ -1100,7 +1100,7 @@ class Agents(object):
                     if pk is None:
                         pk = 0
                     pk = (pk + 1) % 65536
-                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, time_stamp) VALUES(?, ?, ?, ?, ?)", [pk, sessionID, task[:100], uid, timestamp])
+                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, timestamp) VALUES(?, ?, ?, ?, ?)", [pk, sessionID, task[:100], uid, timestamp])
 
                     # Create result for data when it arrives
                     cur.execute("INSERT INTO results (id, agent, user_id) VALUES (?,?,?)", (pk, sessionID, uid))
@@ -1110,7 +1110,7 @@ class Agents(object):
                     cur.execute("UPDATE agents SET taskings=? WHERE session_id=?", [json.dumps(agent_tasks), sessionID])
 
                     # update last seen time for user
-                    last_logon = helpers.get_datetime()
+                    last_logon = helpers.getutcnow()
                     cur.execute("UPDATE users SET last_logon_time = ? WHERE id = ?",
                                 (last_logon, uid))
 

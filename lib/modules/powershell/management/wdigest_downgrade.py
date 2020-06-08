@@ -14,7 +14,11 @@ class Module(object):
             
             'Description': ("Sets wdigest on the machine to explicitly use "
                             "logon credentials. Counters kb2871997."),
-            
+
+            'Software': '',
+
+            'Techniques': ['T1214'],
+
             'Background': False,
             
             'OutputExtension': None,

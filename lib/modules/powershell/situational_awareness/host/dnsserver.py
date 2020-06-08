@@ -13,6 +13,10 @@ class Module(object):
 
             'Description': ('Enumerates the DNS Servers used by a system.'),
 
+            'Software': '',
+
+            'Techniques': ['T1482', 'T1018'],
+
             'Background' : False,
 
             'OutputExtension' : None,

@@ -17,6 +17,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ("Extracts the /etc/passwd and /etc/shadow, unshadowing the result."),
 
+            'Software': '',
+
+            'Techniques': ['T1003'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

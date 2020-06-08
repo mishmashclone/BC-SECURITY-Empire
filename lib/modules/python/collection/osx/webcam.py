@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ("Takes a picture of a person through OSX's webcam with an ImageSnap binary."),
 
+            'Software': '',
+
+            'Techniques': ['T1125'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

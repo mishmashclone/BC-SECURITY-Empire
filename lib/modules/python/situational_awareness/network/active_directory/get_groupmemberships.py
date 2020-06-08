@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': 'This module check what groups a user is member of',
 
+            'Software': '',
+
+            'Techniques': ['T1482'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

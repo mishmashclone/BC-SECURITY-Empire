@@ -13,6 +13,8 @@ class Module(object):
             'Description': ('Returns column information from target SQL Servers. Supports '
                             'search by keywords, sampling data, and validating credit card '
                             'numbers.'),
+            'Software': '',
+            'Techniques': [''],
             'Background' : True,
             'OutputExtension' : None,
             

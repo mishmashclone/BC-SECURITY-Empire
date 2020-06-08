@@ -19,6 +19,10 @@ class Module(object):
                             'Note: Your shellcode must end in a ret (0xC3) and maintain proper stack '
                             'alignment or PowerShell will crash!'),
 
+            'Software': '',
+
+            'Techniques': ['T1064'],
+
             'Background' : False,
 
             'OutputExtension' : None,

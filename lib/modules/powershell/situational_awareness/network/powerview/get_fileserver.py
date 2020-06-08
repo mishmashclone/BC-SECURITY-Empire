@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Returns a list of all file servers extracted from user homedirectory, scriptpath, and profilepath fields. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1083'],
+
             'Background' : True,
 
             'OutputExtension' : None,

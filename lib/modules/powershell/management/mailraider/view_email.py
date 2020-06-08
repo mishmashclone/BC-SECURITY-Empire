@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Selects the specified folder and then outputs the email item at the specified index."),
 
+            'Software': '',
+
+            'Techniques': ['T1114'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ("Searches for keychain candidates and attempts to decrypt the user's keychain."),
 
+            'Software': '',
+
+            'Techniques': ['T1142'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

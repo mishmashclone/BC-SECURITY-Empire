@@ -19,6 +19,10 @@ class Module(object):
             'Description': ('Extract saved sessions & passwords for WinSCP, PuTTY, SuperPuTTY, FileZilla, '
                             'RDP, .ppk files, .rdp files, .sdtid files'),
 
+            'Software': '',
+
+            'Techniques': ['T1081'],
+
             # True if the module needs to run in the background
             'Background': False,
 

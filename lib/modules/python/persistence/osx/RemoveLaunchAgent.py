@@ -16,6 +16,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Remove an Empire Launch Daemon.'),
 
+            'Software': '',
+
+            'Techniques': ['T1055'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

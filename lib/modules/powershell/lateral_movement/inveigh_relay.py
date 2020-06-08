@@ -13,15 +13,19 @@ class Module(object):
             
             'Author': ['Kevin Robertson'],
             
-            'Description': (r'Inveigh\'s SMB relay function. This module can be used to relay incoming '
-                            r'HTTP/Proxy NTLMv1/NTLMv2 authentication requests to an SMB target. If the '
-                            r'authentication is successfully relayed and the account has the correct '
-                            r'privilege, a specified command or Empire launcher will be executed on the '
-                            r'target PSExec style. This module works best while also running collection/inveigh '
-                            r'with HTTP disabled. Note that this module exposes only a subset of Inveigh '
-                            r'Relay\'s parameters. Inveigh Relay can be used through Empire\'s scriptimport '
-                            r'and scriptcmd if additional parameters are needed.'),
-            
+            'Description': ('Inveigh\'s SMB relay function. This module can be used to relay incoming '
+                            'HTTP/Proxy NTLMv1/NTLMv2 authentication requests to an SMB target. If the '
+                            'authentication is successfully relayed and the account has the correct '
+                            'privilege, a specified command or Empire launcher will be executed on the '
+                            'target PSExec style. This module works best while also running collection/inveigh '
+                            'with HTTP disabled. Note that this module exposes only a subset of Inveigh '
+                            'Relay\'s parameters. Inveigh Relay can be used through Empire\'s scriptimport '
+                            'and scriptcmd if additional parameters are needed.'),
+
+            'Software': '',
+
+            'Techniques': ['TA0008', 'T1171'],
+
             'Background': True,
             
             'OutputExtension': None,

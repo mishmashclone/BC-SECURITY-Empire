@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Inject artificial credentials into LSASS.'),
 
+            'Software': '',
+
+            'Techniques': ['T1177'],
+
             'Background' : False,
 
             'OutputExtension' : None,

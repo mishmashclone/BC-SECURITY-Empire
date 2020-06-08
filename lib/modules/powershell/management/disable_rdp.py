@@ -12,6 +12,10 @@ class Module(object):
 
             'Description': ("Disables RDP on the remote machine."),
 
+            'Software': '',
+
+            'Techniques': ['T1076'],
+
             'Background' : False,
 
             'OutputExtension' : None,

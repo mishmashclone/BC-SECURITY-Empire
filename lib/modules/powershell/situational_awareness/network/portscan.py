@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Does a simple port scan using regular sockets, based '
                             '(pretty) loosely on nmap.'),
 
+            'Software': '',
+
+            'Techniques': ['T1046'],
+
             'Background' : True,
 
             'OutputExtension' : None,

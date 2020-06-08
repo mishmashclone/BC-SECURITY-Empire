@@ -12,6 +12,10 @@ class Module(object):
 
             'Description': ("Locks the workstation's display."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : False,
 
             'OutputExtension' : None,

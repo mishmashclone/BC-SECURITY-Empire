@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': 'This module will attempt to pull group policy preference passwords from SYSVOL',
 
+            'Software': '',
+
+            'Techniques': ['T1003'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

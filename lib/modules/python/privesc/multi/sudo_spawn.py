@@ -18,6 +18,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Spawns a new Empire agent using sudo.'),
 
+            'Software': 'T1169',
+
+            'Techniques': ['T1050'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

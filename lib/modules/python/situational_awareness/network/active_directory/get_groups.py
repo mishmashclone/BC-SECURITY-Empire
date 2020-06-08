@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': 'This module will list all groups in active directory',
 
+            'Software': '',
+
+            'Techniques': ['T1482'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

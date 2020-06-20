@@ -12,6 +12,8 @@ class Module(object):
             'Name': 'Invoke-Phant0m',
             'Author': ['@leesoh'],
             'Description': ('Kills Event Log Service Threads'),
+            'Software': '',
+            'Techniques': ['T1070', 'T1089'],
             'Background': False,
             'OutputExtension': None,
             'NeedsAdmin': True,

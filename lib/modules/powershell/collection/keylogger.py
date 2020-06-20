@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Logs keys pressed, time and the active window (when changed) to the keystrokes.txt file. This file is located in the agents downloads directory Empire/downloads/<AgentName>/keystrokes.txt.'),
 
+            'Software': '',
+
+            'Techniques': ['T1056'],
+
             'Background' : True,
 
             'OutputExtension' : None,

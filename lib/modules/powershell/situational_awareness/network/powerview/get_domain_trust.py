@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Return all domain trusts for the current domain or '
                             'a specified domain. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

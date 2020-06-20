@@ -19,6 +19,10 @@ class Module(object):
                             "ImpersonateUser or CreateProcess, you must specify "
                             "one of Username, ProcessID, Process, or ThreadId."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1134'],
+
             'Background' : False,
 
             'OutputExtension' : None,

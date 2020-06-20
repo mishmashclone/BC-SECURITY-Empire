@@ -15,6 +15,10 @@ class Module(object):
 
             'Description': ("Tests credentials against Basic Authentication."),
 
+            'Software': '',
+
+            'Techniques': ['T1071'],
+
             'Background' : True,
 
             'OutputExtension' : None,

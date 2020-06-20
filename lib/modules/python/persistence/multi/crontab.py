@@ -14,6 +14,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': 'This module establishes persistence via crontab',
 
+            'Software': '',
+
+            'Techniques': ['T1168'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

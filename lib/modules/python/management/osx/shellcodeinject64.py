@@ -20,6 +20,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('Inject shellcode into a x64 bit process'),
 
+            'Software': '',
+
+            'Techniques': ['T1064'],
+
             # True if the module needs to run in the background
             'Background': False,
 

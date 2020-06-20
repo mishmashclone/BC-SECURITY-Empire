@@ -12,9 +12,10 @@ class Module(object):
             'Author': ['@_nullbind', '@0xbadjuju'],
             'Description': ('Based on the instance name, test if SQL Server '
                             'is configured with default passwords.'),
+            'Software': '',
+            'Techniques': ['T1256'],
             'Background' : True,
             'OutputExtension' : None,
-            
             'NeedsAdmin' : False,
             'OpsecSafe' : True,
             'Language' : 'powershell',

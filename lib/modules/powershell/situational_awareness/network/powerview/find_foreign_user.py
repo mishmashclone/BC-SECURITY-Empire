@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Enumerates users who are in groups outside of their principal domain. Part of PowerView."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

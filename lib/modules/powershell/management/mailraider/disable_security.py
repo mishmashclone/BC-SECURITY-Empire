@@ -15,6 +15,10 @@ class Module(object):
             'Description': ("This function checks for the ObjectModelGuard, PromptOOMSend, and AdminSecurityMode registry keys for Outlook security. This function must be "
                             "run in an administrative context in order to set the values for the registry keys."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : True,
 
             'OutputExtension' : None,

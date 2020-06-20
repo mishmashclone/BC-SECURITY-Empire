@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Gets a list of all current groups in a domain, or all the groups a given user/group object belongs to. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

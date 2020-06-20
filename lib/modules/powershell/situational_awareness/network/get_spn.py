@@ -16,6 +16,10 @@ class Module(object):
                             'based on SPN service name, domain account, or domain group '
                             'via LDAP queries.'),
 
+            'Software': '',
+
+            'Techniques': ['T1207'],
+
             'Background' : True,
 
             'OutputExtension' : None,

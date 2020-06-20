@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Return information about a given forest, including the root domain and SID. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

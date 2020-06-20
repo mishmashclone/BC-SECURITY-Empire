@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Kills any process starting with a particular name."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : True,
 
             'OutputExtension' : None,

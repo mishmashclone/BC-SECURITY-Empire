@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Execute BloodHound data collection.'),
 
+            'Software': '',
+
+            'Techniques': ['T1484'],
+
             'Background' : True,
 
             'OutputExtension' : None,

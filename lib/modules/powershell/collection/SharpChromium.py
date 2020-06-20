@@ -18,6 +18,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('This module will retrieve cookies, history, saved logins from Google Chrome, Microsoft Edge, and Microsoft Edge Beta.'),
 
+            'Software': '',
+
+            'Techniques': ['T1503'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

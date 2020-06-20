@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Gets files which have been indexed by Windows desktop search.'),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background' : False,
 
             'OutputExtension' : None,

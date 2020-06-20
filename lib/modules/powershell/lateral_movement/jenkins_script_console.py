@@ -16,6 +16,10 @@ class Module(object):
 
             'Description': ("Exploit unauthenticated Jenkins Script consoles."),
 
+            'Software': '',
+
+            'Techniques': ['TA0008', 'T1210'],
+
             'Background' : True,
 
             'OutputExtension' : None,

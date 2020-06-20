@@ -15,6 +15,10 @@ class Module(object):
 
             'Description': ('Starts the Resolver Backdoor.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['TA0003'],
+
             'Background' : False,
 
             'OutputExtension' : None,

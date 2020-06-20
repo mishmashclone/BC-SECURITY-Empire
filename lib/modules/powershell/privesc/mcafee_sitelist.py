@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Retrieves the plaintext passwords for found McAfee's SiteList.xml files."),
 
+            'Software': '',
+
+            'Techniques': ['T1003'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -13,6 +13,10 @@ class Module(object):
             # list of one or more authors for the module
             'Author': ['@rvrsh3ll'],
 
+            'Software': 'S0179',
+
+            'Techniques': ['T1003'],
+
             # more verbose multi-line description of the module
             'Description': ("Port of huntergregal mimipenguin. Harvest's current user's cleartext credentials."),
 

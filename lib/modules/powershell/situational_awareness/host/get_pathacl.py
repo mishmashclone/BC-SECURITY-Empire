@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Enumerates the ACL for a given file path."),
 
+            'Software': '',
+
+            'Techniques': ['T1083'],
+
             'Background' : True,
 
             'OutputExtension' : None,

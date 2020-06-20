@@ -19,6 +19,10 @@ class Module(object):
             'Description': ('This module will generate traffic on a provided range of ports '
                             'and supports both TCP and UDP. Useful to identify direct egress channels.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0010'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

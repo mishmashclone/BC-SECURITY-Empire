@@ -15,6 +15,10 @@ class Module(object):
             'Description': ('Finds machines on the local domain where the current user has '
                             'local administrator access. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1069'],
+
             'Background' : True,
 
             'OutputExtension' : None,

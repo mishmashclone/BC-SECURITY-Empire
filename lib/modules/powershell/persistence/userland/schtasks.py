@@ -15,6 +15,10 @@ class Module(object):
 
             'Description': ('Persist a stager (or script) using schtasks. This has a moderate detection/removal rating.'),
 
+            'Software': 'S0111',
+
+            'Techniques': ['TA0003', 'T1053'],
+
             'Background' : False,
 
             'OutputExtension' : None,

@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Gets a list of all current subnets in a domain. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1016'],
+
             'Background' : True,
 
             'OutputExtension' : None,

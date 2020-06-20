@@ -70,7 +70,7 @@ import uuid
 import ipaddress
 import simplejson as json
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 ###############################################################
 #
@@ -634,10 +634,12 @@ def get_listener_options(listenerName):
 
 def get_datetime():
     """
-    Return the current date/time
+    Return the local current date/time
     """
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+def getutcnow():
+    return datetime.now(timezone.utc)
 
 def utc_to_local(utc):
     """
@@ -752,12 +754,21 @@ def color(string, color=None):
             return string
 
 
+def is_stale(lastseen : datetime, delay: int, jitter: float):
+    """Convenience function for calculating staleness"""
+    interval_max = (delay + delay * jitter) + 30
+    diff = getutcnow() - lastseen
+    stale = diff.total_seconds() > interval_max
+    return stale
+
+
 def lastseen(stamp, delay, jitter):
     """
     Colorize the Last Seen field based on measured delays
     """
     try:
-        delta = datetime.now() - datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S")
+        stamp_date = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S.%f%z")
+        delta = getutcnow() - stamp_date
 
         # Set min threshold for delay/jitter
         if delay < 1:
@@ -765,14 +776,14 @@ def lastseen(stamp, delay, jitter):
         if jitter < 1:
             jitter = 1
 
-        if delta.seconds > delay * (jitter + 1) * 7:
-            return color(stamp, "red")
-        elif delta.seconds > delay * (jitter + 1) * 3:
-            return color(stamp, "yellow")
+        if delta.total_seconds() > delay * (jitter + 1) * 7:
+            return color(stamp[:-13], "red")
+        elif delta.total_seconds() > delay * (jitter + 1) * 3:
+            return color(stamp[:-13], "yellow")
         else:
-            return color(stamp, "green")
+            return color(stamp[:-13], "green")
     except Exception:
-        return stamp
+        return stamp[:-13]
 
 
 def unique(seq, idfun=None):

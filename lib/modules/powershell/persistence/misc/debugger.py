@@ -16,6 +16,10 @@ class Module(object):
                             "another binary of your choice, or a listern stager. This can be launched from "
                             "the ease-of-access center (ctrl+U)."),
 
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1044'],
+
             'Background' : False,
 
             'OutputExtension' : None,

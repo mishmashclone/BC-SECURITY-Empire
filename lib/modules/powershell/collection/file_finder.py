@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Finds sensitive files on the domain.'),
 
+            'Software': '',
+
+            'Techniques': ['T1083'],
+
             'Background' : True,
 
             'OutputExtension' : None,

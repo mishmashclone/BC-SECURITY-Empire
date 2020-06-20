@@ -16,6 +16,10 @@ class Module(object):
                             " UAC will report Powershell is requesting Administrator privileges."
                             " Because this does not use the BypassUAC DLLs, it should not trigger any AV alerts."),
 
+            'Software': '',
+
+            'Techniques': ['T1088'],
+
             'Background' : True,
 
             'OutputExtension' : None,

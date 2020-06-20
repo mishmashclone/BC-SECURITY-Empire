@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Return all domains for a given forest. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

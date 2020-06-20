@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Returns a list of all fault-tolerant distributed file systems for a given domain. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1420'],
+
             'Background' : True,
 
             'OutputExtension' : None,

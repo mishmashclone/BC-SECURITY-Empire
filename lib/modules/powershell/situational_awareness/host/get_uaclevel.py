@@ -13,6 +13,10 @@ class Module(object):
 
             'Description': ('Enumerates UAC level'),
 
+            'Software': '',
+
+            'Techniques': ['T1033'],
+
             'Background' : False,
 
             'OutputExtension' : None,

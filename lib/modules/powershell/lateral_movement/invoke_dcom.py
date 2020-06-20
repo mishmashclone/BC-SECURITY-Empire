@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ('Executes a stager on remote hosts using DCOM.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0008', 'T1175'],
+
             'Background' : False,
 
             'OutputExtension' : None,

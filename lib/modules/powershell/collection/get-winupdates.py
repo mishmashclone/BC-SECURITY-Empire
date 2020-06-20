@@ -18,6 +18,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('This module will list the Microsoft update history, including pending updates, of the machine'),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             # True if the module needs to run in the background
             'Background' : True,
 

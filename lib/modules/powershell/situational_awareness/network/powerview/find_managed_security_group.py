@@ -16,6 +16,10 @@ class Module(object):
                             'have a manager set. It also determines whether the manager has the ability to add '
                             'or remove members from the group. Part of PowerView.'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1069'],
+
             'Background' : True,
 
             'OutputExtension' : None,

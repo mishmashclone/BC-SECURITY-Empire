@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Enumerates the proxy server and WPAD conents for the current user. Part of PowerView."),
 
+            'Software': '',
+
+            'Techniques': ['T1049'],
+
             'Background' : True,
 
             'OutputExtension' : None,

@@ -13,6 +13,10 @@ class Module(object):
 
             'Description': ('Installs a security support provider (SSP) dll.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1101'],
+
             'Background' : True,
 
             'OutputExtension' : None,

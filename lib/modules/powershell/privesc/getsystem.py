@@ -8,11 +8,15 @@ class Module(object):
     def __init__(self, mainMenu, params=[]):
 
         self.info = {
-            'Name': 'Get-SiteListPassword',
+            'Name': 'Get-System',
 
             'Author': ['@harmj0y', '@mattifestation'],
 
             'Description': ("Gets SYSTEM privileges with one of two methods."),
+
+            'Software': 'S0194',
+
+            'Techniques': ['TA0004'],
 
             'Background' : False,
 

@@ -21,6 +21,10 @@ class Module(object):
                             'It gathers information about the local system, users, and domain information.'
                             ),
 
+            'Software': '',
+
+            'Techniques': ['T1082'],
+
             # True if the module needs to run in the background
             'Background' : False,
 

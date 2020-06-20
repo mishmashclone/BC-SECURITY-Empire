@@ -14,7 +14,11 @@ class Module(object):
 
             'Description': ("Bypasses UAC by performing an registry modification for FodHelper (based on"
                             "https://winscripting.blog/2017/05/12/first-entry-welcome-and-uac-bypass/)"),
-        
+
+            'Software': '',
+
+            'Techniques': ['T1088'],
+
             'Background' : True,
 
             'OutputExtension' : None,

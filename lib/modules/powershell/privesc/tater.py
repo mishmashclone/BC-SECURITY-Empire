@@ -15,7 +15,11 @@ class Module(object):
             
             'Description': ('Tater is a PowerShell implementation of the Hot Potato '
                             'Windows Privilege Escalation exploit from @breenmachine and @foxglovesec.'),
-            
+
+            'Software': '',
+
+            'Techniques': ['TA0004'],
+
             'Background': True,
             
             'OutputExtension': None,

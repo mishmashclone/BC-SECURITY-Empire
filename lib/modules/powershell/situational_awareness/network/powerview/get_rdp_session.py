@@ -15,6 +15,10 @@ class Module(object):
             'Description': ("Query a given RDP remote service for active sessions and originating IPs (replacement for qwinsta). "
                             "Note: needs admin rights on the remote server you're querying"),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1076'],
+
             'Background' : True,
 
             'OutputExtension' : None,

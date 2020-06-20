@@ -17,6 +17,10 @@ class Module(object):
                             "to extract hashes from the Security Account Managers "
                             "(SAM) database."),
 
+            'Software': 'S0002',
+
+            'Techniques': ['T1098', 'T1003', 'T1081', 'T1207', 'T1075', 'T1097', 'T1145', 'T1101', 'T1178'],
+
             'Background' : True,
 
             'OutputExtension' : None,

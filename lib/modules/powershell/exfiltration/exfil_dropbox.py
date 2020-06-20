@@ -18,6 +18,10 @@ class Module(object):
             # More verbose multi-line description of the module
             'Description': ('Upload a file to dropbox '),
 
+            'Software': '',
+
+            'Techniques': ['TA0010'],
+
             # True if the module needs to run in the background
             'Background': False,
 

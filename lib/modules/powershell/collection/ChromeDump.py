@@ -18,6 +18,10 @@ class Module(object):
             # more verbose multi-line description of the module
             'Description': ('This module will decrypt passwords saved in chrome and display them in the console.'),
 
+            'Software': '',
+
+            'Techniques': ['T1503'],
+
             # True if the module needs to run in the background
             'Background' : True,
 

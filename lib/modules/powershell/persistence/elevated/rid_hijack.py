@@ -17,6 +17,10 @@ class Module:
                             'This module needs administrative privileges.'
                             ),
 
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1003'],
+
             'Background': False,
 
             'OutputExtension': None,

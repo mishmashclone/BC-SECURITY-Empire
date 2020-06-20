@@ -14,6 +14,10 @@ class Module(object):
 
             'Description': ("Enumerates all the members of a given domain's groups and finds users that are not in the queried domain. Part of PowerView."),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
+
             'Background' : True,
 
             'OutputExtension' : None,

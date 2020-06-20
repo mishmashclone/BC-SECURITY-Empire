@@ -15,7 +15,11 @@ class Module(object):
             
             'Description': ('Persist a stager (or script) via the HKLM:SOFTWARE\Microsoft\Windows\CurrentVersion\Run '
                             'registry key. This has an easy detection/removal rating.'),
-            
+
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1060'],
+
             'Background': False,
             
             'OutputExtension': None,

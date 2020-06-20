@@ -17,6 +17,10 @@ class Module(object):
                             'a Linux box to enumerate basic system info, and search for common' 
                             'privilege escalation vectors with a all in one shell script.'),
 
+            'Software': '',
+
+            'Techniques': ['TA0004'],
+
             # True if the module needs to run in the background
             'Background': False,
 

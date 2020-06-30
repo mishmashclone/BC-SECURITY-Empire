@@ -55,17 +55,15 @@ class Profile(MalleableObject):
             dict (str, obj): Serialized data (json)
         """
         dict1 = dict(super(Profile, self)._serialize().items())
-        d = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "get" : self.get._serialize(),
             "post" : self.post._serialize(),
             "stager" : self.stager._serialize(),
             "sleeptime" : self.sleeptime,
             "jitter" : self.jitter
-        }.items()
-        d.update(dict2)
+        }.items())
 
-        return d
+        return {**dict1, **dict2}
 
     @classmethod
     def _deserialize(cls, data):
@@ -239,7 +237,7 @@ class Profile(MalleableObject):
             MalleableError.throw(self.__class__, "ingest", "Invalid file: %s" % str(file))
 
         content = None
-        with open(file) as f:
+        with open(file, 'rb') as f:
             content = f.read()
 
         if not content:

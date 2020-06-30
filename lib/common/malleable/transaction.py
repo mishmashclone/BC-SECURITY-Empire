@@ -59,17 +59,14 @@ class MalleableRequest(MalleableObject):
             dict (str, obj)
         """
         dict1 = dict(super(MalleableRequest, self)._serialize().items())
-        d = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "url" : self.url,
             "verb" : self.verb,
             "extra" : self.extra,
             "headers" : self.headers,
             "body" : self.body
-        }.items()
-        d.update(dict2)
-
-        return d
+        }.items())
+        return {**dict1, **dict2}
 
     @classmethod
     def _deserialize(cls, data):
@@ -324,7 +321,7 @@ class MalleableRequest(MalleableObject):
         Args:
             parameters (dict(str, str))
         """
-        query = urllib.urlencode(parameters) if parameters else ""
+        query = urllib.parse.urlencode(parameters) if parameters else ""
         self._url = self._url._replace(query=query)
 
     def parameter(self, parameter, value):
@@ -403,27 +400,28 @@ class MalleableRequest(MalleableObject):
         data = None
         if terminator.type == Terminator.HEADER:
             data = self.get_header(terminator.arg)
-            if data: data = urllib.unquote(data)
+            if data:
+                data = urllib.parse.unquote(data)
         elif terminator.type == Terminator.PARAMETER:
             data = self.get_parameter(terminator.arg)
-            if data: data = urllib.unquote(data)
+            if data: data = urllib.parse.unquote(data)
         elif terminator.type == Terminator.URIAPPEND:
             if self.extra:
-                data = urllib.unquote(self.extra)
+                data = urllib.parse.unquote(self.extra)
             elif original.parameters:
                 for p in sorted(original.parameters, key=len, reverse=True):
                     known = original.parameters[p]
                     shown = self.get_parameter(p)
                     if shown and known.lower() in shown.lower() and len(shown) > len(known):
                         data = known.split(known)[-1]
-                        if data: data = urllib.unquote(data)
+                        if data: data = urllib.parse.unquote(data)
                         break
             else:
                 for known in sorted(original.uris, key=len, reverse=True):
                     shown = self.path
                     if known.lower() in shown.lower() and len(shown) > len(known):
                         data = shown.split(known)[-1]
-                        if data: data = urllib.unquote(data)
+                        if data: data = urllib.parse.unquote(data)
                         break
         elif terminator.type == Terminator.PRINT: data = self.body
         return data
@@ -463,15 +461,13 @@ class MalleableResponse(MalleableObject):
             dict (str, obj)
         """
         dict1 = dict(super(MalleableResponse, self)._serialize().items())
-        d = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "code" : self.code,
             "headers" : self.headers,
             "body" : self.body
-        }.items()
-        d.update(dict2)
+        }.items())
 
-        return d
+        return {**dict1, **dict2}
 
     @classmethod
     def _deserialize(cls, data):
@@ -565,7 +561,7 @@ class MalleableResponse(MalleableObject):
         data = None
         if terminator.type == Terminator.HEADER:
             data = self.get_header(terminator.arg)
-            if data: data = urllib.unquote(data)
+            if data: data = urllib.parse.unquote(data)
         elif terminator.type == Terminator.PRINT:
             data = self.body
         return data
@@ -603,14 +599,12 @@ class Transaction(MalleableObject):
             dict (str, obj)
         """
         dict1 = dict(super(Transaction, self)._serialize().items())
-        d = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "client" : self.client._serialize(),
             "server" : self.server._serialize()
-        }.items()
-        d.update(dict2)
+        }.items())
 
-        return d
+        return {**dict1, **dict2}
 
     @classmethod
     def _deserialize(cls, data):
@@ -727,15 +721,13 @@ class Transaction(MalleableObject):
                 dict (str, obj)
             """
             dict1 = dict(super(Transaction.Client, self)._serialize().items())
-            d = dict1.copy()
-            dict2 = {
+            dict2 = dict({
                 "uris" : self.uris,
                 "uris_x86" : self.uris_x86,
                 "uris_x64" : self.uris_x64
-            }.items()
-            d.update(dict2)
+            }.items())
 
-            return d
+            return {**dict1, **dict2}
 
         @classmethod
         def _deserialize(self, data):

@@ -45,39 +45,33 @@ class Get(Transaction):
         Returns:
             dict (str, obj)
         """
-        d = super(Get, self)._serialize()
-
+        d = dict(super(Get, self)._serialize())
         # Format Client
         if "client" in d:
             dict1 = dict(d["client"].items())
         else:
             dict1 = dict([])
-        dict0 = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "metadata": self.client.metadata._serialize()
-        }.items()
-        d["client"] = dict0.update(dict2)
+        }.items())
+        d["client"] = {**dict1, **dict2}
 
         # Format Server
         if "server" in d:
             dict1 = dict(d["server"].items())
         else:
             dict1 = dict([])
-        dict0 = dict1.copy()
-        dict2 = {
-            "output": self.client.metadata._serialize()
-        }.items()
-        d["server"] = dict0.update(dict2)
+        dict2 = dict({
+            "output": self.server.output._serialize()
+        }.items())
+        d["server"] = {**dict1, **dict2}
 
         # Build return message
         dict1 = dict(d.items())
-        dict0 = dict1.copy()
-        dict2 = {
+        dict2 = dict({
 
-        }.items()
-        dict0.update(dict2)
-
-        return dict0
+        }.items())
+        return {**dict1, **dict2}
 
     @classmethod
     def _deserialize(cls, data):
@@ -226,40 +220,35 @@ class Post(Transaction):
         Returns:
             dict (str, obj)
         """
-        d = super(Post, self)._serialize()
+        d = dict(super(Post, self)._serialize())
 
         # Format Client
         if "client" in d:
             dict1 = dict(d["client"].items())
         else:
             dict1 = dict([])
-        dict0 = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "id" : self.client.id._serialize(),
             "output" : self.client.output._serialize()
-        }.items()
-        d["client"] = dict0.update(dict2)
+        }.items())
+        d["client"] = {**dict1, **dict2}
 
         # Format Server
         if "server" in d:
             dict1 = dict(d["server"].items())
         else:
             dict1 = dict([])
-        dict0 = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "output": self.server.output._serialize()
-        }.items()
-        d["server"] = dict0.update(dict2)
+        }.items())
+        d["server"] = {**dict1, **dict2}
 
         # Build return message
         dict1 = dict(d.items())
-        dict0 = dict1.copy()
-        dict2 = {
+        dict2 = dict({
 
-        }.items()
-        dict0.update(dict2)
-
-        return dict0
+        }.items())
+        return {**dict1, **dict2}
 
     @classmethod
     def _deserialize(cls, data):
@@ -412,39 +401,34 @@ class Stager(Transaction):
         Returns:
             dict (str, obj)
         """
-        d = super(Stager, self)._serialize()
+        d = dict(super(Stager, self)._serialize())
 
         # Format Client
         if "client" in d:
             dict1 = dict(d["client"].items())
         else:
             dict1 = dict([])
-        dict0 = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "metadata" : self.client.metadata._serialize()
-        }.items()
-        d["client"] = dict0.update(dict2)
+        }.items())
+        d["client"] = {**dict1, **dict2}
 
         # Format Server
         if "server" in d:
             dict1 = dict(d["server"].items())
         else:
             dict1 = dict([])
-        dict0 = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "output": self.server.output._serialize()
-        }.items()
-        d["server"] = dict0.update(dict2)
+        }.items())
+        d["server"] = {**dict1, **dict2}
 
         # Build return message
         dict1 = dict(d.items())
-        dict0 = dict1.copy()
-        dict2 = {
+        dict2 = dict({
 
-        }.items()
-        dict0.update(dict2)
-
-        return dict0
+        }.items())
+        return {**dict1, **dict2}
 
     @classmethod
     def _deserialize(cls, data):
@@ -525,7 +509,7 @@ class Stager(Transaction):
             if u.lower() in request.path.lower():
                 metadata = request.extract(self.client, self.client.metadata.terminator)
                 if metadata:
-                    return self.client.metadata.transform_r(metadata)
+                    return self.client.metadata.transform_r(metadata).decode('UTF-8')
         return None
 
     def construct_server(self, output):

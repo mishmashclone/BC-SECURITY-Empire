@@ -101,14 +101,12 @@ class Transform(MalleableObject):
             dict (str, obj)
         """
         dict1 = dict(super(Transform, self)._serialize().items())
-        d = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "type" : self.type,
             "arg" : self.arg if self.type != Transform.MASK else MalleableUtil.to_hex(self.arg[0])
-        }.items()
-        d.update(dict2)
+        }.items())
 
-        return d
+        return {**dict1, **dict2}
 
     @classmethod
     def _deserialize(cls, data):
@@ -180,7 +178,7 @@ class Transform(MalleableObject):
         """
         if string is None:
             MalleableError.throw(Transform.__class__, "append", "string argument must not be null")
-        self.transform = lambda data: data + string
+        self.transform = lambda data: data + string.encode('UTF-8')
         self.transform_r = lambda data: data[:-len(string)]
         self.generate_python = lambda var: "%(var)s+='%(string)s'\n" % {"var":var, "string":string}
         self.generate_python_r = lambda var: "%(var)s=%(var)s[:-%(len)i]\n" % {"var":var, "len":len(string)}
@@ -189,8 +187,8 @@ class Transform(MalleableObject):
 
     def _base64(self):
         """Configure the `base64` Transform, which base64 encodes an arbitrary input."""
-        self.transform = lambda data: base64.b64encode(data)
-        self.transform_r = lambda data: base64.b64decode(data)
+        self.transform = lambda data: base64.b64encode(data.encode('UTF-8'))
+        self.transform_r = lambda data: base64.b64decode(data.encode('UTF-8'))
         self.generate_python = lambda var: "%(var)s=base64.b64encode(%(var)s)\n" % {"var":var}
         self.generate_python_r = lambda var: "%(var)s=base64.b64decode(%(var)s)\n" % {"var":var}
         self.generate_powershell = lambda var: "%(var)s=[Convert]::ToBase64String([System.Text.Encoding]::Default.GetBytes(%(var)s));" % {"var":var}
@@ -198,10 +196,10 @@ class Transform(MalleableObject):
 
     def _base64url(self):
         """Configure the `base64url` Transform, which base64 encodes an arbitary input using url-safe characters."""
-        self.transform = lambda data: urllib.quote(base64.b64encode(data))
-        self.transform_r = lambda data: base64.b64decode(urllib.unquote(data))
-        self.generate_python = lambda var: "%(var)s=urllib.quote(base64.b64encode(%(var)s))\n" % {"var":var}
-        self.generate_python_r = lambda var: "%(var)s=base64.b64decode(urllib.unquote(%(var)s))\n" % {"var":var}
+        self.transform = lambda data: urllib.parse.quote(base64.b64encode(data.encode('UTF-8')))
+        self.transform_r = lambda data: base64.b64decode(urllib.parse.unquote(data))
+        self.generate_python = lambda var: "%(var)s=urllib.parse.quote(base64.b64encode(%(var)s))\n" % {"var":var}
+        self.generate_python_r = lambda var: "%(var)s=base64.b64decode(urllib.parse.unquote(%(var)s))\n" % {"var":var}
         self.generate_powershell = lambda var: "Add-Type -AssemblyName System.Web;%(var)s=[System.Web.HttpUtility]::UrlEncode([System.Convert]::ToBase64string([System.Text.Encoding]::Default.GetBytes(%(var)s)));" % {"var":var}
         self.generate_powershell_r = lambda var: "Add-Type -AssemblyName System.Web;%(var)s=[System.Text.Encoding]::Default.GetString([System.Convert]::FromBase64String([System.Web.HttpUtility]::UrlDecode(%(var)s)));" % {"var":var}
 
@@ -307,14 +305,12 @@ class Terminator(MalleableObject):
             dict (str, obj)
         """
         dict1 = dict(super(Terminator, self)._serialize().items())
-        d = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "type" : self.type,
             "arg" : self.arg
-        }.items()
-        d.update(dict2)
+        }.items())
 
-        return d
+        return {**dict1, **dict2}
 
     @classmethod
     def _deserialize(cls, data):
@@ -383,14 +379,12 @@ class Container(MalleableObject):
             dict (str, obj): Serialized data (json)
         """
         dict1 = dict(super(Container, self)._serialize().items())
-        d = dict1.copy()
-        dict2 = {
+        dict2 = dict({
             "transforms" : [t._serialize() for t in self.transforms],
             "terminator" : self.terminator._serialize()
-        }.items()
-        d.update(dict2)
+        }.items())
 
-        return d
+        return {**dict1, **dict2}
 
     @classmethod
     def _deserialize(cls, data):

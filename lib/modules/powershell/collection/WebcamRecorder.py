@@ -1,6 +1,8 @@
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -14,6 +16,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('This module uses the DirectX.Capture and DShowNET .NET assemblies to capture video from a webcam.'),
+
+            'Software': '',
+
+            'Techniques': ['T1125'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -207,7 +213,7 @@ Start-WebcamRecorder"""
         # read in the common module source code
         
         # add any arguments to the end execution of the script
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":

@@ -1,8 +1,11 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 import base64
 import re
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -16,6 +19,10 @@ class Module:
 
             # More verbose multi-line description of the module
             'Description': ('Bypass UAC module based on the script released by Matt Nelson @enigma0x3 at Derbycon 2017'),
+
+            'Software': '',
+
+            'Techniques': ['T1088'],
 
             # True if the module needs to run in the background
             'Background': False,
@@ -113,7 +120,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()

@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +15,10 @@ class Module:
             'Description': ("[!] WARNING: Experimental! Runs PowerSploit's Invoke-Mimikatz "
                             "function to patch the Windows terminal service to allow "
                             "multiple users to establish simultaneous RDP connections."),
+
+            'Software': '',
+
+            'Techniques': ['T1076'],
 
             'Background' : True,
 
@@ -63,7 +70,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()

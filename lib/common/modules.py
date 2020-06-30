@@ -6,15 +6,18 @@ Right now, just loads up all modules from the
 install path in the common config.
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
+from builtins import object
 import fnmatch
 import os
-import imp
-import messages
-import helpers
+import importlib.util
+from . import messages
+from . import helpers
 
 
-class Modules:
+class Modules(object):
 
     def __init__(self, MainMenu, args):
 
@@ -36,12 +39,11 @@ class Modules:
         Load Empire modules from a specified path, default to
         installPath + "/lib/modules/*"
         """
-        
         if rootPath == '':
             rootPath = "%s/lib/modules/" % (self.mainMenu.installPath)
 
         pattern = '*.py'
-        print helpers.color("[*] Loading modules from: %s" % (rootPath))
+        print(helpers.color("[*] Loading modules from: %s" % (rootPath)))
          
         for root, dirs, files in os.walk(rootPath):
             for filename in fnmatch.filter(files, pattern):
@@ -58,8 +60,11 @@ class Modules:
                     moduleName = "external/%s" %(moduleName)
 
                 # instantiate the module and save it to the internal cache
-                self.modules[moduleName] = imp.load_source(moduleName, filePath).Module(self.mainMenu, [])
-
+                spec = importlib.util.spec_from_file_location(moduleName, filePath)
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                self.modules[moduleName] = mod.Module(self.mainMenu, [])
+                self.modules[moduleName].enabled = True
 
     def reload_module(self, moduleToReload):
         """
@@ -82,17 +87,19 @@ class Modules:
                 # check to make sure we've found the specific module
                 if moduleName.lower() == moduleToReload.lower():
                     # instantiate the module and save it to the internal cache
-                    self.modules[moduleName] = imp.load_source(moduleName, filePath).Module(self.mainMenu, [])
-
+                    spec = importlib.util.spec_from_file_location(moduleName, filePath)
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    self.modules[moduleName] = mod.Module(self.mainMenu, [])
 
     def search_modules(self, searchTerm):
         """
         Search currently loaded module names and descriptions.
         """
 
-        print ''
+        print('')
 
-        for moduleName, module in self.modules.iteritems():
+        for moduleName, module in self.modules.items():
 
             if searchTerm.lower() == '' or searchTerm.lower() in moduleName.lower() or searchTerm.lower() in module.info['Description'].lower():
                 messages.display_module_search(moduleName, module)

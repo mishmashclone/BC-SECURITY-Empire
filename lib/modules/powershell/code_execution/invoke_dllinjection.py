@@ -1,7 +1,10 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import re
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +15,10 @@ class Module:
 
             'Description': ("Uses PowerSploit's Invoke-DLLInjection to inject "
                             " a Dll into the process ID of your choosing."),
+
+            'Software': 'S0194',
+
+            'Techniques': ['T1055', 'TA0001'],
 
             'Background' : False,
 
@@ -72,7 +79,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -82,7 +89,7 @@ class Module:
 
         scriptEnd = "\nInvoke-DllInjection"
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     scriptEnd += " -" + str(option) + " " + str(values['Value'])

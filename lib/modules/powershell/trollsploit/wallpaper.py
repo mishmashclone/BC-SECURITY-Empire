@@ -1,7 +1,9 @@
+from __future__ import print_function
+from builtins import object
 import base64
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -11,6 +13,10 @@ class Module:
             'Author': ['@harmj0y'],
 
             'Description': ('Uploads a .jpg image to the target and sets it as the desktop wallpaper.'),
+
+            'Software': '',
+
+            'Techniques': [''],
 
             'Background' : False,
 
@@ -135,10 +141,10 @@ namespace Wallpaper
 
                 script += " -WallpaperData \"" + base64.b64encode(data) + "\""
             except:
-                print helpers.color("[!] Error reading local image path.")
+                print(helpers.color("[!] Error reading local image path."))
                 return ""
         else:
-            print helpers.color("[!] Please specify a valid local image path.")
+            print(helpers.color("[!] Please specify a valid local image path."))
             return ""
         
         script += "; 'Set-Wallpaper executed'"

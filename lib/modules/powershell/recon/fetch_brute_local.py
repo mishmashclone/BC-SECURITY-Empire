@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -14,6 +17,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('This module will logon to a member server using the agents account or a provided account, fetch the local accounts and perform a network based brute force attack.'),
+
+            'Software': '',
+
+            'Techniques': ['T1110'],
 
             # True if the module needs to run in the background
             'Background' : True,
@@ -102,7 +109,7 @@ class Module:
         ServerType = self.options['ServerType']['Value']
         Loginacc = self.options['Loginacc']['Value']
         Loginpass = self.options['Loginpass']['Value']
-        print helpers.color("[+] Initiated using passwords: " + str(Passlist))
+        print(helpers.color("[+] Initiated using passwords: " + str(Passlist)))
 
 
         # if you're reading in a large, external script that might be updates,
@@ -115,7 +122,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -138,5 +145,5 @@ class Module:
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-        print helpers.color("[+] Command: " + str(scriptEnd))
+        print(helpers.color("[+] Command: " + str(scriptEnd)))
         return script

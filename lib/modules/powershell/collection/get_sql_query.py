@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -8,9 +11,10 @@ class Module:
             'Name': 'Get-SQLQuery',
             'Author': ['@_nullbind', '@0xbadjuju'],
             'Description': ('Executes a query on target SQL servers.'),
+            'Software': '',
+            'Techniques': [''],
             'Background' : True,
             'OutputExtension' : None,
-            
             'NeedsAdmin' : False,
             'OpsecSafe' : True,
             'Language' : 'powershell',
@@ -77,7 +81,7 @@ class Module:
             with open(moduleSource, 'r') as source:
                 script = source.read()
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         scriptEnd = " Get-SQLQuery"

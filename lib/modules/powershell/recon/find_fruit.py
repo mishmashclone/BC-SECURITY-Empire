@@ -1,7 +1,10 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import base64
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -11,6 +14,10 @@ class Module:
             'Author': ['@424f424f'],
 
             'Description': ("Searches a network range for potentially vulnerable web services."),
+
+            'Software': '',
+
+            'Techniques': ['T1102', 'T1256'],
 
             'Background' : True,
 
@@ -101,7 +108,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -113,7 +120,7 @@ class Module:
 
         showAll = self.options['ShowAll']['Value'].lower()
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent" and option.lower() != "showall":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":

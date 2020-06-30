@@ -1,6 +1,7 @@
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +11,10 @@ class Module:
             'Author': ['@lee_holmes', '@harmj0y'],
 
             'Description': ("Spawns a a new powershell.exe process that runs Lee Holmes' ASCII Rick Roll."),
+
+            'Software': '',
+
+            'Techniques': [''],
 
             'Background' : False,
 

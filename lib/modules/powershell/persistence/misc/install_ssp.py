@@ -1,6 +1,8 @@
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +12,10 @@ class Module:
             'Author': ['@mattifestation'],
 
             'Description': ('Installs a security support provider (SSP) dll.'),
+
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1101'],
 
             'Background' : True,
 
@@ -259,7 +265,7 @@ into lsass, the dll must export SpLsaModeInitialize.
     }
 } Install-SSP"""
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     script += " -" + str(option) + " " + str(values['Value']) 

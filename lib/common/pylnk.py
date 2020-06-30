@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Python library for reading and writing Windows shortcut files (.lnk)
 # Copyright 2011 Tim-Christian Mundt
@@ -21,17 +21,24 @@
 # not as clean as i wished
 # cannibal: @theguly
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import chr
+from builtins import str
+from builtins import range
+from builtins import object
 import sys, os, time, re
 from struct import pack, unpack
 from pprint import pformat,PrettyPrinter
 from datetime import datetime
-from StringIO import StringIO
+from io import StringIO
 pp = PrettyPrinter(indent=4)
 
 #---- constants
 
-_SIGNATURE = 'L\x00\x00\x00'
-_GUID = '\x01\x14\x02\x00\x00\x00\x00\x00\xc0\x00\x00\x00\x00\x00\x00F'
+_SIGNATURE = b'L\x00\x00\x00'
+_GUID = b'\x01\x14\x02\x00\x00\x00\x00\x00\xc0\x00\x00\x00\x00\x00\x00F'
 _LINK_INFO_HEADER_DEFAULT = 0x1C
 _LINK_INFO_HEADER_OPTIONAL = 0x24
 
@@ -51,7 +58,7 @@ WINDOW_NORMAL = "Normal"
 WINDOW_MAXIMIZED = "Maximized"
 WINDOW_MINIMIZED = "Minimized"
 _SHOW_COMMANDS = {1:WINDOW_NORMAL, 3:WINDOW_MAXIMIZED, 7:WINDOW_MINIMIZED}
-_SHOW_COMMAND_IDS = dict((v, k) for k, v in _SHOW_COMMANDS.iteritems())
+_SHOW_COMMAND_IDS = dict((v, k) for k, v in _SHOW_COMMANDS.items())
 
 DRIVE_UNKNOWN = "Unknown"
 DRIVE_NO_ROOT_DIR = "No root directory"
@@ -67,7 +74,7 @@ _DRIVE_TYPES = {0: DRIVE_UNKNOWN,
                 4: DRIVE_REMOTE,
                 5: DRIVE_CDROM,
                 6: DRIVE_RAMDISK}
-_DRIVE_TYPE_IDS = dict((v, k) for k, v in _DRIVE_TYPES.iteritems())
+_DRIVE_TYPE_IDS = dict((v, k) for k, v in _DRIVE_TYPES.items())
 
 _KEYS = {0x30: '0', 0x31: '1', 0x32: '2', 0x33: '3', 0x34: '4', 0x35: '5', 0x36: '6',
         0x37: '7', 0x38: '8', 0x39: '9', 0x41: 'A', 0x42: 'B', 0x43: 'C', 0x44: 'D',
@@ -79,7 +86,7 @@ _KEYS = {0x30: '0', 0x31: '1', 0x32: '2', 0x33: '3', 0x34: '4', 0x35: '5', 0x36:
         0x7B: 'F12', 0x7C: 'F13', 0x7D: 'F14', 0x7E: 'F15', 0x7F: 'F16', 0x80: 'F17',
         0x81: 'F18', 0x82: 'F19', 0x83: 'F20', 0x84: 'F21', 0x85: 'F22', 0x86: 'F23',
         0x87: 'F24', 0x90: 'NUM LOCK', 0x91: 'SCROLL LOCK'}
-_KEY_CODES = dict((v, k) for k, v in _KEYS.iteritems())
+_KEY_CODES = dict((v, k) for k, v in _KEYS.items())
 
 ROOT_MY_COMPUTER = 'MY_COMPUTER'
 ROOT_MY_DOCUMENTS = 'MY_DOCUMENTS'
@@ -100,13 +107,13 @@ _ROOT_LOCATIONS = {'{20D04FE0-3AEA-1069-A2D8-08002B30309D}': ROOT_MY_COMPUTER,
                   '{871C5380-42A0-1069-A2EA-08002B30309D}': ROOT_INTERNET,
                   '{645FF040-5081-101B-9F08-00AA002F954E}': ROOT_RECYLCE_BIN,
                   '{21EC2020-3AEA-1069-A2DD-08002B30309D}': ROOT_CONTROL_PANEL}
-_ROOT_LOCATION_GUIDS = dict((v, k) for k, v in _ROOT_LOCATIONS.iteritems())
+_ROOT_LOCATION_GUIDS = dict((v, k) for k, v in _ROOT_LOCATIONS.items())
 
 TYPE_FOLDER = 'FOLDER'
 TYPE_FILE = 'FILE'
 _ENTRY_TYPES = {0x31: 'FOLDER', 0x32: 'FILE',
                0x35: 'FOLDER (UNICODE)', 0x36: 'FILE (UNICODE)'}
-_ENTRY_TYPE_IDS = dict((v, k) for k, v in _ENTRY_TYPES.iteritems())
+_ENTRY_TYPE_IDS = dict((v, k) for k, v in _ENTRY_TYPES.items())
 
 _DRIVE_PATTERN = re.compile("(\w)[:/\\\\]*$")
 
@@ -143,9 +150,9 @@ def read_cstring(buf, padding=False):
     #TODO: encoding is not clear, unicode-escape has been necessary sometimes
     return s.decode('cp1252')
 
-def read_sized_string(buf, unicode=True):
+def read_sized_string(buf, str=True):
     size = read_short(buf)
-    if unicode:
+    if str:
         return buf.read(size*2).decode('utf-16-le')
     else:
         return buf.read(size)
@@ -169,43 +176,43 @@ def read_dos_datetime(buf):
     return datetime(year, month, day, hour, minute, second)
 
 def write_byte(val, buf):
-    buf.write(pack('<B', val))
+    buf.write(pack('<B', val).decode('UTF-8'))
 
 def write_short(val, buf):
-    buf.write(pack('<H', val))
+    buf.write(pack('<H', val).decode('latin-1'))
 
 def write_int(val, buf):
-    buf.write(pack('<I', val))
+    buf.write(pack('<I', val).decode('UTF-8'))
 
 def write_double(val, buf):
-    buf.write(pack('<Q', val))
+    buf.write(pack('<Q', val).decode('UTF-8'))
 
 def write_cstring(val, buf, padding=False):
     #val = val.encode('unicode-escape').replace('\\\\', '\\')
     val = val.encode('cp1252')
-    buf.write(val + '\x00')
+    buf.write((val + b'\x00').decode('UTF-8'))
     if padding and not len(val) % 2:
         buf.write('\x00')
 
 def write_cunicode(val, buf):
     uni = val.encode('utf-16-le')
-    buf.write(uni + '\x00\x00')
+    buf.write((uni + b'\x00\x00').decode('UTF-8'))
 
-def write_sized_string(val, buf, unicode=True):
+def write_sized_string(val, buf, str=True):
     size = len(val)
     write_short(size, buf)
-    if unicode:
+    if str:
         buf.write(val.encode('utf-16-le'))
     else:
         buf.write(val)
 
-def ret_sized_string(val, unicode=True):
+def ret_sized_string(val, str=True):
     size = len(val)
     ret = pack('<H', size)
-    if unicode:
+    if str:
         ret += val.encode('utf-16-le')
     else:
-        ret += val
+        ret += val.encode('UTF-8')
     return ret
 
 def put_bits(bits, target, start, count, length=16):
@@ -234,7 +241,7 @@ def convert_time_to_unix(windows_time):
 def convert_time_to_windows(unix_time):
     if isinstance(unix_time, datetime):
         unix_time = time.mktime(unix_time.timetuple())
-    return long((unix_time + 11644473600) * 10000000)
+    return int((unix_time + 11644473600) * 10000000)
 
 class FormatException(Exception):
     pass
@@ -269,7 +276,7 @@ class Flags(object):
         return object.__getattribute__(self, '_flags')[key]
     
     def __setitem__(self, key, value):
-        if not self._flags.has_key(key):
+        if key not in self._flags:
             raise KeyError("The key '%s' is not defined for those flags." % key)
         self._flags[key] = value
     
@@ -277,9 +284,9 @@ class Flags(object):
         return object.__getattribute__(self, '_flags')[key]
     
     def __setattr__(self, key, value):
-        if not self.__dict__.has_key('_flags'):
+        if '_flags' not in self.__dict__:
             object.__setattr__(self, key, value)
-        elif self.__dict__.has_key(key):
+        elif key in self.__dict__:
             object.__setattr__(self, key, value)
         else:
             self.__setitem__(key, value)
@@ -305,7 +312,7 @@ class RootEntry(object):
     
     def __init__(self, root):
         if root is not None:
-            if root in _ROOT_LOCATION_GUIDS.keys():
+            if root in list(_ROOT_LOCATION_GUIDS.keys()):
                 self.root = root
                 self.guid = _ROOT_LOCATION_GUIDS[root]
             else:
@@ -421,7 +428,8 @@ class PathSegmentEntry(object):
         entry_type = self.type
         short_name_len = len(self.short_name) + 1
         try:
-            self.short_name.decode("ascii")
+            if isinstance(self.short_name, bytes):
+                self.short_name.decode("ascii")
             short_name_is_unicode = False
             short_name_len += short_name_len % 2 # padding
         except (UnicodeEncodeError, UnicodeDecodeError):
@@ -524,7 +532,7 @@ class LinkInfo(object):
             self.offs_network_volume_table = read_int(lnk)
             self.offs_base_name = read_int(lnk)
             if self.header_size >= _LINK_INFO_HEADER_OPTIONAL:
-                print "TODO: read the unicode stuff" # TODO: read the unicode stuff
+                print("TODO: read the unicode stuff") # TODO: read the unicode stuff
             self._parse_path_elements(lnk)
         else:
             self.size = None
@@ -547,7 +555,7 @@ class Lnk(object):
 
     def __init__(self, f=None):
         self.file = None
-        if type(f) == str or type(f) == unicode:
+        if type(f) == str or type(f) == str:
             self.file = f
             try:
                 f = open(self.file, 'rb')
@@ -594,7 +602,7 @@ class Lnk(object):
             raise ValueError("File (name) missing for saveing the lnk")
         is_file = hasattr(f, 'write')
         if not is_file:
-            if not type(f) == str and not type(f) == unicode:
+            if not type(f) == str and not type(f) == str:
                 raise ValueError("Need a writeable object or a file name to save to, got %s" % f)
             if force_ext:
                 if not f.lower().endswith('.lnk'):
@@ -618,12 +626,12 @@ class Lnk(object):
         ret += pack('<I',_SHOW_COMMAND_IDS[self._show_command])
         ret += pack('<B',0) #hotkey
         ret += pack('<B',0) #hotkey
-        ret += ('\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00') # reserved
+        ret += (b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00') # reserved
 
         if self.link_flags.has_shell_item_id_list:
             siil = self.shell_item_id_list.bytes
             ret += pack('<H',len(siil))
-            ret += siil
+            ret += siil.encode('UTF-8')
         # TOFIX / TOINVESTIGATE
         #if self.link_flags.has_link_info:
             #self._link_info.write(lnk)
@@ -638,7 +646,7 @@ class Lnk(object):
         if self.link_flags.has_icon:
             ret += ret_sized_string(self.icon, self.link_flags.is_unicode)
 
-        ret += ('\x00\x00\x00\x00') # header_size
+        ret += (b'\x00\x00\x00\x00') # header_size
         return ret
 
     def write(self, lnk):
@@ -728,7 +736,7 @@ class Lnk(object):
     def _get_window_mode(self):
         return self._show_command
     def _set_window_mode(self, value):
-        if not value in _SHOW_COMMANDS.values():
+        if not value in list(_SHOW_COMMANDS.values()):
             raise ValueError("Not a valid window mode: %s. Choose any of pylnk.WINDOW_*" % value)
         self._show_command = value
     window_mode = show_command = property(_get_window_mode, _set_window_mode)

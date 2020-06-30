@@ -1,6 +1,7 @@
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -14,6 +15,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('Uses Python\'s socket.gethostbyname("example.com") function to resolve host names on a remote agent.'),
+
+            'Software': '',
+
+            'Techniques': ['T1018'],
 
             # True if the module needs to run in the background
             'Background' : True,
@@ -81,9 +86,9 @@ def main(target):
     return_Str = ''
     try:
         return_Str = str(socket.gethostbyname(target))
-        print "{} resolved to {} !".format(target, return_Str)
+        print("{} resolved to {} !".format(target, return_Str))
     except socket.error:
-        print "{} failed to resolve :(".format(target)
+        print("{} failed to resolve :(".format(target))
 
 target = "%s"
 

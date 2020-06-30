@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -8,15 +11,15 @@ class Module:
             'Name': 'Get-SQLServerInfo',
             'Author': ['@_nullbind', '@0xbadjuju'],
             'Description': ('Returns basic server and user information from target SQL Servers.'),
+            'Software': '',
+            'Techniques': ['T1046'],
             'Background' : True,
             'OutputExtension' : None,
-			
             'NeedsAdmin' : False,
             'OpsecSafe' : True,
             'Language' : 'powershell',
 			'MinPSVersion' : '2',
             'MinLanguageVersion' : '2',
-            
             'Comments': [
                 'https://github.com/NetSPI/PowerUpSQL/blob/master/PowerUpSQL.ps1'
             ]
@@ -76,7 +79,7 @@ class Module:
             with open(moduleSource, 'r') as source:
                 script = source.read()
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
         
         scriptEnd = ""
@@ -90,7 +93,7 @@ class Module:
                     auxScript = auxSource.read()
                     script += " " + auxScript
             except:
-                print helpers.color("[!] Could not read additional module source path at: " + str(auxModuleSource))
+                print(helpers.color("[!] Could not read additional module source path at: " + str(auxModuleSource)))
             scriptEnd = " Get-SQLInstanceDomain "
             if username != "":
                 scriptEnd += " -Username "+username

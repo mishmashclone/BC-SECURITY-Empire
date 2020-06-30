@@ -1,8 +1,213 @@
+6/7/2020
+------------
+- Version 3.2.2 Master Release
+	- Added Invoke-Seatbelt module - #222 (@Cx01N)
+	- Added timezone awareness timestamps - #220 (@Vinnybod)
+	- Added MITRE ATT&CK techniques and software IDs to modules - #223 (@Cx01N)
+
+5/25/2020
+------------
+- Version 3.2.2 Master Release
+	- Added Invoke-PrintDemon module - #210 (@Hubbl3, @Cx01N)
+	- Updated Mimikatz 2.2.0 20200519 Windows 10 2004 - #211 (build 19041) (@Cx01N)
+	- Fixed youtube URL in trollsploit/thunderstruck - #207(@Gutters2Gardens)
+	- Added API endpoints for plugins - #213 (@Hubbl3)
+	- Fixed keylogger issue when writing to file - #206 (@Cx01N)
+
+5/10/2020
+------------
+- Version 3.2.1 Master Release
+	- Updated reflective PE injection to work in Windows 10 - #202 (@Hubbl3)
+	- Updated Mimikatz to 20200502 TPM, IF & XOR - #200 (@Cx01N)
+	- Added option to run Mimikatz commands as non-elevated user - #193 (@Cx01N)
+	- Added safe string cast for reporting log - #203 (@Vinnybod)
+	- Fixed byte encoding error in invoke_wmi_debugger - #203 (@Cx01N)
+	- Removed Get-ExploitableSystem due to function being removed from PowerView- #194 (@Cx01N)
+	- Replaced Invoke-ReflectivePEInjection.ps1 with newer version - #202 (@Hubbl3)
+
+4/26/2020
+------------
+- Version 3.2.0 Master Release
+	- Added SharpChromium module - #185 (@tyraniter)
+	- Added BloodHound 3 module - #123 (@RaphAlmeida)
+	- Updated to Mimikatz 2.2.0 20200308 Masterkey - #189 (@Cx01N)
+	- Fixed issue with first character in randomizing function names - #169 (@Hubbl3)
+	- Fixed encoding error for slack tokens - #181 (@Cx01N)
+	- Fixed typo in python/persistence/multi/desktopfile.py - #182 (@Vinnybod)
+	- install.sh - Updated Debian 10 powershell install and python3 library installs - #187 (@Cx01N, @Vinnybod)
+	- Added single user endpoint to API - #188 (@Vinnybod)
+	- Updated default python launcher to use | python3 - #184 (@Cx01N)
+	- Converted python modules to python3 formatting - #187 (@Cx01N)
+	- Removed duplicate exec in python agent tasking - #187 (@Cx01N)
+	- Fixed errors in collection/linux/hashdump - #187 (@Cx01N)
+	- Fixed errors in osx/native-screenshot - #187 (@Cx01N)
+	- Fixed error handling issue for failed python modules - #187 (@Cx01N)
+	- Added prompt before reset script is ran using --reset flag - #190 (@Cx01N)
+	- Docker builds no longer require a database reset the first time and the certs are already generated. Default cmd starts the rest api. - #188 (@vinnybod)
+
+4/13/2020
+------------
+- Version 3.1.5 Master Release
+	- Fixed macro staging bug - #164 (@Hubbl3)
+	- Fixed TLS cipher suite issue with PowerShell 2 - #155 (@tyraniter)
+	- Updated API reporting for Starkiller integration - #168 (@Cx01N)
+
+4/4/2020
+------------
+- Version 3.1.4 Master Release
+	- Fixed non-ascii filename download error - #141 (@tyraniter)
+	- Updated payload evasion against Defender - #147 (@Hubbl3)
+	- Added reset flag to empire launcher - #147 (@Cx01N)
+	- Replaced imp package with importlib - #108 (@Cx01N)
+	- Fixed internal monologue issue with only running once - #43 (@Cx01N)
+	- Fixed ascii encode error in powerbreach modules - #150 (@CykuTW)
+
+3/22/2020
+------------
+- Version 3.1.3 Master Release
+	- Fixed errors with OneDrive listener - #40 (@Cx01N)
+	- Fixed REST API get config error - #131 (@chenxiangfang)
+	- Increased timer for stale agent checkins - #130 (@Cx01N)
+
+3/13/2020
+------------
+- Version 3.1.2 Master Release
+	- Fixed REST login error 500 on some version of SQLite - #120 (@justsly)
+	- Fixed generate launcher bug for redirector listener - #125 (@RedBulletTooling)
+
+3/8/2020
+------------
+- Version 3.1.1 Master Release
+	- Updated the /me endpoint that was added in 3.1.0 to return the full user object (@Vinnybod)
+	- Updated install script for Kali Powershell install - #118 (@Vinnybod)
+
+3/2/2020
+------------
+- Version 3.1.0 Master Release
+	- Added Multi-user Collaboration to API - #105 (@Cx01N & @Vinnybod)
+	- Updated to Mimikatz 2.2.0 20200208 - #104 (@Cx01N)
+	- Fixed incorrect header on python response packet (@Cx01N)
+	- Added progress bar to download function - #106 (@Cx01N)
+	- Expanded API functionality (@Vinnybod)
+	- Fixed str/byte in empire.py - #103 (@hypnoticpattern)
+	- Fixed typos in helpers.py - #103 (@hypnoticpattern)
+	- Fixed unsupported formatting for null hostname - #103 (@hypnoticpattern)
+	- Added function name aliasing to Invoke-Empire & Mimikatz - #109 (@Hubbl3)
+
+2/6/2020
+------------
+- Version 3.0.7 Master Release
+	- Fixed string decode error in API - #92 (@Cx01N)
+	- Fixed python3 conversion errors in backdoorlnkmacro, multi/war, osx/dylib, osx/pkg, and osx/macho launchers (@Cx01N & @hypnoticpattern)
+	- Fixed exception error in autorun queue - #95 (@Cx01N)
+	- Fixed report generation and SQL database errors (@Vinnybod & @Cx01N)
+
+1/31/2020
+------------
+- Version 3.0.6 Master Release
+	- Fixed osx stager generation byte/str errors - #84 (@hypnoticpattern)
+	- Fixed osx appbundle generation which was stripping the wrong string - #84 (@hypnoticpattern)
+	- Removed future imports from python3 launcher, so it works without any extra libraries - #81 (@Cx01N)
+	- Staging key no longer needs to be exactly 32 characters - #85 (@Cx01N)
+	- Add "stale" property to agents endpoint - #90 (@Vinnybod)
+	- Agents endpoint now returns agents without failing due to session_key encoding - #90 (@Vinnybod)
+	- Fixed an indentation bug in aes.py (@Cx01N)
+
+1/21/2020
+------------
+- Version 3.0.5 Master Release
+	- Fixed setup_database.py python3 issue - #75 (@linxon)
+	- Added loaded listener types to API - #78 (@Vinnybod)
+	- Fixed python launcherBase (@Cx01N)
+	- Updated Python 3.8 compatibility in stager - #72 (@complana)
+	- Fixed Powerup Invoke-allchecks issue - #64 (@SkiddieTech)
+	- Fixed shellcode stager - #76 (@Hubbl3)
+	- Fixed binary upload error - #55 (@Hubbl3)
+	- Fixed multi/bash error (@Cx01N)
+
+1/14/2020
+------------
+- Version 3.0.4 Master Release
+	- Fixed data/agents.py error - #70 (@sbrun)
+
+1/13/2020
+------------
+- Version 3.0.3 Master Release
+	- Updated RESTful API to Python 3 - #49 (@Cx01N)
+	- Fixed credential issue - #65 (@Hubbl3)
+	- Fixed python agent - #52 (@Cx01N, @Hubbl3)
+	- Cleaned up install files - #58 (@Vinnybod)
+
+1/7/2020
+------------
+- Version 3.0.2 Master Release
+	- Updated SystemRandom() and maintain API compatibility - #29 (@moloch--)
+	- Fixed invoke-shell code (@Hubbl3)
+	- Fixed meterpreter stager generation - #59 (@Hubbl3)
+	- Fixed lnk and dll launchers - #57 (@C01N)
+	- Fixed multi/macro launcher - #60 (@Hubbl3)
+	- Updated orphaned agent handling - #56 (@Hubbl3)
+	- Fixed pip3 install - #50 (@Hubbl3)
+	- Removed unsupported invoke-shellcode options (@Hubbl3)
+
+12/29/2019
+------------
+- Version 3.0.1 Master Release
+	- Fixed sysinfo error - #36 (@Invoke-Mimikatz)
+	- Fixed Debian 10.x docker - #38 (@Vinnybod)
+	- Fixed windows/macro stager error - #30 (@Cx01N)
+	- Fixed upload file error - #30 (@Cx01N)
+	- Fixed meterpreter error - #42 (@Cx01N)
+	- Fixed download file error (@Cx01N)
+	- Fixed scriptcmd error - #45 (@Invoke-Mimikatz)
+	- Fixed print creds error - #31 (@Hubbl3)
+	- Cleaned up print results (@Cx01N)
+	- Fixed long running module issue - #16 (@Hubbl3)
+
+Thank you to the contributors for spending time debugging with our team.
+Please contact us at Empire@bc-security.org if credit is incorrectly cited.
+
+12/22/2019
+------------
+- Version 3.0 Master Release
+	- Added Python 2.6/7 and 3.x compatibility (@Cx01N, @Hubbl3, @Vinnybod)
+	- Improved Windows Defender Evasion (@Hubbl3)
+	- Updated mimikatz binary in Invoke-Mimikatz to version 2.2.0 20191125 (@Cx01N)
+	- Fixed port assignment feature to listeners (@Cx01N)
+	- Fixed issues with http_Hop listener (@Cx01N)
+	- Fixed issues with redirector listener (@Cx01N)
+	- Fixed typos in default http listener payloads (@Hubbl3)
+	- Fixed psinject AV recognition (@Hubbl3) 
+	- Updated Invoke-Obfuscation to version 1.8 (@phra)
+	- Updated Invoke-Kerberoast (@Zero1t0) 
+	- Added ability to uselisteners on main menu (@Cx01N, @Hubbl3)
+	- Added Get-Subnet_Ranges (@benichmt1)
+	- Added Get-WinUpdates (@classity)
+	- Added Get-KerberosServiceTIcket (@OneLogicalMyth)
+	- Added Invoke-RID_Hijack (@r4wd3r)
+	- Added Invoke-internal_monologue (@audibleblink)
+	- Added Get-LAPSPasswords (@ippsec)
+	- Added Invoke-SMBLogin (@mvelazc0)
+	- Added Sherlock (@ippsec)
+	- Added Outlook Sandbox Evasion for Windows Macro launcher (@Cx01N, @Hubbl3)
+	- Added Randomized JA3/S signature (@Hubbl3)
+	- Added AMSI Bypass based on Tal Liberman's AMSI Bypass (@Hubbl3)
+	- Added Invoke-CredentialPhisher (@quickbreach)
+	- Made Security Bypasses configurable for launchers (@phra)
+	- Updated Readme to include install instruction, EOL of Core Developer support, new contribution rules (@Hubbl3)
+	- Added OSX shellcode stager (@johneiser)
+	- Added Invoke-Phant0m (@leesoh)
+	- Added Get-AppLockerConfig (@matterpreter)
+	- Added HostRecon (@RootUp)
+	- Added more informative PS agent directory listing (@winnie22)
+
+Credit was given based on Commit Author if something is credited incorrectly or we missed an update 
+please contact us at info@bc-security.org 
 
 03/15/2018
 ------------
 - Version 2.5 Master Release
-	- Patched launcher generation bug 
+	- Patched launcher generation bug
 	- Added OSX Mic record module #893 (@s0lst1c3)
 	- More robust password handling in ssh_command and ssh_launcher modules (@retro-engineer)
 	- Updated server responses for http listener (@xorrior) 
@@ -30,8 +235,6 @@
 	- Added onedrive listener for powershell agent (@mr64bit)
 	- Added opsec-safe aliases for ls, pwd, rm, mkdir, whoami, and getuid in the python agent 
 	- Updated office macro stager for python agent (@import-au)
-	
-
 
 01/04/2018
 ------------

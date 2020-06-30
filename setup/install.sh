@@ -1,102 +1,105 @@
 #!/bin/bash
-
-
-# functions
-
-# Install Powershell on Linux
 function install_powershell() {
-	if uname | grep -q "Darwin"; then
-		brew install openssl
-		brew install curl --with-openssl
-		brew tap caskroom/cask
-		brew cask install powershell
-	else
-		# Deb 9.x
-		if cat /etc/debian_version | grep 9.* ; then
-			# Install system components
-			sudo apt-get install -y apt-transport-https curl
-			# Import the public repository GPG keys
-			curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-			# Register the Microsoft Product feed
-			sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" > /etc/apt/sources.list.d/microsoft.list'
-			# Update the list of products
-			sudo apt-get update
-			# Install PowerShell
-			sudo apt-get install -y powershell
-		fi
-		# Deb 8.x
-		if cat /etc/debian_version | grep 8.* ; then
-			# Install system components
-			sudo apt-get install -y apt-transport-https curl gnupg
-			# Import the public repository GPG keys
-			curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-			# Register the Microsoft Product feed
-			sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-jessie-prod jessie main" > /etc/apt/sources.list.d/microsoft.list'
-			# Update the list of products
-			sudo apt-get update
-			# Install PowerShell
-			sudo apt-get install -y powershell
-		fi
-		#Ubuntu 14.x
-		if cat /etc/lsb-release | grep 'DISTRIB_RELEASE=14'; then
-			# Install system components
-			sudo apt-get install -y apt-transport-https curl
-			# Import the public repository GPG keys
-			curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-			# Register the Microsoft Ubuntu repository
-			curl https://packages.microsoft.com/config/ubuntu/14.04/prod.list | sudo tee /etc/apt/sources.list.d/microsoft.list
-			# Update the list of products
-			sudo apt-get update
-			# Install PowerShell
-			sudo apt-get install -y powershell
-		fi
-		#Ubuntu 16.x
-		if cat /etc/lsb-release | grep 'DISTRIB_RELEASE=16'; then
-			# Install system components
-			sudo apt-get install -y apt-transport-https curl
-			# Import the public repository GPG keys
-			curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-			# Register the Microsoft Ubuntu repository
-			curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee /etc/apt/sources.list.d/microsoft.list
-			# Update the list of products
-			sudo apt-get update
-			# Install PowerShell
-			sudo apt-get install -y powershell
-		fi
-		#Ubuntu 17.x
-		if  cat /etc/lsb-release | grep 'DISTRIB_RELEASE=17'; then
-			# Install system components
-			sudo apt-get install -y apt-transport-https curl
-			# Import the public repository GPG keys
-			curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-			# Register the Microsoft Ubuntu repository
-			curl https://packages.microsoft.com/config/ubuntu/17.04/prod.list | sudo tee /etc/apt/sources.list.d/microsoft.list
-			# Update the list of products
-			sudo apt-get update
-			# Install PowerShell
-			sudo apt-get install -y powershell
-		fi
-		#Kali Linux
-		if cat /etc/lsb-release | grep -i 'Kali'; then
-			# Install prerequisites
-			apt-get install -y curl gnupg apt-transport-https
-			# Import the public repository GPG keys
-			curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-			# Register the Microsoft Product feed
-			sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" > /etc/apt/sources.list.d/microsoft.list'
-			# Update the list of products
-			apt-get update
-			# Install PowerShell
-			apt-get install -y powershell
-		fi
-	 fi
-        if ls /opt/microsoft/powershell/*/DELETE_ME_TO_DISABLE_CONSOLEHOST_TELEMETRY; then
-            rm /opt/microsoft/powershell/*/DELETE_ME_TO_DISABLE_CONSOLEHOST_TELEMETRY
-        fi
+	# Deb 10.x
+	if cat /etc/debian_version | grep 10.* ; then
+    # Download the Microsoft repository GPG keys
+    wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb
+
+    # Register the Microsoft repository GPG keys
+    sudo dpkg -i packages-microsoft-prod.deb
+
+    # Update the list of products
+    sudo apt-get update
+
+    # Install PowerShell
+    sudo apt-get install -y powershell
+	# Deb 9.x
+	elif cat /etc/debian_version | grep 9.* ; then
+		# Install system components
+		sudo apt-get install -y apt-transport-https curl
+		# Import the public repository GPG keys
+		curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+		# Register the Microsoft Product feed
+		sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" > /etc/apt/sources.list.d/microsoft.list'
+		# Update the list of products
+		sudo apt-get update
+		# Install PowerShell
+		sudo apt-get install -y powershell
+	# Deb 8.x
+	elif cat /etc/debian_version | grep 8.* ; then
+		# Install system components
+		sudo apt-get install -y apt-transport-https curl gnupg
+		# Import the public repository GPG keys
+		curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+		# Register the Microsoft Product feed
+		sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-jessie-prod jessie main" > /etc/apt/sources.list.d/microsoft.list'
+		# Update the list of products
+		sudo apt-get update
+		# Install PowerShell
+		sudo apt-get install -y powershell
+	#Ubuntu
+	elif lsb_release -d | grep -q "Ubuntu"; then
+		# Read Ubuntu version
+		local ubuntu_version=$( grep 'DISTRIB_RELEASE=' /etc/lsb-release | grep -o -E [[:digit:]]+\\.[[:digit:]]+ )
+		# Install system components
+		sudo apt-get install -y apt-transport-https curl
+		# Import the public repository GPG keys
+		curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+		# Register the Microsoft Ubuntu repository
+		curl https://packages.microsoft.com/config/ubuntu/$ubuntu_version/prod.list | sudo tee /etc/apt/sources.list.d/microsoft.list
+		# Update the list of products
+		sudo apt-get update
+		# Install PowerShell
+		sudo apt-get install -y powershell
+	#Kali Linux
+	elif lsb_release -d | grep -q "Kali"; then
+		apt update && apt -y install powershell
+	fi
+	if ls /opt/microsoft/powershell/*/DELETE_ME_TO_DISABLE_CONSOLEHOST_TELEMETRY; then
+		rm /opt/microsoft/powershell/*/DELETE_ME_TO_DISABLE_CONSOLEHOST_TELEMETRY
+	fi
 	mkdir -p /usr/local/share/powershell/Modules
 	cp -r ../lib/powershell/Invoke-Obfuscation /usr/local/share/powershell/Modules
 }
 
+function install_xar() {
+	# xar-1.6.1 has an incompatability with libssl 1.1.x that is patched here
+	# for older OS on libssl 1.0.x, we continue to use 1.6.1
+	if is_libssl_1_0; then
+		wget https://github.com/BC-SECURITY/xar/archive/xar-1.6.1.tar.gz
+		tar -xvf xar-1.6.1.tar.gz && mv xar-xar-1.6.1/xar/ xar-1.6.1/
+	else
+		wget https://github.com/BC-SECURITY/xar/archive/xar-1.6.1-patch.tar.gz
+		tar -xvf xar-1.6.1-patch.tar.gz && mv xar-xar-1.6.1-patch/xar/ xar-1.6.1/
+	fi
+	(cd xar-1.6.1 && ./autogen.sh)
+	(cd xar-1.6.1 && ./configure)
+	(cd xar-1.6.1 && make)
+	(cd xar-1.6.1 && sudo make install)
+}
+
+function install_bomutils() {
+	git clone https://github.com/hogliux/bomutils.git
+	(cd bomutils && make)
+	(cd bomutils && make install)
+	chmod 755 bomutils/build/bin/mkbom && sudo cp bomutils/build/bin/mkbom /usr/local/bin/.
+}
+
+# Because of some dependencies (xar) needing to know which OS has libssl 1.0
+# and because some OS are locked into 1.0, we are checking for Ubuntu < 18 and Debian < 9 here.
+function is_libssl_1_0() {
+	if lsb_release -d | grep -q "Ubuntu"; then
+		if [ $(lsb_release -rs | cut -d "." -f 1) -lt 18 ]; then
+			return
+		fi
+	fi
+
+	if [ $(cut -d "." -f 1 /etc/debian_version) -lt 9 ]; then
+		return
+	fi
+
+	false
+}
 
 # Ask for the administrator password upfront so sudo is no longer required at Installation.
 sudo -v
@@ -105,77 +108,50 @@ IFS='/' read -a array <<< pwd
 
 if [[ "$(pwd)" != *setup ]]
 then
-    cd ./setup
+	cd ./setup
 fi
 
-# Check for PIP otherwise install it
-if ! which pip > /dev/null; then
-	wget https://bootstrap.pypa.io/get-pip.py
-	python get-pip.py
-fi
+Pip_file="requirements.txt"
 
-if uname | grep -q "Darwin"; then
-	install_powershell
-	sudo pip install -r requirements.txt --global-option=build_ext \
-		--global-option="-L/usr/local/opt/openssl/lib" \
-		--global-option="-I/usr/local/opt/openssl/include"
-	# In order to build dependencies these should be exproted.
-	export LDFLAGS=-L/usr/local/opt/openssl/lib
-	export CPPFLAGS=-I/usr/local/opt/openssl/include
-else
-
-	version=$( lsb_release -r | grep -oP "[0-9]+" | head -1 )
-	if lsb_release -d | grep -q "Fedora"; then
-		Release=Fedora
-		sudo dnf install -y make g++ python-devel m2crypto python-m2ext swig python-iptools python3-iptools libxml2-devel default-jdk openssl-devel libssl1.0.0 libssl-dev build-essential
-		pip install --upgrade pip
-		sudo pip install -r requirements.txt
-	elif lsb_release -d | grep -q "Kali"; then
-		Release=Kali
-    apt-get update
-    apt-get install -y multiarch-support
-		wget http://ftp.us.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u7_amd64.deb
-		dpkg -i libssl1.0.0_1.0.1t-1+deb8u7_amd64.deb
-		sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk zlib1g-dev libssl1.0-dev build-essential libssl1.0-dev libxml2-dev zlib1g-dev
-		pip install --upgrade pip
-		sudo pip install -r requirements.txt
-		install_powershell
-	elif lsb_release -d | grep -q "Ubuntu"; then
-		Release=Ubuntu
-    apt-get update
-		sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk libssl1.0.0 libssl-dev build-essential
-		pip install --upgrade pip
-		sudo pip install -r requirements.txt
-		install_powershell
+if lsb_release -d | grep -q "Kali"; then
+	apt-get update
+	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip libxml2-dev default-jdk zlib1g-dev libssl1.1 build-essential libssl-dev libxml2-dev zlib1g-dev
+elif lsb_release -d | grep -q "Ubuntu"; then
+	if is_libssl_1_0; then
+		LibSSL_pkgs="libssl1.0.0 libssl-dev"
+		Pip_file="requirements_libssl1.0.txt"
 	else
-		echo "Unknown distro - Debian/Ubuntu Fallback"
-    apt-get update
-		sudo apt-get install -y make g++ python-dev python-m2crypto swig python-pip libxml2-dev default-jdk libffi-dev libssl1.0.0 libssl-dev build-essential
-		pip install --upgrade pip
-		sudo pip install -r requirements.txt
-		install_powershell
+		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
+	sudo apt-get update
+	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
+else
+	echo "Unknown distro - Debian/Ubuntu Fallback"
+	if is_libssl_1_0; then
+		LibSSL_pkgs="libssl1.0.0 libssl-dev"
+		Pip_file="requirements_libssl1.0.txt"
+	else
+		LibSSL_pkgs="libssl1.1 libssl-dev"
+	fi
+	sudo apt-get update
+	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip libxml2-dev default-jdk libffi-dev $LibSSL_pkgs build-essential
 fi
 
-# Installing xar
-tar -xvf ../data/misc/xar-1.5.2.tar.gz
-(cd xar-1.5.2 && ./configure)
-(cd xar-1.5.2 && make)
-(cd xar-1.5.2 && sudo make install)
+install_xar
 
-#Installing bomutils
-git clone https://github.com/hogliux/bomutils.git
-(cd bomutils && make)
-(cd bomutils && make install)
+install_bomutils
 
-# NIT: This fails on OSX. Leaving it only on Linux instances.
-if uname | grep -q "Linux"; then
-	(cd bomutils && make install)
+install_powershell
+
+if ls /usr/bin/ | grep -q "python3"; then
+	if ! type pip3 > /dev/null; then
+		sudo apt-get --assume-yes install python3-pip
+	fi
+	sudo pip3 install -r $Pip_file
 fi
-chmod 755 bomutils/build/bin/mkbom && sudo cp bomutils/build/bin/mkbom /usr/local/bin/.
 
 # set up the database schema
-python ./setup_database.py
+python3 ./setup_database.py
 
 # generate a cert
 ./cert.sh

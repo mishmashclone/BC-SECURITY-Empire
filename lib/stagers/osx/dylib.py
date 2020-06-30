@@ -1,7 +1,8 @@
+from __future__ import print_function
+from builtins import object
 from lib.common import helpers
-import os
 
-class Stager:
+class Stager(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -78,18 +79,18 @@ class Stager:
         safeChecks = self.options['SafeChecks']['Value']
 
         if arch == "":
-            print helpers.color("[!] Please select a valid architecture")
+            print(helpers.color("[!] Please select a valid architecture"))
             return ""
 
         # generate the launcher code
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, userAgent=userAgent,  safeChecks=safeChecks)
 
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
 
         else:
-            launcher = launcher.strip('echo').strip(' | /usr/bin/python &').strip("\"")
+            launcher = launcher.strip('echo').strip(' | python3 &').strip("\"")
             dylib = self.mainMenu.stagers.generate_dylib(launcherCode=launcher, arch=arch, hijacker=hijacker)
             return dylib
 

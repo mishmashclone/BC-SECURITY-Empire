@@ -1,6 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from __future__ import print_function
+from builtins import input
+from builtins import range
 import sqlite3, os, string, hashlib, random
+import bcrypt
 
 
 ###################################################
@@ -20,12 +24,12 @@ punctuation = '!#%&()*+,-./:;<=>?@[]^_{|}~'
 
 # otherwise prompt the user for a set value to hash for the negotiation password
 if STAGING_KEY == "BLANK":
-    choice = raw_input("\n [>] Enter server negotiation password, enter for random generation: ")
+    choice = input("\n [>] Enter server negotiation password, enter for random generation: ")
     if choice == "":
         # if no password is entered, generation something random
         STAGING_KEY = ''.join(random.sample(string.ascii_letters + string.digits + punctuation, 32))
     else:
-        STAGING_KEY = hashlib.md5(choice).hexdigest()
+        STAGING_KEY = hashlib.md5(choice.encode('utf-8')).hexdigest()
 elif STAGING_KEY == "RANDOM":
     STAGING_KEY = ''.join(random.sample(string.ascii_letters + string.digits + punctuation, 32))
 
@@ -43,10 +47,7 @@ IP_BLACKLIST = ""
 
 # default credentials used to log into the RESTful API
 API_USERNAME = "empireadmin"
-API_PASSWORD = ''.join(random.sample(string.ascii_letters + string.digits + punctuation, 32))
-
-# the 'permanent' API token (doesn't change)
-API_PERMANENT_TOKEN = ''.join(random.choice(string.ascii_lowercase + string.digits) for x in range(40))
+API_PASSWORD = bcrypt.hashpw(b"password123", bcrypt.gensalt())
 
 # default obfuscation setting
 OBFUSCATE = 0
@@ -75,16 +76,12 @@ c.execute('''CREATE TABLE config (
     "autorun_command" text,
     "autorun_data" text,
     "rootuser" boolean,
-    "api_username" text,
-    "api_password" text,
-    "api_current_token" text,
-    "api_permanent_token" text,
     "obfuscate" integer,
     "obfuscate_command" text
     )''')
 
 # kick off the config component of the database
-c.execute("INSERT INTO config VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", (STAGING_KEY, INSTALL_PATH, IP_WHITELIST, IP_BLACKLIST, '', '', False, API_USERNAME, API_PASSWORD, '', API_PERMANENT_TOKEN, OBFUSCATE, OBFUSCATE_COMMAND))
+c.execute("INSERT INTO config VALUES (?,?,?,?,?,?,?,?,?)", (STAGING_KEY, INSTALL_PATH, IP_WHITELIST, IP_BLACKLIST, '', '', False, OBFUSCATE, OBFUSCATE_COMMAND))
 
 c.execute('''CREATE TABLE "agents" (
     "id" integer PRIMARY KEY,
@@ -105,8 +102,8 @@ c.execute('''CREATE TABLE "agents" (
     "os_details" text,
     "session_key" text,
     "nonce" text,
-    "checkin_time" text,
-    "lastseen_time" text,
+    "checkin_time" timestamp,
+    "lastseen_time" timestamp,
     "parent" text,
     "children" text,
     "servers" text,
@@ -128,7 +125,8 @@ c.execute('''CREATE TABLE "listeners" (
     "listener_type" text,
     "listener_category" text,
     "enabled" boolean,
-    "options" blob
+    "options" blob,
+    "created_at" timestamp
     )''')
 
 # type = hash, plaintext, token
@@ -146,17 +144,20 @@ c.execute('''CREATE TABLE "credentials" (
     "notes" text
     )''')
 
-c.execute( '''CREATE TABLE "taskings" (
+c.execute('''CREATE TABLE "taskings" (
     "id" integer,
     "data" text,
     "agent" text,
+    "user_id" text,
+    "timestamp" timestamp,
     PRIMARY KEY(id, agent)
 )''')
 
-c.execute( '''CREATE TABLE "results" (
+c.execute('''CREATE TABLE "results" (
     "id" integer,
     "data" text,
     "agent" text,
+    "user_id" text,
     PRIMARY KEY(id, agent)
 )''')
 
@@ -166,13 +167,34 @@ c.execute('''CREATE TABLE "reporting" (
     "name" text,
     "event_type" text,
     "message" text,
-    "time_stamp" text,
+    "timestamp" timestamp,
     "taskID" integer,
     FOREIGN KEY(taskID) REFERENCES results(id)
 )''')
+
+c.execute('''CREATE TABLE "users" (
+    "id" integer PRIMARY KEY,
+    "username" text unique,
+    "password" text,
+    "api_token" text,
+    "last_logon_time" timestamp,
+    "enabled" boolean,
+    "admin" boolean
+)''')
+
+c.execute("INSERT INTO users VALUES (?,?,?,?,?,?,?)", ("1", API_USERNAME, API_PASSWORD, "", "", True, True))
+
+c.execute('''CREATE TABLE "functions" (
+    "Invoke_Empire" text,
+    "Invoke_Mimikatz" text 
+)''')
+
+rand1 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+rand2 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+c.execute("INSERT INTO functions VALUES(?,?)", (rand1, rand2))
 
 # commit the changes and close everything off
 conn.commit()
 conn.close()
 
-print "\n [*] Database setup completed!\n"
+print("\n [*] Database setup completed!\n")

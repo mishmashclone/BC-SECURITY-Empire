@@ -1,6 +1,7 @@
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -14,6 +15,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('Searches for low-hanging web applications.'),
+
+            'Software': '',
+
+            'Techniques': ['T1102', 'T1256'],
 
             # True if the module needs to run in the background
             'Background' : True,
@@ -142,7 +147,7 @@ def printCIDR(c):
     subnet = int(parts[1])
 
     if subnet == 32:
-        print bin2ip(baseIP)
+        print(bin2ip(baseIP))
 
     else:
         ipPrefix = baseIP[:-(32-subnet)]
@@ -155,7 +160,7 @@ def validateCIDRBlock(b):
 
     p = re.compile("^([0-9]{1,3}\.){0,3}[0-9]{1,3}(/[0-9]{1,2}){1}$")
     if not p.match(b):
-        print "Error: Invalid CIDR format!"
+        print("Error: Invalid CIDR format!")
         return False
 
     prefix, subnet = b.split("/")
@@ -163,11 +168,11 @@ def validateCIDRBlock(b):
     quads = prefix.split(".")
     for q in quads:
         if (int(q) < 0) or (int(q) > 255):
-            print "Error: quad "+str(q)+" wrong size."
+            print("Error: quad "+str(q)+" wrong size.")
             return False
 
     if (int(subnet) < 1) or (int(subnet) > 32):
-        print "Error: subnet "+str(subnet)+" wrong size."
+        print("Error: subnet "+str(subnet)+" wrong size.")
         return False
 
     return True
@@ -180,7 +185,7 @@ def http_get(url):
     resp = urllib2.urlopen(req, timeout = 1)
     code = resp.getcode()
     if code == 200:
-        print url + " returned 200!"
+        print(url + " returned 200!")
     return
           
 
@@ -231,7 +236,7 @@ def main(ip, port, ssl):
                 resp = urllib2.urlopen(req, timeout = 1)
                 code = resp.getcode()
                 if code == 200:
-                    print link + " returned 200!"
+                    print(link + " returned 200!")
                 break
             except urllib2.URLError:
                 break  

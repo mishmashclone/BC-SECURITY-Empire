@@ -1,6 +1,7 @@
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -14,6 +15,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('Interacts with a HTTP REST API and returns the results back to the screen.'),
+
+            'Software': '',
+
+            'Techniques': ['T1006'],
 
             # True if the module needs to run in the background
             'Background' : True,
@@ -134,11 +139,11 @@ try:
                    'Gecko/20140205     Firefox/27.0 Iceweasel/25.3.0')
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     content = opener.open(request).read()
-    print str(content)
+    print(str(content))
 except Exception as e:
-    print "Failure sending payload: " + str(e)
+    print("Failure sending payload: " + str(e))
 
-print "Finished"
+print("Finished")
 """ %(protocol, target, port, path, requmethod)
 
         return script

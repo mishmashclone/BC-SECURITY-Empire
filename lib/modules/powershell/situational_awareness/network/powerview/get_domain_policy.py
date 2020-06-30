@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +13,10 @@ class Module:
             'Author': ['@harmj0y','@DisK0nn3cT','@OrOneEqualsOne'],
 
             'Description': ('Returns the default domain or DC policy for a given domain or domain controller. Part of PowerView.'),
+
+            'Software': 'S0194',
+
+            'Techniques': ['T1482'],
 
             'Background' : True,
 
@@ -80,7 +87,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -92,7 +99,7 @@ class Module:
         pscript = ""
         expand = False
         value_to_expand = ""
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent" and option.lower() != "expandobject":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":

@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -15,6 +18,10 @@ class Module:
             # more verbose multi-line description of the module
             'Description': ('This module will dump any saved passwords from Firefox to the console. This should work for any version'
                             'of Firefox above version 32. This will only be successful if the master password is blank or has not been set.'),
+
+            'Software': '',
+
+            'Techniques': ['T1503'],
 
             # True if the module needs to run in the background
             'Background' : True,
@@ -86,7 +93,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -98,7 +105,7 @@ class Module:
 
 
         # add any arguments to the end execution of the script
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":

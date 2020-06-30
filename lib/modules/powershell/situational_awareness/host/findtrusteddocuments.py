@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -17,6 +20,10 @@ class Module:
                             'keys to determine what, if any, trusted documents '
                             'exist on the host.  It will also enumerate trusted locations.'
                             ),
+
+            'Software': '',
+
+            'Techniques': ['T1135'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -73,7 +80,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()

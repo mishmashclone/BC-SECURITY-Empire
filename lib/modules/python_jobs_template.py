@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -9,6 +10,10 @@ class Module:
 
             # list of one or more authors for the module
             'Author': ['@Killswitch-GUI'],
+
+            'Software': 'SXXXX',
+
+            'Techniques': ['TXXXX', 'TXXXX'],
 
             # more verbose multi-line description of the module
             'Description': ('A quick example how to feed your data to a background job.'),
@@ -74,6 +79,6 @@ while True:
         job_message_buffer(msg)
         x += 1
     except Exception as e:
-        print e
+        print(e)
 """
         return script

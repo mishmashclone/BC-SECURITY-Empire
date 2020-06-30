@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +15,11 @@ class Module:
             'Description': ('Spawns a new Listener as SYSTEM by'
                             ' leveraging the MS16-032 local exploit.'
                             ' Note: ~1/6 times the exploit won\'t work, may need to retry.'),
+
+            'Software': '',
+
+            'Techniques': ['T1068','TA0004'],
+
             'Background' : True,
 
             'OutputExtension' : None,
@@ -78,7 +86,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()

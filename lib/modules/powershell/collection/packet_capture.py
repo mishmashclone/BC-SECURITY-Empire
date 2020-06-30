@@ -1,6 +1,7 @@
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +11,10 @@ class Module:
             'Author': ['@obscuresec', '@mattifestation'],
 
             'Description': ('Starts a packet capture on a host using netsh.'),
+
+            'Software': '',
+
+            'Techniques': ['T1040'],
 
             'Background' : False,
 

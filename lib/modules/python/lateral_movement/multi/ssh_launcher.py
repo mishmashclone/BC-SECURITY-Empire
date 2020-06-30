@@ -1,6 +1,8 @@
+from __future__ import print_function
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
     def __init__(self, mainMenu, params=[]):
         # metadata info about the module, not modified during runtime
         self.info = {
@@ -12,6 +14,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': 'This module will send an launcher via ssh.',
+
+            'Software': '',
+
+            'Techniques': ['T1021'],
 
             # True if the module needs to run in the background
             'Background' : True,
@@ -101,7 +107,7 @@ class Module:
         launcher = launcher.replace("'", "\\'")
         launcher = launcher.replace('"', '\\"')
         if launcher == "":
-            print helpers.color("[!] Error in launcher command generation.")
+            print(helpers.color("[!] Error in launcher command generation."))
             return ""
         script = """
 import os
@@ -133,8 +139,8 @@ def wall(host, pw):
     return status, ''.join(result)
 
 status, output = wall('%s','%s')
-print status
-print output
+print(status)
+print(output)
 
 """ % (launcher, login, password)
         return script

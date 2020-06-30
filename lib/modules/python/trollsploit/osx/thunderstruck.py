@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': 'Open Safari in the background and play Thunderstruck.',
+
+            'Software': '',
+
+            'Techniques': [''],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -78,11 +83,11 @@ try:
     process1 = subprocess.Popen(volume, stdout=subprocess.PIPE, shell=True)
     cmd = \"""open -a "Safari" -g -j https://www.youtube.com/watch?v=v2AC41dglnM""\"
     process2 = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    print "Thunderstruck engaged!"
+    print("Thunderstruck engaged!")
 
 except Exception as e:
-    print "Module failed"
-    print e
+    print("Module failed")
+    print(e)
 
 """
         return script

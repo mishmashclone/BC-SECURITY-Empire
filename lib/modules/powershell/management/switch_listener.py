@@ -1,16 +1,22 @@
+from __future__ import print_function
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
         self.info = {
-            'Name': 'Spawn',
+            'Name': 'Switch-Listener',
 
             'Author': ['@harmj0y'],
 
             'Description': ('Overwrites the listener controller logic with the agent with the '
                             'logic from generate_comms() for the specified listener.'),
+
+            'Software': '',
+
+            'Techniques': [''],
 
             'Background' : False,
 
@@ -60,7 +66,7 @@ class Module:
         listenerName = self.options['Listener']['Value']
 
         if listenerName not in self.mainMenu.listeners.activeListeners:
-            print helpers.color("[!] Listener '%s' doesn't exist!" % (listenerName))
+            print(helpers.color("[!] Listener '%s' doesn't exist!" % (listenerName)))
             return ''
 
         activeListener = self.mainMenu.listeners.activeListeners[listenerName]

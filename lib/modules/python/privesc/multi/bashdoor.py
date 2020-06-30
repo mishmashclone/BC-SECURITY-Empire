@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': 'Creates an alias in the .bash_profile to cause the sudo command to execute a stager and pass through the origional command back to sudo',
+
+            'Software': '',
+
+            'Techniques': ['T1156'],
 
             # True if the module needs to run in the background
             'Background' : False,

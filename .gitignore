@@ -1,6 +1,12 @@
 data/empire.db
 data/empire-chain.pem
 data/empire-priv.key
+data/credentials.csv
+data/master.log
+data/sessions.csv
+data/obfuscated_module_source/*.ps1
+data/misc/ToObfuscate.ps1
+data/misc/Obfuscated.ps1
 empire.debug
 *.pyc
 downloads/*
@@ -8,10 +14,9 @@ downloads/*
 .idea/*
 *.txt
 LastTask*
-data/obfuscated_module_source/*.ps1
-data/misc/ToObfuscate.ps1
-data/misc/Obfuscated.ps1
-setup/xar/
+setup/xar*/
 setup/bomutils/
 .venv
 .DS_Store
+venv/
+addons/

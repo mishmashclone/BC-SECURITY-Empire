@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ("Takes a picture of a person through OSX's webcam with an ImageSnap binary."),
+
+            'Software': '',
+
+            'Techniques': ['T1125'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -92,7 +97,7 @@ data = f.read()
 f.close()
 run_command('rm -f %sdebug')
 run_command('rm -f %sdebug.png')
-print data
+print(data)
 """ % (tempDir, tempDir, tempDir, tempDir, tempDir, tempDir, tempDir)
 
         return script

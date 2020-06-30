@@ -1,6 +1,8 @@
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +12,10 @@ class Module:
             'Author': ['DarkOperator'],
 
             'Description': ('Enumerates the DNS Servers used by a system.'),
+
+            'Software': '',
+
+            'Techniques': ['T1482', 'T1018'],
 
             'Background' : False,
 
@@ -92,7 +98,7 @@ function Get-SystemDNSServer
     $DNSServerAddresses
 } Get-SystemDNSServer"""
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":

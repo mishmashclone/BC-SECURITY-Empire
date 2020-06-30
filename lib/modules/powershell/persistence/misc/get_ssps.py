@@ -1,6 +1,8 @@
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +12,10 @@ class Module:
             'Author': ['@mattifestation'],
 
             'Description': ('Enumerates all loaded security packages (SSPs).'),
+
+            'Software': '',
+
+            'Techniques': ['TA0003', 'T1101'],
 
             'Background' : True,
 
@@ -186,7 +192,7 @@ Get-SecurityPackages
     }
 } Get-SecurityPackages"""
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     script += " -" + str(option) + " " + str(values['Value']) 

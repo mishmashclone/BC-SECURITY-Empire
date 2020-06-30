@@ -1,6 +1,7 @@
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +11,10 @@ class Module:
             'Author': ['@harmj0y'],
 
             'Description': ("Restarts the specified machine."),
+
+            'Software': '',
+
+            'Techniques': [''],
 
             'Background' : False,
 

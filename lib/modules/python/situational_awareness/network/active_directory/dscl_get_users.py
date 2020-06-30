@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': 'This module will use the current user context to query active directory for a list of users.',
+
+            'Software': '',
+
+            'Techniques': ['T1482'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -82,7 +87,7 @@ import subprocess
 
 
 cmd = \"""dscl "/Active Directory/%s/All Domains/" -list /Users\"""
-print subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.read()
+print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.read())
 
 """ % (domain)
         return script

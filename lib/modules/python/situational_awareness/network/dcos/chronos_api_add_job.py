@@ -1,6 +1,7 @@
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -14,6 +15,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('Add a Chronos job using the HTTP API service for the Chronos Framework'),
+
+            'Software': '',
+
+            'Techniques': ['T1106'],
 
             # True if the module needs to run in the background
             'Background' : True,
@@ -153,11 +158,11 @@ try:
     request.add_header('Content-Type', 'application/json')
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     content = opener.open(request).read()
-    print str(content)
+    print(str(content))
 except Exception as e:
-    print "Failure sending payload: " + str(e)
+    print("Failure sending payload: " + str(e))
 
-print "Finished"
+print("Finished")
 """ %(target, port, name, command, owner, ownerName, description, schedule, last)
 
         return script

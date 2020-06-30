@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -14,6 +15,10 @@ class Module:
             'Description': ("Uses Apple Security utility to dump the contents of the keychain. "
                             "WARNING: Will prompt user for access to each key."
                             "On Newer versions of Sierra and High Sierra, this will also ask the user for their password for each key."),
+
+            'Software': '',
+
+            'Techniques': ['T1142'],
 
             # True if the module needs to run in the background
             'Background' : False,

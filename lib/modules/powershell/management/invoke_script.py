@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +13,10 @@ class Module:
             'Author': ['@harmj0y'],
 
             'Description': ('Run a custom script. Useful for mass-taskings or script autoruns.'),
+
+            'Software': '',
+
+            'Techniques': ['T1064'],
 
             'Background' : True,
 
@@ -68,7 +75,7 @@ class Module:
             try:
                 f = open(scriptPath, 'r')
             except:
-                print helpers.color("[!] Could not read script source path at: " + str(scriptPath))
+                print(helpers.color("[!] Could not read script source path at: " + str(scriptPath)))
                 return ""
 
             script = f.read()

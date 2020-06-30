@@ -8,7 +8,7 @@ LANGUAGE = {
 }
 
 LANGUAGE_IDS = {}
-for name, ID in LANGUAGE.items(): LANGUAGE_IDS[ID] = name
+for name, ID in list(LANGUAGE.items()): LANGUAGE_IDS[ID] = name
 
 META = {
     'NONE' : 0,
@@ -19,28 +19,40 @@ META = {
     'SERVER_RESPONSE' : 5
 }
 META_IDS = {}
-for name, ID in META.items(): META_IDS[ID] = name
+for name, ID in list(META.items()): META_IDS[ID] = name
 
 ADDITIONAL = {}
 ADDITIONAL_IDS = {}
-for name, ID in ADDITIONAL.items(): ADDITIONAL_IDS[ID] = name
+for name, ID in list(ADDITIONAL.items()): ADDITIONAL_IDS[ID] = name
 
 def rc4(key, data):
     """
-    Decrypt/encrypt the passed data using RC4 and the given key.
-    """
-    S,j,out=range(256),0,[]
-    for i in range(256):
-        j=(j+S[i]+ord(key[i%len(key)]))%256
-        S[i],S[j]=S[j],S[i]
-    i=j=0
-    for char in data:
-        i=(i+1)%256
-        j=(j+S[i])%256
-        S[i],S[j]=S[j],S[i]
-        out.append(chr(ord(char)^S[(S[i]+S[j])%256]))
-    return ''.join(out)
+    RC4 encrypt/decrypt the given data input with the specified key.
 
+    From: http://stackoverflow.com/questions/29607753/how-to-decrypt-a-file-that-encrypted-with-rc4-using-python
+    """
+    S, j, out = list(range(256)), 0, []
+    # This might break python 2.7
+    key = bytearray(key)
+    # KSA Phase
+    for i in range(256):
+        j = (j + S[i] + key[i % len(key)]) % 256
+        S[i], S[j] = S[j], S[i]
+    # this might also break python 2.7
+    #data = bytearray(data)
+    # PRGA Phase
+    i = j = 0
+
+    for char in data:
+        i = (i + 1) % 256
+        j = (j + S[i]) % 256
+        S[i], S[j] = S[j], S[i]
+        if sys.version[0] == "2":
+            char = ord(char)
+        out.append(chr(char ^ S[(S[i] + S[j]) % 256]).encode('latin-1'))
+    #out = str(out)
+    tmp = b''.join(out)
+    return tmp
 
 def parse_routing_packet(stagingKey, data):
     """
@@ -79,8 +91,10 @@ def parse_routing_packet(stagingKey, data):
 
                 RC4IV = data[0+offset:4+offset]
                 RC4data = data[4+offset:20+offset]
-                routingPacket = rc4(RC4IV+stagingKey, RC4data)
-                sessionID = routingPacket[0:8]
+                routingPacket = rc4(RC4IV+stagingKey.encode('UTF-8'), RC4data)
+
+                sessionID = routingPacket[0:8].decode('UTF-8')
+
 
                 # B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
                 (language, meta, additional, length) = struct.unpack("=BBHL", routingPacket[8:])
@@ -98,15 +112,14 @@ def parse_routing_packet(stagingKey, data):
                     break
 
                 offset += 20 + length
-
             return results
 
         else:
-            print "[*] parse_agent_data() data length incorrect: %s" % (len(data))
+            print("[*] parse_agent_data() data length incorrect: %s" % (len(data)))
             return None
 
     else:
-        print "[*] parse_agent_data() data is None"
+        print("[*] parse_agent_data() data is None")
         return None
 
 
@@ -135,10 +148,29 @@ def build_routing_packet(stagingKey, sessionID, meta=0, additional=0, encData=''
 
     # binary pack all of the passed config values as unsigned numbers
     #   B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
-    data = sessionID + struct.pack("=BBHL", 2, meta, additional, len(encData))
+    if isinstance(sessionID, str):
+        sessionID = sessionID.encode('UTF-8')
 
+    data = sessionID + struct.pack("=BBHL", 2, meta, additional, len(encData))
     RC4IV = os.urandom(4)
+
+    if isinstance(data, str):
+        data = data.encode('UTF-8')
+    if isinstance(stagingKey, str):
+        stagingKey = stagingKey.encode('UTF-8')
+    if isinstance(RC4IV, str):
+        RC4IV = RC4IV.encode('UTF-8')
+    if isinstance(encData, str):
+        encData = encData.encode('UTF-8')
+
     key = RC4IV + stagingKey
+
+    if isinstance(key, str):
+        key = key.encode('UTF-8')
+
     rc4EncData = rc4(key, data)
+
+    if isinstance(rc4EncData, str):
+        rc4EncData = rc4EncData.encode('UTF-8')
     packet = RC4IV + rc4EncData + encData
     return packet

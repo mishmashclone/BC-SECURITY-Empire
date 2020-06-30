@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': 'This module will list file servers',
+
+            'Software': '',
+
+            'Techniques': ['T1482'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -108,16 +113,16 @@ ext = BindDN.split('.')[1]
 cmd = \"""ldapsearch -x -h {} -b "dc={},dc={}" -D {} -w {} "(&(samAccountType=805306368))" ""\".format(LDAPAddress, tld, ext, BindDN, password)
 output = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, bufsize=1)
 with output.stdout:
-    print ""
+    print("")
     for line in iter(output.stdout.readline, b''):
         if ("homeDirectory" or "scriptPath" or "profilePath") in line:
-            print "Results:"
-            print ""
+            print("Results:")
+            print("")
             m = re.search(r'([^\]*)', line)
             if m:
-                print m.group(1)
+                print(m.group(1))
 output.wait()
-print ""
+print("")
 
 """ % (BindDN, LDAPAddress, password)
         return script

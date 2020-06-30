@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +15,10 @@ class Module:
             'Description': ('Inveigh is a Windows PowerShell LLMNR/mDNS/NBNS spoofer/man-in-the-middle tool. Note '
                             'that this module exposes only a subset of Inveigh\'s parameters. Inveigh can be used '
                             'through Empire\'s scriptimport and scriptcmd if additional parameters are needed.'),
+
+            'Software': '',
+
+            'Techniques': ['T1171'],
 
             'Background' : True,
 
@@ -208,7 +215,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -219,7 +226,7 @@ class Module:
         # set defaults for Empire
         scriptEnd = "\n" + 'Invoke-Inveigh -Tool "2"'
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":

@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -10,6 +13,8 @@ class Module:
             'Description': ('Returns column information from target SQL Servers. Supports '
                             'search by keywords, sampling data, and validating credit card '
                             'numbers.'),
+            'Software': '',
+            'Techniques': [''],
             'Background' : True,
             'OutputExtension' : None,
             
@@ -85,7 +90,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         if check_all:
@@ -98,7 +103,7 @@ class Module:
                     auxScript = auxSource.read()
                     script += " " + auxScript
             except:
-                print helpers.color("[!] Could not read additional module source path at: " + str(auxModuleSource))
+                print(helpers.color("[!] Could not read additional module source path at: " + str(auxModuleSource)))
             scriptEnd = " Get-SQLInstanceDomain "
             if username != "":
                 scriptEnd += " -Username "+username

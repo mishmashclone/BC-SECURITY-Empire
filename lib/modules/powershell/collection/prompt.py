@@ -1,6 +1,8 @@
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -11,6 +13,10 @@ class Module:
 
             'Description': ("Prompts the current user to enter their credentials "
                             "in a forms box and returns the results."),
+
+            'Software': '',
+
+            'Techniques': ['T1141', 'T1514'],
 
             'Background' : False,
 
@@ -111,7 +117,7 @@ function Invoke-Prompt {
 }
 Invoke-Prompt """
    
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":

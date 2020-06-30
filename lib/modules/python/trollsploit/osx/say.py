@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('Performs text to speech using "say".'),
+
+            'Software': '',
+
+            'Techniques': [''],
 
             # True if the module needs to run in the background
             'Background' : False,

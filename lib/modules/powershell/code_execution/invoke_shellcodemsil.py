@@ -1,7 +1,10 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import re
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -15,6 +18,10 @@ class Module:
                             'no way to validate that your shellcode is 32 vs. 64-bit!'
                             'Note: Your shellcode must end in a ret (0xC3) and maintain proper stack '
                             'alignment or PowerShell will crash!'),
+
+            'Software': '',
+
+            'Techniques': ['T1064'],
 
             'Background' : False,
 
@@ -71,7 +78,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -81,7 +88,7 @@ class Module:
 
         scriptEnd = "Invoke-ShellcodeMSIL"
 
-        for option,values in self.options.iteritems():
+        for option,values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if option.lower() == "shellcode":

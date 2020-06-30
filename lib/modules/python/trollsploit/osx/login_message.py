@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': 'Change the login message for the user.',
+
+            'Software': '',
+
+            'Techniques': [''],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -93,20 +98,20 @@ try:
     if remove == True:
         cmd = \"""defaults delete /Library/Preferences/com.apple.loginwindow LoginwindowText""\"
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-        print "Login message removed"
+        print("Login message removed")
 
 
     elif remove == False:
         cmd = \"""defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText '%s' ""\"
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-        print "Login message added"
+        print("Login message added")
 
     else:
-        print "Invalid options"
+        print("Invalid options")
 
 except Exception as e:
-    print "Module failed"
-    print e
+    print("Module failed")
+    print(e)
 
 
 """ % (remove, message)

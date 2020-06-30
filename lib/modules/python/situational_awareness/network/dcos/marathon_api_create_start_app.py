@@ -1,6 +1,7 @@
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -14,6 +15,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('Create and Start a Marathon App using Marathon\'s REST API'),
+
+            'Software': '',
+
+            'Techniques': ['T1106'],
 
             # True if the module needs to run in the background
             'Background' : True,
@@ -164,7 +169,7 @@ try:
 
     data += '}'
 
-    print str(data)
+    print(str(data))
     request = urllib2.Request(url, data)
     request.add_header('User-Agent',
                    'Mozilla/6.0 (X11; Linux x86_64; rv:24.0) '
@@ -172,11 +177,11 @@ try:
     request.add_header('Content-Type', 'application/json')
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     content = opener.open(request).read()
-    print str(content)
+    print(str(content))
 except Exception as e:
-    print "Failure sending payload: " + str(e)
+    print("Failure sending payload: " + str(e))
 
-print "Finished"
+print("Finished")
 """ %(target, port, appId, cmd, cpus, mem, disk, instances)
 
         return script

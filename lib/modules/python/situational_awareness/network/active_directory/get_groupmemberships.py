@@ -1,4 +1,5 @@
-class Module:
+from builtins import object
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -12,6 +13,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': 'This module check what groups a user is member of',
+
+            'Software': '',
+
+            'Techniques': ['T1482'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -119,8 +124,8 @@ output = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
 output2 = subprocess.Popen(["grep", "memberOf:"],stdin=output.stdout, stdout=subprocess.PIPE,universal_newlines=True)
 output.stdout.close()
 out,err = output2.communicate()
-print ""
-print out
+print("")
+print(out)
 
 """ % (BindDN, LDAPAddress, password, user)
         return script

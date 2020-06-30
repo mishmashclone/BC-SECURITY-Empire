@@ -129,7 +129,7 @@ class Listener:
         If there's a default response expected from the server that the client needs to ignore,
         (i.e. a default HTTP page), put the generation here.
         """
-        print helpers.color("[!] default_response() not implemented for listeners/template")
+        print(helpers.color("[!] default_response() not implemented for listeners/template"))
         return ''
 
 
@@ -140,7 +140,7 @@ class Listener:
 
         for key in self.options:
             if self.options[key]['Required'] and (str(self.options[key]['Value']).strip() == ''):
-                print helpers.color("[!] Option \"%s\" is required." % (key))
+                print(helpers.color("[!] Option \"%s\" is required." % (key)))
                 return False
 
         file = self.options["Profile"]["Value"]
@@ -193,27 +193,28 @@ class Listener:
                     profile.post.client.headers.pop(header, None)
 
             else:
-                print helpers.color("[!] Unable to parse malleable profile: %s" % (file))
+                print(helpers.color("[!] Unable to parse malleable profile: %s" % (file)))
                 return False
 
             if self.options["CertPath"]["Value"] == "" and self.options["Host"]["Value"].startswith("https"):
-                print helpers.color("[!] HTTPS selected but no CertPath specified.")
+                print(helpers.color("[!] HTTPS selected but no CertPath specified."))
                 return False
 
         except malleable.MalleableError as e:
-            print helpers.color("[!] Error parsing malleable profile: %s, %s" % (file, e.message))
+            print(helpers.color("[!] Error parsing malleable profile: %s, %s" % (file, e.message)))
             return False
 
         return True
 
 
-    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None):
+    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None,
+                          stager=None):
         """
         Generate a basic launcher for the specified listener.
         """
 
         if not language:
-            print helpers.color('[!] listeners/template generate_launcher(): no language specified!')
+            print(helpers.color('[!] listeners/template generate_launcher(): no language specified!'))
             return None
 
         if listenerName and (listenerName in self.mainMenu.listeners.activeListeners):
@@ -470,10 +471,10 @@ class Listener:
                     return launcherBase
 
             else:
-                print helpers.color("[!] listeners/template generate_launcher(): invalid language specification: only 'powershell' and 'python' are currently supported for this module.")
+                print(helpers.color("[!] listeners/template generate_launcher(): invalid language specification: only 'powershell' and 'python' are currently supported for this module."))
 
         else:
-            print helpers.color("[!] listeners/template generate_launcher(): invalid listener name specification!")
+            print(helpers.color("[!] listeners/template generate_launcher(): invalid listener name specification!"))
 
 
     def generate_stager(self, listenerOptions, encode=False, encrypt=True, obfuscate=False, obfuscationCommand="", language=None):
@@ -482,7 +483,7 @@ class Listener:
         """
 
         if not language:
-            print helpers.color('[!] listeners/http_malleable generate_stager(): no language specified!')
+            print(helpers.color('[!] listeners/http_malleable generate_stager(): no language specified!'))
             return None
 
         # extract the set options for this instantiated listener
@@ -580,7 +581,7 @@ class Listener:
                 return stager
 
         else:
-            print helpers.color("[!] listeners/http_malleable generate_stager(): invalid language specification, only 'powershell' and 'python' are currently supported for this module.")
+            print(helpers.color("[!] listeners/http_malleable generate_stager(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
 
         return None
 
@@ -591,7 +592,7 @@ class Listener:
         """
 
         if not language:
-            print helpers.color("[!] listeners/http_malleable generate_agent(): no language specified!")
+            print(helpers.color("[!] listeners/http_malleable generate_agent(): no language specified!"))
             return None
 
         # build profile
@@ -664,7 +665,7 @@ class Listener:
 
             return code
         else:
-            print helpers.color("[!] listeners/http_malleable generate_agent(): invalid language specification, only 'powershell' and 'python' are currently supported for this module.")
+            print(helpers.color("[!] listeners/http_malleable generate_agent(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
 
 
     def generate_comms(self, listenerOptions, language=None):
@@ -981,9 +982,9 @@ class Listener:
                 return updateServers + sendMessage
 
             else:
-                print helpers.color("[!] listeners/template generate_comms(): invalid language specification, only 'powershell' and 'python' are current supported for this module.")
+                print(helpers.color("[!] listeners/template generate_comms(): invalid language specification, only 'powershell' and 'python' are current supported for this module."))
         else:
-            print helpers.color('[!] listeners/template generate_comms(): no language specified!')
+            print(helpers.color('[!] listeners/template generate_comms(): no language specified!'))
 
     def start_server(self, listenerOptions):
         """
@@ -1017,7 +1018,7 @@ class Listener:
 
         @app.route('/', methods=["GET", "POST"])
         @app.route('/<path:request_uri>', methods=["GET", "POST"])
-        def handle_request(request_uri=""):
+        def handle_request(request_uri="", tempLIstenerOptions=None):
             """
             Handle an agent request.
             """
@@ -1150,7 +1151,7 @@ class Listener:
 
                                         if 'not in cache' in results:
                                             # signal the client to restage
-                                            print helpers.color("[*] Orphaned agent from %s, signaling restaging" % (clientIP))
+                                            print(helpers.color("[*] Orphaned agent from %s, signaling restaging" % (clientIP)))
                                             return make_response("", 401)
 
                                         return Response(self.default_response(), 404)
@@ -1246,7 +1247,7 @@ class Listener:
         try:
             if host.startswith('https'):
                 if certPath.strip() == '' or not os.path.isdir(certPath):
-                    print helpers.color("[!] Unable to find certpath %s, using default." % certPath)
+                    print(helpers.color("[!] Unable to find certpath %s, using default." % certPath))
                     certPath = "setup"
                 certPath = os.path.abspath(certPath)
                 pyversion = sys.version_info
@@ -1265,7 +1266,7 @@ class Listener:
             else:
                 app.run(host=bindIP, port=int(port), threaded=True)
         except Exception as e:
-            print helpers.color("[!] Listener startup on port %s failed - %s: %s" % (port, e.__class__.__name__, str(e)))
+            print(helpers.color("[!] Listener startup on port %s failed - %s: %s" % (port, e.__class__.__name__, str(e))))
             message = "[!] Listener startup on port {} failed - {}: {}".format(port, e.__class__.__name__, str(e))
             signal = json.dumps({
                 'print': True,
@@ -1300,10 +1301,10 @@ class Listener:
         """
 
         if name and name != '':
-            print helpers.color("[!] Killing listener '%s'" % (name))
+            print(helpers.color("[!] Killing listener '%s'" % (name)))
             self.threads[name].kill()
         else:
-            print helpers.color("[!] Killing listener '%s'" % (self.options['Name']['Value']))
+            print(helpers.color("[!] Killing listener '%s'" % (self.options['Name']['Value'])))
             self.threads[self.options['Name']['Value']].kill()
 
     def generate_cookie(self):
@@ -1311,7 +1312,7 @@ class Listener:
         Generate Cookie
         """
 
-        chars = string.letters
+        chars = string.ascii_letters
         cookie = helpers.random_string(random.randint(6,16), charset=chars)
 
         return cookie

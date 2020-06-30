@@ -1,7 +1,8 @@
-import random, urlparse, urllib
+import random, urllib
+import urllib.parse as urlparse
 from pyparsing import *
-from utility import MalleableError, MalleableUtil, MalleableObject
-from transformation import Transform, Terminator, Container
+from .utility import MalleableError, MalleableUtil, MalleableObject
+from .transformation import Transform, Terminator, Container
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # TRANSACTION
@@ -57,13 +58,18 @@ class MalleableRequest(MalleableObject):
         Returns:
             dict (str, obj)
         """
-        return dict(super(MalleableRequest, self)._serialize().items() + {
+        dict1 = dict(super(MalleableRequest, self)._serialize().items())
+        d = dict1.copy()
+        dict2 = {
             "url" : self.url,
             "verb" : self.verb,
             "extra" : self.extra,
             "headers" : self.headers,
             "body" : self.body
-        }.items())
+        }.items()
+        d.update(dict2)
+
+        return d
 
     @classmethod
     def _deserialize(cls, data):
@@ -456,11 +462,16 @@ class MalleableResponse(MalleableObject):
         Returns:
             dict (str, obj)
         """
-        return dict(super(MalleableResponse, self)._serialize().items() + {
+        dict1 = dict(super(MalleableResponse, self)._serialize().items())
+        d = dict1.copy()
+        dict2 = {
             "code" : self.code,
             "headers" : self.headers,
             "body" : self.body
-        }.items())
+        }.items()
+        d.update(dict2)
+
+        return d
 
     @classmethod
     def _deserialize(cls, data):
@@ -591,10 +602,15 @@ class Transaction(MalleableObject):
         Returns:
             dict (str, obj)
         """
-        return dict(super(Transaction, self)._serialize().items() + {
+        dict1 = dict(super(Transaction, self)._serialize().items())
+        d = dict1.copy()
+        dict2 = {
             "client" : self.client._serialize(),
             "server" : self.server._serialize()
-        }.items())
+        }.items()
+        d.update(dict2)
+
+        return d
 
     @classmethod
     def _deserialize(cls, data):
@@ -710,11 +726,16 @@ class Transaction(MalleableObject):
             Returns:
                 dict (str, obj)
             """
-            return dict(super(Transaction.Client, self)._serialize().items() + {
+            dict1 = dict(super(Transaction.Client, self)._serialize().items())
+            d = dict1.copy()
+            dict2 = {
                 "uris" : self.uris,
                 "uris_x86" : self.uris_x86,
                 "uris_x64" : self.uris_x64
-            }.items())
+            }.items()
+            d.update(dict2)
+
+            return d
 
         @classmethod
         def _deserialize(self, data):

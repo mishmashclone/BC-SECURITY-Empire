@@ -1,8 +1,8 @@
 import urllib
 from pyparsing import *
-from utility import MalleableError, MalleableUtil, MalleableObject
-from transformation import Transform, Terminator, Container
-from transaction import MalleableRequest, MalleableResponse, Transaction
+from .utility import MalleableError, MalleableUtil, MalleableObject
+from .transformation import Transform, Terminator, Container
+from .transaction import MalleableRequest, MalleableResponse, Transaction
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # IMPLEMENTATION
@@ -46,15 +46,38 @@ class Get(Transaction):
             dict (str, obj)
         """
         d = super(Get, self)._serialize()
-        d["client"] = dict((d["client"].items() if "client" in d else []) + {
-            "metadata" : self.client.metadata._serialize()
-        }.items())
-        d["server"] = dict((d["server"].items() if "server" in d else []) + {
-            "output" : self.server.output._serialize()
-        }.items())
-        return dict(d.items() + {
 
-        }.items())
+        # Format Client
+        if "client" in d:
+            dict1 = dict(d["client"].items())
+        else:
+            dict1 = dict([])
+        dict0 = dict1.copy()
+        dict2 = {
+            "metadata": self.client.metadata._serialize()
+        }.items()
+        d["client"] = dict0.update(dict2)
+
+        # Format Server
+        if "server" in d:
+            dict1 = dict(d["server"].items())
+        else:
+            dict1 = dict([])
+        dict0 = dict1.copy()
+        dict2 = {
+            "output": self.client.metadata._serialize()
+        }.items()
+        d["server"] = dict0.update(dict2)
+
+        # Build return message
+        dict1 = dict(d.items())
+        dict0 = dict1.copy()
+        dict2 = {
+
+        }.items()
+        dict0.update(dict2)
+
+        return dict0
 
     @classmethod
     def _deserialize(cls, data):
@@ -204,16 +227,39 @@ class Post(Transaction):
             dict (str, obj)
         """
         d = super(Post, self)._serialize()
-        d["client"] = dict((d["client"].items() if "client" in d else []) + {
+
+        # Format Client
+        if "client" in d:
+            dict1 = dict(d["client"].items())
+        else:
+            dict1 = dict([])
+        dict0 = dict1.copy()
+        dict2 = {
             "id" : self.client.id._serialize(),
             "output" : self.client.output._serialize()
-        }.items())
-        d["server"] = dict((d["server"].items() if "server" in d else []) + {
-            "output" : self.server.output._serialize()
-        }.items())
-        return dict(d.items() + {
+        }.items()
+        d["client"] = dict0.update(dict2)
 
-        }.items())
+        # Format Server
+        if "server" in d:
+            dict1 = dict(d["server"].items())
+        else:
+            dict1 = dict([])
+        dict0 = dict1.copy()
+        dict2 = {
+            "output": self.server.output._serialize()
+        }.items()
+        d["server"] = dict0.update(dict2)
+
+        # Build return message
+        dict1 = dict(d.items())
+        dict0 = dict1.copy()
+        dict2 = {
+
+        }.items()
+        dict0.update(dict2)
+
+        return dict0
 
     @classmethod
     def _deserialize(cls, data):
@@ -367,15 +413,38 @@ class Stager(Transaction):
             dict (str, obj)
         """
         d = super(Stager, self)._serialize()
-        d["client"] = dict((d["client"].items() if "client" in d else []) + {
-            "metadata" : self.client.metadata._serialize()
-        }.items())
-        d["server"] = dict((d["server"].items() if "server" in d else []) + {
-            "output" : self.server.output._serialize()
-        }.items())
-        return dict(d.items() + {
 
-        }.items())
+        # Format Client
+        if "client" in d:
+            dict1 = dict(d["client"].items())
+        else:
+            dict1 = dict([])
+        dict0 = dict1.copy()
+        dict2 = {
+            "metadata" : self.client.metadata._serialize()
+        }.items()
+        d["client"] = dict0.update(dict2)
+
+        # Format Server
+        if "server" in d:
+            dict1 = dict(d["server"].items())
+        else:
+            dict1 = dict([])
+        dict0 = dict1.copy()
+        dict2 = {
+            "output": self.server.output._serialize()
+        }.items()
+        d["server"] = dict0.update(dict2)
+
+        # Build return message
+        dict1 = dict(d.items())
+        dict0 = dict1.copy()
+        dict2 = {
+
+        }.items()
+        dict0.update(dict2)
+
+        return dict0
 
     @classmethod
     def _deserialize(cls, data):

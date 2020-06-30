@@ -1,7 +1,7 @@
 
 import os, base64, urllib
 from pyparsing import *
-from utility import MalleableError, MalleableUtil, MalleableObject
+from .utility import MalleableError, MalleableUtil, MalleableObject
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # TRANSFORMATION
@@ -100,10 +100,15 @@ class Transform(MalleableObject):
         Returns:
             dict (str, obj)
         """
-        return dict(super(Transform, self)._serialize().items() + {
+        dict1 = dict(super(Transform, self)._serialize().items())
+        d = dict1.copy()
+        dict2 = {
             "type" : self.type,
             "arg" : self.arg if self.type != Transform.MASK else MalleableUtil.to_hex(self.arg[0])
-        }.items())
+        }.items()
+        d.update(dict2)
+
+        return d
 
     @classmethod
     def _deserialize(cls, data):
@@ -301,10 +306,15 @@ class Terminator(MalleableObject):
         Returns:
             dict (str, obj)
         """
-        return dict(super(Terminator, self)._serialize().items() + {
+        dict1 = dict(super(Terminator, self)._serialize().items())
+        d = dict1.copy()
+        dict2 = {
             "type" : self.type,
             "arg" : self.arg
-        }.items())
+        }.items()
+        d.update(dict2)
+
+        return d
 
     @classmethod
     def _deserialize(cls, data):
@@ -372,10 +382,15 @@ class Container(MalleableObject):
         Returns:
             dict (str, obj): Serialized data (json)
         """
-        return dict(super(Container, self)._serialize().items() + {
+        dict1 = dict(super(Container, self)._serialize().items())
+        d = dict1.copy()
+        dict2 = {
             "transforms" : [t._serialize() for t in self.transforms],
             "terminator" : self.terminator._serialize()
-        }.items())
+        }.items()
+        d.update(dict2)
+
+        return d
 
     @classmethod
     def _deserialize(cls, data):

@@ -1,9 +1,9 @@
 import os, string
 from pyparsing import *
-from utility import MalleableError, MalleableUtil, MalleableObject
-from transformation import Transform, Terminator, Container
-from transaction import MalleableRequest, MalleableResponse, Transaction
-from implementation import Get, Post, Stager
+from .utility import MalleableError, MalleableUtil, MalleableObject
+from .transformation import Transform, Terminator, Container
+from .transaction import MalleableRequest, MalleableResponse, Transaction
+from .implementation import Get, Post, Stager
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # PROFILE
@@ -54,13 +54,18 @@ class Profile(MalleableObject):
         Returns:
             dict (str, obj): Serialized data (json)
         """
-        return dict(super(Profile, self)._serialize().items() + {
+        dict1 = dict(super(Profile, self)._serialize().items())
+        d = dict1.copy()
+        dict2 = {
             "get" : self.get._serialize(),
             "post" : self.post._serialize(),
             "stager" : self.stager._serialize(),
             "sleeptime" : self.sleeptime,
             "jitter" : self.jitter
-        }.items())
+        }.items()
+        d.update(dict2)
+
+        return d
 
     @classmethod
     def _deserialize(cls, data):

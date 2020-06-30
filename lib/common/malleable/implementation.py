@@ -509,7 +509,7 @@ class Stager(Transaction):
             if u.lower() in request.path.lower():
                 metadata = request.extract(self.client, self.client.metadata.terminator)
                 if metadata:
-                    return self.client.metadata.transform_r(metadata).decode('UTF-8')
+                    return self.client.metadata.transform_r(metadata).decode('Latin-1')
         return None
 
     def construct_server(self, output):

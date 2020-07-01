@@ -197,7 +197,7 @@ class Profile(MalleableObject):
             clone.verb = test.verb
             clone.headers = test.headers
             clone.body = test.body
-            if self.stager.extract_client(clone) != data:
+            if self.stager.extract_client(clone) != data.encode('UTF-8'):
                 MalleableError.throw(self.__class__, "validate", "Data-integrity check failed: %s-stager-client-metadata" % format)
 
             test = p.stager.construct_server(data)

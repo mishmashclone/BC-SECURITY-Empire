@@ -196,7 +196,7 @@ class Transform(MalleableObject):
 
     def _base64url(self):
         """Configure the `base64url` Transform, which base64 encodes an arbitary input using url-safe characters."""
-        self.transform = lambda data: urllib.parse.quote(base64.b64encode(data)) if isinstance(data,bytes) else urllib.parse.quote(base64.b64encode(data.encode('UTF-8')))
+        self.transform = lambda data: urllib.parse.quote(base64.b64encode(data)) if isinstance(data, bytes) else urllib.parse.quote(base64.b64encode(data.encode('UTF-8')))
         self.transform_r = lambda data: base64.b64decode(urllib.parse.unquote(data))
         self.generate_python = lambda var: "%(var)s=urllib.parse.quote(base64.b64encode(%(var)s))\n" % {"var":var}
         self.generate_python_r = lambda var: "%(var)s=base64.b64decode(urllib.parse.unquote(%(var)s))\n" % {"var":var}
@@ -254,7 +254,7 @@ class Transform(MalleableObject):
         if string is None:
             MalleableError.throw(Transform.__class__, "prepend", "string argument must not be null")
         self.transform = lambda data: string + data
-        self.transform_r = lambda data: data[len(string):]
+        self.transform_r = lambda data: data[len(string):] if isinstance(string, str) else data[len(string.decode('UTF-8')):]
         self.generate_python = lambda var: "%(var)s='%(string)s'+%(var)s\n" % {"var":var, "string":string}
         self.generate_python_r = lambda var: "%(var)s=%(var)s[%(len)i:]\n" % {"var":var, "len":len(string)}
         self.generate_powershell = lambda var: "%(var)s='%(string)s'+%(var)s;" % {"var":var, "string":string}
@@ -541,8 +541,13 @@ class Container(MalleableObject):
             str: The reverse-transformed data.
         """
         if data is None: data = ""
+
         for t in self.transforms[::-1]:
             data = t.transform_r(data)
+
+        #if isinstance(data, bytes):
+        #    data = data.decode('latin-1')
+
         return data
 
     def generate_python(self, var):

@@ -633,7 +633,7 @@ class Listener(object):
         lostLimit = listenerOptions["DefaultLostLimit"]["Value"]
         killDate = listenerOptions["KillDate"]["Value"]
         workingHours = listenerOptions["WorkingHours"]["Value"]
-        b64DefaultResponse = base64.b64encode(self.default_response())
+        b64DefaultResponse = base64.b64encode(self.default_response().encode('UTF-8'))
 
         profileStr = profile.stager.client.stringify()
 
@@ -1104,7 +1104,9 @@ class Listener(object):
                         if dataResults and len(dataResults) > 0:
                             for (language, results) in dataResults:
                                 if results:
-                                    if results == 'STAGE0':
+                                    if isinstance(results, str):
+                                        results = results.encode("UTF-8")
+                                    if results == b'STAGE0':
                                         # step 2 of negotiation -> server returns stager (stage 1)
 
                                         # log event
@@ -1122,7 +1124,7 @@ class Listener(object):
                                         malleableResponse = implementation.construct_server(stager)
                                         return Response(malleableResponse.body, malleableResponse.code, malleableResponse.headers)
 
-                                    elif results.startswith('STAGE2'):
+                                    elif results.startswith(b'STAGE2'):
                                         # step 6 of negotiation -> server sends patched agent (stage 2)
 
                                         if ':' in clientIP:
@@ -1158,7 +1160,7 @@ class Listener(object):
                                         # note: stage1 comms are hard coded, can't use malleable here.
                                         return Response(encryptedAgent, 200, implementation.server.headers)
 
-                                    elif results[:10].lower().startswith('error') or results[:10].lower().startswith(b'exception'):
+                                    elif results[:10].lower().startswith(b'error') or results[:10].lower().startswith(b'exception'):
                                         # agent returned an error
                                         message = "[!] Error returned for results by {} : {}".format(clientIP, results)
                                         signal = json.dumps({
@@ -1169,7 +1171,7 @@ class Listener(object):
 
                                         return Response(self.default_response(), 404)
 
-                                    elif results.startswith('ERROR:'):
+                                    elif results.startswith(b'ERROR:'):
                                         # error parsing agent data
                                         message = "[!] Error from agents.handle_agent_data() for {} from {}: {}".format(request_uri, clientIP, results)
                                         signal = json.dumps({
@@ -1178,14 +1180,14 @@ class Listener(object):
                                         })
                                         dispatcher.send(signal, sender="listeners/http_malleable/{}".format(listenerName))
 
-                                        if 'not in cache' in results:
+                                        if b'not in cache' in results:
                                             # signal the client to restage
                                             print(helpers.color("[*] Orphaned agent from %s, signaling restaging" % (clientIP)))
                                             return make_response("", 401)
 
                                         return Response(self.default_response(), 404)
 
-                                    elif results == 'VALID':
+                                    elif results == b'VALID':
                                         # agent posted results
                                         message = "[*] Valid results returned by {}".format(clientIP)
                                         signal = json.dumps({
@@ -1198,7 +1200,7 @@ class Listener(object):
                                         return Response(malleableResponse.body, malleableResponse.code, malleableResponse.headers)
 
                                     else:
-                                        if request.method == "POST":
+                                        if request.method == b"POST":
                                             # step 4 of negotiation -> server returns RSA(nonce+AESsession))
 
                                             # log event

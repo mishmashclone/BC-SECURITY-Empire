@@ -178,7 +178,7 @@ class Transform(MalleableObject):
         """
         if string is None:
             MalleableError.throw(Transform.__class__, "append", "string argument must not be null")
-        self.transform = lambda data: data + string.encode('UTF-8')
+        self.transform = lambda data: data + string
         self.transform_r = lambda data: data[:-len(string)]
         self.generate_python = lambda var: "%(var)s+='%(string)s'\n" % {"var":var, "string":string}
         self.generate_python_r = lambda var: "%(var)s=%(var)s[:-%(len)i]\n" % {"var":var, "len":len(string)}
@@ -188,7 +188,7 @@ class Transform(MalleableObject):
     def _base64(self):
         """Configure the `base64` Transform, which base64 encodes an arbitrary input."""
         self.transform = lambda data: base64.b64encode(data.encode('UTF-8'))
-        self.transform_r = lambda data: base64.b64decode(data.encode('UTF-8'))
+        self.transform_r = lambda data: base64.b64decode(data)
         self.generate_python = lambda var: "%(var)s=base64.b64encode(%(var)s)\n" % {"var":var}
         self.generate_python_r = lambda var: "%(var)s=base64.b64decode(%(var)s)\n" % {"var":var}
         self.generate_powershell = lambda var: "%(var)s=[Convert]::ToBase64String([System.Text.Encoding]::Default.GetBytes(%(var)s));" % {"var":var}
@@ -253,7 +253,7 @@ class Transform(MalleableObject):
         """
         if string is None:
             MalleableError.throw(Transform.__class__, "prepend", "string argument must not be null")
-        self.transform = lambda data: string + data
+        self.transform = lambda data: string + data if isinstance(data, str) else string + data.decode('UTF-8')
         self.transform_r = lambda data: data[len(string):] if isinstance(string, str) else data[len(string.decode('UTF-8')):]
         self.generate_python = lambda var: "%(var)s='%(string)s'+%(var)s\n" % {"var":var, "string":string}
         self.generate_python_r = lambda var: "%(var)s=%(var)s[%(len)i:]\n" % {"var":var, "len":len(string)}

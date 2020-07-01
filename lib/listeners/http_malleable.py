@@ -655,7 +655,7 @@ class Listener(object):
         lostLimit = listenerOptions["DefaultLostLimit"]["Value"]
         killDate = listenerOptions["KillDate"]["Value"]
         workingHours = listenerOptions["WorkingHours"]["Value"]
-        b64DefaultResponse = base64.b64encode(self.default_response().encode('UTF-8'))
+        b64DefaultResponse = base64.b64encode(self.default_response().encode('UTF-8')).decode('UTF-8')
 
         profileStr = profile.stager.client.stringify()
 

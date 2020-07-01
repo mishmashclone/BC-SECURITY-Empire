@@ -162,7 +162,7 @@ class Profile(MalleableObject):
             clone.verb = test.verb
             clone.headers = test.headers
             clone.body = test.body
-            if self.get.extract_client(clone) != data:
+            if self.get.extract_client(clone) != data.encode("UTF-8"):
                 MalleableError.throw(self.__class__, "validate", "Data-integrity check failed: %s-get-client-metadata" % format)
 
             test = p.get.construct_server(data)
@@ -181,7 +181,7 @@ class Profile(MalleableObject):
             id, output = self.post.extract_client(clone)
             if id != data:
                 MalleableError.throw(self.__class__, "validate", "Data-integrity check failed: %s-post-client-id" % format)
-            if output != data:
+            if output != data.encode('UTF-8'):
                 MalleableError.throw(self.__class__, "validate", "Data-integrity check failed: %s-post-client-output" % format)
 
             test = p.post.construct_server(data)
@@ -243,4 +243,4 @@ class Profile(MalleableObject):
         if not content:
             MalleableError.throw(self.__class__, "ingest", "Empty file: %s" % str(file))
 
-        self._parse(self._pattern().searchString(content))
+        self._parse(self._pattern().searchString(content.decode('UTF-8')))

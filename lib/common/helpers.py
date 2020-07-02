@@ -770,6 +770,10 @@ def lastseen(stamp, delay, jitter):
         stamp_date = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S.%f%z")
         delta = getutcnow() - stamp_date
 
+        #Remove formatting error
+        if "T" in stamp:
+            stamp.replace("T", " ")
+
         # Set min threshold for delay/jitter
         if delay < 1:
             delay = 1

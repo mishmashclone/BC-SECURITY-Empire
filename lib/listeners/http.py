@@ -579,11 +579,12 @@ class Listener(object):
             conn = self.get_db_connection()
             self.lock.acquire()
             cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
+            cur.execute("SELECT * FROM functions")
+            for replacement in cur.fetchall():
+                stager = stager.replace(replacement[0], replacement[1])
             cur.close()
             self.lock.release()
-            stager = stager.replace("Invoke-Empire", replacement[0])
+
 
             # make sure the server ends with "/"
             if not host.endswith("/"):
@@ -709,12 +710,13 @@ class Listener(object):
             conn = self.get_db_connection()
             self.lock.acquire()
             cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
+            cur.execute("SELECT * FROM functions")
+            for replacement in cur.fetchall():
+                code = code.replace(replacement[0], replacement[1])
             cur.close()
             self.lock.release()
 
-            code = code.replace("Invoke-Empire", replacement[0])
+
             
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)

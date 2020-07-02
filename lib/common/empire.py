@@ -33,6 +33,8 @@ import importlib
 import base64
 import threading
 import json
+import random
+import string
 
 # Empire imports
 from . import helpers
@@ -801,7 +803,35 @@ class MainMenu(cmd.Cmd):
                 print("\n" + helpers.color("[*] Reloading module: " + line) + "\n")
                 self.modules.reload_module(line)
     
-    
+    def do_keyword(self, line):
+        "Add keyword to database for obfuscation"
+        parts = line.split(' ')
+
+        conn = self.get_db_connection()
+        self.lock.acquire()
+        cur = conn.cursor()
+
+        if 1 <= len(parts) < 3:
+
+            try:
+                if len(parts) == 1:
+                    parts.append(random.choice(string.ascii_uppercase) + ''.join(
+                        random.choice(string.ascii_uppercase + string.digits) for _ in range(4)))
+
+                cur.execute("INSERT INTO functions VALUES(?,?)", (parts[0], parts[1]))
+                cur.close()
+                self.lock.release()
+            except Exception:
+                print(helpers.color("couldn't connect to Database"))
+        else:
+            print(helpers.color("[!]Error: Entry must be a keyword or keyword and replacement string"))
+    def do_test(self, line):
+        conn = self.get_db_connection()
+        self.lock.acquire()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM functions")
+        for val in cur.fetchall():
+            print(val[0])
     def do_list(self, line):
         "Lists active agents or listeners."
         

@@ -185,14 +185,14 @@ c.execute('''CREATE TABLE "users" (
 c.execute("INSERT INTO users VALUES (?,?,?,?,?,?,?)", ("1", API_USERNAME, API_PASSWORD, "", "", True, True))
 
 c.execute('''CREATE TABLE "functions" (
-    "Invoke_Empire" text,
-    "Invoke_Mimikatz" text 
+    "Keyword" text,
+    "Replacement" text 
 )''')
 
 rand1 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
 rand2 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
-c.execute("INSERT INTO functions VALUES(?,?)", (rand1, rand2))
-
+c.execute("INSERT INTO functions VALUES(?,?)", ('Invoke-Mimikatz', rand1))
+c.execute("INSERT INTO functions VALUES(?,?)", ('Invoke-Empire', rand2))
 # commit the changes and close everything off
 conn.commit()
 conn.close()

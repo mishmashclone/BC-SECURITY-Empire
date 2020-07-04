@@ -21,6 +21,10 @@ class Module(object):
                             'host-survey "safety checks" relevant from both offensive and defensive '
                             'security perspectives.'),
 
+            'Software': '',
+
+            'Techniques': ['T1082'],
+
             # True if the module needs to run in the background
             'Background': False,
 

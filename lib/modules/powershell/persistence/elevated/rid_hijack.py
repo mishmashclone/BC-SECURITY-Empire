@@ -19,7 +19,7 @@ class Module:
 
             'Software': '',
 
-            'Techniques': ['TA0003', 'T1003'],
+            'Techniques': ['T1003'],
 
             'Background': False,
 

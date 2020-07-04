@@ -18,7 +18,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0004'],
+            'Techniques': ['T1166'],
 
             # True if the module needs to run in the background
             'Background': False,

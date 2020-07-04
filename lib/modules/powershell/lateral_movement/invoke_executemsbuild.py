@@ -20,7 +20,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0008', 'T1127', 'T1047'],
+            'Techniques': ['T1127', 'T1047'],
 
             # True if the module needs to run in the background
             'Background' : False,

@@ -9,7 +9,7 @@ class Module(object):
             'Author': ['@nullbind', '@0xbadjuju'],
             'Description': ('Executes a command or stager on remote hosts using xp_cmdshell.'),
             'Software': '',
-            'Techniques': ['TA0008', 'T1505'],
+            'Techniques': ['T1505'],
             'Background' : True,
             'OutputExtension' : None,
             'NeedsAdmin' : False,

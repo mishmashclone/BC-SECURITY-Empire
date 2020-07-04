@@ -16,7 +16,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0008'],
+            'Techniques': ['T1028'],
 
             'Background' : False,
 

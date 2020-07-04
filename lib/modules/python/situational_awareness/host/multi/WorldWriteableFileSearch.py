@@ -95,4 +95,8 @@ print)subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
 
 """ % (path)
 
-        return script
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software

@@ -78,4 +78,9 @@ class Module(object):
         commsCode = "Send-Message -Packets $(Encode-Packet -Type 130 -Data '%s');\n%s" % (listenerName, commsCode)
         if obfuscate:
             commsCode = helpers.obfuscate(self.mainMenu.installPath, psScript=commsCode, obfuscationCommand=obfuscationCommand)
-        return commsCode
+
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return commsCode, moduleName, techniques, software

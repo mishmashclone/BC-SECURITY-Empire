@@ -92,4 +92,10 @@ Invoke-VoiceTroll"""
                         script += " -" + str(option) + " \"" + str(values['Value'].strip("\"")) + "\""
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
-        return script
+
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software
+

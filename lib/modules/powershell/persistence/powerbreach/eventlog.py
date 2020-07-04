@@ -181,4 +181,9 @@ Invoke-EventLogBackdoor"""
 
         print(scriptLauncher)
         
-        return scriptLauncher
+
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return scriptLauncher, moduleName, techniques, software

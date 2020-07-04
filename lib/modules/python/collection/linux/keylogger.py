@@ -88,4 +88,9 @@ print(pids)
 print("kill ruby PID and download %s when completed")
 """ % (logFile, logFile)
 
-        return script
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software
+

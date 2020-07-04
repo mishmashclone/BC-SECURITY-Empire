@@ -89,4 +89,8 @@ class Module(object):
 
         script += "\nrun_command(cmd)"
 
-        return script
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software

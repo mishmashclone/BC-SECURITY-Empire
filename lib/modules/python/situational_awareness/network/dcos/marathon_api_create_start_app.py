@@ -184,4 +184,8 @@ except Exception as e:
 print("Finished")
 """ %(target, port, appId, cmd, cpus, mem, disk, instances)
 
-        return script
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software

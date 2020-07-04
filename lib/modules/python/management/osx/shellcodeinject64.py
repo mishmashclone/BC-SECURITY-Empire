@@ -210,4 +210,8 @@ run()
         script = script.replace('[SC]', shellcode)
         script = script.replace('[PID]', processID)
 
-        return script
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software

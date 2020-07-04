@@ -791,4 +791,9 @@ job_message_buffer('[!] Keylogger exited\\n')
 
 """
 
-        return script
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software
+

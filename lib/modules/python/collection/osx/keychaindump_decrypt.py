@@ -93,4 +93,10 @@ for account in accounts:
     print("Secret: " + account[3])
 
 """
-        return script
+
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software
+

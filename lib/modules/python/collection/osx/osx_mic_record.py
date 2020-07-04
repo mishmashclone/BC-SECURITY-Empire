@@ -94,7 +94,7 @@ class Module(object):
         record_time = self.options['RecordTime']['Value']
         output_dir = self.options['OutputDir']['Value']
 
-        return '''
+        script = '''
 import objc
 import objc._objc
 import time
@@ -162,3 +162,10 @@ if __name__ == '__main__':
     del pool
     
 ''' % (record_time, output_dir) # script
+
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software
+

@@ -147,4 +147,9 @@ for userPath in userPaths:
 print("pillaging complete")
 """ % {'sleep': sleep, 'allUsers': allUsers}
 
-        return script
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software
+

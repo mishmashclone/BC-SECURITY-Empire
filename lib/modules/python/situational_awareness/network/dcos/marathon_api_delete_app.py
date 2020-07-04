@@ -129,4 +129,8 @@ except Exception as e:
 print("Finished")
 """ %(target, port, appId)
 
-        return script
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software

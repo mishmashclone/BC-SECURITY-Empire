@@ -253,7 +253,13 @@ except Exception as e:
 
         # add any arguments to the end exec
 
-        return script
+
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software
+
 
 # handle: Table links the number, country, type to the chat ID
 # SELECT * FROM handle

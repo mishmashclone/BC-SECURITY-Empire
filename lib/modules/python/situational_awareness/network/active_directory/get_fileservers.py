@@ -125,4 +125,9 @@ output.wait()
 print("")
 
 """ % (BindDN, LDAPAddress, password)
-        return script
+
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script, moduleName, techniques, software

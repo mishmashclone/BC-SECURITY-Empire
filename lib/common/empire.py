@@ -4169,7 +4169,7 @@ class ModuleMenu(SubMenu):
             self.module.execute()
         else:
             agentName = self.module.options['Agent']['Value']
-            moduleData = self.module.generate(self.mainMenu.obfuscate, self.mainMenu.obfuscateCommand)
+            moduleData, moduleName, techniques, software = self.module.generate(self.mainMenu.obfuscate, self.mainMenu.obfuscateCommand)
             
             if not moduleData or moduleData == "":
                 print(helpers.color("[!] Error: module produced an empty script"))
@@ -4268,7 +4268,7 @@ class ModuleMenu(SubMenu):
                     print(helpers.color("[!] Invalid agent name."))
                 else:
                     # set the agent's tasking in the cache
-                    self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData)
+                    self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData, moduleName=moduleName, software=software, techniques=str(techniques))
                     
                     # update the agent log
                     message = "[*] Tasked agent {} to run module {}".format(agentName, self.moduleName)

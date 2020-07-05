@@ -162,9 +162,5 @@ print("\\n[+] Empire daemon has been written to "+daemonPath+"%(programName)s")
 
 """ % {"encBytes":encBytes, "plistSettings":plistSettings, "daemonName":daemonName, "programName":programName, "plistFilename":plistFilename}
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script
 

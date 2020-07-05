@@ -112,9 +112,5 @@ class Module(object):
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script
 

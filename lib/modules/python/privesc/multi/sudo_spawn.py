@@ -113,8 +113,4 @@ class Module(object):
             launcher = "python -c %s" % (parts[0])
             script = 'import subprocess; subprocess.Popen("echo \\"%s\\" | sudo -S %s", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)' % (password, launcher)
 
-            moduleName = self.info['Name']
-            techniques = self.info['Techniques']
-            software = self.info['Software']
-
-            return script, moduleName, techniques, software
+            return script

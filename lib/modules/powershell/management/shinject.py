@@ -160,8 +160,4 @@ class Module(object):
         script += "\nInvoke-Shellcode -ProcessID {} -Shellcode $([Convert]::FromBase64String(\"{}\")) -Force".format(procID, encoded_sc)
         script += scriptEnd
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script

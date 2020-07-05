@@ -123,8 +123,4 @@ if login == True:
 
 """ % (desktop, login, image, image)
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script

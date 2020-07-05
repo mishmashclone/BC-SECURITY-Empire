@@ -4169,7 +4169,10 @@ class ModuleMenu(SubMenu):
             self.module.execute()
         else:
             agentName = self.module.options['Agent']['Value']
-            moduleData, moduleName, techniques, software = self.module.generate(self.mainMenu.obfuscate, self.mainMenu.obfuscateCommand)
+            moduleName = self.module.info['Name']
+            techniques = self.module.info['Techniques']
+            software = self.module.info['Software']
+            moduleData = self.module.generate(self.mainMenu.obfuscate, self.mainMenu.obfuscateCommand)
             
             if not moduleData or moduleData == "":
                 print(helpers.color("[!] Error: module produced an empty script"))

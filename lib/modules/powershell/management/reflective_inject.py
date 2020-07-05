@@ -167,8 +167,4 @@ class Module(object):
                 script += "\r\n"
                 script += "Remove-Item -Path %s" % fullUploadPath
 
-                moduleName = self.info['Name']
-                techniques = self.info['Techniques']
-                software = self.info['Software']
-
-                return script, moduleName, techniques, software
+                return script

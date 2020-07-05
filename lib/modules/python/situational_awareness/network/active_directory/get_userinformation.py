@@ -125,8 +125,4 @@ print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
 
 """ % (BindDN, LDAPAddress, password, user)
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script

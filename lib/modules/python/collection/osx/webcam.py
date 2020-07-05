@@ -100,8 +100,4 @@ run_command('rm -f %sdebug.png')
 print(data)
 """ % (tempDir, tempDir, tempDir, tempDir, tempDir, tempDir, tempDir)
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script

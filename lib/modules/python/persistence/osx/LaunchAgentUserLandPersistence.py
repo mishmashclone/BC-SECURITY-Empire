@@ -149,8 +149,4 @@ print("\\n[+] Persistence has been installed: /Library/LaunchAgents/%s")
 
 """ % (PLISTName,plistSettings,PLISTName)
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script

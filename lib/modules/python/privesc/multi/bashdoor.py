@@ -108,8 +108,4 @@ with open(bashlocation, 'w') as f:
 os.chmod(bashlocation, 0755)
 ''' % (launcher)
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script

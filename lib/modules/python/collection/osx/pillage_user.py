@@ -146,8 +146,4 @@ for sshFile in sshFiles:
 print("pillaging complete, if login.keychain recovered, use chainbreaker with the user password")
 """ % {'sleep': sleep, 'allUsers': allUsers}
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script

@@ -100,8 +100,4 @@ class Module(object):
             print(helpers.color("[!] Error rendering module template: {0}".format(e)))
             return ''
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script

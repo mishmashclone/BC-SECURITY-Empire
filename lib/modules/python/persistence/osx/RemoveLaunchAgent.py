@@ -104,9 +104,5 @@ print("\\n [+] %s has been removed")
 print("\\n [+] %s has been removed")
 """ %(plistpath,plistpath,programpath,plistpath,programpath)
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script
 

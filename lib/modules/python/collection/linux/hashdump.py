@@ -100,9 +100,5 @@ for line in passwd:
         print("%s:%s:%s" %(username, users[username], info))
 """
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script
 

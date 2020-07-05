@@ -283,9 +283,5 @@ inMemory = %s
 socketSniffer(fileNameSave,ipFilter,portFilter,maxSize,maxPackets, inMemory)
         """ % (savePath, savePath, savePath, ipFilter, portFilter, maxSize, maxPackets, inMemory)
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script
 

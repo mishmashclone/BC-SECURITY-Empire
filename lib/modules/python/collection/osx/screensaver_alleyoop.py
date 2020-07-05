@@ -172,8 +172,4 @@ verbose = %s
 run(exitCount, verbose=verbose)
 ''' %(exitCount, verbose)
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script

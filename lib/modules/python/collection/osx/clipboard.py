@@ -125,9 +125,5 @@ def func(monitortime=0):
 func(monitortime=%s)""" % (outFile,monitorTime)
 
 
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
-
-        return script, moduleName, techniques, software
+        return script
 

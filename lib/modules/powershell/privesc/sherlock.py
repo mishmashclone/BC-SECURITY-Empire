@@ -10,7 +10,7 @@ class Module:
             'Author': ['@_RastaMouse'],
             'Description': ('Find Windows local privilege escalation vulnerabilities.'),
             'Software': '',
-            'Techniques': [''],
+            'Techniques': ['T1046'],
             'Background': True,
             'OutputExtension': None,
             'NeedsAdmin': False,

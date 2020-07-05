@@ -14,7 +14,7 @@ class Module(object):
                             'search by keywords, sampling data, and validating credit card '
                             'numbers.'),
             'Software': '',
-            'Techniques': [''],
+            'Techniques': ['T1046'],
             'Background' : True,
             'OutputExtension' : None,
             

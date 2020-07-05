@@ -12,7 +12,7 @@ class Module(object):
             'Author': ['@_nullbind', '@0xbadjuju'],
             'Description': ('Executes a query on target SQL servers.'),
             'Software': '',
-            'Techniques': [''],
+            'Techniques': ['T1046'],
             'Background' : True,
             'OutputExtension' : None,
             'NeedsAdmin' : False,

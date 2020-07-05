@@ -63,7 +63,7 @@ class Module(object):
                 'Value'      :   ''
             },
             'Command': {
-                'Description':   'Use available Seatbelt commands (AntiVirus, PowerShellEvents, UAC, etc). ',
+                'Description':   'Use available Rubeus commands as a one-liner. ',
                 'Required'   :   False,
                 'Value'      :   '',
             },

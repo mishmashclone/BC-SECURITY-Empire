@@ -4271,7 +4271,7 @@ class ModuleMenu(SubMenu):
                     print(helpers.color("[!] Invalid agent name."))
                 else:
                     # set the agent's tasking in the cache
-                    self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData, moduleName=moduleName, software=software, techniques=str(techniques))
+                    self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData, moduleName=moduleName, software=software, techniques=techniques)
                     
                     # update the agent log
                     message = "[*] Tasked agent {} to run module {}".format(agentName, self.moduleName)

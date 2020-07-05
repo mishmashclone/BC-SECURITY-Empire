@@ -1069,6 +1069,9 @@ class Agents(object):
         nameid = self.get_agent_id_db(sessionID)
         timestamp = helpers.getutcnow()
 
+        if techniques is None:
+            techniques = []
+
         if nameid:
             sessionID = nameid
 
@@ -1100,7 +1103,16 @@ class Agents(object):
                     if pk is None:
                         pk = 0
                     pk = (pk + 1) % 65536
-                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, timestamp, moduleName, software, techniques) VALUES(?,?,?,?,?,?,?,?)", [pk, sessionID, task[:100], uid, timestamp, moduleName, software, techniques])
+                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, timestamp, module_name, software) VALUES(?,?,?,?,?,?,?)",
+                                [pk, sessionID, task[:100], uid, timestamp, moduleName, software])
+
+                    insert_techniques_sql = "INSERT INTO taskings_techniques (tasking_id, technique) VALUES "
+                    insert_arr = []
+                    for technique in techniques:
+                        insert_arr.append(f"('{pk}', '{technique}')")
+
+                    if len(insert_arr) > 0:
+                        cur.execute(insert_techniques_sql + ','.join(insert_arr) + ';')
 
                     # Create result for data when it arrives
                     cur.execute("INSERT INTO results (id, agent, user_id) VALUES (?,?,?)", (pk, sessionID, uid))

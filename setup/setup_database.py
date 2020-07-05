@@ -150,10 +150,16 @@ c.execute('''CREATE TABLE "taskings" (
     "agent" text,
     "user_id" text,
     "timestamp" timestamp,
-    "moduleName" text,
+    "module_name" text,
     "software" text,
-    "techniques" text,
     PRIMARY KEY(id, agent)
+)''')
+
+c.execute('''CREATE TABLE "taskings_techniques" (
+    "id" INTEGER PRIMARY KEY,
+    "tasking_id" INTEGER,
+    "technique" TEXT,
+    FOREIGN KEY(tasking_id) REFERENCES taskings(id)
 )''')
 
 c.execute('''CREATE TABLE "results" (

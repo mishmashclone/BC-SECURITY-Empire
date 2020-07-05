@@ -1175,7 +1175,8 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
                 a.hostname,
                 taskID,
                 t.data as "Task",
-                r.data as "Results"
+                r.data as "Results",
+                GROUP_CONCAT(tt.technique) AS techniques
             FROM
             (
                 SELECT
@@ -1186,12 +1187,14 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
                     taskID
                 FROM reporting
                 WHERE name LIKE 'agent%'
-                AND reporting.event_type == 'task' OR reporting.event_type == 'checkin') reporting
-                LEFT OUTER JOIN taskings t on (reporting.taskID = t.id) AND (agent_name = t.agent)
-                LEFT OUTER JOIN results r on (reporting.taskID = r.id) AND (agent_name = r.agent)
-                JOIN agents a on agent_name = a.session_id
-                LEFT OUTER JOIN users u on t.user_id = u.id
-                ORDER BY reporting.timestamp DESC
+                AND reporting.event_type == 'task' OR reporting.event_type == 'checkin'
+            ) reporting
+            LEFT OUTER JOIN taskings t on (reporting.taskID = t.id) AND (agent_name = t.agent)
+            LEFT OUTER JOIN taskings_techniques tt ON tt.tasking_id = t.id
+            LEFT OUTER JOIN results r on (reporting.taskID = r.id) AND (agent_name = r.agent)
+            JOIN agents a on agent_name = a.session_id
+            LEFT OUTER JOIN users u on t.user_id = u.id
+            ORDER BY reporting.timestamp DESC
         ''')
         reportingEvents = []
 

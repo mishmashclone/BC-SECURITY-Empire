@@ -1060,7 +1060,7 @@ class Agents(object):
     #
     ###############################################################
 
-    def add_agent_task_db(self, sessionID, taskName, task='', moduleName=None, software=None, techniques=None, uid=None):
+    def add_agent_task_db(self, sessionID, taskName, task='', moduleName=None, uid=None):
         """
         Add a task to the specified agent's buffer in the database.
         """
@@ -1068,9 +1068,6 @@ class Agents(object):
         # see if we were passed a name instead of an ID
         nameid = self.get_agent_id_db(sessionID)
         timestamp = helpers.getutcnow()
-
-        if techniques is None:
-            techniques = []
 
         if nameid:
             sessionID = nameid
@@ -1103,16 +1100,8 @@ class Agents(object):
                     if pk is None:
                         pk = 0
                     pk = (pk + 1) % 65536
-                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, timestamp, module_name, software) VALUES(?,?,?,?,?,?,?)",
-                                [pk, sessionID, task[:100], uid, timestamp, moduleName, software])
-
-                    insert_techniques_sql = "INSERT INTO taskings_techniques (tasking_id, technique) VALUES "
-                    insert_arr = []
-                    for technique in techniques:
-                        insert_arr.append(f"('{pk}', '{technique}')")
-
-                    if len(insert_arr) > 0:
-                        cur.execute(insert_techniques_sql + ','.join(insert_arr) + ';')
+                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, timestamp, module_name) VALUES(?,?,?,?,?,?)",
+                                [pk, sessionID, task[:100], uid, timestamp, moduleName])
 
                     # Create result for data when it arrives
                     cur.execute("INSERT INTO results (id, agent, user_id) VALUES (?,?,?)", (pk, sessionID, uid))

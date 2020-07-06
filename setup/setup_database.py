@@ -151,15 +151,7 @@ c.execute('''CREATE TABLE "taskings" (
     "user_id" text,
     "timestamp" timestamp,
     "module_name" text,
-    "software" text,
     PRIMARY KEY(id, agent)
-)''')
-
-c.execute('''CREATE TABLE "taskings_techniques" (
-    "id" INTEGER PRIMARY KEY,
-    "tasking_id" INTEGER,
-    "technique" TEXT,
-    FOREIGN KEY(tasking_id) REFERENCES taskings(id)
 )''')
 
 c.execute('''CREATE TABLE "results" (

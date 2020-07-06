@@ -4170,8 +4170,6 @@ class ModuleMenu(SubMenu):
         else:
             agentName = self.module.options['Agent']['Value']
             moduleName = self.module.info['Name']
-            techniques = self.module.info['Techniques']
-            software = self.module.info['Software']
             moduleData = self.module.generate(self.mainMenu.obfuscate, self.mainMenu.obfuscateCommand)
             
             if not moduleData or moduleData == "":
@@ -4271,7 +4269,7 @@ class ModuleMenu(SubMenu):
                     print(helpers.color("[!] Invalid agent name."))
                 else:
                     # set the agent's tasking in the cache
-                    self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData, moduleName=moduleName, software=software, techniques=techniques)
+                    self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData, moduleName=moduleName)
                     
                     # update the agent log
                     message = "[*] Tasked agent {} to run module {}".format(agentName, self.moduleName)

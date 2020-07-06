@@ -2,7 +2,8 @@ from __future__ import print_function
 from builtins import object
 import os
 import string
-from pydispatch import dispatcher
+
+# Empire imports
 from lib.common import helpers
 
 
@@ -75,7 +76,7 @@ class Module(object):
 
         activeListener = self.mainMenu.listeners.activeListeners[listenerName]
 
-        chars = string.uppercase + string.digits
+        chars = string.ascii_uppercase + string.digits
         sessionID = helpers.random_string(length=8, charset=chars)
 
         stagingKey = activeListener['options']['StagingKey']['Value']
@@ -103,6 +104,17 @@ class Module(object):
         else:
             print(helpers.color('[!] Only PowerShell agent generation is supported at this time.'))
             return ''
+
+        # Get the random function name generated at install and patch the stager with the proper function name
+        conn = self.mainMenu.get_db_connection()
+        self.mainMenu.lock.acquire()
+        cur = conn.cursor()
+        cur.execute("SELECT Invoke_Empire FROM functions")
+        replacement = cur.fetchone()
+        cur.close()
+        self.mainMenu.lock.release()
+        agentCode = agentCode.replace("Invoke-Empire", replacement[0])
+
 
         # TODO: python agent generation - need to patch in crypto functions from the stager...
 

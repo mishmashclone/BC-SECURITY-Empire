@@ -32,6 +32,9 @@ class Plugin(object):
         print(helpers.color("[*] Registering plugin with menu..."))
         self.register(mainMenu)
 
+        # Give access to main menu
+        self.mainMenu = mainMenu
+
     def onLoad(self):
         """ Things to do during init: meant to be overridden by
         the inheriting plugin. """

@@ -66,9 +66,6 @@ import fnmatch
 import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse
 import hashlib
 import datetime
-import uuid
-import ipaddress
-import simplejson as json
 
 from datetime import datetime, timezone
 

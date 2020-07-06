@@ -1,26 +1,23 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
+
 import base64
-import random
+import copy
+import json
 import os
 import re
 import time
-from datetime import datetime
-import copy
 import traceback
-import sys
-import json
+from builtins import object
+from builtins import str
+from datetime import datetime
+
 from pydispatch import dispatcher
 from requests import Request, Session
 
+from lib.common import bypasses
+from lib.common import encryption
 # Empire imports
 from lib.common import helpers
-from lib.common import agents
-from lib.common import encryption
-from lib.common import packets
-from lib.common import messages
-from lib.common import bypasses
 
 
 class Listener(object):

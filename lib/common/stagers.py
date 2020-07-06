@@ -13,28 +13,29 @@ The Stagers() class in instantiated in ./empire.py by the main menu and includes
     generate_dylib() - generates a dylib with an embedded python interpreter and runs launcher code when loaded into an application
 
 """
-from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
 
-from builtins import chr
-from builtins import zip
-from builtins import str
-from builtins import object
-from past.utils import old_div
+import base64
+import errno
 import fnmatch
 import importlib.util
-from . import helpers
-import errno
 import os
-import errno
-import macholib.MachO
 import shutil
-import zipfile
 import subprocess
+import zipfile
+from builtins import chr
+from builtins import object
+from builtins import str
+from builtins import zip
 from itertools import cycle
+
+import macholib.MachO
+from past.utils import old_div
+
+from . import helpers
 from .ShellcodeRDI import *
-import base64
 
 
 class Stagers(object):

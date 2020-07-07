@@ -25,6 +25,11 @@ from flask.json import JSONEncoder
 # Empire imports
 from lib.common import empire, helpers, users
 
+# Check if running Python 3
+if sys.version[0] == '2':
+    print(helpers.color("[!] Please use Python 3"))
+    sys.exit()
+
 global serverExitCommand
 serverExitCommand = 'restart'
 

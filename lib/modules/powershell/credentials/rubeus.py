@@ -58,14 +58,14 @@ class Module(object):
             #   value_name : {description, required, default_value}
             'Agent': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description':   'Agent to run on.',
-                'Required'   :   True,
-                'Value'      :   ''
+                'Description': 'Agent to run on.',
+                'Required': True,
+                'Value': ''
             },
             'Command': {
-                'Description':   'Use available Rubeus commands as a one-liner. ',
-                'Required'   :   False,
-                'Value'      :   '',
+                'Description': 'Use available Rubeus commands as a one-liner. ',
+                'Required': False,
+                'Value': '',
             },
         }
 
@@ -84,35 +84,35 @@ class Module(object):
                 if option in self.options:
                     self.options[option]['Value'] = value
 
-
     def generate(self, obfuscate=False, obfuscationCommand=""):
         # First method: Read in the source script from module_source
-        moduleSource = self.mainMenu.installPath + "/data/module_source/credentials/Invoke-Rubeus.ps1"
+        module_source = self.mainMenu.installPath + "/data/module_source/credentials/Invoke-Rubeus.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscationCommand)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
 
-        script = moduleCode
-        scriptEnd = 'Invoke-Rubeus -Command "'
+        script = module_code
+        script_end = 'Invoke-Rubeus -Command "'
 
         # Add any arguments to the end execution of the script
         if self.options['Command']['Value']:
-            scriptEnd += " " + str(self.options['Command']['Value'])
+            script_end += " " + str(self.options['Command']['Value'])
 
-        scriptEnd = scriptEnd.replace('" ', '"')
-        scriptEnd += '"'
+        script_end = script_end.replace('" ', '"')
+        script_end += '"'
 
-        print(scriptEnd)
+        print(script_end)
         if obfuscate:
-            scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(psScript=script_end, installPath=self.mainMenu.installPath,
+                                          obfuscationCommand=obfuscationCommand)
+        script += script_end
         # Restore the regular STDOUT object
         return script

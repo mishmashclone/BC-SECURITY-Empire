@@ -121,15 +121,15 @@ class Module(object):
 
         # TODO: python agent generation - need to patch in crypto functions from the stager...
 
-        print(helpers.color("[+] Pre-generated agent '%s' now registered." % (session_id)))
+        print(helpers.color("[+] Pre-generated agent '%s' now registered." % session_id))
 
         # increment the supplied file name appropriately if it already exists
         i = 1
-        outFileOrig = out_file
+        out_file_orig = out_file
         while os.path.exists(out_file):
-            parts = outFileOrig.split('.')
+            parts = out_file_orig.split('.')
             if len(parts) == 1:
-                base = outFileOrig
+                base = out_file_orig
                 ext = None
             else:
                 base = '.'.join(parts[0:-1])

@@ -11,6 +11,7 @@ import copy
 import traceback
 import sys
 import json
+import threading
 from pydispatch import dispatcher
 from requests import Request, Session
 
@@ -297,6 +298,12 @@ class Listener(object):
             stager = f.read()
             f.close()
 
+            # Get the random function name generated at install and patch the stager with the proper function name
+            conn = self.get_db_connection()
+            self.lock.acquire()
+            stager = helpers.keyword_obfuscation(stager, conn)
+            self.lock.release()
+
             stager = stager.replace("REPLACE_STAGING_FOLDER", "%s/%s" % (base_folder, staging_folder))
             stager = stager.replace('REPLACE_STAGING_KEY', staging_key)
             stager = stager.replace("REPLACE_TOKEN", token)
@@ -468,6 +475,12 @@ class Listener(object):
             f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
             agent_code = f.read()
             f.close()
+
+            # Get the random function name generated at install and patch the stager with the proper function name
+            conn = self.get_db_connection()
+            self.lock.acquire()
+            agent_code = helpers.keyword_obfuscation(agent_code, conn)
+            self.lock.release()
 
             comms_code = self.generate_comms(listener_options, client_id, client_secret, token, refresh_token,
                                              redirect_uri, language)

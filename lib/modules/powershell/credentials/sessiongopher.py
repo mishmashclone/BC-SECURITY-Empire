@@ -2,6 +2,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import object
 from lib.common import helpers
+import threading
 
 class Module(object):
 
@@ -100,6 +101,9 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
+        # used to protect self.http and self.mainMenu.conn during threaded listener access
+        self.lock = threading.Lock()
+
         # During instantiation, any settable option parameters
         #   are passed as an object set to the module and the
         #   options dictionary is automatically set. This is mostly
@@ -145,4 +149,11 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
+        # Get the random function name generated at install and patch the stager with the proper function name
+        conn = self.get_db_connection()
+        self.lock.acquire()
+        script = helpers.keyword_obfuscation(script, conn)
+        self.lock.release()
+
         return script

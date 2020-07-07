@@ -224,7 +224,7 @@ class Module(object):
         script = moduleCode
 
         # set defaults for Empire
-        scriptEnd = "\n" + 'Invoke-Inveigh -Tool "2"'
+        scriptEnd = "\n" + 'Invoke-Inveigh -Tool "2" -MachineAccounts Y'
 
         for option,values in self.options.items():
             if option.lower() != "agent":

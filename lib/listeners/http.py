@@ -578,11 +578,7 @@ class Listener(object):
             # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM functions")
-            for replacement in cur.fetchall():
-                stager = stager.replace(replacement[0], replacement[1])
-            cur.close()
+            stager = helpers.keyword_obfuscation(stager, conn)
             self.lock.release()
 
 
@@ -709,11 +705,7 @@ class Listener(object):
             # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM functions")
-            for replacement in cur.fetchall():
-                code = code.replace(replacement[0], replacement[1])
-            cur.close()
+            code = helpers.keyword_obfuscation(code, conn)
             self.lock.release()
 
 

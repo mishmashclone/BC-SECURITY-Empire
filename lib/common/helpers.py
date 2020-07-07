@@ -272,7 +272,14 @@ def strip_powershell_comments(data):
 
     return strippedCode
 
+def keyword_obfuscation(data, sql_cur):
+    cur = sql_cur.cursor()
+    cur.execute("SELECT * FROM functions")
+    for replacement in cur.fetchall():
+        code = data.replace(replacement[0], replacement[1])
+    cur.close()
 
+    return code
 ####################################################################################
 #
 # PowerView dynamic generation helpers

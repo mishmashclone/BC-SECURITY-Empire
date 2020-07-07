@@ -3,6 +3,7 @@ from builtins import str
 from builtins import object
 from lib.common import helpers
 import base64
+import threading
 
 
 class Module(object):
@@ -78,12 +79,35 @@ class Module(object):
                 'Description': r'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
                 'Required': False,
                 'Value': 'default'
+            },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             }
         }
         
         # save off a copy of the mainMenu object to access external functionality
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
+
+        # used to protect self.http and self.mainMenu.conn during threaded listener access
+        self.lock = threading.Lock()
         
         for param in params:
             # parameter format is [Name, Value]
@@ -139,6 +163,10 @@ class Module(object):
             l.options['UserAgent']['Value'] = self.options['UserAgent']['Value']
             l.options['Proxy']['Value'] = self.options['Proxy']['Value']
             l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
+            l.options['Obfuscate']['Value'] = self.options['Obfuscate']['Value']
+            l.options['ObfuscateCommand']['Value'] = self.options['ObfuscateCommand']['Value']
+            l.options['AMSIBypass']['Value'] = self.options['AMSIBypass']['Value']
+            l.options['AMSIBypass2']['Value'] = self.options['AMSIBypass2']['Value']
             launcher = l.generate()
             
             if launcher == '':
@@ -168,5 +196,11 @@ class Module(object):
                 script += "Start-Sleep -s 5"
                 script += "\r\n"
                 script += code_exec
-                
+
+                # Get the random function name generated at install and patch the stager with the proper function name
+                conn = self.get_db_connection()
+                self.lock.acquire()
+                script = helpers.keyword_obfuscation(script, conn)
+                self.lock.release()
+
                 return script

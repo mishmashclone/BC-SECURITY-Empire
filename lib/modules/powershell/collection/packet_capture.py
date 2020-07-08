@@ -1,5 +1,6 @@
 from builtins import object
 from lib.common import helpers
+import threading
 
 class Module(object):
 
@@ -68,6 +69,9 @@ class Module(object):
         # save off a copy of the mainMenu object to access external functionality
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
+
+        # used to protect self.http and self.mainMenu.conn during threaded listener access
+        self.lock = threading.Lock()
         
         for param in params:
             # parameter format is [Name, Value]
@@ -96,4 +100,11 @@ class Module(object):
                 script += " persistent=yes"
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
+        # Get the random function name generated at install and patch the stager with the proper function name
+        conn = self.get_db_connection()
+        self.lock.acquire()
+        script = helpers.keyword_obfuscation(script, conn)
+        self.lock.release()
+
         return script

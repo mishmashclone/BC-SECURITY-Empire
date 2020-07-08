@@ -66,9 +66,6 @@ import fnmatch
 import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse
 import hashlib
 import datetime
-import uuid
-import ipaddress
-import simplejson as json
 
 from datetime import datetime, timezone
 
@@ -769,6 +766,10 @@ def lastseen(stamp, delay, jitter):
     try:
         stamp_date = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S.%f%z")
         delta = getutcnow() - stamp_date
+
+        #Remove formatting error
+        if "T" in stamp:
+            stamp.replace("T", " ")
 
         # Set min threshold for delay/jitter
         if delay < 1:

@@ -12,15 +12,15 @@ These are the first places URI requests are processed.
 from __future__ import absolute_import
 
 from future import standard_library
+
 standard_library.install_aliases()
 from http.server import BaseHTTPRequestHandler
-import http.server, threading, ssl, os, string, random
+import http.server, threading, ssl, os
 from pydispatch import dispatcher
 import re
 import json
 
 # Empire imports
-from . import encryption
 from . import helpers
 
 

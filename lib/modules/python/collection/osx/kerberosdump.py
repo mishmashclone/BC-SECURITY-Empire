@@ -1,5 +1,4 @@
 from builtins import object
-from lib.common import helpers
 
 
 class Module(object):
@@ -99,5 +98,4 @@ try:
 except Exception as e:
     print(e)
 """
-
         return script

@@ -7,13 +7,13 @@ Contains the Main, Listener, Agents, Agent, and Module
 menu loops.
 
 """
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
 
 # make version for Empire
 from builtins import input
-from builtins import str
 from builtins import range
+from builtins import str
 
 VERSION = "3.2.3 BC-Security Fork"
 
@@ -25,11 +25,8 @@ import sqlite3
 import os
 import hashlib
 import time
-import fnmatch
 import shlex
-import marshal
 import pkgutil
-import importlib
 import base64
 import threading
 import json
@@ -43,10 +40,9 @@ from . import modules
 from . import stagers
 from . import credentials
 from . import plugins
-from . import users
 from .events import log_event
 from zlib_wrapper import compress
-from zlib_wrapper import decompress
+
 
 def xstr(s):
     """Safely cast to a string with a handler for None"""

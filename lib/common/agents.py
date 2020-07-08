@@ -55,26 +55,25 @@ handle_agent_data() is the main function that should be used by external listene
 Most methods utilize self.lock to deal with the concurreny issue of kicking off threaded listeners.
 
 """
-from __future__ import print_function
 from __future__ import absolute_import
-# -*- encoding: utf-8 -*-
-from builtins import str
-from builtins import object
-import os
+from __future__ import print_function
+
 import json
+import os
 import string
 import threading
+from builtins import object
+# -*- encoding: utf-8 -*-
+from builtins import str
 from pydispatch import dispatcher
-from zlib_wrapper import compress
 from zlib_wrapper import decompress
 
 # Empire imports
 from . import encryption
-from . import helpers
-from . import packets
-from . import messages
 from . import events
-from . import users
+from . import helpers
+from . import messages
+from . import packets
 
 
 class Agents(object):
@@ -330,12 +329,12 @@ class Agents(object):
             dec_data = d.dec_data(data)
             print(helpers.color("[*] Final size of %s wrote: %s" %(filename, helpers.get_file_size(dec_data['data'])), color="green"))
             if not dec_data['crc32_check']:
-                message = "[!] WARNING: File agent {} failed crc32 check during decompression!\n[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!".format(nameid, dec_data['header_crc32'], dec_data['dec_crc32'], dec_data['crc32_check'])
+                message = "[!] WARNING: File agent {} failed crc32 check during decompression!\n[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!".format(sessionID, dec_data['header_crc32'], dec_data['dec_crc32'], dec_data['crc32_check'])
                 signal = json.dumps({
                     'print': True,
                     'message': message
                 })
-                dispatcher.send(signal, sender="agents/{}".format(nameid))
+                dispatcher.send(signal, sender="agents/{}".format(sessionID))
             data = dec_data['data']
 
         try:

@@ -1,7 +1,9 @@
 from __future__ import print_function
+
 from builtins import str
-from builtins import object
+
 from lib.common import helpers
+
 
 class Module:
 
@@ -136,5 +138,4 @@ class Module:
         scriptEnd += "'Invoke-SMBLogin completed'"
 
         script += scriptEnd
-
         return script

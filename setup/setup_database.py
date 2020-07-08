@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 from __future__ import print_function
+
+import hashlib
+import os
+import random
+import sqlite3
+import string
 from builtins import input
 from builtins import range
-import sqlite3, os, string, hashlib, random
-import bcrypt
 
+import bcrypt
 
 ###################################################
 #
@@ -60,7 +65,7 @@ OBFUSCATE_COMMAND = r'Token\All\1'
 #
 ###################################################
 
-conn = sqlite3.connect('%s/data/empire.db'%INSTALL_PATH)
+conn = sqlite3.connect('%s/data/empire.db' % INSTALL_PATH)
 
 c = conn.cursor()
 
@@ -81,7 +86,8 @@ c.execute('''CREATE TABLE config (
     )''')
 
 # kick off the config component of the database
-c.execute("INSERT INTO config VALUES (?,?,?,?,?,?,?,?,?)", (STAGING_KEY, INSTALL_PATH, IP_WHITELIST, IP_BLACKLIST, '', '', False, OBFUSCATE, OBFUSCATE_COMMAND))
+c.execute("INSERT INTO config VALUES (?,?,?,?,?,?,?,?,?)",
+          (STAGING_KEY, INSTALL_PATH, IP_WHITELIST, IP_BLACKLIST, '', '', False, OBFUSCATE, OBFUSCATE_COMMAND))
 
 c.execute('''CREATE TABLE "agents" (
     "id" integer PRIMARY KEY,
@@ -189,9 +195,21 @@ c.execute('''CREATE TABLE "functions" (
     "Invoke_Mimikatz" text 
 )''')
 
-rand1 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
-rand2 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+rand1 = random.choice(string.ascii_uppercase) + ''.join(
+    random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+rand2 = random.choice(string.ascii_uppercase) + ''.join(
+    random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
 c.execute("INSERT INTO functions VALUES(?,?)", (rand1, rand2))
+
+c.execute('''CREATE TABLE "file_directory" (
+    "id" INTEGER PRIMARY KEY,
+    "session_id" TEXT,
+    "name" TEXT,
+    "path" TEXT,
+    "parent_id" INTEGER NULLABLE,
+    "is_file" boolean,
+    FOREIGN KEY (parent_id) REFERENCES file_directory(id) ON DELETE CASCADE
+);''')
 
 # commit the changes and close everything off
 conn.commit()

@@ -95,7 +95,8 @@ PACKET_NAMES = {
     "TASK_SHELL": 40,
     "TASK_DOWNLOAD": 41,
     "TASK_UPLOAD": 42,
-    
+    "TASK_DIR_LIST": 43,
+
     "TASK_GETJOBS": 50,
     "TASK_STOPJOB": 51,
     

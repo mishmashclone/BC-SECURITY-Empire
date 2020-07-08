@@ -143,4 +143,5 @@ print(status)
 print(output)
 
 """ % (launcher, login, password)
+
         return script

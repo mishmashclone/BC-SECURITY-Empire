@@ -4,6 +4,7 @@ import os
 from builtins import str
 from builtins import object
 from lib.common import helpers
+import os
 
 class Module(object):
 
@@ -18,7 +19,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0003', 'T1204', 'T1023'],
+            'Techniques': ['T1204', 'T1023'],
 
             'Background' : True,
 
@@ -191,4 +192,5 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
         return script

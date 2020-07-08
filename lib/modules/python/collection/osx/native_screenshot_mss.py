@@ -112,3 +112,4 @@ run(data)
 """ % (module_data, self.options['Monitor']['Value'], self.options['SavePath']['Value'])
 
         return script
+

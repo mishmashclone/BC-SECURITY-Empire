@@ -107,6 +107,5 @@ with open(bashlocation, 'w') as f:
     f.close()
 os.chmod(bashlocation, 0755)
 ''' % (launcher)
+
         return script
-
-

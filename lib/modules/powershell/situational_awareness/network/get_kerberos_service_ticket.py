@@ -117,13 +117,14 @@ class Module(object):
         if maxevents != "":
             scriptEnd += " -MaxEvents " + maxevents
         if excludecomputers == 'True':
-        	scriptEnd += " -ExcludeComputers $true"
+            scriptEnd += " -ExcludeComputers $true"
         if excludecomputers == 'False':
-        	scriptEnd += " -ExcludeComputers $false"
+            scriptEnd += " -ExcludeComputers $false"
 
         scriptEnd += " | Format-Table -AutoSize | Out-String"
 
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
         return script

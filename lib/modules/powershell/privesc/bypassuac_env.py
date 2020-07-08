@@ -115,4 +115,6 @@ class Module(object):
                 return ""
             else:
                 script += "Invoke-EnvBypass -Command \"%s\"" % (encScript)
+
                 return script
+

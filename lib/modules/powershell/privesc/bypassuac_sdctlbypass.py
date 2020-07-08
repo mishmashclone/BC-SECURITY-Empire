@@ -114,4 +114,6 @@ class Module(object):
                 return ""
             else:
                 script += "Invoke-SDCLTBypass -Command \"%s\"" % (encScript)
+
                 return script
+

@@ -96,4 +96,5 @@ class Module(object):
 
             launcher = launcher.replace('"', '\\"')
             script = 'os.system("%s")' % (launcher)
+
             return script

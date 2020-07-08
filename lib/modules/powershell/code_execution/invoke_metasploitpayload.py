@@ -14,7 +14,7 @@ class Module(object):
                             'and executes a Metasploit payload. This relies on the' 
                             'exploit/multi/scripts/web_delivery metasploit module.'),
             'Software': '',
-            'Techniques': ['T1055', 'TA0001'],
+            'Techniques': ['T1055'],
             'Background' : False,
             'OutputExtension' : None,
             'NeedsAdmin' : False,
@@ -79,4 +79,5 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
         return script

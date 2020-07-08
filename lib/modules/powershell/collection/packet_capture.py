@@ -96,4 +96,5 @@ class Module(object):
                 script += " persistent=yes"
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script

@@ -15,7 +15,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0003', 'T1101'],
+            'Techniques': ['T1101'],
 
             'Background' : True,
 
@@ -198,4 +198,5 @@ Get-SecurityPackages
                     script += " -" + str(option) + " " + str(values['Value']) 
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script

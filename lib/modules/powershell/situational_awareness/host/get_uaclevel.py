@@ -109,4 +109,6 @@ function Get-UACLevel
                     else:
                         script += " -" + str(option) + " " + str(values['Value']) 
 
+
         return script
+

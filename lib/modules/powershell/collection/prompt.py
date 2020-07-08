@@ -127,4 +127,5 @@ Invoke-Prompt """
                         script += " -" + str(option) + " \"" + str(values['Value'].strip("\"")) + "\""
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script

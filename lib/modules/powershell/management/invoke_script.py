@@ -85,4 +85,5 @@ class Module(object):
         script += "%s" %(scriptCmd)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script

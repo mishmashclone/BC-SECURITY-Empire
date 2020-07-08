@@ -1106,7 +1106,7 @@ class Agents(object):
     #
     ###############################################################
 
-    def add_agent_task_db(self, sessionID, taskName, task='',uid=None):
+    def add_agent_task_db(self, sessionID, taskName, task='', moduleName=None, uid=None):
         """
         Add a task to the specified agent's buffer in the database.
         """
@@ -1146,7 +1146,8 @@ class Agents(object):
                     if pk is None:
                         pk = 0
                     pk = (pk + 1) % 65536
-                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, timestamp) VALUES(?, ?, ?, ?, ?)", [pk, sessionID, task[:100], uid, timestamp])
+                    cur.execute("INSERT INTO taskings (id, agent, data, user_id, timestamp, module_name) VALUES(?,?,?,?,?,?)",
+                                [pk, sessionID, task[:100], uid, timestamp, moduleName])
 
                     # Create result for data when it arrives
                     cur.execute("INSERT INTO results (id, agent, user_id) VALUES (?,?,?)", (pk, sessionID, uid))

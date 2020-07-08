@@ -89,3 +89,4 @@ print("kill ruby PID and download %s when completed")
 """ % (logFile, logFile)
 
         return script
+

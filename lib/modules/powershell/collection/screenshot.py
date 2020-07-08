@@ -122,4 +122,5 @@ Get-Screenshot"""
                         script += " -" + str(option) + " " + str(values['Value'])
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script

@@ -12,7 +12,7 @@ class Module(object):
             'Author': ['@_nullbind', '@0xbadjuju'],
             'Description': ('Executes a query on target SQL servers.'),
             'Software': '',
-            'Techniques': [''],
+            'Techniques': ['T1046'],
             'Background' : True,
             'OutputExtension' : None,
             'NeedsAdmin' : False,
@@ -95,4 +95,5 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
         return script

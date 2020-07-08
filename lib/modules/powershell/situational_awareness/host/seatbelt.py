@@ -155,4 +155,6 @@ class Module(object):
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
         # Restore the regular STDOUT object
+
         return script
+

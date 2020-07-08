@@ -253,7 +253,9 @@ except Exception as e:
 
         # add any arguments to the end exec
 
+
         return script
+
 
 # handle: Table links the number, country, type to the chat ID
 # SELECT * FROM handle

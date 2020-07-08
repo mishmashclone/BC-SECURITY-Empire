@@ -284,3 +284,4 @@ socketSniffer(fileNameSave,ipFilter,portFilter,maxSize,maxPackets, inMemory)
         """ % (savePath, savePath, savePath, ipFilter, portFilter, maxSize, maxPackets, inMemory)
 
         return script
+

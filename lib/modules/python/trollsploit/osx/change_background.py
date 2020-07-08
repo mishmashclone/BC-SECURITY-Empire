@@ -16,7 +16,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1491'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -122,4 +122,5 @@ if login == True:
 
 
 """ % (desktop, login, image, image)
+
         return script

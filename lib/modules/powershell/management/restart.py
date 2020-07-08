@@ -14,7 +14,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1064'],
 
             'Background' : False,
 
@@ -58,4 +58,5 @@ class Module(object):
         script = "'Restarting computer';Restart-Computer -Force"
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script

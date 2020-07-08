@@ -169,5 +169,5 @@ class Module(object):
                 script += "Start-Sleep -s 5"
                 script += "\r\n"
                 script += code_exec
-                
+
                 return script

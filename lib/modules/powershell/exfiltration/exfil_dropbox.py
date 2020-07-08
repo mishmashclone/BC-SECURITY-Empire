@@ -20,7 +20,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0010'],
+            'Techniques': ['T1041'],
 
             # True if the module needs to run in the background
             'Background': False,
@@ -144,4 +144,5 @@ Invoke-DropboxUpload  """
                     else:
                         script += " -" + str(option) + " " + str(values['Value'])
         
+
         return script

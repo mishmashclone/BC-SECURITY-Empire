@@ -93,4 +93,6 @@ for account in accounts:
     print("Secret: " + account[3])
 
 """
+
         return script
+

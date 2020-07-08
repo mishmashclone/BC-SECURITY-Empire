@@ -156,6 +156,7 @@ c.execute('''CREATE TABLE "taskings" (
     "agent" text,
     "user_id" text,
     "timestamp" timestamp,
+    "module_name" text,
     PRIMARY KEY(id, agent)
 )''')
 

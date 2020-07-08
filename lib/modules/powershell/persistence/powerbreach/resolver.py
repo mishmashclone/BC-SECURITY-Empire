@@ -17,7 +17,7 @@ class Module(object):
 
             'Software': 'S0194',
 
-            'Techniques': ['TA0003'],
+            'Techniques': ['T1015'],
 
             'Background' : False,
 
@@ -187,7 +187,12 @@ Invoke-ResolverBackdoor"""
         parts = stagerCode.split(" ")
 
         # set up the start-process command so no new windows appears
-        scriptLauncher = "Start-Process -NoNewWindow -FilePath '%s' -ArgumentList '%s'; 'PowerBreach Invoke-EventLogBackdoor started'" % (parts[0], " ".join(parts[1:]))
+        script = "Start-Process -NoNewWindow -FilePath '%s' -ArgumentList '%s'; 'PowerBreach Invoke-EventLogBackdoor started'" % (parts[0], " ".join(parts[1:]))
         if obfuscate:
-            scriptLauncher = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptLauncher, obfuscationCommand=obfuscationCommand)
-        return scriptLauncher
+            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script

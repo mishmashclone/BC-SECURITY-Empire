@@ -18,7 +18,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0003', 'T1060'],
+            'Techniques': ['T1060'],
 
             'Background': False,
             
@@ -245,4 +245,5 @@ class Module(object):
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
                                        obfuscationCommand=obfuscationCommand)
+
         return script

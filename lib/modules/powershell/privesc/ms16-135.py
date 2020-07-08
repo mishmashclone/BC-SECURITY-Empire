@@ -21,7 +21,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['T1068','TA0004'],
+            'Techniques': ['T1068'],
 
             'Background' : True,
 
@@ -111,4 +111,6 @@ class Module(object):
         script += ';`nInvoke-MS16135 completed.'
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script
+

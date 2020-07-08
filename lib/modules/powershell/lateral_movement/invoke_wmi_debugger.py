@@ -18,7 +18,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0008', 'T1047'],
+            'Techniques': ['T1047'],
 
             'Background' : False,
 
@@ -196,5 +196,6 @@ class Module(object):
         script += ";'Invoke-Wmi executed on " +computerNames + statusMsg+"'"
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script
 

@@ -154,4 +154,5 @@ print("Finished")
 
 
 """ % (username, domain, password, sharename, mountpoint, command)
+
         return script

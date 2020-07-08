@@ -1,29 +1,29 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
-import logging
+
 import base64
-import sys
-import random
-import string
-import os
-import ssl
-import time
 import copy
 import json
+import logging
+import os
+import random
+import ssl
+import string
 import sys
 import threading
-from pydispatch import dispatcher
+import time
+from builtins import object
+from builtins import str
+
 from flask import Flask, request, make_response, send_from_directory
+from pydispatch import dispatcher
+
+from lib.common import bypasses
+from lib.common import encryption
 # Empire imports
 from lib.common import helpers
-from lib.common import agents
-from lib.common import encryption
-from lib.common import packets
-from lib.common import messages
-from lib.common import templating
 from lib.common import obfuscation
-from lib.common import bypasses
+from lib.common import packets
+from lib.common import templating
 
 
 class Listener(object):

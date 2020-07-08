@@ -1,9 +1,10 @@
 from __future__ import print_function
-from builtins import object
+
 import os
 import string
 
 # Empire imports
+from builtins import object
 from lib.common import helpers
 
 

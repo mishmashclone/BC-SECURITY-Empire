@@ -1,25 +1,34 @@
 #!/usr/bin/env python3
 
 from __future__ import print_function
-import sqlite3, argparse, sys, argparse, logging, json, string, subprocess
-import os, re, time, signal, copy, base64, pickle, random
+
+import argparse
+import base64
+import copy
+import hashlib
+import json
+import logging
+import os
+import pickle
+import signal
+import sqlite3
+import ssl
+import subprocess
+import sys
+import time
 from datetime import datetime, timezone
+from time import sleep
 
 from flask import Flask, request, jsonify, make_response, abort, url_for, g
 from flask.json import JSONEncoder
-from time import localtime, strftime, sleep
-import hashlib
-from OpenSSL import SSL
-import ssl
-import ast
 
 # Empire imports
 from lib.common import empire, helpers, users
 
-# if running in python 2.7 set global utf8 encoding otherwise python 3 is already UTF-8 by default
+# Check if running Python 3
 if sys.version[0] == '2':
-	reload(sys)
-	sys.setdefaultencoding("utf-8")
+    print(helpers.color("[!] Please use Python 3"))
+    sys.exit()
 
 global serverExitCommand
 serverExitCommand = 'restart'

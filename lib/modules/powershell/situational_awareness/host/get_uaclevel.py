@@ -1,6 +1,6 @@
-from builtins import str
 from builtins import object
-from lib.common import helpers
+from builtins import str
+
 
 class Module(object):
 

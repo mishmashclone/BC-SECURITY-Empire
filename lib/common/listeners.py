@@ -4,24 +4,25 @@
 Listener handling functionality for Empire.
 
 """
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
 
-from datetime import datetime
-from builtins import filter
-from builtins import str
-from builtins import object
-import sys
+import copy
 import fnmatch
+import hashlib
 import importlib.util
-from . import helpers
+import json
 import os
 import pickle
-import hashlib
-import copy
-import json
+import traceback
+from builtins import filter
+from builtins import object
+from builtins import str
 
 from pydispatch import dispatcher
+
+from . import helpers
+
 
 class Listeners(object):
     """
@@ -576,5 +577,5 @@ class Listeners(object):
             pickled_options = pickle.dumps(options)
             cur.execute('UPDATE listeners SET options=? WHERE id=?', [pickled_options, listener_id])
         except ValueError:
-            print(helpers.color("[!] Listener %s not found" % listenerName))
+            print(helpers.color("[!] Listener %s not found" % listener_name))
         cur.close()

@@ -1,18 +1,16 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
-import base64
-import random
-import os
-import errno
 
+import base64
+import errno
+import os
+import random
+from builtins import object
+from builtins import str
+
+from lib.common import bypasses
 # Empire imports
 from lib.common import helpers
-from lib.common import agents
-from lib.common import encryption
 from lib.common import packets
-from lib.common import messages
-from lib.common import bypasses
 
 
 class Listener(object):

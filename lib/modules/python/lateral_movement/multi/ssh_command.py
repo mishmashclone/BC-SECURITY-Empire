@@ -1,5 +1,5 @@
 from builtins import object
-from lib.common import helpers
+
 
 class Module(object):
     def __init__(self, mainMenu, params=[]):

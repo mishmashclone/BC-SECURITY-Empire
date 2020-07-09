@@ -14,7 +14,7 @@ class Module(object):
             'Name': 'Invoke-Seatbelt',
 
             # List of one or more authors for the module
-            'Author': ['@S3cur3Th1sSh1t', '@Cx01N'],
+            'Author': ['@harmj0y', '@S3cur3Th1sSh1t'],
 
             # More verbose multi-line description of the module
             'Description': ('Seatbelt is a C# project that performs a number of security oriented '

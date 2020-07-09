@@ -144,12 +144,10 @@ class Module(object):
         if len(Loginpass) >= 1:
             scriptEnd += " -lpass "+Loginpass
 
-
-                scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
         print(helpers.color("[+] Command: " + str(scriptEnd)))
 
         return script
-

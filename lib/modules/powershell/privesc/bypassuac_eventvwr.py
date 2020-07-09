@@ -117,9 +117,9 @@ class Module(object):
             else:
                 scriptEnd = "Invoke-EventVwrBypass -Command \"%s\"" % (encScript)
                 scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
-                if obfuscate:
-                    scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-                script += scriptEnd
+        if obfuscate:
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+        script += scriptEnd
 
                 return script
 

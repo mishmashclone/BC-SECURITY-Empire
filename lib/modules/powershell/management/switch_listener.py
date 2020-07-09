@@ -19,7 +19,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1008'],
 
             'Background' : False,
 
@@ -75,10 +75,15 @@ class Module(object):
         activeListener = self.mainMenu.listeners.activeListeners[listenerName]
         listenerOptions = activeListener['options']
 
-        commsCode = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']].generate_comms(listenerOptions=listenerOptions, language='powershell')
+        script = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']].generate_comms(listenerOptions=listenerOptions, language='powershell')
 
         # signal the existing listener that we're switching listeners, and the new comms code
-        commsCode = "Send-Message -Packets $(Encode-Packet -Type 130 -Data '%s');\n%s" % (listenerName, commsCode)
+        script = "Send-Message -Packets $(Encode-Packet -Type 130 -Data '%s');\n%s" % (listenerName, script)
         if obfuscate:
-            commsCode = helpers.obfuscate(self.mainMenu.installPath, psScript=commsCode, obfuscationCommand=obfuscationCommand)
-        return commsCode
+            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
+        moduleName = self.info['Name']
+        techniques = self.info['Techniques']
+        software = self.info['Software']
+
+        return script

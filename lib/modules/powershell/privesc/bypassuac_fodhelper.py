@@ -117,4 +117,6 @@ class Module(object):
                 return ""
             else:
                 script += "Invoke-FodHelperBypass -Command \"%s\"" % (encScript)
+
                 return script
+

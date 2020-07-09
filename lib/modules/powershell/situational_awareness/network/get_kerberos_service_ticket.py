@@ -1,8 +1,6 @@
 from __future__ import print_function
-
-from builtins import object
 from builtins import str
-
+from builtins import object
 from lib.common import helpers
 
 
@@ -119,13 +117,17 @@ class Module(object):
         if maxevents != "":
             scriptEnd += " -MaxEvents " + maxevents
         if excludecomputers == 'True':
-        	scriptEnd += " -ExcludeComputers $true"
+            scriptEnd += " -ExcludeComputers $true"
         if excludecomputers == 'False':
-        	scriptEnd += " -ExcludeComputers $false"
+            scriptEnd += " -ExcludeComputers $false"
 
         scriptEnd += " | Format-Table -AutoSize | Out-String"
+
+        # Get the random function name generated at install and patch the stager with the proper function name
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
 
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
         return script

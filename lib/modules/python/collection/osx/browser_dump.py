@@ -137,4 +137,6 @@ s = browser_dump()
 s.func(number)
 """ % (number, number)
 
+
         return script
+

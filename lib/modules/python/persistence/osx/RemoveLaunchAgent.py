@@ -105,3 +105,4 @@ print("\\n [+] %s has been removed")
 """ %(plistpath,plistpath,programpath,plistpath,programpath)
 
         return script
+

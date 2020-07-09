@@ -1,25 +1,24 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
+
 import base64
-import random
-import os
-import time
 import copy
 import json
+import os
+import time
+from builtins import object
+from builtins import str
+
 import dropbox
 # from dropbox.exceptions import ApiError, AuthError
 # from dropbox.files import FileMetadata, FolderMetadata, CreateFolderError
 from pydispatch import dispatcher
 
+from lib.common import encryption
 # Empire imports
 from lib.common import helpers
-from lib.common import agents
-from lib.common import encryption
-from lib.common import packets
-from lib.common import messages
-from lib.common import templating
 from lib.common import obfuscation
+from lib.common import templating
+from lib.common import bypasses
 
 
 class Listener(object):

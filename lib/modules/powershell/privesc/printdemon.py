@@ -1,8 +1,6 @@
 from __future__ import print_function
-
-from builtins import object
 from builtins import str
-
+from builtins import object
 from lib.common import helpers
 
 
@@ -29,7 +27,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0004'],
+            'Techniques': ['T1038'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -119,8 +117,10 @@ class Module(object):
                         scriptEnd += " -" + str(option)
                     else:
                         scriptEnd += " -" + str(option) + " " + str(values['Value'])
-
+        # Get the random function name generated at install and patch the stager with the proper function name
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
         return script

@@ -18,7 +18,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1491'],
 
             'Background' : True,
 
@@ -108,4 +108,6 @@ Function Invoke-Thunderstruck
         script += "; 'Agent Thunderstruck.'"
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script
+

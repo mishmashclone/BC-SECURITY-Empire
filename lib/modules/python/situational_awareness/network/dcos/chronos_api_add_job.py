@@ -21,22 +21,22 @@ class Module(object):
             'Techniques': ['T1106'],
 
             # True if the module needs to run in the background
-            'Background' : True,
+            'Background': True,
 
             # File extension to save the file as
             'OutputExtension': "",
 
             # if the module needs administrative privileges
-            'NeedsAdmin' : False,
+            'NeedsAdmin': False,
 
             # True if the method doesn't touch disk/is reasonably opsec safe
-            'OpsecSafe' : True,
+            'OpsecSafe': True,
 
             # the module language
-            'Language' : 'python',
+            'Language': 'python',
 
             # the minimum language version needed
-            'MinLanguageVersion' : '2.6',
+            'MinLanguageVersion': '2.6',
 
             # list of any references/other comments
             'Comments': ["Docs: https://mesos.github.io/chronos/docs/api.html"]
@@ -46,65 +46,65 @@ class Module(object):
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Agent' : {
+            'Agent': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'Agent to execute module on.',
-                'Required'      :   True,
-                'Value'         :   ''
+                'Description': 'Agent to execute module on.',
+                'Required': True,
+                'Value': ''
             },
-            'Target' : {
+            'Target': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'FQDN, domain name, or hostname to lookup on the remote target.',
-                'Required'      :   True,
-                'Value'         :   'chronos.mesos'
+                'Description': 'FQDN, domain name, or hostname to lookup on the remote target.',
+                'Required': True,
+                'Value': 'chronos.mesos'
             },
-            'Port' : {
+            'Port': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'The port to connect to.',
-                'Required'      :   True,
-                'Value'         :   '8080'
+                'Description': 'The port to connect to.',
+                'Required': True,
+                'Value': '8080'
             },
-            'Name' : {
+            'Name': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'The name of the chronos job.',
-                'Required'      :   True,
-                'Value'         :   'scheduledJob001'
+                'Description': 'The name of the chronos job.',
+                'Required': True,
+                'Value': 'scheduledJob001'
             },
-            'Command' : {
+            'Command': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'The command to run.',
-                'Required'      :   True,
-                'Value'         :   'id'
+                'Description': 'The command to run.',
+                'Required': True,
+                'Value': 'id'
             },
-            'Owner' : {
+            'Owner': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'The owner of the job.',
-                'Required'      :   True,
-                'Value'         :   'admin@example.com'
+                'Description': 'The owner of the job.',
+                'Required': True,
+                'Value': 'admin@example.com'
             },
-            'OwnerName' : {
+            'OwnerName': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'The owner name of the job.',
-                'Required'      :   True,
-                'Value'         :   'admin'
+                'Description': 'The owner name of the job.',
+                'Required': True,
+                'Value': 'admin'
             },
-            'Description' : {
+            'Description': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'The description of the job.',
-                'Required'      :   True,
-                'Value'         :   'Scheduled Job 001'
+                'Description': 'The description of the job.',
+                'Required': True,
+                'Value': 'Scheduled Job 001'
             },
-            'Schedule' : {
+            'Schedule': {
                 # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'The schedule for the job.',
-                'Required'      :   True,
-                'Value'         :   'R/2016-07-15T00:08:35Z/PT24H'
+                'Description': 'The schedule for the job.',
+                'Required': True,
+                'Value': 'R/2016-07-15T00:08:35Z/PT24H'
             },
-            'LastSuccess' : {
+            'LastSuccess': {
                 # Example: 2016-07-16T18:58:25.173Z
-                'Description'   :   'The last successful run for the job (optional).',
-                'Required'      :   False,
-                'Value'         :   ''
+                'Description': 'The last successful run for the job (optional).',
+                'Required': False,
+                'Value': ''
             }
         }
 
@@ -121,7 +121,6 @@ class Module(object):
                 option, value = param
                 if option in self.options:
                     self.options[option]['Value'] = value
-
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
         target = self.options['Target']['Value']
@@ -163,6 +162,6 @@ except Exception as e:
     print("Failure sending payload: " + str(e))
 
 print("Finished")
-""" %(target, port, name, command, owner, ownerName, description, schedule, last)
+""" % (target, port, name, command, owner, ownerName, description, schedule, last)
 
         return script

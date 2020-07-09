@@ -101,4 +101,4 @@ class Module(object):
             print(helpers.color("[!] Error rendering module template: {0}".format(e)))
             return ''
 
-        return module
+        return script

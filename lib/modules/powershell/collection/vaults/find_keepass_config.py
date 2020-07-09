@@ -23,7 +23,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0010'],
+            'Techniques': ['T1119'],
 
             # True if the module needs to run in the background
             'Background' : True,
@@ -105,4 +105,5 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
         return script

@@ -17,7 +17,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1491'],
 
             'Background' : True,
 
@@ -93,4 +93,6 @@ Invoke-VoiceTroll"""
                         script += " -" + str(option) + " \"" + str(values['Value'].strip("\"")) + "\""
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script
+

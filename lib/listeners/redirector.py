@@ -1,20 +1,18 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
+
 import base64
-import random
 import copy
 import os
-import hashlib
-import threading
+import random
+from builtins import object
+from builtins import str
+
+from lib.common import bypasses
+from lib.common import encryption
 
 # Empire imports
 from lib.common import helpers
-from lib.common import agents
-from lib.common import encryption
 from lib.common import packets
-from lib.common import messages
-from lib.common import bypasses
 
 
 class Listener(object):
@@ -368,13 +366,8 @@ class Listener(object):
             f = open("%s/data/agent/stagers/http.ps1" % (self.mainMenu.installPath))
             stager = f.read()
             f.close()
-
             # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
-            stager = helpers.keyword_obfuscation(stager, conn)
-            self.lock.release()
-
+            stager = helpers.keyword_obfuscation(stager, self.mainMenu)
             # make sure the server ends with "/"
             if not host.endswith("/"):
                 host += "/"
@@ -483,13 +476,8 @@ class Listener(object):
             f = open(self.mainMenu.installPath + "./data/agent/agent.ps1")
             code = f.read()
             f.close()
-
             # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
-            code = helpers.keyword_obfuscation(code, conn)
-            self.lock.release()
-
+            code = helpers.keyword_obfuscation(code, self.mainMenu)
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
             code = code.replace('REPLACE_COMMS', commsCode)

@@ -792,3 +792,4 @@ job_message_buffer('[!] Keylogger exited\\n')
 """
 
         return script
+

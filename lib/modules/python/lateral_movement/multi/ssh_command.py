@@ -128,4 +128,5 @@ print(status)
 print(output)
 
 """ % (command, login, password)
+
         return script

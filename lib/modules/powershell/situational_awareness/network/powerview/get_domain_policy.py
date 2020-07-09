@@ -120,4 +120,6 @@ class Module(object):
             script += "\n" + moduleName + " " + pscript + ' | fl | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed! Use ExpandObject option to expand one of the objects above such as \'System Access\'"'
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script
+

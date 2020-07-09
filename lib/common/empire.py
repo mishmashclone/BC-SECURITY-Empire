@@ -7,15 +7,15 @@ Contains the Main, Listener, Agents, Agent, and Module
 menu loops.
 
 """
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
 
 # make version for Empire
 from builtins import input
-from builtins import str
 from builtins import range
+from builtins import str
 
-VERSION = "3.2.3 BC-Security Fork"
+VERSION = "3.3.0 BC-Security Fork"
 
 from pydispatch import dispatcher
 
@@ -25,11 +25,8 @@ import sqlite3
 import os
 import hashlib
 import time
-import fnmatch
 import shlex
-import marshal
 import pkgutil
-import importlib
 import base64
 import threading
 import json
@@ -45,10 +42,9 @@ from . import modules
 from . import stagers
 from . import credentials
 from . import plugins
-from . import users
 from .events import log_event
 from zlib_wrapper import compress
-from zlib_wrapper import decompress
+
 
 def xstr(s):
     """Safely cast to a string with a handler for None"""
@@ -1773,8 +1769,7 @@ class AgentsMenu(SubMenu):
         mline = line.partition(' ')[2]
         offs = len(mline) - len(text)
         return [s[offs:] for s in names if s.startswith(mline)]
-    
-    
+
     def complete_remove(self, text, line, begidx, endidx):
         "Tab-complete a remove command"
         
@@ -1939,6 +1934,10 @@ class PowerShellAgentMenu(SubMenu):
             print("     " + messages.wrap_columns(", ".join(self.agentCommands), ' ', width1=50, width2=10, indent=5) + "\n")
         else:
             SubMenu.do_help(self, *args)
+
+    def do_dirlist(self, line):
+        "Tasks an agent to store the contents of a directory in the database."
+        self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_DIR_LIST", line)
     
     def do_list(self, line):
         "Lists all active agents (or listeners)."
@@ -2221,8 +2220,7 @@ class PowerShellAgentMenu(SubMenu):
             # update the agent log
             msg = "Tasked agent to run shell command " + line
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
-    
-    
+
     def do_sysinfo(self, line):
         "Task an agent to get system information."
         
@@ -2907,6 +2905,9 @@ class PythonAgentMenu(SubMenu):
                 print(helpers.color("[!] Command not recognized."))
                 print(helpers.color("[*] Use 'help' or 'help agentcmds' to see available commands."))
 
+    def do_dirlist(self, line):
+        "Tasks an agent to store the contents of a directory in the database."
+        self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_DIR_LIST", line)
 
     def do_help(self, *args):
         "Displays the help menu or syntax for particular commands."
@@ -4199,6 +4200,7 @@ class ModuleMenu(SubMenu):
             self.module.execute()
         else:
             agentName = self.module.options['Agent']['Value']
+            moduleName = self.module.info['Name']
             moduleData = self.module.generate(self.mainMenu.obfuscate, self.mainMenu.obfuscateCommand)
             
             if not moduleData or moduleData == "":
@@ -4298,7 +4300,7 @@ class ModuleMenu(SubMenu):
                     print(helpers.color("[!] Invalid agent name."))
                 else:
                     # set the agent's tasking in the cache
-                    self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData)
+                    self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData, moduleName=moduleName)
                     
                     # update the agent log
                     message = "[*] Tasked agent {} to run module {}".format(agentName, self.moduleName)

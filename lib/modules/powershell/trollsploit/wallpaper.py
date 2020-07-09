@@ -19,7 +19,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1491'],
 
             'Background' : False,
 
@@ -153,4 +153,6 @@ namespace Wallpaper
         script += "; 'Set-Wallpaper executed'"
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script
+

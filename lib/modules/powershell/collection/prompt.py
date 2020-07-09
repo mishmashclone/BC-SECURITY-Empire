@@ -1,8 +1,6 @@
-from builtins import object
 from builtins import str
-
+from builtins import object
 from lib.common import helpers
-
 
 class Module(object):
 
@@ -67,9 +65,7 @@ class Module(object):
         # save off a copy of the mainMenu object to access external functionality
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
-
-
-
+        
         for param in params:
             # parameter format is [Name, Value]
             option, value = param
@@ -129,13 +125,9 @@ Invoke-Prompt """
                         script += " -" + str(option)
                     else:
                         script += " -" + str(option) + " \"" + str(values['Value'].strip("\"")) + "\""
+        # Get the random function name generated at install and patch the stager with the proper function name
+        script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
-
-        # Get the random function name generated at install and patch the stager with the proper function name
-        conn = self.get_db_connection()
-        self.lock.acquire()
-        script = helpers.keyword_obfuscation(script, conn)
-        self.lock.release()
 
         return script

@@ -84,4 +84,5 @@ class Module(object):
 
         script += scriptEnd
         script += "| Out-String"
+
         return script

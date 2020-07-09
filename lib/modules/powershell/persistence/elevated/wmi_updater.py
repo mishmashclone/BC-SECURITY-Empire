@@ -19,7 +19,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0003', 'T1084'],
+            'Techniques': ['T1084'],
 
             'Background' : False,
 
@@ -206,5 +206,5 @@ class Module(object):
 
 
         script += "'WMI persistence established "+statusMsg+"'"
-        
+
         return script

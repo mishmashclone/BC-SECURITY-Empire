@@ -16,7 +16,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1098'],
 
             'Background' : False,
 
@@ -65,4 +65,5 @@ class Module(object):
         script = "(New-Object System.Security.Principal.SecurityIdentifier(\"%s\")).Translate( [System.Security.Principal.NTAccount]).Value" %(self.options['SID']['Value'])
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script

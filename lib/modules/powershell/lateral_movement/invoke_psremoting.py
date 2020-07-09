@@ -19,7 +19,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0008'],
+            'Techniques': ['T1028'],
 
             'Background' : False,
 
@@ -147,4 +147,5 @@ class Module(object):
                 script += ";'Invoke-PSRemoting executed on " +computerNames +"'"
             if obfuscate:
                 script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
             return script

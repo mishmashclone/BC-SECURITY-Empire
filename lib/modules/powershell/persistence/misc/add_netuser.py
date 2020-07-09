@@ -19,7 +19,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0003', 'T1033'],
+            'Techniques': ['T1033'],
 
             'Background' : True,
 
@@ -118,4 +118,5 @@ class Module(object):
         script += ' | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script

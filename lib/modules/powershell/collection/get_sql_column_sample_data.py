@@ -17,7 +17,7 @@ class Module(object):
                             'search by keywords, sampling data, and validating credit card '
                             'numbers.'),
             'Software': '',
-            'Techniques': [''],
+            'Techniques': ['T1046'],
             'Background' : True,
             'OutputExtension' : None,
             
@@ -129,4 +129,5 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
         return script

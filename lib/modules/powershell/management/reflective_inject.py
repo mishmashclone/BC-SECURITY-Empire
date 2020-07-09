@@ -167,5 +167,5 @@ class Module(object):
                 script += scriptEnd
                 script += "\r\n"
                 script += "Remove-Item -Path %s" % fullUploadPath
-                
+
                 return script

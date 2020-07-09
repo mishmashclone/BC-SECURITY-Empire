@@ -105,8 +105,6 @@ class Module(object):
         # save off a copy of the mainMenu object to access external functionality
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
-
-
         
         for param in params:
             # parameter format is [Name, Value]

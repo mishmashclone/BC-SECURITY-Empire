@@ -96,3 +96,4 @@ print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
 """ % (path)
 
         return script
+

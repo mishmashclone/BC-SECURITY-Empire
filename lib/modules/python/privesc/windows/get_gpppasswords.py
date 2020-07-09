@@ -147,4 +147,5 @@ print("Finished")
 
 
 """ % (BindDN, LDAPAddress, password)
+
         return script

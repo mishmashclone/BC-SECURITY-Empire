@@ -83,8 +83,6 @@ class Module:
 
         self.mainMenu = mainMenu
 
-
-
         # During instantiation, any settable option parameters are passed as
         #   an object set to the module and the options dictionary is
         #   automatically set. This is mostly in case options are passed on
@@ -124,14 +122,10 @@ class Module:
                         scriptEnd += " -" + str(option)
                     else:
                         scriptEnd += " -" + str(option) + " " + str(values['Value'])
+        # Get the random function name generated at install and patch the stager with the proper function name
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-
-        # Get the random function name generated at install and patch the stager with the proper function name
-        conn = self.get_db_connection()
-        self.lock.acquire()
-        script = helpers.keyword_obfuscation(script, conn)
-        self.lock.release()
 
         return script

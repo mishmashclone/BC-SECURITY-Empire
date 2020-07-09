@@ -17,7 +17,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0003', 'T1101'],
+            'Techniques': ['T1101'],
 
             'Background' : True,
 
@@ -273,4 +273,5 @@ into lsass, the dll must export SpLsaModeInitialize.
                     script += " -" + str(option) + " " + str(values['Value']) 
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script

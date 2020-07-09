@@ -1,10 +1,7 @@
 from __future__ import print_function
-
-from builtins import object
 from builtins import str
-
+from builtins import object
 from lib.common import helpers
-
 
 class Module(object):
 
@@ -108,7 +105,10 @@ class Module(object):
         scriptEnd += " Get-SQLServerLoginDefaultPw"
         if instance != "" and not check_all:
             scriptEnd += " -Instance "+instance
+        # Get the random function name generated at install and patch the stager with the proper function name
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+
         return script

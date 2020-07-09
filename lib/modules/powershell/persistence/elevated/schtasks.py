@@ -19,7 +19,7 @@ class Module(object):
 
             'Software': 'S0111',
 
-            'Techniques': ['TA0003', 'T1053'],
+            'Techniques': ['T1053'],
 
             'Background' : False,
 
@@ -251,4 +251,5 @@ class Module(object):
         script += "'Schtasks persistence established "+statusMsg+"'"
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         return script

@@ -149,4 +149,6 @@ class Module(object):
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
         print(helpers.color("[+] Command: " + str(scriptEnd)))
+
         return script
+

@@ -165,3 +165,4 @@ print("\\n[+] Empire daemon has been written to "+daemonPath+"%(programName)s")
 """ % {"encBytes":encBytes, "plistSettings":plistSettings, "daemonName":daemonName, "programName":programName, "plistFilename":plistFilename}
 
         return script
+

@@ -1,14 +1,19 @@
 from __future__ import print_function
-from builtins import str
+
+import datetime
+import random
+import string
+import xlrd
 from builtins import chr
-from builtins import range
 from builtins import object
-import random, string, xlrd, datetime
-from xlutils.copy import copy
-from xlwt import Workbook, Utils
-from lib.common import helpers
+from builtins import range
+from builtins import str
+
 from Crypto.Cipher import AES
-import os
+from xlutils.copy import copy
+from xlwt import Workbook
+
+from lib.common import helpers
 
 
 class Stager(object):

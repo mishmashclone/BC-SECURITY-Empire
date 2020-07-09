@@ -1,10 +1,7 @@
 from __future__ import print_function
-
-from builtins import object
 from builtins import str
-
+from builtins import object
 from lib.common import helpers
-
 
 class Module(object):
 
@@ -23,7 +20,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0008', 'T1127', 'T1047'],
+            'Techniques': ['T1127', 'T1047'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -136,8 +133,6 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
-
-
         # During instantiation, any settable option parameters
         #   are passed as an object set to the module and the
         #   options dictionary is automatically set. This is mostly
@@ -212,7 +207,7 @@ class Module(object):
                                                                obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand,
                                                                userAgent=userAgent, proxy=proxy,
                                                                proxyCreds=proxyCreds, AMSIBypass=AMSIBypass,
-                                                               AMSIBypass2=AMSIBypass2)
+                                                   AMSIBypass2=AMSIBypass2)
             if launcher == "":
                 return ""
             else:
@@ -232,13 +227,11 @@ class Module(object):
             scriptEnd += " -FilePath \"" + self.options['FilePath']['Value'] + "\""
 
         scriptEnd += " | Out-String"
+
+        # Get the random function name generated at install and patch the stager with the proper function name
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-
-        conn = self.get_db_connection()
-        self.lock.acquire()
-        script = helpers.keyword_obfuscation(script, conn)
-        self.lock.release()
-
         return script

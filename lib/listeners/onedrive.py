@@ -1,27 +1,23 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
+
 import base64
-import random
+import copy
+import json
 import os
 import re
 import time
-from datetime import datetime
-import copy
 import traceback
-import sys
-import json
-import threading
+from builtins import object
+from builtins import str
+from datetime import datetime
+
 from pydispatch import dispatcher
 from requests import Request, Session
 
+from lib.common import bypasses
+from lib.common import encryption
 # Empire imports
 from lib.common import helpers
-from lib.common import agents
-from lib.common import encryption
-from lib.common import packets
-from lib.common import messages
-from lib.common import bypasses
 
 
 class Listener(object):
@@ -297,12 +293,8 @@ class Listener(object):
             f = open("%s/data/agent/stagers/onedrive.ps1" % self.mainMenu.installPath)
             stager = f.read()
             f.close()
-
             # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
-            stager = helpers.keyword_obfuscation(stager, conn)
-            self.lock.release()
+            stager = helpers.keyword_obfuscation(stager, self.mainMenu)
 
             stager = stager.replace("REPLACE_STAGING_FOLDER", "%s/%s" % (base_folder, staging_folder))
             stager = stager.replace('REPLACE_STAGING_KEY', staging_key)
@@ -476,11 +468,8 @@ class Listener(object):
             agent_code = f.read()
             f.close()
 
-            # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
-            agent_code = helpers.keyword_obfuscation(agent_code, conn)
-            self.lock.release()
+
+            agent_code = helpers.keyword_obfuscation(agent_code, self.mainMenu)
 
             comms_code = self.generate_comms(listener_options, client_id, client_secret, token, refresh_token,
                                              redirect_uri, language)

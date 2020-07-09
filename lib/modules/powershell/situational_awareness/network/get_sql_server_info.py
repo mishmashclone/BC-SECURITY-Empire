@@ -109,8 +109,8 @@ class Module(object):
         if instance != "" and not check_all:
             scriptEnd += " -Instance "+instance
         scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-
         return script

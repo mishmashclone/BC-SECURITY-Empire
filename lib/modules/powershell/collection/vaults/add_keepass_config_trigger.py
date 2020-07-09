@@ -76,8 +76,7 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
-        # used to protect self.http and self.mainMenu.conn during threaded listener access
-        self.lock = threading.Lock()
+
 
         # During instantiation, any settable option parameters
         #   are passed as an object set to the module and the
@@ -128,14 +127,8 @@ class Module(object):
 
         scriptEnd += "\nFind-KeePassconfig | Get-KeePassConfigTrigger "
         scriptEnd += ' | Format-List | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-
-        # Get the random function name generated at install and patch the stager with the proper function name
-        conn = self.get_db_connection()
-        self.lock.acquire()
-        script = helpers.keyword_obfuscation(script, conn)
-        self.lock.release()
-
         return script

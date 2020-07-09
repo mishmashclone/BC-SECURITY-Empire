@@ -139,6 +139,7 @@ class Module(object):
 
         scriptEnd += "| Out-String | %{$_ + \"`n\"};"
         scriptEnd += "'Invoke-SMBScanner completed'"
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

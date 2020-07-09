@@ -84,8 +84,7 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
-        # used to protect self.http and self.mainMenu.conn during threaded listener access
-        self.lock = threading.Lock()
+
         
         for param in params:
             # parameter format is [Name, Value]
@@ -127,6 +126,7 @@ class Module(object):
                             scriptEnd += " -" + str(option) + " " + str(values['Value']) 
 
         scriptEnd += ";'Invoke-NetRipper completed.'"
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

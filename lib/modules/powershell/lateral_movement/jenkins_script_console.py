@@ -127,6 +127,7 @@ class Module(object):
         scriptEnd += " -Rhost "+str(self.options['Rhost']['Value'])
         scriptEnd += " -Port "+str(self.options['Port']['Value'])
         scriptEnd += " -Cmd \"" + launcher + "\""
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

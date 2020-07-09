@@ -113,45 +113,45 @@ class Module(object):
                         scriptEnd += "$SecurityLog = Get-EventLog -LogName Security; $Filtered4624 = Find-4624Logons $SecurityLog;"
                         scriptEnd += 'Write-Output "Event ID 4624 (Logon):`n";'
                         scriptEnd += "Write-Output $Filtered4624.Values | Out-String"
-                        if obfuscate:
-                            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-                        script += scriptEnd
-                        return script
-                    if option == "4648":
+                        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        if obfuscate:
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+        script += scriptEnd
+        return scriptif option == "4648":
                         scriptEnd += "$SecurityLog = Get-EventLog -LogName Security; $Filtered4648 = Find-4648Logons $SecurityLog;"
                         scriptEnd += 'Write-Output "Event ID 4648 (Explicit Credential Logon):`n";'
                         scriptEnd += "Write-Output $Filtered4648.Values | Out-String"
-                        if obfuscate:
-                            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-                        script += scriptEnd
-                        return script
-                    if option == "AppLocker":
+                        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        if obfuscate:
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+        script += scriptEnd
+        return scriptif option == "AppLocker":
                         scriptEnd += "$AppLockerLogs = Find-AppLockerLogs;"
                         scriptEnd += 'Write-Output "AppLocker Process Starts:`n";'
                         scriptEnd += "Write-Output $AppLockerLogs.Values | Out-String"
-                        if obfuscate:
-                            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-                        script += scriptEnd
-                        return script
-                    if option == "PSLogs":
+                        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        if obfuscate:
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+        script += scriptEnd
+        return scriptif option == "PSLogs":
                         scriptEnd += "$PSLogs = Find-PSScriptsInPSAppLog;"
                         scriptEnd += 'Write-Output "PowerShell Script Executions:`n";'
                         scriptEnd += "Write-Output $PSLogs.Values | Out-String"
-                        if obfuscate:
-                            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-                        script += scriptEnd
-                        return script
-                    if option == "SavedRDP":
+                        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        if obfuscate:
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+        script += scriptEnd
+        return scriptif option == "SavedRDP":
                         scriptEnd += "$RdpClientData = Find-RDPClientConnections;"
                         scriptEnd += 'Write-Output "RDP Client Data:`n";'
                         scriptEnd += "Write-Output $RdpClientData.Values | Out-String"
-                        if obfuscate:
-                            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-                        script += scriptEnd
-                        return script
-
-        # if we get to this point, no switched were specified
+                        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        if obfuscate:
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+        script += scriptEnd
+        return script# if we get to this point, no switched were specified
         scriptEnd += "Get-ComputerDetails -Limit " + str(self.options['Limit']['Value']) + " -ToString"
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

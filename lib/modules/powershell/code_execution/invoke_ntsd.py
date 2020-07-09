@@ -106,8 +106,7 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
-        # used to protect self.http and self.mainMenu.conn during threaded listener access
-        self.lock = threading.Lock()
+
         
         for param in params:
             # parameter format is [Name, Value]
@@ -198,9 +197,6 @@ class Module(object):
                 script += code_exec
 
                 # Get the random function name generated at install and patch the stager with the proper function name
-                conn = self.get_db_connection()
-                self.lock.acquire()
-                script = helpers.keyword_obfuscation(script, conn)
-                self.lock.release()
+                script = helpers.keyword_obfuscation(script, self.mainMenu)
 
                 return script

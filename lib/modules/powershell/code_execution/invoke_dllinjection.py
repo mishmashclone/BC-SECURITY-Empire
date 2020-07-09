@@ -3,7 +3,7 @@ from builtins import str
 from builtins import object
 import re
 from lib.common import helpers
-import threading
+
 
 class Module(object):
 
@@ -96,8 +96,8 @@ class Module(object):
                     scriptEnd += " -" + str(option) + " " + str(values['Value'])
 
         scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-
         return script

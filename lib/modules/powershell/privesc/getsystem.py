@@ -121,6 +121,7 @@ class Module(object):
 
             scriptEnd += "| Out-String | %{$_ + \"`n\"};"
             scriptEnd += "'Get-System completed'"
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

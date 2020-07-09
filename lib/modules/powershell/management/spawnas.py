@@ -163,6 +163,7 @@ class Module(object):
             scriptEnd += "-Domain %s " %(domain)
 
         scriptEnd += "-Cmd \"$env:public\debug.bat\""
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

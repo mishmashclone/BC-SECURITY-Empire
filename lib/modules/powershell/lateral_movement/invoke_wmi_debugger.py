@@ -227,8 +227,9 @@ class Module(object):
             script = "$PSPassword = \""+password+"\" | ConvertTo-SecureString -asPlainText -Force;$Credential = New-Object System.Management.Automation.PSCredential(\""+userName+"\",$PSPassword);" + script + " -Credential $Credential"
 
         script += ";'Invoke-Wmi executed on " +computerNames + statusMsg+"'"
-            script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
+
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 
         return script

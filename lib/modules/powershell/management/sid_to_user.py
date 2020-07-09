@@ -63,8 +63,9 @@ class Module(object):
     def generate(self, obfuscate=False, obfuscationCommand=""):
         
         script = "(New-Object System.Security.Principal.SecurityIdentifier(\"%s\")).Translate( [System.Security.Principal.NTAccount]).Value" %(self.options['SID']['Value'])
-            script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
+
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 
         return script

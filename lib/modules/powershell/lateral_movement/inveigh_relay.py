@@ -183,7 +183,7 @@ class Module(object):
         proxyCreds = self.options['ProxyCreds']['Value']
         command = self.options['Command']['Value']
         if (self.options['Obfuscate']['Value']).lower() == 'true':
-            Obfuscate =True
+            Obfuscate = True
         ObfuscateCommand = self.options['ObfuscateCommand']['Value']
         if (self.options['AMSIBypass']['Value']).lower() == 'true':
             AMSIBypass = True

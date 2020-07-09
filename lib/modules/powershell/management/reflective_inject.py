@@ -144,7 +144,7 @@ class Module(object):
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
         if (self.options['Obfuscate']['Value']).lower() == 'true':
-            Obfuscate =True
+            Obfuscate = True
         ObfuscateCommand = self.options['ObfuscateCommand']['Value']
         if (self.options['AMSIBypass']['Value']).lower() == 'true':
             AMSIBypass = True
@@ -154,7 +154,7 @@ class Module(object):
         # read in the common module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/management/Invoke-ReflectivePEInjection.ps1"
         if obfuscate:
-            helpers.obfuscate_module(self.mainMenu , moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')

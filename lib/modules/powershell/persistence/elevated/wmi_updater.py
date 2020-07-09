@@ -150,7 +150,7 @@ class Module(object):
         cleanup = self.options['Cleanup']['Value']
         webFile = self.options['WebFile']['Value']
         if (self.options['Obfuscate']['Value']).lower() == 'true':
-            Obfuscate =True
+            Obfuscate = True
         ObfuscateCommand = self.options['ObfuscateCommand']['Value']
         if (self.options['AMSIBypass']['Value']).lower() == 'true':
             AMSIBypass = True

@@ -138,7 +138,7 @@ class Module(object):
         command = self.options['Command']['Value']
         resultFile = self.options['ResultFile']['Value']
         if (self.options['Obfuscate']['Value']).lower() == 'true':
-            Obfuscate =True
+            Obfuscate = True
         ObfuscateCommand = self.options['ObfuscateCommand']['Value']
         if (self.options['AMSIBypass']['Value']).lower() == 'true':
             AMSIBypass = True

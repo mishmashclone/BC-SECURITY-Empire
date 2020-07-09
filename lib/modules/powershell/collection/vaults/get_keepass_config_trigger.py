@@ -104,7 +104,7 @@ class Module(object):
         # Get the random function name generated at install and patch the stager with the proper function name
         conn = self.get_db_connection()
         self.lock.acquire()
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd, conn)
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         self.lock.release()
 
         scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)

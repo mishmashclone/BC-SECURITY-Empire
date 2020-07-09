@@ -397,9 +397,9 @@ class MainMenu(cmd.Cmd):
             except NavListeners as e:
                 self.menu_state = "Listeners"
             
-            #except Exception as e:
-            #    print(helpers.color("[!] Exception: %s" % (e)))
-            #    time.sleep(5)
+            except Exception as e:
+                print(helpers.color("[!] Exception: %s" % (e)))
+                time.sleep(5)
     
     
     def print_topics(self, header, commands, cmdlen, maxcol):
@@ -821,13 +821,7 @@ class MainMenu(cmd.Cmd):
                 print(helpers.color("couldn't connect to Database"))
         else:
             print(helpers.color("[!]Error: Entry must be a keyword or keyword and replacement string"))
-    def do_test(self, line):
-        conn = self.get_db_connection()
-        self.lock.acquire()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM functions")
-        for val in cur.fetchall():
-            print(val[0])
+
     def do_list(self, line):
         "Lists active agents or listeners."
         

@@ -93,6 +93,7 @@ Function Invoke-LockWorkStation {
 }
 Invoke-LockWorkStation; "Workstation locked."
 """
+            script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 

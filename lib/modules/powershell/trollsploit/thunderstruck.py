@@ -106,6 +106,7 @@ Function Invoke-Thunderstruck
                         script += " -" + str(option) + " " + str(values['Value'])
 
         script += "; 'Agent Thunderstruck.'"
+            script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 

@@ -150,9 +150,6 @@ class Module(object):
 
         script = moduleCode
 
-
-
-
         if not self.mainMenu.listeners.is_listener_valid(listenerName):
             # not a valid listener, return nothing for the script
             print(helpers.color("[!] Invalid listener: " + listenerName))
@@ -177,13 +174,11 @@ class Module(object):
 
 
         scriptEnd += "| Out-String | %{$_ + \"`n\"};"
+
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-
-        conn = self.get_db_connection()
-        self.lock.acquire()
-        script = helpers.keyword_obfuscation(script, conn)
-        self.lock.release()
 
         return script

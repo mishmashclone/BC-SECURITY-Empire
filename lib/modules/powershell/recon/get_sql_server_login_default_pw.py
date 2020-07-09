@@ -86,16 +86,16 @@ class Module(object):
             return ""
 
         if check_all:
-            auxModuleSource = self.mainMenu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
+            ModuleSource = self.mainMenu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
             if obfuscate:
-                helpers.obfuscate_module(moduleSource=auxModuleSource, obfuscationCommand=obfuscationCommand)
-                auxModuleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+                helpers.obfuscate_module(moduleSource=ModuleSource, obfuscationCommand=obfuscationCommand)
+                ModuleSource = moduleSource.replace("module_source", "obfuscated_module_source")
             try:
-                with open(auxModuleSource, 'r') as auxSource:
+                with open(ModuleSource, 'r') as auxSource:
                     auxScript = auxSource.read()
                     script += " " + auxScript
             except:
-                print(helpers.color("[!] Could not read additional module source path at: " + str(auxModuleSource)))
+                print(helpers.color("[!] Could not read additional module source path at: " + str(ModuleSource)))
             scriptEnd = " Get-SQLInstanceDomain "
             if username != "":
                 scriptEnd += " -Username "+username

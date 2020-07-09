@@ -121,7 +121,6 @@ class Module(object):
 
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
-        
         # read in the common powerup.ps1 module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/management/Invoke-RunAs.ps1"
         if obfuscate:
@@ -154,14 +153,7 @@ class Module(object):
                 self.options["Password"]['Value'] = password
 
         # extract all of our options
-        #listenerName = self.options['Listener']['Value']
-        #userAgent = self.options['UserAgent']['Value']
-        #proxy = self.options['Proxy']['Value']
-        #proxyCreds = self.options['ProxyCreds']['Value']
 
-        # generate the .bat launcher code to write out to the specified location
-        #   this is because the System.Diagnostics.ProcessStartInfo method appears
-        #   to have a length limit on the arguments passed :(
         
         l = self.mainMenu.stagers.stagers['windows/launcher_bat']
         l.options['Listener']['Value'] = self.options['Listener']['Value']
@@ -170,11 +162,11 @@ class Module(object):
         l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
         l.options['Delete']['Value'] = "True"
         if (self.options['Obfuscate']['Value']).lower() == 'true':
-            l.options['Obfuscate']['Value'] =True
+            l.options['Obfuscate']['Value'] = True
         l.options['ObfuscateCommand']['Value'] = self.options['ObfuscateCommand']['Value']
         if (self.options['AMSIBypass']['Value']).lower() == 'true':
             l.options['AMSIBypass']['Value'] = True
-        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+        if (self.options['AMSIBypass2']['Value'].lower() == 'true'):
             l.options['AMSIBypass2']['Value'] = True
         launcherCode = l.generate()
 

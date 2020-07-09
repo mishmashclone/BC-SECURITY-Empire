@@ -73,7 +73,7 @@ class Module(object):
         moduleSource = self.mainMenu.installPath + "/data/module_source/situational_awareness/network/Get-SQLServerInfo.ps1"
         script = ""
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu , moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             with open(moduleSource, 'r') as source:
@@ -86,7 +86,7 @@ class Module(object):
         if check_all:
             ModuleSource = self.mainMenu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
             if obfuscate:
-                helpers.obfuscate_module(moduleSource=ModuleSource, obfuscationCommand=obfuscationCommand)
+                helpers.obfuscate_module(self.mainMenu , moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
                 ModuleSource = moduleSource.replace("module_source", "obfuscated_module_source")
             try:
                 with open(ModuleSource, 'r') as auxSource:

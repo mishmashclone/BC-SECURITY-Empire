@@ -939,7 +939,7 @@ def obfuscate(installPath, psScript, obfuscationCommand):
     return psScript
 
 
-def obfuscate_module(moduleSource, mainMenu, obfuscationCommand="", forceReobfuscation=False):
+def obfuscate_module(mainMenu, moduleSource, obfuscationCommand="", forceReobfuscation=False):
     if is_obfuscated(moduleSource) and not forceReobfuscation:
         return
 

@@ -169,8 +169,8 @@ class Module(object):
         l.options['Proxy']['Value'] = self.options['Proxy']['Value']
         l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
         l.options['Delete']['Value'] = "True"
-        if (self.options['Obfusctae']['Value']).lower() == 'true':
-            l.options['Obfusctae']['Value'] =True
+        if (self.options['Obfuscate']['Value']).lower() == 'true':
+            l.options['Obfuscate']['Value'] =True
         l.options['ObfuscateCommand']['Value'] = self.options['ObfuscateCommand']['Value']
         if (self.options['AMSIBypass']['Value']).lower() == 'true':
             l.options['AMSIBypass']['Value'] = True

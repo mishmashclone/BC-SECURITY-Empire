@@ -121,7 +121,7 @@ class Module(object):
         listenerName = self.options['Listener']['Value']
         procID = self.options['ProcId']['Value'].strip()
         procName = self.options['ProcName']['Value'].strip()
-        if (self.options['Obfusctae']['Value']).lower() == 'true':
+        if (self.options['Obfuscate']['Value']).lower() == 'true':
             Obfuscate =True
         ObfuscateCommand = self.options['ObfuscateCommand']['Value']
         if (self.options['AMSIBypass']['Value']).lower() == 'true':

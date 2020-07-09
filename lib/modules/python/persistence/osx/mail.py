@@ -1,9 +1,11 @@
-from builtins import str
-from builtins import range
 from builtins import object
-from time import time
+from builtins import range
+from builtins import str
 from random import choice
 from string import ascii_uppercase
+from time import time
+
+
 class Module(object):
 
     def __init__(self, mainMenu, params=[]):

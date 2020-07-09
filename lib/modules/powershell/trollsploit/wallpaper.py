@@ -1,7 +1,10 @@
 from __future__ import print_function
-from builtins import object
+
 import base64
+from builtins import object
+
 from lib.common import helpers
+
 
 class Module(object):
 

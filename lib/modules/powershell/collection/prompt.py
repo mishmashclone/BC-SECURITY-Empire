@@ -1,7 +1,8 @@
-from builtins import str
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
-import threading
+
 
 class Module(object):
 

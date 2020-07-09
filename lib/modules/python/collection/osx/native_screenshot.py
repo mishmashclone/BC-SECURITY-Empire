@@ -1,9 +1,5 @@
 from builtins import object
-from zlib_wrapper import compress
-import os
-from lib.common import helpers
-import hashlib
-import base64
+
 
 class Module(object):
 

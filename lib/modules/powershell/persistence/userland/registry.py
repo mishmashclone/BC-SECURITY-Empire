@@ -193,6 +193,7 @@ class Module(object):
             script += "Remove-ItemProperty -Force -Path HKCU:Software\\Microsoft\\Windows\\CurrentVersion\\Run\\ -Name " + keyName + ";"
             script += "'Registry Persistence removed.'"
             script = helpers.keyword_obfuscation(script)
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
             return script
@@ -285,4 +286,6 @@ class Module(object):
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
                                        obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
+
         return script

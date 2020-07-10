@@ -168,9 +168,10 @@ class Module(object):
 
         # if we get to this point, no switched were specified
         scriptEnd += "Get-ComputerDetails -Limit " + str(self.options['Limit']['Value']) + " -ToString"
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
 
         return script

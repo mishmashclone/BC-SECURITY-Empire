@@ -80,5 +80,6 @@ class Module(object):
 
         script += scriptEnd
         script += "| Out-String"
+        script = helpers.keyword_obfuscation(script)
 
         return script

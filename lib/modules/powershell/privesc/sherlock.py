@@ -62,8 +62,11 @@ class Module:
         # script = helpers.generate_dynamic_powershell_script(moduleCode, moduleName)
         script = moduleCode
         scriptEnd = "Find-AllVulns | Out-String"
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd,
                                           obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

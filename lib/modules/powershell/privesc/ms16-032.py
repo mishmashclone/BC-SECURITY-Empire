@@ -111,10 +111,11 @@ class Module(object):
         
         scriptEnd = 'Invoke-MS16032 -Command "' + launcherCode + '"'
         scriptEnd += ';`nInvoke-MS16032 completed.'
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
 
         return script
 

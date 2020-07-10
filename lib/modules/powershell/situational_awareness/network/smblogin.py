@@ -136,6 +136,7 @@ class Module:
 
         scriptEnd += "| Out-String | %{$_ + \"`n\"};"
         scriptEnd += "'Invoke-SMBLogin completed'"
-
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

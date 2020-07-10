@@ -97,9 +97,9 @@ class Module(object):
         # extract the fields we want
         scriptEnd += " | ?{!($_.ITEMURL -like '*AppData*')} | Select-Object ITEMURL, COMPUTERNAME, FILEOWNER, SIZE, DATECREATED, DATEACCESSED, DATEMODIFIED, AUTOSUMMARY"
         scriptEnd += " | fl | Out-String;"
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
 
         return script

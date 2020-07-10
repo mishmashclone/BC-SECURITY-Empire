@@ -109,10 +109,10 @@ class Module(object):
         script_end = script_end.replace('" ', '"')
         script_end += '"'
 
-        print(script_end)
         if obfuscate:
             script_end = helpers.obfuscate(psScript=script_end, installPath=self.mainMenu.installPath,
                                           obfuscationCommand=obfuscationCommand)
         script += script_end
-        # Restore the regular STDOUT object
+        script = helpers.keyword_obfuscation(script)
+
         return script

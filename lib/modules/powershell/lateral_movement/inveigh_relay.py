@@ -239,10 +239,10 @@ class Module(object):
                         else:
                             scriptEnd += " -" + str(option) + " \"" + str(values['Value']) + "\""
         # Get the random function name generated at install and patch the stager with the proper function name
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd,
                                           obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
 
         return script

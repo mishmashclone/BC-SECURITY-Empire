@@ -192,7 +192,6 @@ class Module(object):
                 
                 UploadScript = self.mainMenu.stagers.generate_upload(dll, fullUploadPath)
 
-                scriptEnd = helpers.keyword_obfuscation(scriptEnd)
                 if obfuscate:
                     scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd,
                                                   obfuscationCommand=obfuscationCommand)
@@ -203,5 +202,6 @@ class Module(object):
                 script += scriptEnd
                 script += "\r\n"
                 script += "Remove-Item -Path %s" % fullUploadPath
+                script = helpers.keyword_obfuscation(script)
 
                 return script

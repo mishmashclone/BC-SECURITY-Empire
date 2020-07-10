@@ -108,9 +108,10 @@ Get-AntiVirusProduct """
                         script += " -" + str(option) + " " + str(values['Value'])
 
         script += ' | Out-String | %{$_ + \"`n\"};"`n'+str(self.info["Name"])+' completed!";'
-        script = helpers.keyword_obfuscation(script)
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
 
         return script
 

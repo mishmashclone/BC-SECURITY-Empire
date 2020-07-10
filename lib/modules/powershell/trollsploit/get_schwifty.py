@@ -106,9 +106,10 @@ Function Get-Schwifty
                         script += " -" + str(option) + " " + str(values['Value'])
 
         script += "; 'Agent is getting schwifty!'"
-        script = helpers.keyword_obfuscation(script)
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
 
         return script
 

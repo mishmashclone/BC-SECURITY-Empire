@@ -777,7 +777,11 @@ def lastseen(stamp, delay, jitter):
     Colorize the Last Seen field based on measured delays
     """
     try:
-        stamp_date = datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%S.%f%z").astimezone(tz=None) # Display local
+        if "T" in stamp:
+            stamp_date = datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%S.%f%z").astimezone(tz=None) # Display local
+        else:
+            stamp_date = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S.%f%z").astimezone(tz=None) # Display local
+            
         stamp_display_local = stamp_date.strftime('%Y-%m-%d %H:%M:%S')
         delta = getutcnow() - stamp_date
 

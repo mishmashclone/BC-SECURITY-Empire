@@ -116,7 +116,7 @@ class Module(object):
                         scriptEnd += "$SecurityLog = Get-EventLog -LogName Security; $Filtered4624 = Find-4624Logons $SecurityLog;"
                         scriptEnd += 'Write-Output "Event ID 4624 (Logon):`n";'
                         scriptEnd += "Write-Output $Filtered4624.Values | Out-String"
-                        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+                        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         for option, values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
@@ -168,7 +168,7 @@ class Module(object):
 
         # if we get to this point, no switched were specified
         scriptEnd += "Get-ComputerDetails -Limit " + str(self.options['Limit']['Value']) + " -ToString"
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

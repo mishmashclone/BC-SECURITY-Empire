@@ -143,6 +143,6 @@ Invoke-DropboxUpload  """
                         script += " -" + str(option)
                     else:
                         script += " -" + str(option) + " " + str(values['Value'])
-        script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script)
 
         return script

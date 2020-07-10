@@ -194,7 +194,7 @@ class Module(object):
 
             script += "schtasks /Delete /F /TN "+taskName+";"
             script += "'Schtasks persistence removed.'"
-            script = helpers.keyword_obfuscation(script, self.mainMenu)
+            script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
             return script
@@ -276,7 +276,7 @@ class Module(object):
             statusMsg += " with "+taskName+" daily trigger at " + dailyTime + "."
 
         script += "'Schtasks persistence established "+statusMsg+"'"
-        script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
         return script

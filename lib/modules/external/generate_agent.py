@@ -111,7 +111,7 @@ class Module(object):
             return ''
 
             # Get the random function name generated at install and patch the stager with the proper function name
-        agent_code = helpers.keyword_obfuscation(agent_code, self.mainMenu)
+        agent_code = helpers.keyword_obfuscation(agent_code)
 
         # TODO: python agent generation - need to patch in crypto functions from the stager...
 

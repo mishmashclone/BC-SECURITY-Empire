@@ -187,7 +187,7 @@ class Module(object):
 
                 script += ";'Invoke-Wmi executed on " +computerNames +"'"
 
-        script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
         return script

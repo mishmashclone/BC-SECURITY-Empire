@@ -578,7 +578,7 @@ class Listener(object):
             # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
-            stager = helpers.keyword_obfuscation(stager, self.mainMenu)
+            stager = helpers.keyword_obfuscation(stager)
             self.lock.release()
 
 
@@ -705,7 +705,7 @@ class Listener(object):
             # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
-            code = helpers.keyword_obfuscation(code, self.mainMenu)
+            code = helpers.keyword_obfuscation(code)
             self.lock.release()
 
 

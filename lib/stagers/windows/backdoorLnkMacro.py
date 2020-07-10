@@ -145,10 +145,10 @@ class Stager(object):
         return coords
     
     def generate(self):
-       #default booleans to false
-       obfuscateScript = False
-       AMSIBypassBool = False
-       AMSIBypass2Bool = False
+        #default booleans to false
+        obfuscateScript = False
+        AMSIBypassBool = False
+        AMSIBypass2Bool = False
 
         # extract all of our options
         language = self.options['Language']['Value']

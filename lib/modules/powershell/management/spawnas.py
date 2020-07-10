@@ -162,12 +162,12 @@ class Module(object):
         l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
         l.options['Delete']['Value'] = "True"
         if (self.options['Obfuscate']['Value']).lower() == 'true':
-            l.options['Obfuscate']['Value'] = True
+            l.options['Obfuscate']['Value'] = 'True'
         l.options['ObfuscateCommand']['Value'] = self.options['ObfuscateCommand']['Value']
         if (self.options['AMSIBypass']['Value']).lower() == 'true':
-            l.options['AMSIBypass']['Value'] = True
+            l.options['AMSIBypass']['Value'] = 'True'
         if (self.options['AMSIBypass2']['Value'].lower() == 'true'):
-            l.options['AMSIBypass2']['Value'] = True
+            l.options['AMSIBypass2']['Value'] = 'True'
         launcherCode = l.generate()
 
         # PowerShell code to write the launcher.bat out

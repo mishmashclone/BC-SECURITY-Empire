@@ -1,9 +1,12 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
-from lib.common import helpers
+
 import base64
 import re
+from builtins import object
+from builtins import str
+
+from lib.common import helpers
+
 
 
 class Module(object):
@@ -116,7 +119,7 @@ class Module(object):
 
         moduleSource = self.mainMenu.installPath + "/data/module_source/privesc/Invoke-BypassUACTokenManipulation.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')

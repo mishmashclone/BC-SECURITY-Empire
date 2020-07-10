@@ -62,7 +62,7 @@ class Module(object):
         # save off a copy of the mainMenu object to access external functionality
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
-        
+
         for param in params:
             # parameter format is [Name, Value]
             option, value = param
@@ -75,7 +75,7 @@ class Module(object):
         # read in the common module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/code_execution/Invoke-ShellcodeMSIL.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')
@@ -97,6 +97,7 @@ class Module(object):
                         # transform the shellcode to the correct format
                         sc = ",0".join(values['Value'].split("\\"))[1:]
                         scriptEnd += " -" + str(option) + " @(" + sc + ")"
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

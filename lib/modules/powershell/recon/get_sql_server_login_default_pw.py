@@ -76,7 +76,7 @@ class Module(object):
         moduleSource = self.mainMenu.installPath + "data/module_source/recon/Get-SQLServerLoginDefaultPw.ps1"
         script = ""
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             with open(moduleSource, 'r') as source:
@@ -86,16 +86,16 @@ class Module(object):
             return ""
 
         if check_all:
-            auxModuleSource = self.mainMenu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
+            ModuleSource = self.mainMenu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
             if obfuscate:
-                helpers.obfuscate_module(moduleSource=auxModuleSource, obfuscationCommand=obfuscationCommand)
-                auxModuleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+                helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+                ModuleSource = moduleSource.replace("module_source", "obfuscated_module_source")
             try:
-                with open(auxModuleSource, 'r') as auxSource:
+                with open(ModuleSource, 'r') as auxSource:
                     auxScript = auxSource.read()
                     script += " " + auxScript
             except:
-                print(helpers.color("[!] Could not read additional module source path at: " + str(auxModuleSource)))
+                print(helpers.color("[!] Could not read additional module source path at: " + str(ModuleSource)))
             scriptEnd = " Get-SQLInstanceDomain "
             if username != "":
                 scriptEnd += " -Username "+username
@@ -105,6 +105,8 @@ class Module(object):
         scriptEnd += " Get-SQLServerLoginDefaultPw"
         if instance != "" and not check_all:
             scriptEnd += " -Instance "+instance
+        # Get the random function name generated at install and patch the stager with the proper function name
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

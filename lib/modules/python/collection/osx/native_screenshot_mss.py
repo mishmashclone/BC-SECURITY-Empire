@@ -1,6 +1,7 @@
-from builtins import object
 import base64
 import os
+from builtins import object
+
 
 class Module(object):
 

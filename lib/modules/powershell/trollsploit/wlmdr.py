@@ -1,6 +1,8 @@
-from builtins import str
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -113,6 +115,7 @@ Invoke-Wlrmdr"""
                         script += " -" + str(option)
                     else:
                         script += " -" + str(option) + " \"" + str(values['Value'].strip("\"")) + "\""
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 

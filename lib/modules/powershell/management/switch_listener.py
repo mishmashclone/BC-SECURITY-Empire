@@ -1,6 +1,9 @@
 from __future__ import print_function
+
 from builtins import object
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -76,11 +79,8 @@ class Module(object):
 
         # signal the existing listener that we're switching listeners, and the new comms code
         script = "Send-Message -Packets $(Encode-Packet -Type 130 -Data '%s');\n%s" % (listenerName, script)
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
-
-        moduleName = self.info['Name']
-        techniques = self.info['Techniques']
-        software = self.info['Software']
 
         return script

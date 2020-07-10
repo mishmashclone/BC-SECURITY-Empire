@@ -261,7 +261,7 @@ class Module(object):
         # read in the common module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/situational_awareness/network/BloodHound3.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
 
         try:
@@ -286,10 +286,8 @@ class Module(object):
                         scriptEnd += " -" + str(option) + " " + str(values['Value']) 
 
         scriptEnd += ' | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-
         return script
-
-

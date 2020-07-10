@@ -270,6 +270,19 @@ def strip_powershell_comments(data):
     return strippedCode
 
 
+def keyword_obfuscation(data):
+    conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
+    conn.isolation_level = None
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM functions")
+    for replacement in cur.fetchall():
+        data = data.replace(replacement[0], replacement[1])
+    cur.close()
+    conn.close()
+
+    return data
+
 ####################################################################################
 #
 # PowerView dynamic generation helpers
@@ -932,7 +945,7 @@ def obfuscate(installPath, psScript, obfuscationCommand):
     return psScript
 
 
-def obfuscate_module(moduleSource, obfuscationCommand="", forceReobfuscation=False):
+def obfuscate_module(mainMenu, moduleSource, obfuscationCommand="", forceReobfuscation=False):
     if is_obfuscated(moduleSource) and not forceReobfuscation:
         return
 
@@ -944,6 +957,11 @@ def obfuscate_module(moduleSource, obfuscationCommand="", forceReobfuscation=Fal
 
     moduleCode = f.read()
     f.close()
+
+    # Get the random function name generated at install and patch the stager with the proper function name
+
+    moduleCode = keyword_obfuscation(moduleCode)
+
 
     # obfuscate and write to obfuscated source path
     path = os.path.abspath('empire.py').split('empire.py')[0] + "/"

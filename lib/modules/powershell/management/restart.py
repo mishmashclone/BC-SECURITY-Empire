@@ -1,5 +1,7 @@
 from builtins import object
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -56,7 +58,7 @@ class Module(object):
     def generate(self, obfuscate=False, obfuscationCommand=""):
         
         script = "'Restarting computer';Restart-Computer -Force"
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
-
         return script

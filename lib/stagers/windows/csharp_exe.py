@@ -23,11 +23,6 @@ class Stager(object):
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Listener' : {
-                'Description'   :   'Listener to generate stager for.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
             'Language' : {
                 'Description'   :   'Language of the stager to generate.',
                 'Required'      :   True,
@@ -72,7 +67,18 @@ class Stager(object):
                 'Description'   :   'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
                 'Required'      :   False,
                 'Value'         :   r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             }
+
         }
 
         # save off a copy of the mainMenu object to access external functionality
@@ -90,12 +96,19 @@ class Stager(object):
 
         listenerName = self.options['Listener']['Value']
 
+        AMSIBypassBool = False
+        AMSIBypass2Bool = False
+
         # staging options
         language = self.options['Language']['Value']
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
         stagerRetries = self.options['StagerRetries']['Value']
+        if self.options['AMSIBypass']['Value'].lower() == "true":
+            AMSIBypassBool = True
+        if self.options['AMSIBypass2']['Value'].lower() == "true":
+            AMSIBypass2Bool = True
         obfuscate = self.options['Obfuscate']['Value']
         obfuscateCommand = self.options['ObfuscateCommand']['Value']
         outfile = self.options['OutFile']['Value']

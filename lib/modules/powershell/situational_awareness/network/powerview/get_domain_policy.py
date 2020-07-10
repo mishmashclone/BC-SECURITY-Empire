@@ -1,7 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -115,6 +118,7 @@ class Module(object):
             script += "(" + moduleName + " " + pscript + ")." + "'" + value_to_expand + "'" + ' | fl | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
         else:
             script += "\n" + moduleName + " " + pscript + ' | fl | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed! Use ExpandObject option to expand one of the objects above such as \'System Access\'"'
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 

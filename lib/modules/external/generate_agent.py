@@ -110,15 +110,8 @@ class Module(object):
             print(helpers.color('[!] Only PowerShell agent generation is supported at this time.'))
             return ''
 
-        # Get the random function name generated at install and patch the stager with the proper function name
-        conn = self.mainMenu.get_db_connection()
-        self.mainMenu.lock.acquire()
-        cur = conn.cursor()
-        cur.execute("SELECT Invoke_Empire FROM functions")
-        replacement = cur.fetchone()
-        cur.close()
-        self.mainMenu.lock.release()
-        agent_code = agent_code.replace("Invoke-Empire", replacement[0])
+            # Get the random function name generated at install and patch the stager with the proper function name
+        agent_code = helpers.keyword_obfuscation(agent_code)
 
         # TODO: python agent generation - need to patch in crypto functions from the stager...
 

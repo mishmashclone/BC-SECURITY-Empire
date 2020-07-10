@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-from builtins import str
 from builtins import object
+from builtins import str
+
+
 class Module(object):
     def __init__(self, mainMenu, params=[]):
         # metadata info about the module, not modified during runtime

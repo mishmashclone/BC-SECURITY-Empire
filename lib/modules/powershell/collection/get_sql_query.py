@@ -1,7 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -75,7 +78,7 @@ class Module(object):
         moduleSource = self.mainMenu.installPath + "data/module_source/collection/Get-SQLQuery.ps1"
         script = ""
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             with open(moduleSource, 'r') as source:
@@ -92,6 +95,7 @@ class Module(object):
         if instance != "":
             scriptEnd += " -Instance "+instance
         scriptEnd += " -Query "+"\'"+query+"\'"
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

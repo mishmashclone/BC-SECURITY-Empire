@@ -1,5 +1,7 @@
-from builtins import object
 import base64
+from builtins import object
+
+
 class Module(object):
 
     def __init__(self, mainMenu, params=[]):

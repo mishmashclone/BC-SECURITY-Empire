@@ -168,6 +168,9 @@ class Module(object):
                         script += " -" + str(option) + " " + str(values['Value']) 
 
         script += ' | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
+
+        # Get the random function name generated at install and patch the stager with the proper function name
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 

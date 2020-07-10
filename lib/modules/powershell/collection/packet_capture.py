@@ -75,7 +75,6 @@ class Module(object):
             if option in self.options:
                 self.options[option]['Value'] = value
 
-
     def generate(self, obfuscate=False, obfuscationCommand=""):
         
         maxSize = self.options['MaxSize']['Value']
@@ -94,7 +93,8 @@ class Module(object):
 
             if persistent != "":
                 script += " persistent=yes"
+        # Get the random function name generated at install and patch the stager with the proper function name
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
-
         return script

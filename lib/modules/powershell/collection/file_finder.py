@@ -171,10 +171,7 @@ class Module(object):
 
         # Get the random function name generated at install and patch the stager with the proper function name
         script = helpers.keyword_obfuscation(script, self.mainMenu)
-
-        script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
-
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 
         return script

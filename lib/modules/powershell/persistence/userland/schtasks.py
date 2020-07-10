@@ -196,7 +196,6 @@ class Module(object):
             script += "'Schtasks persistence removed.'"
             script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
-
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
             return script
 
@@ -242,7 +241,7 @@ class Module(object):
             script = "Invoke-Command -ScriptBlock {cmd /C \"echo "+encScript+" > "+adsPath+"\"};"
 
             locationString = "$(cmd /c \''\''more < "+adsPath+"\''\''\'')"
-	    
+
         else:
             # otherwise store the script into the specified registry location
             path = "\\".join(regPath.split("\\")[0:-1])

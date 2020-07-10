@@ -78,9 +78,7 @@ class Module(object):
                             values['Value'])
 
         if obfuscate:
-
-            scriptEnd = helpers.obfuscate(
-                psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+            scriptEnd = helpers.obfuscate(psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
 
         script += scriptEnd
         script += "| Out-String"

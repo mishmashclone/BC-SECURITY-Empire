@@ -114,7 +114,6 @@ class Module(object):
         script += ';`nInvoke-MS16135 completed.'
         script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
-
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 
         return script

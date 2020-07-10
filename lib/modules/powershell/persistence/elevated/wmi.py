@@ -138,9 +138,7 @@ class Module(object):
             script += "'WMI persistence removed.'"
             script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
-
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
-                                           obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
             return script
 
         if extFile != '':
@@ -230,7 +228,6 @@ class Module(object):
         script += "'WMI persistence established " + statusMsg + "'"
         script = helpers.keyword_obfuscation(script, self.mainMenu)
         if obfuscate:
-
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
                                        obfuscationCommand=obfuscationCommand)
 

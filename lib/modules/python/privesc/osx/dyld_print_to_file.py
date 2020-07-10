@@ -1,5 +1,7 @@
 from __future__ import print_function
+
 from builtins import object
+
 from lib.common import helpers
 
 
@@ -135,4 +137,5 @@ except:
             
 	""".format(fullpath=fullPath, filecontents=launcher, filename=fileName)
         
+
         return script

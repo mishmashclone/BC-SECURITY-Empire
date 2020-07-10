@@ -165,8 +165,10 @@ class Module(object):
                         scriptEnd += " -" + str(option) + " " + str(values['Value']) 
 
         scriptEnd += ' | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-        return script
+        script = helpers.keyword_obfuscation(script)
 
+        return script

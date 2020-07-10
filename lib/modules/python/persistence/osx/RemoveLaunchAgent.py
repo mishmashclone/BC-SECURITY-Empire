@@ -1,5 +1,5 @@
 from builtins import object
-from lib.common import helpers
+
 
 class Module(object):
 
@@ -105,3 +105,4 @@ print("\\n [+] %s has been removed")
 """ %(plistpath,plistpath,programpath,plistpath,programpath)
 
         return script
+

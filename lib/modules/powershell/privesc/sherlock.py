@@ -1,7 +1,9 @@
 from __future__ import print_function
+
 from builtins import str
-from builtins import object
+
 from lib.common import helpers
+
 
 class Module:
     def __init__(self, mainMenu, params=[]):
@@ -10,7 +12,7 @@ class Module:
             'Author': ['@_RastaMouse'],
             'Description': ('Find Windows local privilege escalation vulnerabilities.'),
             'Software': '',
-            'Techniques': [''],
+            'Techniques': ['T1046'],
             'Background': True,
             'OutputExtension': None,
             'NeedsAdmin': False,
@@ -60,8 +62,11 @@ class Module:
         # script = helpers.generate_dynamic_powershell_script(moduleCode, moduleName)
         script = moduleCode
         scriptEnd = "Find-AllVulns | Out-String"
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd,
                                           obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

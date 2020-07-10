@@ -1,5 +1,5 @@
 from builtins import object
-from lib.common import helpers
+
 
 class Module(object):
 
@@ -96,3 +96,4 @@ print(subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
 """ % (path)
 
         return script
+

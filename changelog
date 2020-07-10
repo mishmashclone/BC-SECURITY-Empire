@@ -1,6 +1,18 @@
+7/10/2020
+------------
+- Version 3.3.0 Master Release
+	- Added MITRE Attack Techniques/Software Functionality - #242 (@Cx01N)
+	- Added keyword obfuscation option to modules - #244 (@Hubbl3)
+	- Added Invoke-Rubeus - #238 (@Cx01N)
+	- Added Filescraper commands - #236 (@vinnybod)
+	- Added AMSIBypass option to modules that generate new agents - #244 (@Hubbl3)
+	- Fixed timestamp format issue in agents list - #235 (@Cx01N)
+	- Fixed external/generate_agent generation issue - #240 (@Cx01N)
+	- Removed unused imports + few random fixes - #241 (@Cx01N)
+
 6/7/2020
 ------------
-- Version 3.2.2 Master Release
+- Version 3.2.3 Master Release
 	- Added Invoke-Seatbelt module - #222 (@Cx01N)
 	- Added timezone awareness timestamps - #220 (@Vinnybod)
 	- Added MITRE ATT&CK techniques and software IDs to modules - #223 (@Cx01N)

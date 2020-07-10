@@ -1,6 +1,7 @@
-from builtins import object
 import base64
 import os
+from builtins import object
+
 
 class Module(object):
 
@@ -112,3 +113,4 @@ run(data)
 """ % (module_data, self.options['Monitor']['Value'], self.options['SavePath']['Value'])
 
         return script
+

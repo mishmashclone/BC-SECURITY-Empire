@@ -1,8 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
-import re
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -18,7 +20,7 @@ class Module(object):
 
             'Software': 'S0194',
 
-            'Techniques': ['T1055', 'TA0001'],
+            'Techniques': ['T1055'],
 
             'Background' : False,
 
@@ -97,4 +99,6 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 # Author: Nick Landers (@monogas)
 
-import sys
+from struct import pack
 
 import pefile
-from struct import pack
 
 
 def is64BitDLL(bytes):

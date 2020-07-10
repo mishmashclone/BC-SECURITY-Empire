@@ -1,7 +1,10 @@
 from __future__ import print_function
-from builtins import object
+
 import base64
+from builtins import object
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -16,7 +19,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1491'],
 
             'Background' : False,
 
@@ -148,6 +151,10 @@ namespace Wallpaper
             return ""
         
         script += "; 'Set-Wallpaper executed'"
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
+
         return script
+

@@ -1,5 +1,7 @@
-from builtins import str
 from builtins import object
+from builtins import str
+
+
 class Module(object):
 
     def __init__(self, mainMenu, params=[]):
@@ -19,7 +21,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0004'],
+            'Techniques': ['T1166'],
 
             # True if the module needs to run in the background
             'Background': False,
@@ -1625,4 +1627,6 @@ try:
 except Exception as e:
   print(e)
         """ %(ip,port,serveCount,url,privSetting)
+
         return script
+

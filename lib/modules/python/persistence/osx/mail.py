@@ -235,4 +235,5 @@ os.system("/usr/libexec/PlistBuddy -c 'Merge " + RulesActiveState + "' "+ home +
 os.system("rm " + SyncedRules)
 os.system("rm " + RulesActiveState)
         """ % (AppleScript, SyncedRules, RulesActiveState, plist, plist2, launcher)
+
         return script

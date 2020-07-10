@@ -1,8 +1,9 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
+
 import os
 import string
+from builtins import object
+from builtins import str
 
 from lib.common import helpers
 
@@ -100,4 +101,4 @@ class Module(object):
             print(helpers.color("[!] Error rendering module template: {0}".format(e)))
             return ''
 
-        return module
+        return script

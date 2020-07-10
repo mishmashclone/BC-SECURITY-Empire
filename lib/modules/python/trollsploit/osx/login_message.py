@@ -16,7 +16,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1491'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -115,4 +115,5 @@ except Exception as e:
 
 
 """ % (remove, message)
+
         return script

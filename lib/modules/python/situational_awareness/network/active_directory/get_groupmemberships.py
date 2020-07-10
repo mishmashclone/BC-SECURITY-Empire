@@ -128,4 +128,5 @@ print("")
 print(out)
 
 """ % (BindDN, LDAPAddress, password, user)
+
         return script

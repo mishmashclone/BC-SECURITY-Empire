@@ -78,7 +78,7 @@ class Module(object):
 
         moduleSource = self.mainMenu.installPath + "/data/module_source/situational_awareness/host/Find-TrustedDocuments.ps1"
         if obfuscate:
-            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')

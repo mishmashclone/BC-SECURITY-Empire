@@ -49,9 +49,7 @@ class Module(object):
         moduleSource = self.mainMenu.installPath + "/data/module_source/management/Invoke-Phant0m.ps1"
 
         if obfuscate:
-            helpers.obfuscate_module(
-                moduleSource=moduleSource,
-                obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source",
                                                 "obfuscated_module_source")
 

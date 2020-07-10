@@ -294,7 +294,7 @@ class Listener(object):
             stager = f.read()
             f.close()
             # Get the random function name generated at install and patch the stager with the proper function name
-            stager = helpers.keyword_obfuscation(stager, self.mainMenu)
+            stager = helpers.keyword_obfuscation(stager)
 
             stager = stager.replace("REPLACE_STAGING_FOLDER", "%s/%s" % (base_folder, staging_folder))
             stager = stager.replace('REPLACE_STAGING_KEY', staging_key)
@@ -469,7 +469,7 @@ class Listener(object):
             f.close()
 
 
-            agent_code = helpers.keyword_obfuscation(agent_code, self.mainMenu)
+            agent_code = helpers.keyword_obfuscation(agent_code)
 
             comms_code = self.generate_comms(listener_options, client_id, client_secret, token, refresh_token,
                                              redirect_uri, language)

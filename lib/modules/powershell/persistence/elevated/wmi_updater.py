@@ -233,5 +233,5 @@ class Module(object):
 
 
         script += "'WMI persistence established "+statusMsg+"'"
-        script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script)
         return script

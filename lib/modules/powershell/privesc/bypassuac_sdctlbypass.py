@@ -154,5 +154,5 @@ class Module(object):
                 return ""
             else:
                 script += "Invoke-SDCLTBypass -Command \"%s\"" % (encScript)
-                script = helpers.keyword_obfuscation(script, self.mainMenu)
+                script = helpers.keyword_obfuscation(script)
                 return script

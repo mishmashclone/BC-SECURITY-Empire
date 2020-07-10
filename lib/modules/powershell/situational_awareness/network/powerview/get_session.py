@@ -96,7 +96,7 @@ class Module(object):
                         script += " -" + str(option) + " " + str(values['Value']) 
 
         script += ' | ft -wrap | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
-        script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 

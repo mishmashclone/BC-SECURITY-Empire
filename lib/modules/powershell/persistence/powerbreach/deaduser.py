@@ -193,7 +193,7 @@ Invoke-DeadUserBackdoor"""
             print(helpers.color("[+] PowerBreach deaduser backdoor written to " + outFile))
             return ""
 
-        script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
 
@@ -206,7 +206,7 @@ Invoke-DeadUserBackdoor"""
 
         # set up the start-process command so no new windows appears
         script = "Start-Process -NoNewWindow -FilePath '%s' -ArgumentList '%s'; 'PowerBreach Invoke-DeadUserBackdoor started'" % (parts[0], " ".join(parts[1:]))
-        script = helpers.keyword_obfuscation(script, self.mainMenu)
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
         return script

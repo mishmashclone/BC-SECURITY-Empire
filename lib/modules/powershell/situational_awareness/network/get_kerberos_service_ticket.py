@@ -124,7 +124,7 @@ class Module(object):
         scriptEnd += " | Format-Table -AutoSize | Out-String"
 
         # Get the random function name generated at install and patch the stager with the proper function name
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
+        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
 
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)

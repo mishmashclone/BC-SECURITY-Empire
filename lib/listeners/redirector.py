@@ -367,7 +367,7 @@ class Listener(object):
             stager = f.read()
             f.close()
             # Get the random function name generated at install and patch the stager with the proper function name
-            stager = helpers.keyword_obfuscation(stager, self.mainMenu)
+            stager = helpers.keyword_obfuscation(stager)
             # make sure the server ends with "/"
             if not host.endswith("/"):
                 host += "/"
@@ -477,7 +477,7 @@ class Listener(object):
             code = f.read()
             f.close()
             # Get the random function name generated at install and patch the stager with the proper function name
-            code = helpers.keyword_obfuscation(code, self.mainMenu)
+            code = helpers.keyword_obfuscation(code)
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
             code = code.replace('REPLACE_COMMS', commsCode)

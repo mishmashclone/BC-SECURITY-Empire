@@ -269,15 +269,20 @@ def strip_powershell_comments(data):
 
     return strippedCode
 
-def keyword_obfuscation(data, mainmenu):
-    sql_cur = mainmenu.get_db_connection()
-    cur = sql_cur.cursor()
+
+def keyword_obfuscation(data):
+    conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
+    conn.isolation_level = None
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
     cur.execute("SELECT * FROM functions")
     for replacement in cur.fetchall():
-        code = data.replace(replacement[0], replacement[1])
+        data = data.replace(replacement[0], replacement[1])
     cur.close()
+    conn.close()
 
-    return code
+    return data
+
 ####################################################################################
 #
 # PowerView dynamic generation helpers
@@ -955,7 +960,7 @@ def obfuscate_module(mainMenu, moduleSource, obfuscationCommand="", forceReobfus
 
     # Get the random function name generated at install and patch the stager with the proper function name
 
-    moduleCode = keyword_obfuscation(moduleCode, mainMenu)
+    moduleCode = keyword_obfuscation(moduleCode)
 
 
     # obfuscate and write to obfuscated source path

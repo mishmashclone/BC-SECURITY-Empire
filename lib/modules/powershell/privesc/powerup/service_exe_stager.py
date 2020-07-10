@@ -148,10 +148,7 @@ class Module(object):
         else:
             l.options['Delete']['Value'] = "False"
 
-
         launcherCode = l.generate()
-
-
 
         # PowerShell code to write the launcher.bat out
         scriptEnd = ";$tempLoc = \"$env:temp\\debug.bat\""

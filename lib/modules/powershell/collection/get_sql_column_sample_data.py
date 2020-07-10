@@ -89,7 +89,7 @@ class Module(object):
         moduleSource = self.mainMenu.installPath + "data/module_source/collection/Get-SQLColumnSampleData.ps1"
         script = ""
         if obfuscate:
-            helpers.obfuscate_module(self.mainMenu , moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             script = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')

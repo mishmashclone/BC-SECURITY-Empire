@@ -100,7 +100,7 @@ class Module:
         modPath = "/data/module_source/credentials/Invoke-InternalMonologue.ps1"
         moduleSource = self.mainMenu.installPath + modPath 
         if obfuscate:
-            helpers.obfuscate_module(self.mainMenu , moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(self.mainMenu, moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')

@@ -725,7 +725,7 @@ class MainMenu(cmd.Cmd):
                         print(helpers.color("[!] PowerShell is not installed and is required to use obfuscation, please install it first."))
                     else:
                         self.obfuscate = True
-                        
+                        print(helpers.color("[!] Warning: Obfuscate is not compatible with Keyword Obfuscation"))
                         message = "[*] Obfuscating all future powershell commands run on all agents."
                         signal = json.dumps({
                             'print': True,

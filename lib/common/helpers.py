@@ -273,7 +273,7 @@ def strip_powershell_comments(data):
 def keyword_obfuscation(data):
     conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
     conn.isolation_level = None
-    conn.row_factory = dict_factory
+    conn.row_factory = None
     cur = conn.cursor()
     cur.execute("SELECT * FROM functions")
     for replacement in cur.fetchall():
@@ -780,9 +780,9 @@ def lastseen(stamp, delay, jitter):
         stamp_date = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S.%f%z")
         delta = getutcnow() - stamp_date
 
-        #Remove formatting error
+        # Remove formatting error
         if "T" in stamp:
-            stamp.replace("T", " ")
+            stamp = stamp.replace("T", " ")
 
         # Set min threshold for delay/jitter
         if delay < 1:

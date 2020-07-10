@@ -97,9 +97,10 @@ class Module(object):
                         # transform the shellcode to the correct format
                         sc = ",0".join(values['Value'].split("\\"))[1:]
                         scriptEnd += " -" + str(option) + " @(" + sc + ")"
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
 
         return script

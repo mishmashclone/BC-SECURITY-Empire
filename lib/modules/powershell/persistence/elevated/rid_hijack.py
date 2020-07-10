@@ -116,8 +116,10 @@ class Module:
                         scriptEnd += " -" + str(option)
                     else:
                         scriptEnd += " -" + str(option) + " " + str(values['Value'])
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

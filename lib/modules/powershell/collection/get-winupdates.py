@@ -112,9 +112,9 @@ class Module(object):
         scriptEnd = " Get-WinUpdates"
         scriptEnd += " -ComputerName "+computername
 
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
 
         return script

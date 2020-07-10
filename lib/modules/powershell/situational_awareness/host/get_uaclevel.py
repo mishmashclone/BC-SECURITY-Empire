@@ -1,6 +1,8 @@
 from builtins import object
 from builtins import str
 
+from lib.common import helpers
+
 
 class Module(object):
 
@@ -100,7 +102,7 @@ function Get-UACLevel
     }   
 } Get-UACLevel"""
 
-        for option,values in self.options.items():
+        for option, values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":
@@ -109,6 +111,6 @@ function Get-UACLevel
                     else:
                         script += " -" + str(option) + " " + str(values['Value']) 
 
-
+        script = helpers.keyword_obfuscation(script)
         return script
 

@@ -128,8 +128,9 @@ class Module(object):
             scriptEnd += " -OnlyActive:$false "
 
         scriptEnd += "| Out-String;"
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

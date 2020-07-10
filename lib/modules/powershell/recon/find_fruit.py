@@ -135,10 +135,11 @@ class Module(object):
             scriptEnd += " | ?{$_.Status -eq 'OK'}"
 
         scriptEnd += " | Format-Table -AutoSize | Out-String"
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd)
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
 
         return script
 

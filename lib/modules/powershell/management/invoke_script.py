@@ -86,8 +86,9 @@ class Module(object):
             script += '\n'
 
         script += "%s" %(scriptCmd)
-        script = helpers.keyword_obfuscation(script)
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
 
         return script

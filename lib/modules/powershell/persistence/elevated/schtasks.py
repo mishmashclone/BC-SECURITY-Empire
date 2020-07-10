@@ -278,7 +278,6 @@ class Module(object):
             statusMsg += " with "+taskName+" idle trigger on " + idleTime + "."
         else:
             # otherwise assume we're doing a daily trigger
-	    
             script += "schtasks /Create /F /RU system /SC DAILY /ST "+dailyTime+" /TN "+taskName+" /TR "+triggerCmd+";"
             statusMsg += " with "+taskName+" daily trigger at " + dailyTime + "."
         script += "'Schtasks persistence established "+statusMsg+"'"

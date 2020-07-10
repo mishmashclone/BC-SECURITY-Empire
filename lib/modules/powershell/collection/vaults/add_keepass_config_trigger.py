@@ -78,8 +78,6 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
-
-
         # During instantiation, any settable option parameters
         #   are passed as an object set to the module and the
         #   options dictionary is automatically set. This is mostly

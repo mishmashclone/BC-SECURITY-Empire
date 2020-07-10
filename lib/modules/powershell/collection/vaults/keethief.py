@@ -63,8 +63,6 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
-
-
         # During instantiation, any settable option parameters
         #   are passed as an object set to the module and the
         #   options dictionary is automatically set. This is mostly
@@ -101,6 +99,7 @@ class Module(object):
         scriptEnd = "\nGet-KeePassDatabaseKey "
 
         scriptEnd += ' | Format-List | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
+
         scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)

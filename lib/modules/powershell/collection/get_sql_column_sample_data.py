@@ -123,7 +123,6 @@ class Module(object):
             scriptEnd += " -Instance "+instance
         if no_defaults:
             scriptEnd += " -NoDefaults "
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
 
         scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:

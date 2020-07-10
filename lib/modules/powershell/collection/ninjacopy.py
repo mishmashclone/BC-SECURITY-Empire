@@ -75,8 +75,6 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
-
-
         for param in params:
             # parameter format is [Name, Value]
             option, value = param

@@ -63,8 +63,6 @@ class Module(object):
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
-
-
         # During instantiation, any settable option parameters
         #   are passed as an object set to the module and the
         #   options dictionary is automatically set. This is mostly
@@ -101,12 +99,8 @@ class Module(object):
         scriptEnd = "\nFind-KeePassconfig | Get-KeePassConfigTrigger  "
 
         scriptEnd += ' | Format-List | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
-        # Get the random function name generated at install and patch the stager with the proper function name
-        conn = self.get_db_connection()
-        self.lock.acquire()
-        scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
-        self.lock.release()
 
+        # Get the random function name generated at install and patch the stager with the proper function name
         scriptEnd = helpers.keyword_obfuscation(scriptEnd, self.mainMenu)
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)

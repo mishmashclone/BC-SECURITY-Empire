@@ -47,6 +47,11 @@ class Module(object):
                 'Description': 'Agent to run module on.',
                 'Required': True,
                 'Value': ''
+            },
+            'Sleep': {
+                'Description': 'Sleep time [ms] between key presses. Shorter times may increase CPU usage on the target.',
+                'Required': False,
+                'Value': '1'
             }
         }
 

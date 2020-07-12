@@ -43,10 +43,16 @@ class Module(object):
             # format:
             #   value_name : {description, required, default_value}
             'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            }
+            'Description'   :   'Agent to run module on.',
+            'Required'      :   True,
+            'Value'         :   ''
+            },
+
+            'Sleep': {
+            'Description': 'Sleep time [ms] between key presses. Shorter times may increase CPU usage on the target.',
+            'Required': False,
+            'Value': '1'
+        },
         }
 
         # save off a copy of the mainMenu object to access external functionality

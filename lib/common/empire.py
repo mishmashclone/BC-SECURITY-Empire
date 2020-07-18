@@ -4049,11 +4049,11 @@ class ModuleMenu(SubMenu):
                 # if we're running this module for all agents, skip this validation
                 if sessionID.lower() != "all" and sessionID.lower() != "autorun":
                     moduleLangVersion = float(self.module.info['MinLanguageVersion'])
-                    agentLangVersion = float(self.mainMenu.agents.get_language_version_db(sessionID))
+                    agent_lang_version = float(self.mainMenu.agents.get_language_version_db(sessionID))
                     
                     # check if the agent/module PowerShell versions are compatible
-                    if moduleLangVersion > agentLangVersion:
-                        print(helpers.color("[!] Error: module requires language version %s but agent running version %s" % (moduleLangVersion, agentPSVersion)))
+                    if moduleLangVersion > agent_lang_version:
+                        print(helpers.color("[!] Error: module requires language version %s but agent running version %s" % (moduleLangVersion, agent_lang_version)))
                         return False
             except Exception as e:
                 print(helpers.color("[!] Invalid module or agent language version: %s" % (e)))

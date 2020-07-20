@@ -1,9 +1,10 @@
-7/10/2020
+7/20/2020
 ------------
 - Version 3.3.1 Master Release
 	- Updated Mimikatz to 20200715 NPLogonNotify passwords - #260 (@Cx01N)
 	- Fixed syntax errors in Get-GPPPassword and MS16-135 - #259 (@PaulWhitingS2)
 	- Fixed missing keylogger character issue - #252 (@Cx01N)
+	- Fixed missing agentPSversion variable - #262 (@Cx01N)
 
 7/10/2020
 ------------

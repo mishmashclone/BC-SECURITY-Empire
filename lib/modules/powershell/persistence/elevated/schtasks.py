@@ -201,7 +201,7 @@ class Module(object):
 
             script += "schtasks /Delete /F /TN "+taskName+";"
             script += "'Schtasks persistence removed.'"
-        script = helpers.keyword_obfuscation(script)
+            script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
             return script

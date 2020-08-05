@@ -82,6 +82,11 @@ class Stager(object):
                 'Required'      :   False,
                 'Value'         :   'True'
             },
+            'ETWBypass': {
+                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
             'AMSIBypass' : {
                 'Description'   :   'Include mattifestation\'s AMSI Bypass in the stager code.',
                 'Required'      :   False,
@@ -121,6 +126,7 @@ class Stager(object):
         scriptLogBypass = self.options['ScriptLogBypass']['Value']
         AMSIBypass = self.options['AMSIBypass']['Value']
         AMSIBypass2 = self.options['AMSIBypass2']['Value']
+        ETWBypass = self.options['ETWBypass']['Value']
 
         encode = False
         if base64.lower() == "true":
@@ -142,8 +148,12 @@ class Stager(object):
         if AMSIBypass2.lower() == "true":
             AMSIBypass2Bool = True
 
+        ETWBypassBool = False
+        if ETWBypass.lower() == 'true':
+            ETWBypassBool =True
+
         # generate the launcher code
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=encode, obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, safeChecks=safeChecks, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool)
+        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=encode, obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, safeChecks=safeChecks, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
 
         if launcher == "":
             print(helpers.color("[!] Error in launcher command generation."))

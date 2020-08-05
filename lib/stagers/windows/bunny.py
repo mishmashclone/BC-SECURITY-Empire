@@ -87,6 +87,11 @@ class Stager(object):
                 'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
                 'Required'      :   False,
                 'Value'         :   'default'
+            },
+            'ETWBypass': {
+                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             }
         }
 
@@ -106,6 +111,7 @@ class Stager(object):
         obfuscateScript = False
         AMSIBypassBool = False
         AMSIBypass2Bool = False
+        ETWBypassBool = False
 
         # extract all of our options
         language = self.options['Language']['Value']
@@ -116,6 +122,8 @@ class Stager(object):
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
         stagerRetries = self.options['StagerRetries']['Value']
+        if self.options['ETWBypass']['Value'].lower() == "true":
+            ETWBypassBool = True
         if self.options['AMSIBypass']['Value'].lower() == "true":
             AMSIBypassBool = True
         if self.options['AMSIBypass2']['Value'].lower() == "true":
@@ -130,7 +138,7 @@ class Stager(object):
                                                            obfuscationCommand=obfuscateCommand, userAgent=userAgent,
                                                            proxy=proxy, proxyCreds=proxyCreds,
                                                            stagerRetries=stagerRetries, AMSIBypass=AMSIBypassBool,
-                                                           AMSIBypass2=AMSIBypass2Bool)
+                                                           AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
         
 
         if launcher == "":

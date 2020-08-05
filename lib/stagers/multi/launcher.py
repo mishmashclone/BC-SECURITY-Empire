@@ -127,6 +127,7 @@ class Stager(object):
         AMSIBypass = self.options['AMSIBypass']['Value']
         AMSIBypass2 = self.options['AMSIBypass2']['Value']
         ETWBypass = self.options['ETWBypass']['Value']
+
         encode = False
         if base64.lower() == "true":
             encode = True

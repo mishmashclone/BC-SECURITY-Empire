@@ -87,6 +87,11 @@ class Stager(object):
                 'Required': False,
                 'Value': 'False'
             },
+            'ScriptLogBypass': {
+                'Description': 'Include cobbr\'s Script Block Log Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
             'ETWBypass': {
                 'Description': 'Include tandasat\'s ETW bypass in the stager code.',
                 'Required': False,

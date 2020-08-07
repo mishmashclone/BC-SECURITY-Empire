@@ -12,6 +12,10 @@ class Module:
             'Description': ('Takes a GPO GUID and returns the computers the GPO is applied to. '
                             '(Note: This function was removed in PowerView. This now uses a combination of two CmdLets to achieve the same functionality)'),
 
+            'Software': 'S0194',
+
+            'Techniques': ['T1484'],
+
             'Background' : True,
 
             'OutputExtension' : None,
@@ -108,4 +112,6 @@ class Module:
         script += '} | Out-String | %{$_ + \"`n\"};"`n' + str(moduleName) + ' completed!"'
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
+
         return script

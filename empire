@@ -990,7 +990,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         for agentNameID in agentNameIDs:
             (agentName, agentSessionID) = agentNameID
 
-            execute_db_query(conn, 'UPDATE agents SET results=? WHERE session_id=?', ['', agentSessionID])
+            execute_db_query(conn, 'UPDATE agents SET results=? WHERE session_id=? OR name=?', ['', agentSessionID, agentName])
 
         return jsonify({'success': True})
 

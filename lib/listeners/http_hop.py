@@ -114,7 +114,7 @@ class Listener(object):
         return True
 
 
-    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False):
+    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass=False):
         """
         Generate a basic launcher for the specified listener.
         """
@@ -142,6 +142,8 @@ class Listener(object):
                     # ScriptBlock Logging bypass
                     if scriptLogBypass:
                         stager += bypasses.scriptBlockLogBypass()
+                    if ETWBypass:
+                        stager += bypasses.ETWBypass()
                     # @mattifestation's AMSI bypass
                     if AMSIBypass:
                         stager += bypasses.AMSIBypass()

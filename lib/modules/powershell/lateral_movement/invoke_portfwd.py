@@ -11,21 +11,20 @@ class Module(object):
         # Metadata info about the module, not modified during runtime
         self.info = {
             # Name for the module that will appear in module menus
-            'Name': 'Invoke-Something',
+            'Name': 'Invoke-PortFwd',
 
             # List of one or more authors for the module
-            'Author': ['@yourname'],
+            'Author': ['@decoder-it'],
 
             # More verbose multi-line description of the module
-            'Description': ('description line 1 '
-                            'description line 2'),
+            'Description': ('Forward a port with no admin rights required.'),
 
-            'Software': 'SXXXX',
+            'Software': '',
 
-            'Techniques': ['TXXXX', 'TXXXX'],
+            'Techniques': ['T1363'],
 
             # True if the module needs to run in the background
-            'Background': False,
+            'Background': True,
 
             # File extension to save the file as
             'OutputExtension': None,
@@ -34,7 +33,7 @@ class Module(object):
             'NeedsAdmin': False,
 
             # True if the method doesn't touch disk/is reasonably opsec safe
-            'OpsecSafe': True,
+            'OpsecSafe': False,
 
             # The language for this module
             'Language': 'powershell',
@@ -44,8 +43,8 @@ class Module(object):
 
             # List of any references/other comments
             'Comments': [
-                'comment',
-                'http://link/'
+                'Inspired by @IppSec (https://youtu.be/6l4ZIKwzW8U)',
+                'https://github.com/decoder-it/psportfwd'
             ]
         }
 
@@ -59,10 +58,25 @@ class Module(object):
                 'Required'   :   True,
                 'Value'      :   ''
             },
-            'Command': {
-                'Description':   'Command to execute',
+            'Lhost': {
+                'Description':   'Local IP address.',
                 'Required'   :   True,
-                'Value'      :   'test'
+                'Value'      :   ''
+            },
+            'Lport': {
+                'Description':   'Local port to listen on.',
+                'Required'   :   True,
+                'Value'      :   ''
+            },
+            'Rhost': {
+                'Description':   'Remote IP address.',
+                'Required'   :   True,
+                'Value'      :   ''
+            },
+            'Rport': {
+                'Description':   'Remote port to forward to.',
+                'Required'   :   True,
+                'Value'      :   ''
             }
         }
 
@@ -99,7 +113,7 @@ class Module(object):
         #   included in the comments.
         #
         # First method: Read in the source script from module_source
-        moduleSource = self.mainMenu.installPath + "/data/module_source/..."
+        moduleSource = self.mainMenu.installPath + "/data/module_source/lateral_movement/Invoke-PortFwd.ps1"
         if obfuscate:
             helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
@@ -128,13 +142,7 @@ class Module(object):
         #   the first method to source it.
         #
         # script += """
-        script = """
-function Invoke-Something {
-
-}
-Invoke-Something"""
-
-        scriptEnd = ""
+        scriptEnd = "Invoke-PortFwd"
 
         # Add any arguments to the end execution of the script
         for option, values in self.options.items():

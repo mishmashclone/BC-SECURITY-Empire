@@ -77,6 +77,11 @@ class Stager(object):
                 'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
                 'Required': False,
                 'Value': 'False'
+            },
+            'ETWBypass': {
+                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             }
 
         }
@@ -98,6 +103,7 @@ class Stager(object):
 
         AMSIBypassBool = False
         AMSIBypass2Bool = False
+        ETWBypassBool = False
 
         # staging options
         language = self.options['Language']['Value']
@@ -109,6 +115,8 @@ class Stager(object):
             AMSIBypassBool = True
         if self.options['AMSIBypass2']['Value'].lower() == "true":
             AMSIBypass2Bool = True
+        if self.options['ETWBypass']['Value'].lower() == "true":
+            ETWBypassBool = True
         obfuscate = self.options['Obfuscate']['Value']
         obfuscateCommand = self.options['ObfuscateCommand']['Value']
         outfile = self.options['OutFile']['Value']
@@ -126,7 +134,7 @@ class Stager(object):
                 print(helpers.color("[!] If using obfuscation, LAUNCHER obfuscation cannot be used in the C# stager."))
                 return ""
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=obfuscateScript, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries)
+            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=obfuscateScript, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
 
             if launcher == "":
                 print(helpers.color("[!] Error in launcher generation."))

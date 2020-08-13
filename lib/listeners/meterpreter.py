@@ -66,7 +66,7 @@ class Listener(object):
 
         return True
 
-    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None, scriptLogBypass=None, AMSIBypass=None, AMSIBypass2=None):
+    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None, scriptLogBypass=None, AMSIBypass=None, AMSIBypass2=None, ETWBypass=None):
         """
         Generate a basic launcher for the specified listener.
         """

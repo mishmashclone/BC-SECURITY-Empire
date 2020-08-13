@@ -15,7 +15,7 @@ from builtins import input
 from builtins import range
 from builtins import str
 
-VERSION = "3.3.1 BC-Security Fork"
+VERSION = "3.3.3 BC-Security Fork"
 
 from pydispatch import dispatcher
 

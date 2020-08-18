@@ -1,3 +1,9 @@
+8/18/2020
+------------
+- Version 3.3.4 Master Release
+    	- Fixed preobfuscate error: could not read module source path - #282 (@Cx01N)
+    	- Fixed issues http_foreign listener issue - #283 (@Cx01N)
+
 8/12/2020
 ------------
 - Version 3.3.3 Master Release

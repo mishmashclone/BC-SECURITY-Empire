@@ -1,6 +1,5 @@
 from builtins import object
-from lib.common import helpers
-import pdb
+
 
 class Module(object):
 
@@ -101,3 +100,4 @@ for line in passwd:
 """
 
         return script
+

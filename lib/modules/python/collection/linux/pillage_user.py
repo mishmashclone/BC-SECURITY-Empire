@@ -148,3 +148,4 @@ print("pillaging complete")
 """ % {'sleep': sleep, 'allUsers': allUsers}
 
         return script
+

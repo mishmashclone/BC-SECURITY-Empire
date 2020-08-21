@@ -1,5 +1,7 @@
-from builtins import object
 import base64
+from builtins import object
+
+
 class Module(object):
 
     def __init__(self, mainMenu, params=[]):
@@ -163,3 +165,4 @@ print("\\n[+] Empire daemon has been written to "+daemonPath+"%(programName)s")
 """ % {"encBytes":encBytes, "plistSettings":plistSettings, "daemonName":daemonName, "programName":programName, "plistFilename":plistFilename}
 
         return script
+

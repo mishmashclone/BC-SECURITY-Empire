@@ -66,9 +66,6 @@ import fnmatch
 import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse
 import hashlib
 import datetime
-import uuid
-import ipaddress
-import simplejson as json
 
 from datetime import datetime, timezone
 
@@ -272,6 +269,19 @@ def strip_powershell_comments(data):
 
     return strippedCode
 
+
+def keyword_obfuscation(data):
+    conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
+    conn.isolation_level = None
+    conn.row_factory = None
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM functions")
+    for replacement in cur.fetchall():
+        data = data.replace(replacement[0], replacement[1])
+    cur.close()
+    conn.close()
+
+    return data
 
 ####################################################################################
 #
@@ -767,7 +777,12 @@ def lastseen(stamp, delay, jitter):
     Colorize the Last Seen field based on measured delays
     """
     try:
-        stamp_date = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S.%f%z")
+        if "T" in stamp:
+            stamp_date = datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%S.%f%z").astimezone(tz=None) # Display local
+        else:
+            stamp_date = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S.%f%z").astimezone(tz=None) # Display local
+            
+        stamp_display_local = stamp_date.strftime('%Y-%m-%d %H:%M:%S')
         delta = getutcnow() - stamp_date
 
         # Set min threshold for delay/jitter
@@ -777,13 +792,13 @@ def lastseen(stamp, delay, jitter):
             jitter = 1
 
         if delta.total_seconds() > delay * (jitter + 1) * 7:
-            return color(stamp[:-13], "red")
+            return color(stamp_display_local, "red")
         elif delta.total_seconds() > delay * (jitter + 1) * 3:
-            return color(stamp[:-13], "yellow")
+            return color(stamp_display_local, "yellow")
         else:
-            return color(stamp[:-13], "green")
+            return color(stamp_display_local, "green")
     except Exception:
-        return stamp[:-13]
+        return stamp[:19].replace("T", " ")
 
 
 def unique(seq, idfun=None):
@@ -943,6 +958,11 @@ def obfuscate_module(moduleSource, obfuscationCommand="", forceReobfuscation=Fal
 
     moduleCode = f.read()
     f.close()
+
+    # Get the random function name generated at install and patch the stager with the proper function name
+
+    moduleCode = keyword_obfuscation(moduleCode)
+
 
     # obfuscate and write to obfuscated source path
     path = os.path.abspath('empire.py').split('empire.py')[0] + "/"

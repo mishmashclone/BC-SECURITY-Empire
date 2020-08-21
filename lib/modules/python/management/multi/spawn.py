@@ -1,5 +1,7 @@
 from __future__ import print_function
+
 from builtins import object
+
 from lib.common import helpers
 
 
@@ -96,4 +98,5 @@ class Module(object):
 
             launcher = launcher.replace('"', '\\"')
             script = 'os.system("%s")' % (launcher)
+
             return script

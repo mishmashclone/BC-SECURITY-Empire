@@ -1,5 +1,5 @@
 from builtins import object
-from lib.common import helpers
+
 
 class Module(object):
 
@@ -314,4 +314,5 @@ if __name__ == '__main__':
 """
 
         return script
+
 

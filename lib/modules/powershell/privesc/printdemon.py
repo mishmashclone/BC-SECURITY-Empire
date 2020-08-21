@@ -27,7 +27,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0004'],
+            'Techniques': ['T1038'],
 
             # True if the module needs to run in the background
             'Background' : False,
@@ -117,9 +117,11 @@ class Module(object):
                         scriptEnd += " -" + str(option)
                     else:
                         scriptEnd += " -" + str(option) + " " + str(values['Value'])
+        # Get the random function name generated at install and patch the stager with the proper function name
 
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
 
         return script

@@ -1,5 +1,7 @@
 from builtins import object
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -14,7 +16,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1098'],
 
             'Background' : False,
 
@@ -61,6 +63,9 @@ class Module(object):
     def generate(self, obfuscate=False, obfuscationCommand=""):
         
         script = "(New-Object System.Security.Principal.SecurityIdentifier(\"%s\")).Translate( [System.Security.Principal.NTAccount]).Value" %(self.options['SID']['Value'])
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
+
         return script

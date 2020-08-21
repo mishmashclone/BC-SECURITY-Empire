@@ -7,15 +7,15 @@ Contains the Main, Listener, Agents, Agent, and Module
 menu loops.
 
 """
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
 
 # make version for Empire
 from builtins import input
-from builtins import str
 from builtins import range
+from builtins import str
 
-VERSION = "3.2.3 BC-Security Fork"
+VERSION = "3.3.3 BC-Security Fork"
 
 from pydispatch import dispatcher
 
@@ -25,14 +25,13 @@ import sqlite3
 import os
 import hashlib
 import time
-import fnmatch
 import shlex
-import marshal
 import pkgutil
-import importlib
 import base64
 import threading
 import json
+import random
+import string
 
 # Empire imports
 from . import helpers
@@ -43,10 +42,9 @@ from . import modules
 from . import stagers
 from . import credentials
 from . import plugins
-from . import users
 from .events import log_event
 from zlib_wrapper import compress
-from zlib_wrapper import decompress
+
 
 def xstr(s):
     """Safely cast to a string with a handler for None"""
@@ -727,7 +725,7 @@ class MainMenu(cmd.Cmd):
                         print(helpers.color("[!] PowerShell is not installed and is required to use obfuscation, please install it first."))
                     else:
                         self.obfuscate = True
-                        
+                        print(helpers.color("[!] Warning: Obfuscate is not compatible with Keyword Obfuscation"))
                         message = "[*] Obfuscating all future powershell commands run on all agents."
                         signal = json.dumps({
                             'print': True,
@@ -801,7 +799,29 @@ class MainMenu(cmd.Cmd):
                 print("\n" + helpers.color("[*] Reloading module: " + line) + "\n")
                 self.modules.reload_module(line)
     
-    
+    def do_keyword(self, line):
+        "Add keyword to database for obfuscation"
+        parts = line.split(' ')
+
+        conn = self.get_db_connection()
+        self.lock.acquire()
+        cur = conn.cursor()
+
+        if 1 <= len(parts) < 3:
+
+            try:
+                if len(parts) == 1:
+                    parts.append(random.choice(string.ascii_uppercase) + ''.join(
+                        random.choice(string.ascii_uppercase + string.digits) for _ in range(4)))
+
+                cur.execute("INSERT INTO functions VALUES(?,?)", (parts[0], parts[1]))
+                cur.close()
+                self.lock.release()
+            except Exception:
+                print(helpers.color("couldn't connect to Database"))
+        else:
+            print(helpers.color("[!]Error: Entry must be a keyword or keyword and replacement string"))
+
     def do_list(self, line):
         "Lists active agents or listeners."
         
@@ -919,7 +939,7 @@ class MainMenu(cmd.Cmd):
                     dispatcher.send(signal, sender="empire")
                 else:
                     print(helpers.color("[*] " + os.path.basename(file) + " was already obfuscated. Not reobfuscating."))
-                helpers.obfuscate_module(file, self.obfuscateCommand, reobfuscate)
+                helpers.obfuscate_module(self.obfuscateCommand, reobfuscate)
     
     def do_report(self, line):
         "Produce report CSV and log files: sessions.csv, credentials.csv, master.log"
@@ -1743,8 +1763,7 @@ class AgentsMenu(SubMenu):
         mline = line.partition(' ')[2]
         offs = len(mline) - len(text)
         return [s[offs:] for s in names if s.startswith(mline)]
-    
-    
+
     def complete_remove(self, text, line, begidx, endidx):
         "Tab-complete a remove command"
         
@@ -1909,6 +1928,10 @@ class PowerShellAgentMenu(SubMenu):
             print("     " + messages.wrap_columns(", ".join(self.agentCommands), ' ', width1=50, width2=10, indent=5) + "\n")
         else:
             SubMenu.do_help(self, *args)
+
+    def do_dirlist(self, line):
+        "Tasks an agent to store the contents of a directory in the database."
+        self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_DIR_LIST", line)
     
     def do_list(self, line):
         "Lists all active agents (or listeners)."
@@ -2191,8 +2214,7 @@ class PowerShellAgentMenu(SubMenu):
             # update the agent log
             msg = "Tasked agent to run shell command " + line
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
-    
-    
+
     def do_sysinfo(self, line):
         "Task an agent to get system information."
         
@@ -2877,6 +2899,9 @@ class PythonAgentMenu(SubMenu):
                 print(helpers.color("[!] Command not recognized."))
                 print(helpers.color("[*] Use 'help' or 'help agentcmds' to see available commands."))
 
+    def do_dirlist(self, line):
+        "Tasks an agent to store the contents of a directory in the database."
+        self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_DIR_LIST", line)
 
     def do_help(self, *args):
         "Displays the help menu or syntax for particular commands."
@@ -4024,11 +4049,11 @@ class ModuleMenu(SubMenu):
                 # if we're running this module for all agents, skip this validation
                 if sessionID.lower() != "all" and sessionID.lower() != "autorun":
                     moduleLangVersion = float(self.module.info['MinLanguageVersion'])
-                    agentLangVersion = float(self.mainMenu.agents.get_language_version_db(sessionID))
+                    agent_lang_version = float(self.mainMenu.agents.get_language_version_db(sessionID))
                     
                     # check if the agent/module PowerShell versions are compatible
-                    if moduleLangVersion > agentLangVersion:
-                        print(helpers.color("[!] Error: module requires language version %s but agent running version %s" % (moduleLangVersion, agentPSVersion)))
+                    if moduleLangVersion > agent_lang_version:
+                        print(helpers.color("[!] Error: module requires language version %s but agent running version %s" % (moduleLangVersion, agent_lang_version)))
                         return False
             except Exception as e:
                 print(helpers.color("[!] Invalid module or agent language version: %s" % (e)))
@@ -4169,6 +4194,7 @@ class ModuleMenu(SubMenu):
             self.module.execute()
         else:
             agentName = self.module.options['Agent']['Value']
+            moduleName = self.module.info['Name']
             moduleData = self.module.generate(self.mainMenu.obfuscate, self.mainMenu.obfuscateCommand)
             
             if not moduleData or moduleData == "":
@@ -4268,7 +4294,7 @@ class ModuleMenu(SubMenu):
                     print(helpers.color("[!] Invalid agent name."))
                 else:
                     # set the agent's tasking in the cache
-                    self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData)
+                    self.mainMenu.agents.add_agent_task_db(agentName, taskCommand, moduleData, moduleName=moduleName)
                     
                     # update the agent log
                     message = "[*] Tasked agent {} to run module {}".format(agentName, self.moduleName)

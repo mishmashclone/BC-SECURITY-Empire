@@ -13,28 +13,29 @@ The Stagers() class in instantiated in ./empire.py by the main menu and includes
     generate_dylib() - generates a dylib with an embedded python interpreter and runs launcher code when loaded into an application
 
 """
-from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
 
-from builtins import chr
-from builtins import zip
-from builtins import str
-from builtins import object
-from past.utils import old_div
+import base64
+import errno
 import fnmatch
 import importlib.util
-from . import helpers
-import errno
 import os
-import errno
-import macholib.MachO
 import shutil
-import zipfile
 import subprocess
+import zipfile
+from builtins import chr
+from builtins import object
+from builtins import str
+from builtins import zip
 from itertools import cycle
+
+import macholib.MachO
+from past.utils import old_div
+
+from . import helpers
 from .ShellcodeRDI import *
-import base64
 
 
 class Stagers(object):
@@ -98,7 +99,7 @@ class Stagers(object):
             return stager
 
 
-    def generate_launcher(self, listenerName, language=None, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', safeChecks='true', scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False):
+    def generate_launcher(self, listenerName, language=None, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', safeChecks='true', scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass= False):
         """
         Abstracted functionality that invokes the generate_launcher() method for a given listener,
         if it exists.
@@ -109,7 +110,7 @@ class Stagers(object):
             return ''
 
         activeListener = self.mainMenu.listeners.activeListeners[listenerName]
-        launcherCode = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']].generate_launcher(encode=encode, obfuscate=obfuscate, obfuscationCommand=obfuscationCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, language=language, listenerName=listenerName, safeChecks=safeChecks, scriptLogBypass=scriptLogBypass, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
+        launcherCode = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']].generate_launcher(encode=encode, obfuscate=obfuscate, obfuscationCommand=obfuscationCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, language=language, listenerName=listenerName, safeChecks=safeChecks, scriptLogBypass=scriptLogBypass, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2, ETWBypass=ETWBypass)
         if launcherCode:
             return launcherCode
 

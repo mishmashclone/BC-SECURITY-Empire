@@ -123,4 +123,5 @@ output.wait()
 print("")
 
 """ % (BindDN, LDAPAddress, password)
+
         return script

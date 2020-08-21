@@ -1,6 +1,8 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
 
 
@@ -14,12 +16,16 @@ class Module(object):
             'Name': 'Invoke-Seatbelt',
 
             # List of one or more authors for the module
-            'Author': ['@S3cur3Th1sSh1t', '@Cx01N'],
+            'Author': ['@harmj0y', '@S3cur3Th1sSh1t'],
 
             # More verbose multi-line description of the module
             'Description': ('Seatbelt is a C# project that performs a number of security oriented '
                             'host-survey "safety checks" relevant from both offensive and defensive '
                             'security perspectives.'),
+
+            'Software': '',
+
+            'Techniques': ['T1082'],
 
             # True if the module needs to run in the background
             'Background': False,
@@ -150,5 +156,7 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
-        # Restore the regular STDOUT object
+        script = helpers.keyword_obfuscation(script)
+
         return script
+

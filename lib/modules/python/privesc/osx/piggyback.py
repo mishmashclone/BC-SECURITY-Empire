@@ -1,5 +1,7 @@
 from __future__ import print_function
+
 from builtins import object
+
 from lib.common import helpers
 
 
@@ -121,4 +123,5 @@ while exitLoop is False:
         except:
             pass
             """ % (launcher)
+
             return script

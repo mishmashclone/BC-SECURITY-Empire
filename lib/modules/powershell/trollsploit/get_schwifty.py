@@ -1,6 +1,8 @@
-from builtins import str
 from builtins import object
+from builtins import str
+
 from lib.common import helpers
+
 
 class Module(object):
 
@@ -16,7 +18,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': [''],
+            'Techniques': ['T1491'],
 
             'Background' : True,
 
@@ -104,6 +106,10 @@ Function Get-Schwifty
                         script += " -" + str(option) + " " + str(values['Value'])
 
         script += "; 'Agent is getting schwifty!'"
+
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
+
         return script
+

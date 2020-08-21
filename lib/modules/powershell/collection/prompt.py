@@ -125,6 +125,9 @@ Invoke-Prompt """
                         script += " -" + str(option)
                     else:
                         script += " -" + str(option) + " \"" + str(values['Value'].strip("\"")) + "\""
+        # Get the random function name generated at install and patch the stager with the proper function name
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+        script = helpers.keyword_obfuscation(script)
+
         return script

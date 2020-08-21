@@ -23,11 +23,6 @@ class Stager(object):
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Listener' : {
-                'Description'   :   'Listener to generate stager for.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
             'Language' : {
                 'Description'   :   'Language of the stager to generate.',
                 'Required'      :   True,
@@ -72,7 +67,23 @@ class Stager(object):
                 'Description'   :   'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
                 'Required'      :   False,
                 'Value'         :   r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ETWBypass': {
+                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             }
+
         }
 
         # save off a copy of the mainMenu object to access external functionality
@@ -90,12 +101,22 @@ class Stager(object):
 
         listenerName = self.options['Listener']['Value']
 
+        AMSIBypassBool = False
+        AMSIBypass2Bool = False
+        ETWBypassBool = False
+
         # staging options
         language = self.options['Language']['Value']
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
         stagerRetries = self.options['StagerRetries']['Value']
+        if self.options['AMSIBypass']['Value'].lower() == "true":
+            AMSIBypassBool = True
+        if self.options['AMSIBypass2']['Value'].lower() == "true":
+            AMSIBypass2Bool = True
+        if self.options['ETWBypass']['Value'].lower() == "true":
+            ETWBypassBool = True
         obfuscate = self.options['Obfuscate']['Value']
         obfuscateCommand = self.options['ObfuscateCommand']['Value']
         outfile = self.options['OutFile']['Value']
@@ -113,7 +134,7 @@ class Stager(object):
                 print(helpers.color("[!] If using obfuscation, LAUNCHER obfuscation cannot be used in the C# stager."))
                 return ""
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=obfuscateScript, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries)
+            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=obfuscateScript, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
 
             if launcher == "":
                 print(helpers.color("[!] Error in launcher generation."))

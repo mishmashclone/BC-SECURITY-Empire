@@ -1,5 +1,4 @@
 from builtins import object
-from lib.common import helpers
 
 
 class Module(object):
@@ -136,5 +135,5 @@ main()
 
 
 """ % (target, port, depth)
-        
+
         return script

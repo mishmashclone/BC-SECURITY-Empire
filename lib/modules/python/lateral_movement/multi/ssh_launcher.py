@@ -1,6 +1,9 @@
 from __future__ import print_function
+
 from builtins import object
+
 from lib.common import helpers
+
 
 class Module(object):
     def __init__(self, mainMenu, params=[]):
@@ -143,4 +146,5 @@ print(status)
 print(output)
 
 """ % (launcher, login, password)
+
         return script

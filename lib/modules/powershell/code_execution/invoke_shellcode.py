@@ -1,9 +1,10 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
-import re
+from builtins import str
+
 from lib.common import helpers
-import pdb
+
 
 class Module(object):
 
@@ -147,7 +148,10 @@ class Module(object):
                         scriptEnd += " -" + str(option) + " " + str(values['Value'])
 
         scriptEnd += "; 'Shellcode injected.'"
+
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
         script += scriptEnd
+        script = helpers.keyword_obfuscation(script)
+
         return script

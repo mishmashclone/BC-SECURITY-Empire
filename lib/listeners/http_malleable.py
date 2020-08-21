@@ -688,7 +688,6 @@ class Listener(object):
                 code = code.replace('$KillDate,', "$KillDate = '" + str(killDate) + "',")
             if obfuscate:
                 code = helpers.obfuscate(self.mainMenu.installPath, code, obfuscationCommand=obfuscationCommand)
-            print(code)
             return code
 
         elif language == 'python':

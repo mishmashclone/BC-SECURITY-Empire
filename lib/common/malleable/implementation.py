@@ -1,8 +1,10 @@
-import urllib
+from __future__ import absolute_import
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 from pyparsing import *
 from .utility import MalleableError, MalleableUtil, MalleableObject
 from .transformation import Transform, Terminator, Container
 from .transaction import MalleableRequest, MalleableResponse, Transaction
+from six.moves import range
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # IMPLEMENTATION
@@ -45,33 +47,16 @@ class Get(Transaction):
         Returns:
             dict (str, obj)
         """
-        d = dict(super(Get, self)._serialize())
-        # Format Client
-        if "client" in d:
-            dict1 = dict(d["client"].items())
-        else:
-            dict1 = dict([])
-        dict2 = dict({
-            "metadata": self.client.metadata._serialize()
-        }.items())
-        d["client"] = {**dict1, **dict2}
+        d = super(Get, self)._serialize()
+        d["client"] = dict((list(d["client"].items()) if "client" in d else []) + list({
+            "metadata" : self.client.metadata._serialize()
+        }.items()))
+        d["server"] = dict((list(d["server"].items()) if "server" in d else []) + list({
+            "output" : self.server.output._serialize()
+        }.items()))
+        return dict(list(d.items()) + list({
 
-        # Format Server
-        if "server" in d:
-            dict1 = dict(d["server"].items())
-        else:
-            dict1 = dict([])
-        dict2 = dict({
-            "output": self.server.output._serialize()
-        }.items())
-        d["server"] = {**dict1, **dict2}
-
-        # Build return message
-        dict1 = dict(d.items())
-        dict2 = dict({
-
-        }.items())
-        return {**dict1, **dict2}
+        }.items()))
 
     @classmethod
     def _deserialize(cls, data):
@@ -105,7 +90,6 @@ class Get(Transaction):
             data: pyparsing data
         """
         super(Get, self)._parse(data)
-
         if data:
             for i in range(0, len(data), 2):
                 item = data[i]
@@ -156,6 +140,8 @@ class Get(Transaction):
                 metadata = request.extract(self.client, self.client.metadata.terminator)
                 if metadata:
                     m = self.client.metadata.transform_r(metadata)
+                    if isinstance(m, str):
+                        m = m.encode("UTF-8")
                     return m
         return None
 
@@ -221,35 +207,17 @@ class Post(Transaction):
         Returns:
             dict (str, obj)
         """
-        d = dict(super(Post, self)._serialize())
-
-        # Format Client
-        if "client" in d:
-            dict1 = dict(d["client"].items())
-        else:
-            dict1 = dict([])
-        dict2 = dict({
+        d = super(Post, self)._serialize()
+        d["client"] = dict((list(d["client"].items()) if "client" in d else []) + list({
             "id" : self.client.id._serialize(),
             "output" : self.client.output._serialize()
-        }.items())
-        d["client"] = {**dict1, **dict2}
+        }.items()))
+        d["server"] = dict((list(d["server"].items()) if "server" in d else []) + list({
+            "output" : self.server.output._serialize()
+        }.items()))
+        return dict(list(d.items()) + list({
 
-        # Format Server
-        if "server" in d:
-            dict1 = dict(d["server"].items())
-        else:
-            dict1 = dict([])
-        dict2 = dict({
-            "output": self.server.output._serialize()
-        }.items())
-        d["server"] = {**dict1, **dict2}
-
-        # Build return message
-        dict1 = dict(d.items())
-        dict2 = dict({
-
-        }.items())
-        return {**dict1, **dict2}
+        }.items()))
 
     @classmethod
     def _deserialize(cls, data):
@@ -337,8 +305,11 @@ class Post(Transaction):
             if u.lower() in request.path.lower():
                 id = request.extract(self.client, self.client.id.terminator).encode('UTF-8')
                 output = request.extract(self.client, self.client.output.terminator)
+                trans_r = self.client.id.transform_r(id) if id else None
+                if isinstance(trans_r, str):
+                    trans_r = trans_r.encode("UTF-8")
                 return (
-                    self.client.id.transform_r(id) if id else None,
+                    trans_r,
                     self.client.output.transform_r(output) if output else None
                 )
         return (None, None)
@@ -402,34 +373,16 @@ class Stager(Transaction):
         Returns:
             dict (str, obj)
         """
-        d = dict(super(Stager, self)._serialize())
-
-        # Format Client
-        if "client" in d:
-            dict1 = dict(d["client"].items())
-        else:
-            dict1 = dict([])
-        dict2 = dict({
+        d = super(Stager, self)._serialize()
+        d["client"] = dict((list(d["client"].items()) if "client" in d else []) + list({
             "metadata" : self.client.metadata._serialize()
-        }.items())
-        d["client"] = {**dict1, **dict2}
+        }.items()))
+        d["server"] = dict((list(d["server"].items()) if "server" in d else []) + list({
+            "output" : self.server.output._serialize()
+        }.items()))
+        return dict(list(d.items()) + list({
 
-        # Format Server
-        if "server" in d:
-            dict1 = dict(d["server"].items())
-        else:
-            dict1 = dict([])
-        dict2 = dict({
-            "output": self.server.output._serialize()
-        }.items())
-        d["server"] = {**dict1, **dict2}
-
-        # Build return message
-        dict1 = dict(d.items())
-        dict2 = dict({
-
-        }.items())
-        return {**dict1, **dict2}
+        }.items()))
 
     @classmethod
     def _deserialize(cls, data):

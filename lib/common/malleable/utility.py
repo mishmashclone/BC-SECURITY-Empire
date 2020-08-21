@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from pyparsing import *
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -36,7 +37,8 @@ class MalleableUtil(object):
         Returns:
             str: Byte as a hex character.
         """
-        return hex(ord(byte)) if byte else None
+
+        return hex(byte) if byte else None
 
     @staticmethod
     def from_hex(hex):
@@ -48,7 +50,11 @@ class MalleableUtil(object):
         Returns:
             char: byte.
         """
-        return hex.split("0x")[-1].zfill(2).decode("hex") if hex else None
+        if isinstance(hex, bytes):
+            return_hex = hex.split("0x")[-1].zfill(2).decode("hex") if hex else None
+        else:
+            return_hex = hex.split("0x")[-1].zfill(2) if hex else None
+        return return_hex
 
 class MalleableObject(object):
     """Custom object class used to implement consistent functionality."""

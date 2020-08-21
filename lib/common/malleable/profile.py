@@ -1,9 +1,11 @@
+from __future__ import absolute_import
 import os, string
 from pyparsing import *
 from .utility import MalleableError, MalleableUtil, MalleableObject
 from .transformation import Transform, Terminator, Container
 from .transaction import MalleableRequest, MalleableResponse, Transaction
 from .implementation import Get, Post, Stager
+from six.moves import range
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # PROFILE
@@ -54,16 +56,13 @@ class Profile(MalleableObject):
         Returns:
             dict (str, obj): Serialized data (json)
         """
-        dict1 = dict(super(Profile, self)._serialize().items())
-        dict2 = dict({
+        return dict(list(super(Profile, self)._serialize().items()) + list({
             "get" : self.get._serialize(),
             "post" : self.post._serialize(),
             "stager" : self.stager._serialize(),
             "sleeptime" : self.sleeptime,
             "jitter" : self.jitter
-        }.items())
-
-        return {**dict1, **dict2}
+        }.items()))
 
     @classmethod
     def _deserialize(cls, data):
@@ -79,8 +78,8 @@ class Profile(MalleableObject):
         if data:
             try:
                 profile.get = Get._deserialize(data["get"]) if "get" in data else Get()
-                profile.post = Post._deserialize(data["post"] if "post" in data else Post())
-                profile.stager = Stager._deserialize(data["stager"] if "stager" in data else Stager())
+                profile.post = Post._deserialize(data["post"]) if "post" in data else Post()
+                profile.stager = Stager._deserialize(data["stager"]) if "stager" in data else Stager()
                 profile.sleeptime = int(data["sleeptime"]) if "sleeptime" in data else 60000
                 profile.jitter = int(data["jitter"]) if "jitter" in data else 0
             except Exception as e:
@@ -154,6 +153,7 @@ class Profile(MalleableObject):
             MalleableError: If a check fails.
         """
         host = "http://domain.com:80"
+        #data = string.printable
         data = string.printable.encode('UTF-8')
         for format, p in [("base", self), ("clone", self._clone()), ("serialized", Profile._deserialize(self._serialize()))]:
             test = p.get.construct_client(host, data)
@@ -237,10 +237,10 @@ class Profile(MalleableObject):
             MalleableError.throw(self.__class__, "ingest", "Invalid file: %s" % str(file))
 
         content = None
-        with open(file, 'rb') as f:
+        with open(file) as f:
             content = f.read()
 
         if not content:
             MalleableError.throw(self.__class__, "ingest", "Empty file: %s" % str(file))
 
-        self._parse(self._pattern().searchString(content.decode('UTF-8')))
+        self._parse(self._pattern().searchString(content))

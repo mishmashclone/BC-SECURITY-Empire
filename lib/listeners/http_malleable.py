@@ -238,7 +238,7 @@ class Listener(object):
 
 
     def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None,
-                          stager=None, scriptLogBypass=None, AMSIBypass=True, AMSIBypass2=False):
+                          stager=None, scriptLogBypass=None, AMSIBypass=True, AMSIBypass2=False, ETWBypass=False):
         """
         Generate a basic launcher for the specified listener.
         """

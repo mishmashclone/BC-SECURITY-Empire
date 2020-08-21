@@ -1,8 +1,9 @@
-import random, urllib
-import urllib.parse as urlparse
+from __future__ import absolute_import
+import random, six.moves.urllib.parse, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 from pyparsing import *
 from .utility import MalleableError, MalleableUtil, MalleableObject
 from .transformation import Transform, Terminator, Container
+from six.moves import range
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # TRANSACTION
@@ -32,7 +33,7 @@ class MalleableRequest(MalleableObject):
     def _defaults(self):
         """Default initialization for the MalleableRequest object."""
         super(MalleableRequest, self)._defaults()
-        self._url = urlparse.SplitResult("http","","/","","")
+        self._url = six.moves.urllib.parse.SplitResult("http","","/","","")
         self.verb = "GET"
         self.extra = ""
         self.headers = {}
@@ -58,15 +59,13 @@ class MalleableRequest(MalleableObject):
         Returns:
             dict (str, obj)
         """
-        dict1 = dict(super(MalleableRequest, self)._serialize().items())
-        dict2 = dict({
+        return dict(list(super(MalleableRequest, self)._serialize().items()) + list({
             "url" : self.url,
             "verb" : self.verb,
             "extra" : self.extra,
             "headers" : self.headers,
             "body" : self.body
-        }.items())
-        return {**dict1, **dict2}
+        }.items()))
 
     @classmethod
     def _deserialize(cls, data):
@@ -159,7 +158,11 @@ class MalleableRequest(MalleableObject):
         Returns:
             str: url
         """
-        return urlparse.urlunsplit(self._url) + self.extra
+        extra = self.extra
+        if isinstance(extra, bytes):
+            extra = extra.decode("UTF-8")
+        url2 = (six.moves.urllib.parse.urlunsplit(self._url) + extra)
+        return url2
 
     @url.setter
     def url(self, url):
@@ -175,7 +178,7 @@ class MalleableRequest(MalleableObject):
                 MalleableError.throw(self.__class__, "url", "Scheme not supported: %s" % url)
         else:
             url = "http://" + url
-        self._url = urlparse.urlsplit(url)
+        self._url = six.moves.urllib.parse.urlsplit(url)
 
     @property
     def scheme(self):
@@ -310,7 +313,7 @@ class MalleableRequest(MalleableObject):
         Returns:
             dict (str, str): parameters
         """
-        return dict(urlparse.parse_qsl(self._url.query))
+        return dict(six.moves.urllib.parse.parse_qsl(self._url.query))
 
     @parameters.setter
     def parameters(self, parameters):
@@ -321,7 +324,7 @@ class MalleableRequest(MalleableObject):
         Args:
             parameters (dict(str, str))
         """
-        query = urllib.parse.urlencode(parameters) if parameters else ""
+        query = six.moves.urllib.parse.urlencode(parameters) if parameters else ""
         self._url = self._url._replace(query=query)
 
     def parameter(self, parameter, value):
@@ -400,28 +403,27 @@ class MalleableRequest(MalleableObject):
         data = None
         if terminator.type == Terminator.HEADER:
             data = self.get_header(terminator.arg)
-            if data:
-                data = urllib.parse.unquote(data)
+            if data: data = six.moves.urllib.parse.unquote(data)
         elif terminator.type == Terminator.PARAMETER:
             data = self.get_parameter(terminator.arg)
-            if data: data = urllib.parse.unquote(data)
+            if data: data = six.moves.urllib.parse.unquote(data)
         elif terminator.type == Terminator.URIAPPEND:
             if self.extra:
-                data = urllib.parse.unquote(self.extra)
+                data = six.moves.urllib.parse.unquote(self.extra)
             elif original.parameters:
                 for p in sorted(original.parameters, key=len, reverse=True):
                     known = original.parameters[p]
                     shown = self.get_parameter(p)
                     if shown and known.lower() in shown.lower() and len(shown) > len(known):
                         data = known.split(known)[-1]
-                        if data: data = urllib.parse.unquote(data)
+                        if data: data = six.moves.urllib.parse.unquote(data)
                         break
             else:
                 for known in sorted(original.uris, key=len, reverse=True):
                     shown = self.path
                     if known.lower() in shown.lower() and len(shown) > len(known):
                         data = shown.split(known)[-1]
-                        if data: data = urllib.parse.unquote(data)
+                        if data: data = six.moves.urllib.parse.unquote(data)
                         break
         elif terminator.type == Terminator.PRINT: data = self.body
         return data
@@ -460,14 +462,11 @@ class MalleableResponse(MalleableObject):
         Returns:
             dict (str, obj)
         """
-        dict1 = dict(super(MalleableResponse, self)._serialize().items())
-        dict2 = dict({
+        return dict(list(super(MalleableResponse, self)._serialize().items()) + list({
             "code" : self.code,
             "headers" : self.headers,
             "body" : self.body
-        }.items())
-
-        return {**dict1, **dict2}
+        }.items()))
 
     @classmethod
     def _deserialize(cls, data):
@@ -561,7 +560,7 @@ class MalleableResponse(MalleableObject):
         data = None
         if terminator.type == Terminator.HEADER:
             data = self.get_header(terminator.arg)
-            if data: data = urllib.parse.unquote(data)
+            if data: data = six.moves.urllib.parse.unquote(data)
         elif terminator.type == Terminator.PRINT:
             data = self.body
         return data
@@ -598,13 +597,10 @@ class Transaction(MalleableObject):
         Returns:
             dict (str, obj)
         """
-        dict1 = dict(super(Transaction, self)._serialize().items())
-        dict2 = dict({
+        return dict(list(super(Transaction, self)._serialize().items()) + list({
             "client" : self.client._serialize(),
             "server" : self.server._serialize()
-        }.items())
-
-        return {**dict1, **dict2}
+        }.items()))
 
     @classmethod
     def _deserialize(cls, data):
@@ -720,14 +716,11 @@ class Transaction(MalleableObject):
             Returns:
                 dict (str, obj)
             """
-            dict1 = dict(super(Transaction.Client, self)._serialize().items())
-            dict2 = dict({
+            return dict(list(super(Transaction.Client, self)._serialize().items()) + list({
                 "uris" : self.uris,
                 "uris_x86" : self.uris_x86,
                 "uris_x64" : self.uris_x64
-            }.items())
-
-            return {**dict1, **dict2}
+            }.items()))
 
         @classmethod
         def _deserialize(self, data):

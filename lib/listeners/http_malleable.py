@@ -544,19 +544,16 @@ class Listener(object):
         if language.lower() == 'powershell':
 
             # read in the stager base
-            stager = ""
-            with open("%s/data/agent/stagers/http.ps1" % (self.mainMenu.installPath)) as f:
-                stager = f.read()
+            f = open("%s/data/agent/stagers/http_com.ps1" % (self.mainMenu.installPath))
+            stager = f.read()
+            f.close()
 
+            # Get the random function name generated at install and patch the stager with the proper function name
             # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
-            cur.close()
+            stager = helpers.keyword_obfuscation(stager)
             self.lock.release()
-            stager = stager.replace("Invoke-Empire", replacement[0])
 
             # patch in custom headers
             if profile.stager.client.headers:
@@ -660,22 +657,16 @@ class Listener(object):
         profileStr = profile.stager.client.stringify()
 
         if language == 'powershell':
-
-            # read in the agent base
-            code = ""
-            with open(self.mainMenu.installPath + "./data/agent/agent.ps1") as f:
-                code = f.read()
+            #read in agent code
+            f = open(self.mainMenu.installPath + "./data/agent/agent.ps1")
+            code = f.read()
+            f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT Invoke_Empire FROM functions")
-            replacement = cur.fetchone()
-            cur.close()
+            code = helpers.keyword_obfuscation(code)
             self.lock.release()
-
-            code = code.replace("Invoke-Empire", replacement[0])
 
             # path in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)

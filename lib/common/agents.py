@@ -1586,6 +1586,9 @@ class Agents(object):
             dispatcher.send(signal, sender="empire")
             return None
 
+        if isinstance(routingPacket, str):
+            routingPacket = routingPacket.encode('UTF-8')
+
         routingPacket = packets.parse_routing_packet(stagingKey, routingPacket)
         if not routingPacket:
             return [('', "ERROR: invalid routing packet")]

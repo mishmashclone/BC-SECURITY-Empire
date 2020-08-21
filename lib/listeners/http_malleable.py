@@ -18,6 +18,8 @@ import copy
 import json
 import sys
 import threading
+import urllib.parse
+
 from pydispatch import dispatcher
 
 # Empire imports
@@ -549,7 +551,6 @@ class Listener(object):
             f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
-            # Get the random function name generated at install and patch the stager with the proper function name
             conn = self.get_db_connection()
             self.lock.acquire()
             stager = helpers.keyword_obfuscation(stager)
@@ -687,6 +688,7 @@ class Listener(object):
                 code = code.replace('$KillDate,', "$KillDate = '" + str(killDate) + "',")
             if obfuscate:
                 code = helpers.obfuscate(self.mainMenu.installPath, code, obfuscationCommand=obfuscationCommand)
+            print(code)
             return code
 
         elif language == 'python':
@@ -1099,6 +1101,10 @@ class Listener(object):
                 malleableRequest.headers = headers
                 malleableRequest.body = data
 
+                # fix non-ascii characters
+                if '%' in malleableRequest.path:
+                    malleableRequest.path = urllib.parse.unquote(malleableRequest.path)
+
                 # identify the implementation by uri
                 implementation = None
                 for uri in sorted((profile.stager.client.uris if profile.stager.client.uris else ["/"]) + (profile.get.client.uris if profile.get.client.uris else ["/"]) + (profile.post.client.uris if profile.post.client.uris else ["/"]), key=len, reverse=True):
@@ -1117,13 +1123,12 @@ class Listener(object):
                         # stage 1 negotiation comms are hard coded, so we can't use malleable
                         agentInfo = malleableRequest.body
                     elif implementation is profile.post:
-                        # the post implmenetation has two spots for data, requires two-part extraction
+                        # the post implementation has two spots for data, requires two-part extraction
                         agentInfo, output = implementation.extract_client(malleableRequest)
                         agentInfo = (agentInfo if agentInfo else "") + (output if output else "")
                     else:
                         agentInfo = implementation.extract_client(malleableRequest)
                     if agentInfo:
-                        # parse the agent info and process the results
                         dataResults = self.mainMenu.agents.handle_agent_data(stagingKey, agentInfo, listenerOptions, clientIP)
                         if dataResults and len(dataResults) > 0:
                             for (language, results) in dataResults:

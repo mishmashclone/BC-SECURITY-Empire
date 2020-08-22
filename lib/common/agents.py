@@ -1588,7 +1588,7 @@ class Agents(object):
 
         if isinstance(routingPacket, str):
             routingPacket = routingPacket.encode('UTF-8')
-
+        print(routingPacket)
         routingPacket = packets.parse_routing_packet(stagingKey, routingPacket)
         if not routingPacket:
             return [('', "ERROR: invalid routing packet")]
@@ -1597,6 +1597,7 @@ class Agents(object):
 
         # process each routing packet
         for sessionID, (language, meta, additional, encData) in routingPacket.items():
+            print(sessionID)
             if meta == 'STAGE0' or meta == 'STAGE1' or meta == 'STAGE2':
                 message = "[*] handle_agent_data(): sessionID {} issued a {} request".format(sessionID, meta)
                 signal = json.dumps({

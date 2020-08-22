@@ -256,8 +256,8 @@ class Transform(MalleableObject):
         """
         if string is None:
             MalleableError.throw(Transform.__class__, "prepend", "string argument must not be null")
-        self.transform = lambda data: string + data if isinstance(data, str) else string + data.decode('UTF-8')
-        self.transform_r = lambda data: data[len(string):] if isinstance(data, bytes) else data.encode("UTF-8")[len(string):]
+        self.transform = lambda data: string + data if isinstance(data, str) else string + data.decode('latin-1')
+        self.transform_r = lambda data: data[len(string):] if isinstance(data, bytes) else data.encode("latin-1")[len(string):]
         self.generate_python = lambda var: "%(var)s=b'%(string)s'+%(var)s\n" % {"var":var, "string":string}
         self.generate_python_r = lambda var: "%(var)s=%(var)s[%(len)i:]\n" % {"var":var, "len":len(string)}
         self.generate_powershell = lambda var: "%(var)s='%(string)s'+%(var)s;" % {"var":var, "string":string}

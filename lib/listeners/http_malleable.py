@@ -1124,7 +1124,7 @@ class Listener(object):
                     elif implementation is profile.post:
                         # the post implementation has two spots for data, requires two-part extraction
                         agentInfo, output = implementation.extract_client(malleableRequest)
-                        agentInfo = (agentInfo if agentInfo else "") + (output if output else "")
+                        agentInfo = (agentInfo if agentInfo else b"") + (output if output else b"")
                     else:
                         agentInfo = implementation.extract_client(malleableRequest)
                     if agentInfo:

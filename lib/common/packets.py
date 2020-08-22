@@ -279,10 +279,10 @@ def parse_routing_packet(stagingKey, data):
                 RC4IV = data[0 + offset:4 + offset]
                 RC4data = data[4 + offset:20 + offset]
 
-                if isinstance(RC4IV, str):
-                    RC4IV = RC4IV.encode("UTF-8")
-                if isinstance(RC4data, str):
-                    RC4data = RC4data.encode("UTF-8")
+               # if isinstance(RC4IV, str):
+               #     RC4IV = RC4IV.encode("UTF-8")
+               # if isinstance(RC4data, str):
+               #     RC4data = RC4data.encode("UTF-8")
 
                 routingPacket = encryption.rc4(RC4IV + stagingKey.encode('UTF-8'), RC4data)
                 try:

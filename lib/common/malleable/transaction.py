@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-import random, six.moves.urllib.parse, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+import random, six.moves.urllib.parse, six.moves.urllib.request, six.moves.urllib.error
 from pyparsing import *
 from .utility import MalleableError, MalleableUtil, MalleableObject
 from .transformation import Transform, Terminator, Container
@@ -403,27 +403,27 @@ class MalleableRequest(MalleableObject):
         data = None
         if terminator.type == Terminator.HEADER:
             data = self.get_header(terminator.arg)
-            if data: data = six.moves.urllib.parse.unquote(data)
+            if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('UTF-8')
         elif terminator.type == Terminator.PARAMETER:
             data = self.get_parameter(terminator.arg)
-            if data: data = six.moves.urllib.parse.unquote(data)
+            if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('UTF-8')
         elif terminator.type == Terminator.URIAPPEND:
             if self.extra:
-                data = six.moves.urllib.parse.unquote(self.extra)
+                data = six.moves.urllib.parse.unquote_to_bytes(self.extra).decode('UTF-8')
             elif original.parameters:
                 for p in sorted(original.parameters, key=len, reverse=True):
                     known = original.parameters[p]
                     shown = self.get_parameter(p)
                     if shown and known.lower() in shown.lower() and len(shown) > len(known):
                         data = known.split(known)[-1]
-                        if data: data = six.moves.urllib.parse.unquote(data)
+                        if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('UTF-8')
                         break
             else:
                 for known in sorted(original.uris, key=len, reverse=True):
                     shown = self.path
                     if known.lower() in shown.lower() and len(shown) > len(known):
                         data = shown.split(known)[-1]
-                        if data: data = six.moves.urllib.parse.unquote(data)
+                        if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('UTF-8')
                         break
         elif terminator.type == Terminator.PRINT: data = self.body
         return data
@@ -560,7 +560,7 @@ class MalleableResponse(MalleableObject):
         data = None
         if terminator.type == Terminator.HEADER:
             data = self.get_header(terminator.arg)
-            if data: data = six.moves.urllib.parse.unquote(data)
+            if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('UTF-8')
         elif terminator.type == Terminator.PRINT:
             data = self.body
         return data

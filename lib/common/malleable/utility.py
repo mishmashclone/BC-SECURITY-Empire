@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from pyparsing import *
-
+import binascii
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # UTILITY
@@ -41,7 +41,7 @@ class MalleableUtil(object):
         """
         if isinstance(byte, str):
             byte = int(byte)
-        return_hex = hex(byte)
+        return_hex = bytes([byte]).hex()
         return return_hex if byte else None
 
     @staticmethod
@@ -55,11 +55,12 @@ class MalleableUtil(object):
             char: byte.
         """
         if isinstance(hex, bytes):
-            return_hex = hex.split("0x")[-1].zfill(2).decode("hex") if hex else None
+            hex = hex.decode('latin-1')
+        if hex:
+            r = bytes.fromhex(hex)
         else:
-            return_hex = hex.split("0x")[-1].zfill(2) if hex else None
-        return return_hex
-
+            r = None
+        return r
 
 class MalleableObject(object):
     """Custom object class used to implement consistent functionality."""

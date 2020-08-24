@@ -1197,7 +1197,7 @@ class Listener(object):
 
                 # fix non-ascii characters
                 if '%' in malleableRequest.path:
-                    malleableRequest.path = urllib.parse.unquote(malleableRequest.path).decode('UTF-8')
+                    malleableRequest.path = urllib.parse.unquote(malleableRequest.path)
 
                 # identify the implementation by uri
                 implementation = None

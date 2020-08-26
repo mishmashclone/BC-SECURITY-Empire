@@ -213,8 +213,25 @@ class Transform(MalleableObject):
 
     def _base64url(self):
         """Configure the `base64url` Transform, which base64 encodes an arbitary input using url-safe characters."""
-        self.transform = lambda data: six.moves.urllib.parse.quote(base64.b64encode(data))
-        self.transform_r = lambda data: base64.b64decode(six.moves.urllib.parse.unquote(data)) if isinstance(data, str) else base64.b64decode(six.moves.urllib.parse.unquote(data.decode('UTF-8')))
+        self.transform = lambda data: base64url_transform(data)
+        self.transform_r = lambda data: base64url_transform_r(data)
+
+        def base64url_transform(data):
+            if isinstance(data, str):
+                data = data.encode("UTF-8")
+            r = six.moves.urllib.parse.quote(base64.b64encode(data))
+            return r.encode('Latin-1')
+
+        def base64url_transform_r(data):
+            if isinstance(data, str):
+                data = data.encode("UTF-8")
+            # Fix missing padding issue (Error parsing routing packet not fixed)
+            missing_padding = len(data) % 4
+            if missing_padding:
+                data += b'=' * (4 - missing_padding)
+            r = base64.b64decode(six.moves.urllib.parse.unquote_to_bytes(data))
+            return r
+
         self.generate_python = lambda var: "%(var)s=urllib.quote(base64.b64encode(%(var)s))\n" % {"var":var}
         self.generate_python_r = lambda var: "%(var)s=base64.b64decode(urllib.unquote(%(var)s))\n" % {"var":var}
         self.generate_powershell = lambda var: "Add-Type -AssemblyName System.Web;%(var)s=[System.Web.HttpUtility]::UrlEncode([System.Convert]::ToBase64string([System.Text.Encoding]::Default.GetBytes(%(var)s)));" % {"var":var}
@@ -265,7 +282,7 @@ class Transform(MalleableObject):
         def netbios_transform_r(data):
             if isinstance(data, str):
                 data = data.encode('UTF-8')
-            r = "".join([chr(((ord(data.decode('UTF-8')[i])-0x61)<<4)|((ord(data.decode('UTF-8')[i+1])-0x61)&0xF)) for i in range(0, len(data), 2)])
+            r = "".join([chr(((data[i]-0x61)<<4)|((data[i+1]-0x61)&0xF)) for i in range(0, len(data), 2)])
             return r.encode('latin-1')
 
         self.generate_python = lambda var: "f_ord=ord if __import__('sys').version_info[0]<3 else int;%(var)s=''.join([chr((f_ord(_)>>4)+0x61)+chr((f_ord(_)&0xF)+0x61) for _ in %(var)s])\n" % {"var":var}
@@ -593,9 +610,11 @@ class Container(MalleableObject):
         """
         if data is None: data = ""
         if isinstance(data, str):
-            if "b'" in data:
+            if "b'" or 'b"' in data:
                 data = data[2:-1]
             data = data.encode("UTF-8")
+        if (b"b'" or b'b"') in data:
+            data = data[2:-1]
         for t in self.transforms:
             data = t.transform(data)
         return data
@@ -611,9 +630,11 @@ class Container(MalleableObject):
         """
         if data is None: data = ""
         if isinstance(data, str):
-            if "b'" in data:
+            if "b'" or 'b"' in data:
                 data = data[2:-1]
             data = data.encode("UTF-8")
+        if (b"b'" or b'b"') in data:
+            data = data[2:-1]
         for t in self.transforms[::-1]:
             data = t.transform_r(data)
         return data

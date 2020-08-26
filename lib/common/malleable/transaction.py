@@ -160,9 +160,9 @@ class MalleableRequest(MalleableObject):
         """
         extra = self.extra
         if isinstance(extra, bytes):
-            extra = extra.decode("UTF-8")
-        url2 = (six.moves.urllib.parse.urlunsplit(self._url) + extra)
-        return url2
+            extra = extra.decode("Latin-1")
+        url = (six.moves.urllib.parse.urlunsplit(self._url) + extra)
+        return url
 
     @url.setter
     def url(self, url):
@@ -178,7 +178,13 @@ class MalleableRequest(MalleableObject):
                 MalleableError.throw(self.__class__, "url", "Scheme not supported: %s" % url)
         else:
             url = "http://" + url
-        self._url = six.moves.urllib.parse.urlsplit(url)
+        temp = six.moves.urllib.parse.urlsplit(url, allow_fragments=False)
+        self._url = temp
+        if temp.query != '':
+            self.path = temp[2] + '?' + temp[3]
+        else:
+            self.path = temp[2] + temp[3]
+        return self._url
 
     @property
     def scheme(self):
@@ -403,29 +409,32 @@ class MalleableRequest(MalleableObject):
         data = None
         if terminator.type == Terminator.HEADER:
             data = self.get_header(terminator.arg)
-            if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('UTF-8')
+            if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('Latin-1')
         elif terminator.type == Terminator.PARAMETER:
             data = self.get_parameter(terminator.arg)
-            if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('UTF-8')
+            if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('Latin-1')
         elif terminator.type == Terminator.URIAPPEND:
             if self.extra:
-                data = six.moves.urllib.parse.unquote_to_bytes(self.extra).decode('UTF-8')
+                data = six.moves.urllib.parse.unquote_to_bytes(self.extra).decode('Latin-1')
             elif original.parameters:
                 for p in sorted(original.parameters, key=len, reverse=True):
                     known = original.parameters[p]
                     shown = self.get_parameter(p)
                     if shown and known.lower() in shown.lower() and len(shown) > len(known):
                         data = known.split(known)[-1]
-                        if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('UTF-8')
+                        if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('Latin-1')
                         break
             else:
                 for known in sorted(original.uris, key=len, reverse=True):
                     shown = self.path
                     if known.lower() in shown.lower() and len(shown) > len(known):
                         data = shown.split(known)[-1]
-                        if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('UTF-8')
+                        if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('Latin-1')
                         break
         elif terminator.type == Terminator.PRINT: data = self.body
+
+        if isinstance(data, str):
+            data = data.encode('Latin-1')
         return data
 
 class MalleableResponse(MalleableObject):

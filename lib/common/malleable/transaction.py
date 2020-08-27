@@ -569,7 +569,7 @@ class MalleableResponse(MalleableObject):
         data = None
         if terminator.type == Terminator.HEADER:
             data = self.get_header(terminator.arg)
-            if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('UTF-8')
+            if data: data = six.moves.urllib.parse.unquote_to_bytes(data).decode('latin-1')
         elif terminator.type == Terminator.PRINT:
             data = self.body
         return data

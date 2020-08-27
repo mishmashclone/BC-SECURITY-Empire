@@ -1202,7 +1202,7 @@ class Listener(object):
                 # identify the implementation by uri
                 implementation = None
                 for uri in sorted((profile.stager.client.uris if profile.stager.client.uris else ["/"]) + (profile.get.client.uris if profile.get.client.uris else ["/"]) + (profile.post.client.uris if profile.post.client.uris else ["/"]), key=len, reverse=True):
-                    if request_uri.lower().startswith(uri.lower().lstrip("/")):
+                    if request_uri.startswith(uri.lstrip("/")):
                         # match!
                         for imp in [profile.stager, profile.get, profile.post]:
                             if uri in (imp.client.uris if imp.client.uris else ["/"]):
@@ -1228,7 +1228,7 @@ class Listener(object):
                             for (language, results) in dataResults:
                                 if results:
                                     if isinstance(results, str):
-                                        results = results.encode("UTF-8")
+                                        results = results.encode("latin-1")
                                     if results == b'STAGE0':
                                         # step 2 of negotiation -> server returns stager (stage 1)
 
@@ -1349,7 +1349,7 @@ class Listener(object):
                                             # build malleable response with results
                                             malleableResponse = implementation.construct_server(results)
                                             if isinstance(malleableResponse.body, str):
-                                                malleableResponse.body = malleableResponse.body.encode('UTF-8')
+                                                malleableResponse.body = malleableResponse.body.encode('latin-1')
                                             return Response(malleableResponse.body, malleableResponse.code, malleableResponse.headers)
 
                                 else:

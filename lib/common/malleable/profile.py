@@ -154,7 +154,7 @@ class Profile(MalleableObject):
         """
         host = "http://domain.com:80"
         #data = string.printable
-        data = string.printable.encode('UTF-8')
+        data = string.printable.encode('latin-1')
         for format, p in [("base", self), ("clone", self._clone()), ("serialized", Profile._deserialize(self._serialize()))]:
             test = p.get.construct_client(host, data)
             clone = MalleableRequest()

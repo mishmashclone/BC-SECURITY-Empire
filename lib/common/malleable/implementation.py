@@ -141,7 +141,7 @@ class Get(Transaction):
                 if metadata:
                     m = self.client.metadata.transform_r(metadata)
                     if isinstance(m, str):
-                        m = m.encode("UTF-8")
+                        m = m.encode("latin-1")
                     return m
         return None
 
@@ -305,11 +305,11 @@ class Post(Transaction):
             if u.lower() in request.path.lower():
                 id = request.extract(self.client, self.client.id.terminator)
                 if isinstance(id, str):
-                    id = id.encode('UTF-8')
+                    id = id.encode('latin-1')
                 output = request.extract(self.client, self.client.output.terminator)
                 trans_r = self.client.id.transform_r(id) if id else None
                 if isinstance(trans_r, str):
-                    trans_r = trans_r.encode("UTF-8")
+                    trans_r = trans_r.encode("latin-1")
                 return (
                     trans_r,
                     self.client.output.transform_r(output) if output else None

@@ -184,17 +184,17 @@ class Transform(MalleableObject):
 
         def append_transform(string, data):
             if isinstance(string, str):
-                string = string.encode('UTF-8')
+                string = string.encode('latin-1')
             if isinstance(data, str):
-                data = data.encode('UTF-8')
+                data = data.encode('latin-1')
             r = data + string
             return r
 
         def append_transform_r(string, data):
             if isinstance(string, str):
-                string = string.encode('UTF-8')
+                string = string.encode('latin-1')
             if isinstance(data, str):
-                data = data.encode('UTF-8')
+                data = data.encode('latin-1')
             return data[:-len(string)]
 
         self.generate_python = lambda var: "%(var)s+=b'%(string)s'\n" % {"var":var, "string":string}
@@ -218,13 +218,13 @@ class Transform(MalleableObject):
 
         def base64url_transform(data):
             if isinstance(data, str):
-                data = data.encode("UTF-8")
+                data = data.encode("latin-1")
             r = six.moves.urllib.parse.quote(base64.b64encode(data))
             return r.encode('Latin-1')
 
         def base64url_transform_r(data):
             if isinstance(data, str):
-                data = data.encode("UTF-8")
+                data = data.encode("latin-1")
             # Fix missing padding issue (Error parsing routing packet not fixed)
             missing_padding = len(data) % 4
             if missing_padding:
@@ -249,7 +249,7 @@ class Transform(MalleableObject):
         """
         if isinstance(key, str):
             key = bytearray.fromhex(key).decode()
-            key = key.encode('UTF-8')
+            key = key.encode('latin-1')
 
         if not key:
             MalleableError.throw(Transform.__class__, "mask", "key argument must not be empty")
@@ -275,13 +275,13 @@ class Transform(MalleableObject):
 
         def netbios_transform(data):
             if isinstance(data, str):
-                data = data.encode('UTF-8')
+                data = data.encode('latin-1')
             r = "".join([chr((c>>4)+0x61)+chr((c&0xF)+0x61) for c in data])
             return r.encode('latin-1')
 
         def netbios_transform_r(data):
             if isinstance(data, str):
-                data = data.encode('UTF-8')
+                data = data.encode('latin-1')
             r = "".join([chr(((data[i]-0x61)<<4)|((data[i+1]-0x61)&0xF)) for i in range(0, len(data), 2)])
             return r.encode('latin-1')
 
@@ -298,13 +298,13 @@ class Transform(MalleableObject):
 
         def netbios_transform(data):
             if isinstance(data, str):
-                data = data.encode('UTF-8')
+                data = data.encode('latin-1')
             r = "".join([chr((c>>4)+0x41)+chr((c&0xF)+0x41) for c in data])
             return r.encode('latin-1')
 
         def netbios_transform_r(data):
             if isinstance(data, str):
-                data = data.encode('UTF-8')
+                data = data.encode('latin-1')
             r = "".join([chr(((data[i]-0x41)<<4)|((data[i+1]-0x41)&0xF)) for i in range(0, len(data), 2)])
             return r.encode('latin-1')
 
@@ -330,17 +330,17 @@ class Transform(MalleableObject):
 
         def prepend_transform(string, data):
             if isinstance(string, str):
-                string = string.encode('UTF-8')
+                string = string.encode('latin-1')
             if isinstance(data, str):
-                data = data.encode('UTF-8')
+                data = data.encode('latin-1')
             r = string + data
             return r
 
         def prepend_transform_r(string, data):
             if isinstance(string, str):
-                string = string.encode('UTF-8')
+                string = string.encode('latin-1')
             if isinstance(data, str):
-                data = data.encode('UTF-8')
+                data = data.encode('latin-1')
             return data[len(string):]
 
         self.generate_python = lambda var: "%(var)s=b'%(string)s'+%(var)s\n" % {"var":var, "string":string}
@@ -612,7 +612,7 @@ class Container(MalleableObject):
         if isinstance(data, str):
             if "b'" or 'b"' in data:
                 data = data[2:-1]
-            data = data.encode("UTF-8")
+            data = data.encode("latin-1")
         if (b"b'" or b'b"') in data:
             data = data[2:-1]
         for t in self.transforms:
@@ -632,7 +632,7 @@ class Container(MalleableObject):
         if isinstance(data, str):
             if "b'" or 'b"' in data:
                 data = data[2:-1]
-            data = data.encode("UTF-8")
+            data = data.encode("latin-1")
         if (b"b'" or b'b"') in data:
             data = data[2:-1]
         for t in self.transforms[::-1]:

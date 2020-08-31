@@ -28,7 +28,7 @@ class Module:
 
             'Language': 'powershell',
 
-            'MinLanguageVersion': '2',
+            'MinLanguageVersion': '4',
 
             'Comments': [
                 'https://github.com/rasta-mouse/Watson'

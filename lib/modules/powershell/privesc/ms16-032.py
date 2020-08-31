@@ -102,7 +102,6 @@ class Module(object):
         l.options['UserAgent']['Value'] = self.options['UserAgent']['Value']
         l.options['Proxy']['Value'] = self.options['Proxy']['Value']
         l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
-        l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
         l.options['SafeChecks']['Value'] = 'False'
         l.options['ScriptLogBypass']['Value'] = 'False'
         l.options['AMSIBypass']['Value'] = 'False'

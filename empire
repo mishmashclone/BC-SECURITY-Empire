@@ -289,7 +289,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
             methods = ','.join(rule.methods)
             url = url_for(rule.endpoint, **options)
-            line = urllib.unquote("[ { '" + rule.endpoint + "': [ { 'methods': '" + methods + "', 'url': '" + url + "' } ] } ]")
+            line = urllib.parse.unquote("[ { '" + rule.endpoint + "': [ { 'methods': '" + methods + "', 'url': '" + url + "' } ] } ]")
             output.append(line)
 
         res = ''

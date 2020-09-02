@@ -2198,7 +2198,7 @@ class PowerShellAgentMenu(SubMenu):
         "Task an agent to use a shell command."
         
         line = line.strip()
-        
+        print(str(line))
         if line != "":
             # task the agent with this shell command
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SHELL", "shell " + str(line))
@@ -2235,6 +2235,7 @@ class PowerShellAgentMenu(SubMenu):
             # update the agent log
             msg = "Tasked agent to run shell command " + line
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
+
     def do_sysinfo(self, line):
         "Task an agent to get system information."
         

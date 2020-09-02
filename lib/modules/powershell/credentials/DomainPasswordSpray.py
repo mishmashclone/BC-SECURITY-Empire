@@ -22,7 +22,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['', ''],
+            'Techniques': ['T1110'],
 
             # True if the module needs to run in the background
             'Background': False,
@@ -70,7 +70,7 @@ class Module(object):
             },
             'PasswordList': {
                 'Description': 'A list of passwords one per line to use for the password spray '
-                               '(Be very careful not to lockout accounts).',
+                               '(File must be loaded from the target machine).',
                 'Required': False,
                 'Value': '',
             },
@@ -130,7 +130,7 @@ class Module(object):
                     else:
                         script_end += " -" + str(option) + " " + str(values['Value'])
 
-        script_end += ' -Force | Out-String;'
+        script_end += ' -Force;'
         if obfuscate:
             script_end = helpers.obfuscate(psScript=script_end, installPath=self.mainMenu.installPath,
                                           obfuscationCommand=obfuscationCommand)

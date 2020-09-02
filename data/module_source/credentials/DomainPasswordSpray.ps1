@@ -149,8 +149,7 @@ function Invoke-DomainPasswordSpray{
     }
     catch
     {
-        "[!] Could not connect to the domain. Try specifying the domain name with the -Domain option."
-        break
+        throw "[!] Could not connect to the domain. Try specifying the domain name with the -Domain option. 1"
     }
 
     if ($UserList -eq "")
@@ -335,8 +334,7 @@ function Get-DomainUserList
     }
     catch
     {
-        "[!] Could not connect to the domain. Try specifying the domain name with the -Domain option."
-        break
+        throw "[!] Could not connect to the domain. Try specifying the domain name with the -Domain option. 2"
     }
 
     # Setting the current domain's account lockout threshold

@@ -1,3 +1,13 @@
+9/1/2020
+------------
+- Version 3.4.0-RC1
+        - Added Malleable C2 HTTP Listener - #287 (@Johneiser, @Cx01N, @Hubbl3)
+    	- Added Invoke-DomainPasswordSpray - #295 (@Cx01N)
+    	- Added Invoke-WinPEAS - #293 (@Cx01N)
+    	- Added Invoke-Watson - #294 (@Cx01N)
+    	- Fixed agent spawning issue with MS-16-032 - #292 (@Cx01N)
+    	- Fixed min language version for modules (@Cx01N)
+
 8/18/2020
 ------------
 - Version 3.3.4 Master Release

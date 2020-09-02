@@ -2215,6 +2215,26 @@ class PowerShellAgentMenu(SubMenu):
             msg = "Tasked agent to run shell command " + line
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)
 
+    def do_reflectiveload(self, line):
+        "Task an agent to use a shell command."
+
+        line = line.strip()
+
+        if line != "":
+            # task the agent with this shell command
+            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SHELL", "reflectiveload " + str(line))
+
+            # dispatch this event
+            message = "[*] Tasked agent to reflectively load binary".format(line)
+            signal = json.dumps({
+                'print': False,
+                'message': message
+            })
+            dispatcher.send(signal, sender="agents/{}".format(self.sessionID))
+
+            # update the agent log
+            msg = "Tasked agent to run shell command " + line
+            self.mainMenu.agents.save_agent_log(self.sessionID, msg)
     def do_sysinfo(self, line):
         "Task an agent to get system information."
         

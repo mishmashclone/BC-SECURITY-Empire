@@ -284,11 +284,9 @@ class MainMenu(cmd.Cmd):
                     except Exception as e:
                         print(e)
                         print(helpers.color("\n[!] No current stager with name '%s'\n" % (stagerName)))
-            
-            # shutdown the database connection object
-            if self.conn:
-                self.conn.close()
-            
+
+            # Gracefully shutdown after launcher generation
+            self.shutdown()
             sys.exit()
     
     

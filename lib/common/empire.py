@@ -120,8 +120,8 @@ class MainMenu(cmd.Cmd):
         self.resourceQueue = []
         #A hashtable of autruns based on agent language
         self.autoRuns = {}
-        
         self.handle_args()
+        self.startup_plugins()
         
         message = "[*] Empire starting up..."
         signal = json.dumps({
@@ -191,8 +191,28 @@ class MainMenu(cmd.Cmd):
             if self.args.debug == '2':
                 # if --debug 2, also print the output to the screen
                 print(" %s : %s" % (sender, signal))
-    
-    
+
+    def startup_plugins(self):
+        "List all available and active plugins."
+        pluginPath = os.path.abspath("plugins")
+        print(helpers.color("\n[*] Searching for plugins at {}".format(pluginPath)))
+        # From walk_packages: "Note that this function must import all packages
+        # (not all modules!) on the given path, in order to access the __path__
+        # attribute to find submodules."
+        plugin_names = [name for _, name, _ in pkgutil.walk_packages([pluginPath])]
+        
+        for plugin_name in plugin_names:
+            if plugin_name.lower() != 'example':
+                print(helpers.color("[*] Plugin {} found.".format(plugin_name)))
+
+                message = "[*] Loading plugin {}".format(plugin_name)
+                signal = json.dumps({
+                    'print': False,
+                    'message': message
+                })
+                dispatcher.send(signal, sender="empire")
+                plugins.load_plugin(self, plugin_name)
+
     def check_root(self):
         """
         Check if Empire has been run as root, and alert user.

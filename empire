@@ -522,7 +522,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
             for agent in main.agents.get_agents():
                 sessionID = agent[1]
-                taskID = main.agents.add_agent_task_db(sessionID, taskCommand, moduleData, uid=g.user['id'])
+                taskID = main.agents.add_agent_task_db(sessionID, taskCommand, moduleData, moduleName=module_name, uid=g.user['id'])
                 msg = "tasked agent %s to run module %s" % (sessionID, module_name)
                 main.agents.save_agent_log(sessionID, msg)
 
@@ -531,7 +531,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         else:
             # set the agent's tasking in the cache
-            taskID = main.agents.add_agent_task_db(sessionID, taskCommand, moduleData, uid=g.user['id'])
+            taskID = main.agents.add_agent_task_db(sessionID, taskCommand, moduleData, moduleName=module_name, uid=g.user['id'])
 
             # update the agent log
             msg = "tasked agent %s to run module %s" %(sessionID, module_name)

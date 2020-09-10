@@ -1523,7 +1523,7 @@ class Agents(object):
 
             slack_webhook_url = listenerOptions['SlackURL']['Value']
             if slack_webhook_url != "":
-                slack_text = ":biohazard: NEW AGENT :biohazard:\r\n```Machine Name: %s\r\nInternal IP: %s\r\nExternal IP: %s\r\nUser: %s\r\nOS Version: %s\r\nAgent ID: %s```" % (hostname,internal_ip,external_ip,username,os_details,sessionID)
+                slack_text = ":biohazard_sign: NEW AGENT :biohazard_sign:\r\n```Machine Name: %s\r\nInternal IP: %s\r\nExternal IP: %s\r\nUser: %s\r\nOS Version: %s\r\nAgent ID: %s```" % (hostname,internal_ip,external_ip,username,os_details,sessionID)
                 helpers.slackMessage(slack_webhook_url,slack_text)
 
             # signal everyone that this agent is now active

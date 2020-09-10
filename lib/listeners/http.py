@@ -290,7 +290,7 @@ class Listener(object):
             '	}',
             '',
             'a img {',
-            '    border:none;',
+            '	border:none;',
             '}',
             '',
             '-->',

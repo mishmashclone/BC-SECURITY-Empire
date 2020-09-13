@@ -328,11 +328,6 @@ class MainMenu(cmd.Cmd):
         
         # enumerate all active servers/listeners and shut them down
         self.listeners.shutdown_listener('all')
-        
-        # shutdown the database connection object
-        if self.conn:
-            self.conn.close()
-    
     
     def database_connect(self):
         """

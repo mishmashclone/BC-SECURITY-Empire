@@ -121,15 +121,10 @@ class Listener(object):
                 'Required': True,
                 'Value': 'Server:Microsoft-IIS/7.5'
             },
-            'SlackToken': {
-                'Description': 'Your SlackBot API token to communicate with your Slack instance.',
+            'SlackURL': {
+                'Description': 'Your Slack Incoming Webhook URL to communicate with your Slack instance.',
                 'Required': False,
                 'Value': ''
-            },
-            'SlackChannel': {
-                'Description': 'The Slack channel or DM that notifications will be sent to.',
-                'Required': False,
-                'Value': '#general'
             }
         }
 

@@ -15,7 +15,9 @@ from builtins import input
 from builtins import range
 from builtins import str
 
-VERSION = "3.3.3 BC-Security Fork"
+
+VERSION = "3.4.0-RC2 BC Security Fork"
+
 
 from pydispatch import dispatcher
 
@@ -120,8 +122,8 @@ class MainMenu(cmd.Cmd):
         self.resourceQueue = []
         #A hashtable of autruns based on agent language
         self.autoRuns = {}
-        
         self.handle_args()
+        self.startup_plugins()
         
         message = "[*] Empire starting up..."
         signal = json.dumps({
@@ -191,8 +193,31 @@ class MainMenu(cmd.Cmd):
             if self.args.debug == '2':
                 # if --debug 2, also print the output to the screen
                 print(" %s : %s" % (sender, signal))
-    
-    
+
+    def startup_plugins(self):
+        """
+        Load plugins at the start of Empire
+        """
+        pluginPath = os.path.abspath("plugins")
+        print(helpers.color("[*] Searching for plugins at {}".format(pluginPath)))
+
+        # From walk_packages: "Note that this function must import all packages
+        # (not all modules!) on the given path, in order to access the __path__
+        # attribute to find submodules."
+        plugin_names = [name for _, name, _ in pkgutil.walk_packages([pluginPath])]
+        
+        for plugin_name in plugin_names:
+            if plugin_name.lower() != 'example':
+                print(helpers.color("[*] Plugin {} found.".format(plugin_name)))
+
+                message = "[*] Loading plugin {}".format(plugin_name)
+                signal = json.dumps({
+                    'print': False,
+                    'message': message
+                })
+                dispatcher.send(signal, sender="empire")
+                plugins.load_plugin(self, plugin_name)
+
     def check_root(self):
         """
         Check if Empire has been run as root, and alert user.
@@ -284,11 +309,9 @@ class MainMenu(cmd.Cmd):
                     except Exception as e:
                         print(e)
                         print(helpers.color("\n[!] No current stager with name '%s'\n" % (stagerName)))
-            
-            # shutdown the database connection object
-            if self.conn:
-                self.conn.close()
-            
+
+            # Gracefully shutdown after launcher generation
+            self.shutdown()
             sys.exit()
     
     
@@ -429,7 +452,7 @@ class MainMenu(cmd.Cmd):
     def do_plugins(self, args):
         "List all available and active plugins."
         pluginPath = os.path.abspath("plugins")
-        print(helpers.color("\n[*] Searching for plugins at {}".format(pluginPath)))
+        print(helpers.color("[*] Searching for plugins at {}".format(pluginPath)))
         # From walk_packages: "Note that this function must import all packages
         # (not all modules!) on the given path, in order to access the __path__
         # attribute to find submodules."
@@ -459,7 +482,7 @@ class MainMenu(cmd.Cmd):
     def do_plugin(self, pluginName):
         "Load a plugin file to extend Empire."
         pluginPath = os.path.abspath("plugins")
-        print(helpers.color("\n[*] Searching for plugins at {}".format(pluginPath)))
+        print(helpers.color("[*] Searching for plugins at {}".format(pluginPath)))
         # From walk_packages: "Note that this function must import all packages
         # (not all modules!) on the given path, in order to access the __path__
         # attribute to find submodules."
@@ -939,7 +962,7 @@ class MainMenu(cmd.Cmd):
                     dispatcher.send(signal, sender="empire")
                 else:
                     print(helpers.color("[*] " + os.path.basename(file) + " was already obfuscated. Not reobfuscating."))
-                helpers.obfuscate_module(self.obfuscateCommand, reobfuscate)
+                helpers.obfuscate_module(file, self.obfuscateCommand, reobfuscate)
     
     def do_report(self, line):
         "Produce report CSV and log files: sessions.csv, credentials.csv, master.log"
@@ -4217,7 +4240,7 @@ class ModuleMenu(SubMenu):
             self.module.execute()
         else:
             agentName = self.module.options['Agent']['Value']
-            moduleName = self.module.info['Name']
+            moduleName = self.moduleName
             moduleData = self.module.generate(self.mainMenu.obfuscate, self.mainMenu.obfuscateCommand)
             
             if not moduleData or moduleData == "":

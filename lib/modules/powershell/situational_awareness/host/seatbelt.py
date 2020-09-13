@@ -43,7 +43,7 @@ class Module(object):
             'Language': 'powershell',
 
             # The minimum PowerShell version needed for the module to run
-            'MinLanguageVersion': '2',
+            'MinLanguageVersion': '4',
 
             # List of any references/other comments
             'Comments': [

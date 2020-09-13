@@ -178,11 +178,14 @@ class MainMenu(cmd.Cmd):
             print(helpers.color(signal_data['message']))
         
         # get a db cursor, log this event to the DB, then close the cursor
-        cur = self.conn.cursor()
-        # TODO instead of "dispatched_event" put something useful in the "event_type" column
-        log_event(cur, sender, event_type, json.dumps(signal_data), signal_data['timestamp'], task_id=task_id)
-        cur.close()
-        
+        try:
+            cur = self.conn.cursor()
+            # TODO instead of "dispatched_event" put something useful in the "event_type" column
+            log_event(cur, sender, event_type, json.dumps(signal_data), signal_data['timestamp'], task_id=task_id)
+            cur.close()
+        except:
+            pass
+
         # if --debug X is passed, log out all dispatcher signals
         if self.args.debug:
             with open('empire.debug', 'a') as debug_file:

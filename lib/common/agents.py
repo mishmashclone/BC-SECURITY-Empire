@@ -652,7 +652,7 @@ class Agents(object):
         """
         Get an agent sessionID based on the name.
         """
-
+        results = ''
         conn = self.get_db_connection()
         try:
             self.lock.acquire()
@@ -660,8 +660,11 @@ class Agents(object):
             cur.execute("SELECT session_id FROM agents WHERE name=?", [name])
             results = cur.fetchone()
             cur.close()
+        except:
+            pass
         finally:
             self.lock.release()
+
         if results:
             return results[0]
         else:
@@ -976,6 +979,8 @@ class Agents(object):
             cur = conn.cursor()
             cur.execute("UPDATE agents SET lastseen_time=? WHERE session_id=? OR name=?", [current_time, sessionID, sessionID])
             cur.close()
+        except:
+            pass
         finally:
             self.lock.release()
 
@@ -1190,7 +1195,7 @@ class Agents(object):
         """
         Retrieve tasks for our agent from the database.
         """
-
+        tasks = ''
         agentName = sessionID
 
         # see if we were passed a name instead of an ID
@@ -1217,6 +1222,8 @@ class Agents(object):
                     tasks = []
 
                 cur.close()
+            except:
+                pass
             finally:
                 self.lock.release()
 

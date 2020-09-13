@@ -15,9 +15,7 @@ from builtins import input
 from builtins import range
 from builtins import str
 
-
 VERSION = "3.4.0-RC2 BC Security Fork"
-
 
 from pydispatch import dispatcher
 
@@ -420,9 +418,9 @@ class MainMenu(cmd.Cmd):
             except NavListeners as e:
                 self.menu_state = "Listeners"
             
-            #except Exception as e:
-             #   print(helpers.color("[!] Exception: %s" % (e)))
-              #  time.sleep(5)
+            except Exception as e:
+                print(helpers.color("[!] Exception: %s" % (e)))
+                time.sleep(5)
     
     
     def print_topics(self, header, commands, cmdlen, maxcol):
@@ -2221,6 +2219,7 @@ class PowerShellAgentMenu(SubMenu):
         "Task an agent to use a shell command."
         
         line = line.strip()
+        
         if line != "":
             # task the agent with this shell command
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SHELL", "shell " + str(line))
@@ -2233,30 +2232,6 @@ class PowerShellAgentMenu(SubMenu):
             })
             dispatcher.send(signal, sender="agents/{}".format(self.sessionID))
             
-            # update the agent log
-            msg = "Tasked agent to run shell command " + line
-            self.mainMenu.agents.save_agent_log(self.sessionID, msg)
-
-    def do_reflectiveload(self, line):
-        "Task an agent to use a shell command."
-
-        line = line.strip()
-
-        if line != "":
-            # task the agent with this shell command
-
-            data = open(line, "rb").read()
-            encoded = base64.b64encode(data).decode('latin-1')
-            self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_SHELL", "reflectiveload " + encoded)
-
-            # dispatch this event
-            message = "[*] Tasked agent to reflectively load binary".format(line)
-            signal = json.dumps({
-                'print': False,
-                'message': message
-            })
-            dispatcher.send(signal, sender="agents/{}".format(self.sessionID))
-
             # update the agent log
             msg = "Tasked agent to run shell command " + line
             self.mainMenu.agents.save_agent_log(self.sessionID, msg)

@@ -122,6 +122,7 @@ class Listener(object):
                 'Required'      :   False,
                 'Value'         :   'default'
             },
+
             'SlackURL' : {
                 'Description'   :   'Your Slack Incoming Webhook URL to communicate with your Slack instance.',
                 'Required'      :   False,

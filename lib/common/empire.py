@@ -15,9 +15,7 @@ from builtins import input
 from builtins import range
 from builtins import str
 
-
 VERSION = "3.4.0-RC2 BC Security Fork"
-
 
 from pydispatch import dispatcher
 
@@ -420,9 +418,9 @@ class MainMenu(cmd.Cmd):
             except NavListeners as e:
                 self.menu_state = "Listeners"
             
-            #except Exception as e:
-             #   print(helpers.color("[!] Exception: %s" % (e)))
-              #  time.sleep(5)
+            except Exception as e:
+                print(helpers.color("[!] Exception: %s" % (e)))
+                time.sleep(5)
     
     
     def print_topics(self, header, commands, cmdlen, maxcol):

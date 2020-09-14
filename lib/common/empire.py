@@ -2789,7 +2789,11 @@ class PowerShellAgentMenu(SubMenu):
     def do_creds(self, line):
         "Display/return credentials from the database."
         self.mainMenu.do_creds(line)
-    
+
+    def complete_reflectiveload(self, text, line, begidx, endidx):
+        "Tab-complete an upload file path"
+        return helpers.complete_path(text, line)
+
     def complete_updatecomms(self, text, line, begidx, endidx):
         "Tab-complete updatecomms option values"
         

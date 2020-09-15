@@ -1,6 +1,6 @@
 9/15/2020
 ------------
-- Version 3.4.0
+- Version 3.4.0 Master Release
         - Added Malleable C2 HTTP Listener - #287 (@Johneiser, @Cx01N, @Hubbl3)
         - Added reflective load ability for files - #309 (@Hubbl3)
         - Added Invoke-DomainPasswordSpray - #295 (@Cx01N)

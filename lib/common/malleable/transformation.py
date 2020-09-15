@@ -610,10 +610,10 @@ class Container(MalleableObject):
         """
         if data is None: data = ""
         if isinstance(data, str):
-            if "b'" or 'b"' in data:
+            if ("b'" or 'b"') in data[:2]:
                 data = data[2:-1]
             data = data.encode("latin-1")
-        if (b"b'" or b'b"') in data:
+        if (b"b'" or b'b"') in data[:2]:
             data = data[2:-1]
         for t in self.transforms:
             data = t.transform(data)
@@ -630,10 +630,10 @@ class Container(MalleableObject):
         """
         if data is None: data = ""
         if isinstance(data, str):
-            if "b'" or 'b"' in data:
+            if ("b'" or 'b"') in data[:2]:
                 data = data[2:-1]
             data = data.encode("latin-1")
-        if (b"b'" or b'b"') in data:
+        if (b"b'" or b'b"') in data[:2]:
             data = data[2:-1]
         for t in self.transforms[::-1]:
             data = t.transform_r(data)

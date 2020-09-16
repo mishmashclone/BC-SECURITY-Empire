@@ -73,7 +73,7 @@ class Module(object):
                 'Value': 'False'
             },
             'ComputerName' : {
-                'Description'   :   'Host[s] to execute the stager on, comma separated.',
+                'Description'   :   'Host to execute the stager on.',
                 'Required'      :   True,
                 'Value'         :   ''
             },

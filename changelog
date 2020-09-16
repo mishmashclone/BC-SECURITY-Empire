@@ -1,3 +1,39 @@
+9/15/2020
+------------
+- Version 3.4.0 Master Release
+        - Added Malleable C2 HTTP Listener - #287 (@Johneiser, @Cx01N, @Hubbl3)
+        - Added reflective load ability for files - #309 (@Hubbl3)
+        - Added Invoke-DomainPasswordSpray - #295 (@Cx01N)
+        - Added Invoke-WinPEAS - #293 (@Cx01N)
+        - Added Invoke-Watson - #294 (@Cx01N)
+        - Added plugins being loaded at startup - #301 (@Cx01N)
+        - Updated moduleName to display full directory - #299 (@Cx01N)
+        - Updated info in Invoke-SMBExec to indicate single target - #286 (@Cx01N)
+        - Updated Slack API notifications to webhooks - #303 (@Cx01N)
+        - Fixed spaces for IIS default page in HTTP listener - #302 (@adamczi)
+        - Fixed agent spawning issue with MS-16-032 - #292 (@Cx01N)
+        - Fixed min language version for modules (@Cx01N)
+        - Fixed CLI stager incorrectly shutting down - #198 (@Cx01N)
+        - Fixed error message from active agents during shutdown - #308 (@Cx01N)
+
+9/8/2020
+------------
+- Version 3.4.0-RC2
+        - Added plugins being loaded at startup - #301 (@Cx01N)
+        - Fixed CLI stager incorrectly shutting down - #198 (@Cx01N)
+        - Updated moduleName to display full directory - #299 (@Cx01N)
+        - Updated info in Invoke-SMBExec to indicate single target - #286 (@Cx01N)
+
+9/1/2020
+------------
+- Version 3.4.0-RC1
+        - Added Malleable C2 HTTP Listener - #287 (@Johneiser, @Cx01N, @Hubbl3)
+    	- Added Invoke-DomainPasswordSpray - #295 (@Cx01N)
+    	- Added Invoke-WinPEAS - #293 (@Cx01N)
+    	- Added Invoke-Watson - #294 (@Cx01N)
+    	- Fixed agent spawning issue with MS-16-032 - #292 (@Cx01N)
+    	- Fixed min language version for modules (@Cx01N)
+
 8/18/2020
 ------------
 - Version 3.3.4 Master Release

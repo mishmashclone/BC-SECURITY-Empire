@@ -275,9 +275,10 @@ def parse_routing_packet(stagingKey, data):
                 
                 if len(data) - offset < 20:
                     break
-                
+
                 RC4IV = data[0 + offset:4 + offset]
                 RC4data = data[4 + offset:20 + offset]
+
                 routingPacket = encryption.rc4(RC4IV + stagingKey.encode('UTF-8'), RC4data)
                 try:
                     sessionID = routingPacket[0:8].decode('UTF-8')

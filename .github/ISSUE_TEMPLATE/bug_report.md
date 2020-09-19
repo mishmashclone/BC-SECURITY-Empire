@@ -6,8 +6,8 @@ labels: bug
 assignees: ''
 
 ---
-
 **Empire Version**
+Note: Please fill out all sections (if applicable) and do not delete section headers, otherwise the bot will close the issue.
 - Empire 3.x
 
 **OS Information (Linux flavor, Python version)**

@@ -6,6 +6,7 @@ labels: enhancement
 assignees: ''
 
 ---
+__Note:__ Please fill out all sections (if applicable) and do not delete the below section headers, otherwise the bot will close the issue.
 
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]

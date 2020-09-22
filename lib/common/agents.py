@@ -66,6 +66,8 @@ import threading
 from builtins import object
 # -*- encoding: utf-8 -*-
 from builtins import str
+from datetime import datetime, timezone
+
 from pydispatch import dispatcher
 from zlib_wrapper import decompress
 
@@ -163,6 +165,7 @@ class Agents(object):
             # add the agent
             cur.execute("INSERT INTO agents (name, session_id, delay, jitter, external_ip, session_key, nonce, checkin_time, lastseen_time, profile, kill_date, working_hours, lost_limit, listener, language) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (sessionID, sessionID, delay, jitter, externalIP, sessionKey, nonce, checkinTime, lastSeenTime, profile, killDate, workingHours, lostLimit, listener, language))
             cur.close()
+            self.lock.release()
 
             # dispatch this event
             message = "[*] New agent {} checked in".format(sessionID)
@@ -178,10 +181,22 @@ class Agents(object):
             self.agents[sessionID] = {'sessionKey': sessionKey, 'functions': []}
             # self.get_agent_db(sessionID)
             if self.mainMenu.socketio:
-                self.mainMenu.socketio.emit('agents/new', {'sessionID': sessionID})
+                self.mainMenu.socketio.emit('agents/new', self.get_agent_socket(sessionID), broadcast=True)
         finally:
-            self.lock.release()
+            if self.lock.locked():
+                self.lock.release()
 
+    def get_agent_socket(self, session_id):
+        agent = self.get_agent_db(session_id)
+
+        lastseen_time = datetime.fromisoformat(agent['lastseen_time']).astimezone(timezone.utc)
+        stale = helpers.is_stale(lastseen_time, agent['delay'], agent['jitter'])
+        agent['stale'] = stale
+
+        if isinstance(agent['session_key'], bytes):
+            agent['session_key'] = agent['session_key'].decode('latin-1').encode('utf-8')
+
+        return agent
 
     def remove_agent_db(self, sessionID):
         """

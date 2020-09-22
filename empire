@@ -194,7 +194,7 @@ def start_sockets(empire_menu: MainMenu, port: int = 5000):
     #  If at some point we want to accept requests then we need to implement a decorator that gets the user info
     #  like check_token below or use Flask-Login
     @socketio.on('connect')
-    def test_connect():
+    def connect():
         token = request.args.get('token', '')
         if len(token) > 0:
             user = empire_menu.users.get_user_from_token(token)

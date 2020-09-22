@@ -29,11 +29,11 @@ class Listeners(object):
     Listener handling class.
     """
 
-    def __init__(self, MainMenu, args):
+    def __init__(self, main_menu, args):
 
-        self.mainMenu = MainMenu
+        self.mainMenu = main_menu
         self.args = args
-        self.conn = MainMenu.conn
+        self.conn = main_menu.conn
 
         # loaded listener format:
         #     {"listenerModuleName": moduleInstance, ...}
@@ -240,6 +240,10 @@ class Listeners(object):
                     'listener_options': listenerOptions
                 })
                 dispatcher.send(signal, sender="listeners/{}/{}".format(moduleName, name))
+                self.activeListeners[name]['name'] = name
+
+                if self.mainMenu.socketio:
+                    self.mainMenu.socketio.emit('listeners/new', self.activeListeners[name], broadcast=True)
             else:
                 print(helpers.color('[!] Listener failed to start!'))
 

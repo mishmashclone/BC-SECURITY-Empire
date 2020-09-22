@@ -7,7 +7,7 @@ import json
 from pydispatch import dispatcher
 
 
-class Users():
+class Users(object):
     def __init__(self, mainMenu):
         self.mainMenu = mainMenu
 

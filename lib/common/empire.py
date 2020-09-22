@@ -14,6 +14,9 @@ from __future__ import print_function
 from builtins import input
 from builtins import range
 from builtins import str
+from typing import Optional
+
+from flask_socketio import SocketIO
 
 VERSION = "3.4.0 BC Security Fork"
 
@@ -41,6 +44,7 @@ from . import listeners
 from . import modules
 from . import stagers
 from . import credentials
+from . import users
 from . import plugins
 from .events import log_event
 from zlib_wrapper import compress
@@ -117,6 +121,8 @@ class MainMenu(cmd.Cmd):
         self.stagers = stagers.Stagers(self, args=args)
         self.modules = modules.Modules(self, args=args)
         self.listeners = listeners.Listeners(self, args=args)
+        self.users = users.Users(self)
+        self.socketio: Optional[SocketIO] = None
         self.resourceQueue = []
         #A hashtable of autruns based on agent language
         self.autoRuns = {}
@@ -328,7 +334,7 @@ class MainMenu(cmd.Cmd):
         
         # enumerate all active servers/listeners and shut them down
         self.listeners.shutdown_listener('all')
-    
+
     def database_connect(self):
         """
         Connect to the default database at ./data/empire.db.

@@ -181,12 +181,12 @@ class Agents(object):
             self.agents[sessionID] = {'sessionKey': sessionKey, 'functions': []}
             # self.get_agent_db(sessionID)
             if self.mainMenu.socketio:
-                self.mainMenu.socketio.emit('agents/new', self.get_agent_socket(sessionID), broadcast=True)
+                self.mainMenu.socketio.emit('agents/new', self.get_agent_for_socket(sessionID), broadcast=True)
         finally:
             if self.lock.locked():
                 self.lock.release()
 
-    def get_agent_socket(self, session_id):
+    def get_agent_for_socket(self, session_id):
         agent = self.get_agent_db(session_id)
 
         lastseen_time = datetime.fromisoformat(agent['lastseen_time']).astimezone(timezone.utc)

@@ -1313,7 +1313,6 @@ class Agents(object):
     def handle_agent_staging(self, sessionID, language, meta, additional, encData, stagingKey, listenerOptions, clientIP='0.0.0.0'):
         """
         Handles agent staging/key-negotiation.
-
         TODO: does this function need self.lock?
         """
 
@@ -1555,6 +1554,12 @@ class Agents(object):
 
             # save the initial sysinfo information in the agent log
             agent = self.mainMenu.agents.get_agent_db(sessionID)
+
+            lastseen_time = datetime.fromisoformat(agent['lastseen_time']).astimezone(timezone.utc)
+            stale = helpers.is_stale(lastseen_time, agent['delay'], agent['jitter'])
+            agent['stale'] = stale
+            self.mainMenu.socketio.emit('agents/stage2', agent, broadcast=True)
+
             output = messages.display_agent(agent, returnAsString=True)
             output += "\n[+] Agent %s now active:\n" % (sessionID)
             self.mainMenu.agents.save_agent_log(sessionID, output)

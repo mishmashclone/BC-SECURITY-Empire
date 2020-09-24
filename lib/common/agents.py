@@ -165,7 +165,6 @@ class Agents(object):
             # add the agent
             cur.execute("INSERT INTO agents (name, session_id, delay, jitter, external_ip, session_key, nonce, checkin_time, lastseen_time, profile, kill_date, working_hours, lost_limit, listener, language) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (sessionID, sessionID, delay, jitter, externalIP, sessionKey, nonce, checkinTime, lastSeenTime, profile, killDate, workingHours, lostLimit, listener, language))
             cur.close()
-            self.lock.release()
 
             # dispatch this event
             message = "[*] New agent {} checked in".format(sessionID)
@@ -179,12 +178,8 @@ class Agents(object):
 
             # initialize the tasking/result buffers along with the client session key
             self.agents[sessionID] = {'sessionKey': sessionKey, 'functions': []}
-            # self.get_agent_db(sessionID)
-            if self.mainMenu.socketio:
-                self.mainMenu.socketio.emit('agents/new', self.get_agent_for_socket(sessionID), broadcast=True)
         finally:
-            if self.lock.locked():
-                self.lock.release()
+            self.lock.release()
 
     def get_agent_for_socket(self, session_id):
         agent = self.get_agent_db(session_id)
@@ -1380,6 +1375,10 @@ class Agents(object):
                         # add the agent to the database now that it's "checked in"
                         self.mainMenu.agents.add_agent(sessionID, clientIP, delay, jitter, profile, killDate, workingHours, lostLimit, nonce=nonce, listener=listenerName)
 
+                        if self.mainMenu.socketio:
+                            self.mainMenu.socketio.emit('agents/new', self.get_agent_for_socket(sessionID),
+                                                        broadcast=True)
+
                         clientSessionKey = self.mainMenu.agents.get_agent_session_key_db(sessionID)
                         data = "%s%s" % (nonce, clientSessionKey)
 
@@ -1445,6 +1444,10 @@ class Agents(object):
 
                     # add the agent to the database now that it's "checked in"
                     self.mainMenu.agents.add_agent(sessionID, clientIP, delay, jitter, profile, killDate, workingHours, lostLimit, sessionKey=serverPub.key, nonce=nonce, listener=listenerName)
+
+                    if self.mainMenu.socketio:
+                        self.mainMenu.socketio.emit('agents/new', self.get_agent_for_socket(sessionID),
+                                                    broadcast=True)
 
                     # step 4 of negotiation -> server returns HMAC(AESn(nonce+PUBs))
                     data = "%s%s" % (nonce, serverPub.publicKey)

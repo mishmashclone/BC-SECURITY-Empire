@@ -22,6 +22,10 @@ class Module(object):
             'Description': ('Use this module to exfil files and data to GitHub. '
                             'Requires the pre-generation of a GitHub Personal Access Token.'),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             # True if the module needs to run in the background
             'Background' : False,
 

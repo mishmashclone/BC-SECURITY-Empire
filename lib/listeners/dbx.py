@@ -401,7 +401,7 @@ class Listener(object):
                 return helpers.enc_powershell(randomizedStager)
             elif encrypt:
                 RC4IV = os.urandom(4)
-                return RC4IV + encryption.rc4(RC4IV+stagingKey, randomizedStager)
+                return RC4IV + encryption.rc4(RC4IV+stagingKey.encode('UTF-8'), randomizedStager.encode('UTF-8'))
             else:
                 # otherwise just return the case-randomized stager
                 return randomizedStager
@@ -430,7 +430,7 @@ class Listener(object):
             if encrypt:
                 # return an encrypted version of the stager ("normal" staging)
                 RC4IV = os.urandom(4)
-                return RC4IV + encryption.rc4(RC4IV+stagingKey, stager)
+                return RC4IV + encryption.rc4(RC4IV+stagingKey.encode('UTF-8'), stager.encode('UTF-8'))
             else:
                 # otherwise return the standard stager
                 return stager
@@ -1019,6 +1019,10 @@ def send_message(packets=None):
 
             # get any taskings applicable for agents linked to this listener
             sessionIDs = self.mainMenu.agents.get_agents_for_listener(listenerName)
+            for x in range(len(sessionIDs)):
+                if isinstance(sessionIDs[x], bytes):
+                    sessionIDs[x] = sessionIDs[x].decode('UTF-8')
+
             for sessionID in sessionIDs:
                 taskingData = self.mainMenu.agents.handle_agent_request(sessionID, 'powershell', stagingKey)
                 if taskingData:

@@ -455,7 +455,7 @@ class Listener(object):
         lostLimit = listenerOptions['DefaultLostLimit']['Value']
         workingHours = listenerOptions['WorkingHours']['Value']
         killDate = listenerOptions['KillDate']['Value']
-        b64DefaultResponse = base64.b64encode(self.default_response())
+        b64DefaultResponse = base64.b64encode(self.default_response().encode('UTF-8'))
 
         if language == 'powershell':
             f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
@@ -632,7 +632,7 @@ class Listener(object):
         }
     }
                 """
-                
+
                 return updateServers + getTask + sendMessage
 
             elif language.lower() == 'python':
@@ -715,7 +715,7 @@ def send_message(packets=None):
 
     return ('', '')
 """
-                
+
                 sendMessage = sendMessage.replace('REPLACE_TASKSING_FOLDER', taskingsFolder)
                 sendMessage = sendMessage.replace('REPLACE_RESULTS_FOLDER', resultsFolder)
                 sendMessage = sendMessage.replace('REPLACE_API_TOKEN', apiToken)
@@ -1066,7 +1066,7 @@ def send_message(packets=None):
                 listenerName = self.options['Name']['Value']
                 message = "[*] Downloading data for '{}' from {}".format(sessionID, fileName)
                 signal = json.dumps({
-                    'print': True,
+                    'print': False,
                     'message': message
                 })
                 dispatcher.send(signal, sender="listeners/dropbox/{}".format(listenerName))

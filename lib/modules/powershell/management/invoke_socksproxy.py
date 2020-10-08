@@ -13,7 +13,7 @@ class Module(object):
 
             'Author': ['@p3nt4'],
 
-            'Description': ("The reverse proxy creates a tcp tunnel by initiating outbond SSL connections that "
+            'Description': ("The reverse proxy creates a tcp tunnel by initiating outbound SSL connections that "
                             "can go through the system's proxy. The tunnel can then be used as a socks proxy on "
                             "the remote host to pivot into the local host's network.'"),
 
@@ -78,7 +78,6 @@ class Module(object):
 
         if params:
             for param in params:
-                # Parameter format is [Name, Value]
                 option, value = param
                 if option in self.options:
                     self.options[option]['Value'] = value
@@ -116,7 +115,7 @@ class Module(object):
         script += scriptEnd
         script = helpers.keyword_obfuscation(script)
 
-        print(helpers.color("[*] Start your Invoke-SocksProxy server before continuing."))
+        print(helpers.color("[*] Start your Invoke-SocksProxy server before continuing"))
         print(helpers.color("[*] Follow directions at git clone https://github.com/BC-SECURITY/Invoke-SocksProxy.git"))
 
         while True:

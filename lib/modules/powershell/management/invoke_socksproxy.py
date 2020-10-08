@@ -8,92 +8,74 @@ class Module(object):
 
     def __init__(self, mainMenu, params=[]):
 
-        # Metadata info about the module, not modified during runtime
         self.info = {
-            # Name for the module that will appear in module menus
             'Name': 'Invoke-SocksProxy',
 
-            # List of one or more authors for the module
             'Author': ['@p3nt4'],
 
-            # More verbose multi-line description of the module
-            'Description': ('description line 1 '
-                            'description line 2'),
+            'Description': ("The reverse proxy creates a tcp tunnel by initiating outbond SSL connections that "
+                            "can go through the system's proxy. The tunnel can then be used as a socks proxy on "
+                            "the remote host to pivot into the local host's network.'"),
 
-            'Software': 'SXXXX',
+            'Software': '',
 
-            'Techniques': ['TXXXX', 'TXXXX'],
+            'Techniques': ['T1090'],
 
-            # True if the module needs to run in the background
             'Background': True,
 
-            # File extension to save the file as
             'OutputExtension': None,
 
-            # True if the module needs admin rights to run
             'NeedsAdmin': False,
 
-            # True if the method doesn't touch disk/is reasonably opsec safe
             'OpsecSafe': True,
 
-            # The language for this module
             'Language': 'powershell',
 
-            # The minimum PowerShell version needed for the module to run
             'MinLanguageVersion': '2',
 
-            # List of any references/other comments
             'Comments': [
-                'comment',
-                'http://link/'
+                'This is only a subset of the Socks 4 and 5 protocols: It does not support authentication, '
+                'It does not support UDP or bind requests.',
+                'https://github.com/BC-SECURITY/Invoke-SocksProxy'
             ]
         }
 
-        # Any options needed by the module, settable during runtime
         self.options = {
-            # Format:
-            #   value_name : {description, required, default_value}
             'Agent': {
-                # The 'Agent' option is the only one that MUST be in a module
                 'Description': 'Agent to grab a screenshot from.',
                 'Required': True,
                 'Value': ''
             },
             'remoteHost': {
-                'Description': 'Command to execute',
+                'Description': 'IP Address of the SocksProxy server.',
                 'Required': True,
-                'Value': '192.168.139.92'
+                'Value': '192.168.192.1'
             },
             'remotePort': {
-                'Description': 'Command to execute',
+                'Description': 'Remote Port for the SocksProxy server.',
                 'Required': True,
                 'Value': '443'
             },
             'useSystemProxy': {
-                'Description': 'Command to execute',
+                'Description': 'Go through the system proxy',
                 'Required': False,
                 'Value': ''
             },
             'certFingerprint': {
-                'Description': 'Command to execute',
+                'Description': 'Validate certificate',
                 'Required': False,
                 'Value': ''
             },
             'maxRetries': {
-                'Description': 'Command to execute',
+                'Description': 'Maximum number of retries for a handler.',
                 'Required': False,
                 'Value': ''
             }
         }
 
-        # Save off a copy of the mainMenu object to access external
-        #   functionality like listeners/agent handlers/etc.
+
         self.mainMenu = mainMenu
 
-        # During instantiation, any settable option parameters are passed as
-        #   an object set to the module and the options dictionary is
-        #   automatically set. This is mostly in case options are passed on
-        #   the command line.
         if params:
             for param in params:
                 # Parameter format is [Name, Value]
@@ -134,19 +116,14 @@ class Module(object):
         script += scriptEnd
         script = helpers.keyword_obfuscation(script)
 
-        cert_path = '/home/kali/Empire/data/misc/InvokeSocksProxy/cert.pem'
-        private_key_path = '/home/kali/Empire/data/misc/InvokeSocksProxy/private.key'
-
         print(helpers.color("[*] Start your Invoke-SocksProxy server before continuing."))
         print(helpers.color("[*] Follow directions at git clone https://github.com/BC-SECURITY/Invoke-SocksProxy.git"))
 
         while True:
             a = input(helpers.color("[>] Are you sure you want to continue [n/Y]: "))
-            if (a.lower() == 'y'):
+            if a.lower() == 'y':
                 break
             else:
-                # age was successfully parsed, and we're happy with its value.
-                # we're ready to exit the loop.
                 continue
 
         return script

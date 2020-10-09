@@ -50,7 +50,7 @@
 8/5/2020
 ------------
 - Version 3.3.2 Master Release
-    - Added Event Tracing for Windows (ETW) Bypass to stagers - #269 (@Hubbl3)
+	- Added Event Tracing for Windows (ETW) Bypass to stagers - #269 (@Hubbl3)
 	- Updated Mimikatz 20200805 CloudAP Key Derivation - #268 (@Cx01N)
 	- Updated Invoke-Kerberoast to John The Ripper format - #263 (@kazkansouh)
 	- Fixed indentation issues in schtasks - #267 (@adamczi)

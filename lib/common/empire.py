@@ -1051,30 +1051,27 @@ class MainMenu(cmd.Cmd):
 
     def complete_usemodule(self, text, line, begidx, endidx, language=None):
         "Tab-complete an Empire module path."
-        
-        module_names = list(self.modules.modules)
+
+        module_names = list(self.modules.modules.keys())
 
         # suffix each module requiring elevated context with '*'
         for module_name in module_names:
             try:
                 if self.modules.modules[module_name].info['NeedsAdmin']:
-                    module_names[module_names.index(module_name)] = (module_name+"*")
+                    module_names[module_names.index(module_name)] = (module_name + "*")
             # handle modules without a NeedAdmins info key
             except KeyError:
                 pass
 
-
         if language:
-            module_names = [ (module_name[len(language)+1:]) for module_name in module_names if module_name.startswith(language)]
-        
-        mline = line.partition(' ')[2]
-        
-        offs = len(mline) - len(text)
-        
-        module_names = [s[offs:] for s in module_names if s.startswith(mline)]
-        for module_name in module_names:
-            print('test')
+            module_names = [(module_name[len(language) + 1:]) for module_name in module_names if
+                            module_name.startswith(language)]
 
+        mline = line.partition(' ')[2]
+
+        offs = len(mline) - len(text)
+
+        module_names = [s[offs:] for s in module_names if s.startswith(mline)]
 
         return module_names
     

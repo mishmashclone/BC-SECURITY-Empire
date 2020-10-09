@@ -122,7 +122,10 @@ class MainMenu(cmd.Cmd):
         self.autoRuns = {}
         self.handle_args()
         self.startup_plugins()
-        
+
+        #hold refrences to subprocesses
+        self.processes = {}
+
         message = "[*] Empire starting up..."
         signal = json.dumps({
             'print': True,
@@ -1049,8 +1052,8 @@ class MainMenu(cmd.Cmd):
     def complete_usemodule(self, text, line, begidx, endidx, language=None):
         "Tab-complete an Empire module path."
         
-        module_names = list(self.modules.modules.keys())
-        
+        module_names = list(self.modules.modules)
+
         # suffix each module requiring elevated context with '*'
         for module_name in module_names:
             try:
@@ -1059,7 +1062,8 @@ class MainMenu(cmd.Cmd):
             # handle modules without a NeedAdmins info key
             except KeyError:
                 pass
-        
+
+
         if language:
             module_names = [ (module_name[len(language)+1:]) for module_name in module_names if module_name.startswith(language)]
         
@@ -1068,7 +1072,10 @@ class MainMenu(cmd.Cmd):
         offs = len(mline) - len(text)
         
         module_names = [s[offs:] for s in module_names if s.startswith(mline)]
-        
+        for module_name in module_names:
+            print('test')
+
+
         return module_names
     
     

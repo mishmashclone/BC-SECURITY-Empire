@@ -84,8 +84,9 @@ class Module(object):
             if option.lower() != "agent":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":
-                        # if we're just adding a switch
-                        scriptEnd += " -" + str(option)
+                        scriptEnd += " -" + str(option) + " $" + str(values['Value'])
+                    elif values['Value'].lower() == "false":
+                        pass
                     else:
                         scriptEnd += " -" + str(option) + " " + str(values['Value'])
 

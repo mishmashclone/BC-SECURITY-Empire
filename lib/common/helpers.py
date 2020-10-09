@@ -762,6 +762,9 @@ def color(string, color=None):
         elif string.strip().startswith("[*]"):
             attr.append('34')
             return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
+        elif string.strip().startswith("[>]"):
+            attr.append('33')
+            return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
         else:
             return string
 

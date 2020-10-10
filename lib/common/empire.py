@@ -123,9 +123,6 @@ class MainMenu(cmd.Cmd):
         self.handle_args()
         self.startup_plugins()
 
-        #hold refrences to subprocesses
-        self.processes = {}
-
         message = "[*] Empire starting up..."
         signal = json.dumps({
             'print': True,

@@ -50,7 +50,7 @@ class Module(object):
             'remoteHost': {
                 'Description': 'IP Address of the SocksProxy server.',
                 'Required': True,
-                'Value': '192.168.192.1'
+                'Value': '%s' % (helpers.lhost())
             },
             'remotePort': {
                 'Description': 'Remote Port for the SocksProxy server.',

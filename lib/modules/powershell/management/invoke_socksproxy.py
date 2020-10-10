@@ -13,9 +13,9 @@ class Module(object):
 
             'Author': ['@p3nt4'],
 
-            'Description': ("The reverse proxy creates a tcp tunnel by initiating outbound SSL connections that "
+            'Description': ("The reverse proxy creates a TCP tunnel by initiating outbound SSL connections that "
                             "can go through the system's proxy. The tunnel can then be used as a socks proxy on "
-                            "the remote host to pivot into the local host's network.'"),
+                            "the remote host to pivot into the local host's network."),
 
             'Software': '',
 
@@ -34,8 +34,8 @@ class Module(object):
             'MinLanguageVersion': '2',
 
             'Comments': [
-                'This is only a subset of the Socks 4 and 5 protocols: It does not support authentication, '
-                'It does not support UDP or bind requests.',
+                'This is only a subset of the Socks 4 and 5 protocols: It does not support authentication',
+                'It does not support UDP or bind requests',
                 'https://github.com/BC-SECURITY/Invoke-SocksProxy'
             ]
         }

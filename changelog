@@ -6,10 +6,12 @@
         - Added Invoke-SocksProxy - #332 (@Cx01N, @Hubbl3)
         - Added powercat module - #319 (@xC01N)
         - Added powermad modules - #329 (@snovvcrash)
+        - Added self cleanup functionality to plugins - #332 (@Hubbl3)
         - Updated Mimikatz 2.2.0 20200918 ZeroLogon - #330 (@Cx01N)
         - Fixed dropbox listener and staging issues - #327 (@Cx01N)
         - Fixed docker missing pyparsing in requirements.txt - #324 (@Cx01N)
-        - Fixed issue with inputs not being assigned color in helpers.py (@Cx01N)
+        - Fixed modules with missing MITRE ATT&CK techniques - #321 (@Cx01N)
+        - Fixed issue with inputs not being assigned color in helpers.py - #332 (@Cx01N)
 
 9/15/2020
 ------------

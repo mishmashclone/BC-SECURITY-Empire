@@ -331,7 +331,15 @@ class MainMenu(cmd.Cmd):
         
         # enumerate all active servers/listeners and shut them down
         self.listeners.shutdown_listener('all')
-    
+        message = "[*] Shutting down plugins..."
+        signal = json.dumps({
+            'print': True,
+            'message': message
+        })
+        dispatcher.send(signal, sender="empire")
+        for plugin in self.loadedPlugins:
+            self.loadedPlugins[plugin].shutdown()
+
     def database_connect(self):
         """
         Connect to the default database at ./data/empire.db.
@@ -474,6 +482,8 @@ class MainMenu(cmd.Cmd):
         
         print("")
         print(helpers.color("[*] Use \"plugin <plugin name>\" to load a plugin."))
+
+
     
     def do_plugin(self, pluginName):
         "Load a plugin file to extend Empire."

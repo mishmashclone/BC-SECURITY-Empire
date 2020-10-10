@@ -4,6 +4,7 @@ from builtins import str
 from builtins import object
 from lib.common import helpers
 
+
 class Module(object):
 
     def __init__(self, mainMenu, params=[]):
@@ -73,7 +74,6 @@ class Module(object):
             }
         }
 
-
         self.mainMenu = mainMenu
 
         if params:
@@ -84,21 +84,21 @@ class Module(object):
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
 
-        moduleSource = self.mainMenu.installPath + "/data/module_source/management/Invoke-SocksProxy.psm1"
+        module_source = self.mainMenu.installPath + "/data/module_source/management/Invoke-SocksProxy.psm1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscationCommand)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
 
-        script = moduleCode
-        scriptEnd = "\nInvoke-ReverseSocksProxy"
+        script = module_code
+        script_end = "\nInvoke-ReverseSocksProxy"
 
         # Add any arguments to the end execution of the script
         for option, values in self.options.items():
@@ -106,13 +106,13 @@ class Module(object):
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":
                         # if we're just adding a switch
-                        scriptEnd += " -" + str(option)
+                        script_end += " -" + str(option)
                     else:
-                        scriptEnd += " -" + str(option) + " " + str(values['Value'])
+                        script_end += " -" + str(option) + " " + str(values['Value'])
         if obfuscate:
-            scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=self.mainMenu.installPath,
-                                          obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(psScript=script_end, installPath=self.mainMenu.installPath,
+                                           obfuscationCommand=obfuscationCommand)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         print(helpers.color("[*] Start your Invoke-SocksProxy server before continuing"))
@@ -126,5 +126,3 @@ class Module(object):
                 continue
 
         return script
-
-

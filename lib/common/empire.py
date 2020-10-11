@@ -122,7 +122,7 @@ class MainMenu(cmd.Cmd):
         self.autoRuns = {}
         self.handle_args()
         self.startup_plugins()
-        
+
         message = "[*] Empire starting up..."
         signal = json.dumps({
             'print': True,
@@ -328,7 +328,15 @@ class MainMenu(cmd.Cmd):
         
         # enumerate all active servers/listeners and shut them down
         self.listeners.shutdown_listener('all')
-    
+        message = "[*] Shutting down plugins..."
+        signal = json.dumps({
+            'print': True,
+            'message': message
+        })
+        dispatcher.send(signal, sender="empire")
+        for plugin in self.loadedPlugins:
+            self.loadedPlugins[plugin].shutdown()
+
     def database_connect(self):
         """
         Connect to the default database at ./data/empire.db.
@@ -471,6 +479,8 @@ class MainMenu(cmd.Cmd):
         
         print("")
         print(helpers.color("[*] Use \"plugin <plugin name>\" to load a plugin."))
+
+
     
     def do_plugin(self, pluginName):
         "Load a plugin file to extend Empire."
@@ -1048,27 +1058,28 @@ class MainMenu(cmd.Cmd):
 
     def complete_usemodule(self, text, line, begidx, endidx, language=None):
         "Tab-complete an Empire module path."
-        
+
         module_names = list(self.modules.modules.keys())
-        
+
         # suffix each module requiring elevated context with '*'
         for module_name in module_names:
             try:
                 if self.modules.modules[module_name].info['NeedsAdmin']:
-                    module_names[module_names.index(module_name)] = (module_name+"*")
+                    module_names[module_names.index(module_name)] = (module_name + "*")
             # handle modules without a NeedAdmins info key
             except KeyError:
                 pass
-        
+
         if language:
-            module_names = [ (module_name[len(language)+1:]) for module_name in module_names if module_name.startswith(language)]
-        
+            module_names = [(module_name[len(language) + 1:]) for module_name in module_names if
+                            module_name.startswith(language)]
+
         mline = line.partition(' ')[2]
-        
+
         offs = len(mline) - len(text)
-        
+
         module_names = [s[offs:] for s in module_names if s.startswith(mline)]
-        
+
         return module_names
     
     

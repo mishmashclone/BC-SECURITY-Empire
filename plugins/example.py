@@ -56,5 +56,4 @@ class Plugin(Plugin):
 
     def shutdown(self):
         """if the plugin spawns a process provide a shutdown method for when Empire exits else leave it as pass"""
-        if self.proxy.running:
-            self.proxy.end()
+        return

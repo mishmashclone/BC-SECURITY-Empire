@@ -1050,7 +1050,7 @@ class MainMenu(cmd.Cmd):
         "Tab-complete an Empire module path."
         
         module_names = list(self.modules.modules.keys())
-        
+        module_names = [x for x in module_names if self.modules.modules[x].enabled]
         # suffix each module requiring elevated context with '*'
         for module_name in module_names:
             try:
@@ -1068,7 +1068,8 @@ class MainMenu(cmd.Cmd):
         offs = len(mline) - len(text)
         
         module_names = [s[offs:] for s in module_names if s.startswith(mline)]
-        
+
+
         return module_names
     
     

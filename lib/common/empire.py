@@ -328,13 +328,21 @@ class MainMenu(cmd.Cmd):
         
         # enumerate all active servers/listeners and shut them down
         self.listeners.shutdown_listener('all')
-    
-    def database_connect(self):
+        message = "[*] Shutting down plugins..."
+        signal = json.dumps({
+            'print': True,
+            'message': message
+        })
+        dispatcher.send(signal, sender="empire")
+        for plugin in self.loadedPlugins:
+            self.loadedPlugins[plugin].shutdown()
+
+def database_connect(self):
         """
         Connect to the default database at ./data/empire.db.
         """
         try:
-            # set the database connectiont to autocommit w/ isolation level
+            # set the database connection to autocommit w/ isolation level
             self.conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
             self.conn.text_factory = str
             self.conn.isolation_level = None

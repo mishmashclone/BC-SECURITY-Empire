@@ -19,3 +19,4 @@ pefile
 pycrypto
 bcrypt
 simplejson
+pyparsing

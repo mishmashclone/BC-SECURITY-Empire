@@ -337,7 +337,7 @@ class MainMenu(cmd.Cmd):
         for plugin in self.loadedPlugins:
             self.loadedPlugins[plugin].shutdown()
 
-def database_connect(self):
+    def database_connect(self):
         """
         Connect to the default database at ./data/empire.db.
         """

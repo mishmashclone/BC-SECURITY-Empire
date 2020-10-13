@@ -7,7 +7,7 @@ import json
 from pydispatch import dispatcher
 
 
-class Users():
+class Users(object):
     def __init__(self, mainMenu):
         self.mainMenu = mainMenu
 
@@ -141,9 +141,13 @@ class Users():
             self.lock.acquire()
             cur = conn.cursor()
             cur.execute("SELECT id, username, api_token, last_logon_time, enabled, admin FROM users WHERE api_token = ? LIMIT 1", (token,))
-            [ id, username, api_token, last_logon_time, enabled, admin ] = cur.fetchone()
-            
-            return { 'id': id, 'username': username, 'api_token': api_token, 'last_logon_time': last_logon_time, 'enabled': bool(enabled), 'admin': bool(admin) }
+            user = cur.fetchone()
+
+            if user:
+                [id, username, api_token, last_logon_time, enabled, admin] = user
+                return {'id': id, 'username': username, 'api_token': api_token, 'last_logon_time': last_logon_time, 'enabled': bool(enabled), 'admin': bool(admin)}
+
+            return None
         finally:
             cur.close()
             self.lock.release()

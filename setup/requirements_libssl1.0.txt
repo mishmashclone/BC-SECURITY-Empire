@@ -19,3 +19,5 @@ pefile
 pycrypto
 bcrypt
 simplejson
+pyparsing
+flask-socketio

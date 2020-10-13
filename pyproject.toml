@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "Empire - BC Security Fork"
+version = "3.5.0"
+description = ""
+authors = ["BC Security <info@bc-security.org>"]
+readme = "README.md"
+homepage = "https://github.com/BC-SECURITY/Empire"
+repository = "https://github.com/BC-SECURITY/Empire.git"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+urllib3 = "*"
+requests = "*"
+setuptools = "*"
+iptools = "*"
+pydispatcher = "*"
+flask = "*"
+macholib = "*"
+dropbox = "*"
+pyOpenSSL = "*"
+pyinstaller = "*"
+zlib_wrapper = "*"
+netifaces = "*"
+M2Crypto = "*"
+jinja2 = "*"
+cryptography = "*"
+pyminifier = "*"
+xlutils = "*"
+pefile = "*"
+simplejson = "*"
+bcrypt = "*"
+pycrypto = "*"
+pyparsing = "*"
+flask-socketio = "*"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

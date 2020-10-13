@@ -30,7 +30,7 @@ class Plugin(Plugin):
         # This is for parsing commands through the api
 
         try:
-            # esentially switches to parse the proper command to execute
+            # essentially switches to parse the proper command to execute
             if dict['command'] == 'do_test':
                 results = self.do_test(dict['arguments']['arg'])
             return results
@@ -53,3 +53,7 @@ class Plugin(Plugin):
         # you can also store data in the plugin (see onLoad)
         self.calledTimes += 1
         print("This function has been called {} times.".format(self.calledTimes))
+
+    def shutdown(self):
+        """if the plugin spawns a process provide a shutdown method for when Empire exits else leave it as pass"""
+        return

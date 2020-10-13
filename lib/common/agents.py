@@ -66,6 +66,8 @@ import threading
 from builtins import object
 # -*- encoding: utf-8 -*-
 from builtins import str
+from datetime import datetime, timezone
+
 from pydispatch import dispatcher
 from zlib_wrapper import decompress
 
@@ -179,6 +181,17 @@ class Agents(object):
         finally:
             self.lock.release()
 
+    def get_agent_for_socket(self, session_id):
+        agent = self.get_agent_db(session_id)
+
+        lastseen_time = datetime.fromisoformat(agent['lastseen_time']).astimezone(timezone.utc)
+        stale = helpers.is_stale(lastseen_time, agent['delay'], agent['jitter'])
+        agent['stale'] = stale
+
+        if isinstance(agent['session_key'], bytes):
+            agent['session_key'] = agent['session_key'].decode('latin-1').encode('utf-8')
+
+        return agent
 
     def remove_agent_db(self, sessionID):
         """
@@ -1148,6 +1161,7 @@ class Agents(object):
                     pk = (pk + 1) % 65536
                     cur.execute("INSERT INTO taskings (id, agent, data, user_id, timestamp, module_name) VALUES(?,?,?,?,?,?)",
                                 [pk, sessionID, task[:100], uid, timestamp, moduleName])
+                    # self.mainMenu.socketio.emit('agent/task', {'sessionID': sessionID, 'taskID': pk, 'data': task[:100]})
 
                     # Create result for data when it arrives
                     cur.execute("INSERT INTO results (id, agent, user_id) VALUES (?,?,?)", (pk, sessionID, uid))
@@ -1294,7 +1308,6 @@ class Agents(object):
     def handle_agent_staging(self, sessionID, language, meta, additional, encData, stagingKey, listenerOptions, clientIP='0.0.0.0'):
         """
         Handles agent staging/key-negotiation.
-
         TODO: does this function need self.lock?
         """
 
@@ -1362,6 +1375,10 @@ class Agents(object):
                         # add the agent to the database now that it's "checked in"
                         self.mainMenu.agents.add_agent(sessionID, clientIP, delay, jitter, profile, killDate, workingHours, lostLimit, nonce=nonce, listener=listenerName)
 
+                        if self.mainMenu.socketio:
+                            self.mainMenu.socketio.emit('agents/new', self.get_agent_for_socket(sessionID),
+                                                        broadcast=True)
+
                         clientSessionKey = self.mainMenu.agents.get_agent_session_key_db(sessionID)
                         data = "%s%s" % (nonce, clientSessionKey)
 
@@ -1427,6 +1444,10 @@ class Agents(object):
 
                     # add the agent to the database now that it's "checked in"
                     self.mainMenu.agents.add_agent(sessionID, clientIP, delay, jitter, profile, killDate, workingHours, lostLimit, sessionKey=serverPub.key, nonce=nonce, listener=listenerName)
+
+                    if self.mainMenu.socketio:
+                        self.mainMenu.socketio.emit('agents/new', self.get_agent_for_socket(sessionID),
+                                                    broadcast=True)
 
                     # step 4 of negotiation -> server returns HMAC(AESn(nonce+PUBs))
                     data = "%s%s" % (nonce, serverPub.publicKey)
@@ -1536,6 +1557,13 @@ class Agents(object):
 
             # save the initial sysinfo information in the agent log
             agent = self.mainMenu.agents.get_agent_db(sessionID)
+
+            lastseen_time = datetime.fromisoformat(agent['lastseen_time']).astimezone(timezone.utc)
+            stale = helpers.is_stale(lastseen_time, agent['delay'], agent['jitter'])
+            agent['stale'] = stale
+            if self.mainMenu.socketio:
+                self.mainMenu.socketio.emit('agents/stage2', agent, broadcast=True)
+
             output = messages.display_agent(agent, returnAsString=True)
             output += "\n[+] Agent %s now active:\n" % (sessionID)
             self.mainMenu.agents.save_agent_log(sessionID, output)
@@ -1782,6 +1810,7 @@ class Agents(object):
             if taskID != 0 and responseName not in ["TASK_DOWNLOAD", "TASK_CMD_JOB_SAVE", "TASK_CMD_WAIT_SAVE"] and data != None:
                 # Update result with data
                 cur.execute("UPDATE results SET data=? WHERE id=? AND agent=?", (data, taskID, sessionID))
+                # self.mainMenu.socketio.emit('agents/task', {'sessionID': sessionID, 'taskID': taskID, 'data': data})
 
                 try:
                     keyLogTaskID = cur.execute("SELECT id FROM taskings WHERE agent=? AND id=? AND data LIKE \"function Get-Keystrokes%\"", [sessionID, taskID]).fetchone()[0]

@@ -64,4 +64,4 @@ RUN cd setup && ./reset.sh
 
 RUN cd setup && ./cert.sh
 
-CMD ["python", "empire", "--rest"]
+CMD ["python", "empire", "--rest", "--notifications"]

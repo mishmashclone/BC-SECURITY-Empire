@@ -37,6 +37,17 @@ The following operating systems have been tested for Empire compatibility. We wi
 
 __Note:__ Newer versions of Kali require you to run ```sudo``` before starting Empire.
 
+Beginning with Empire 3.5.0, we recommend the use of [Poetry](https://python-poetry.org/docs/) or the Docker images to run Empire. Poetry is a dependency and virtual environment management tool.
+This is highly recommended if using the SocketIO notification feature introduced in 3.5.0. To install Poetry, please follow the installation guide in the documentation or run `sudo pip3 install poetry`.
+
+```sh
+git clone https://github.com/BC-SECURITY/Empire.git
+cd Empire
+sudo ./setup/install.sh
+sudo poetry install
+sudo poetry run python empire --rest
+```
+
 ### Kali
 
 You can install the latest version of Empire by running the following:

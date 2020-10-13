@@ -21,9 +21,11 @@ from time import sleep
 
 from flask import Flask, request, jsonify, make_response, abort, url_for, g
 from flask.json import JSONEncoder
+from flask_socketio import SocketIO, emit
 
 # Empire imports
 from lib.common import empire, helpers, users
+from lib.common.empire import MainMenu
 
 # Check if running Python 3
 if sys.version[0] == '2':
@@ -183,8 +185,7 @@ def execute_db_query(conn, query, args=None):
 #    PUT      http://localhost:1337/api/users/Y/updatepassword      update password for user Y
 #
 ####################################################################
-
-def start_restful_api(empireMenu, suppress=False, username=None, password=None, port=1337):
+def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, password=None, port=1337):
     """
     Kick off the RESTful API with the given parameters.
 
@@ -202,18 +203,16 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
     main = empireMenu
 
-    u = users.Users(main)
-
     global serverExitCommand
 
     # if a username/password were not supplied, use the creds stored in the db
     #(dbUsername, dbPassword) = execute_db_query(conn, "SELECT api_username, api_password FROM config")[0]
 
     if username:
-        u.update_username(1, username[0])
+        main.users.update_username(1, username[0])
 
     if password:
-        u.update_password(1, password[0])
+        main.users.update_password(1, password[0])
 
     print('')
     print(" * Starting Empire RESTful API on port: %s" % (port))
@@ -237,7 +236,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             if request.path != '/api/admin/login':
                 token = request.args.get('token')
                 if token and len(token) > 0:
-                    user = u.get_user_from_token(token)
+                    user = main.users.get_user_from_token(token)
                     if user:
                         g.user = user
                     else:
@@ -1345,7 +1344,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         # try to prevent some basic bruting
         time.sleep(2)
-        token = u.user_login(suppliedUsername, suppliedPassword)
+        token = main.users.user_login(suppliedUsername, suppliedPassword)
 
         if token:
             return jsonify({'token': token})
@@ -1357,7 +1356,7 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
         """
         Logs out current user
         """
-        u.user_logout(g.user['id'])
+        main.users.user_logout(g.user['id'])
         return jsonify({'success': True})
 
     @app.route('/api/admin/restart', methods=['GET', 'POST', 'PUT'])
@@ -1420,10 +1419,10 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             abort(400)
 
         # Check if user is an admin
-        if not u.is_admin(g.user['id']):
+        if not main.users.is_admin(g.user['id']):
             abort(403)
 
-        status = u.add_new_user(request.json['username'], request.json['password'])
+        status = main.users.add_new_user(request.json['username'], request.json['password'])
         return jsonify({'success': status})
 
     @app.route('/api/users/<int:uid>/disable', methods=['PUT'])
@@ -1434,10 +1433,10 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
 
         # User performing the action should be an admin.
         # User being updated should not be an admin.
-        if not u.is_admin(g.user['id']) or u.is_admin(uid):
+        if not main.users.is_admin(g.user['id']) or main.users.is_admin(uid):
             abort(403)
 
-        status = u.disable_user(uid, request.json['disable'])
+        status = main.users.disable_user(uid, request.json['disable'])
         return jsonify({'success': status})
 
     @app.route('/api/users/<int:uid>/updatepassword', methods=['PUT'])
@@ -1446,10 +1445,10 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
             abort(400)
 
         # Must be an admin or updating self.
-        if not (u.is_admin(g.user['id']) or uid == g.user['id']):
+        if not (main.users.is_admin(g.user['id']) or uid == g.user['id']):
             abort(403)
 
-        status = u.update_password(uid, request.json['password'])
+        status = main.users.update_password(uid, request.json['password'])
         return jsonify({'success': status})
 
     @app.route('/api/plugin/<string:plugin_name>', methods=['GET'])
@@ -1563,8 +1562,37 @@ def start_restful_api(empireMenu, suppress=False, username=None, password=None, 
     app.run(host='0.0.0.0', port=int(port), ssl_context=context, threaded=True)
 
 
-if __name__ == '__main__':
+def start_sockets(empire_menu: MainMenu, port: int = 5000):
+    app = Flask(__name__)
+    socketio = SocketIO(app, cors_allowed_origins="*")
+    empire_menu.socketio = socketio
 
+    @socketio.on('connect')
+    def connect():
+        token = request.args.get('token', '')
+        if len(token) > 0:
+            user = empire_menu.users.get_user_from_token(token)
+            if user:
+                print(f"{user['username']} connected to socketio")
+                return
+
+        raise ConnectionRefusedError('unauthorized!')
+
+    @socketio.on('disconnect')
+    def test_disconnect():
+        print('Client disconnected from socketio')
+
+    print('')
+    print(" * Starting Empire SocketIO on port: {}".format(port))
+
+    cert_path = os.path.abspath("./data/")
+    proto = ssl.PROTOCOL_TLS
+    context = ssl.SSLContext(proto)
+    context.load_cert_chain("{}/empire-chain.pem".format(cert_path), "{}/empire-priv.key".format(cert_path))
+    socketio.run(app, host='0.0.0.0', port=port, ssl_context=context)
+
+
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     generalGroup = parser.add_argument_group('General Options')
@@ -1582,7 +1610,8 @@ if __name__ == '__main__':
     launchGroup = restGroup.add_mutually_exclusive_group()
     launchGroup.add_argument('--rest', action='store_true', help='Run Empire and the RESTful API.')
     launchGroup.add_argument('--headless', action='store_true', help='Run Empire and the RESTful API headless without the usual interface.')
-    restGroup.add_argument('--restport', type=int, nargs=1, help='Port to run the Empire RESTful API on.')
+    restGroup.add_argument('--restport', type=int, nargs=1, help='Port to run the Empire RESTful API on. Defaults to 1337')
+    restGroup.add_argument('--socketport', type=int, nargs=1, help='Port to run socketio on. Defaults to 5000')
     restGroup.add_argument('--username', nargs=1, help='Start the RESTful API with the specified username instead of pulling from empire.db')
     restGroup.add_argument('--password', nargs=1, help='Start the RESTful API with the specified password instead of pulling from empire.db')
 
@@ -1593,6 +1622,11 @@ if __name__ == '__main__':
         args.restport = '1337'
     else:
         args.restport = args.restport[0]
+
+    if not args.socketport:
+        args.socketport = '5000'
+    else:
+        args.socketport = args.socketport[0]
 
     if args.version:
         print(empire.VERSION)
@@ -1619,6 +1653,18 @@ if __name__ == '__main__':
         thread.daemon = True
         thread.start()
         sleep(2)
+
+        def thread_websocket(empire_menu):
+            try:
+                start_sockets(empire_menu=empire_menu, port=int(args.socketport))
+            except SystemExit as e:
+                pass
+
+        thread2 = helpers.KThread(target=thread_websocket, args=(main,))
+        thread2.daemon = True
+        thread2.start()
+        sleep(2)
+
         main.cmdloop()
 
     elif args.headless:

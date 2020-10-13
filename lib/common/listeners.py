@@ -29,11 +29,11 @@ class Listeners(object):
     Listener handling class.
     """
 
-    def __init__(self, MainMenu, args):
+    def __init__(self, main_menu, args):
 
-        self.mainMenu = MainMenu
+        self.mainMenu = main_menu
         self.args = args
-        self.conn = MainMenu.conn
+        self.conn = main_menu.conn
 
         # loaded listener format:
         #     {"listenerModuleName": moduleInstance, ...}
@@ -240,6 +240,10 @@ class Listeners(object):
                     'listener_options': listenerOptions
                 })
                 dispatcher.send(signal, sender="listeners/{}/{}".format(moduleName, name))
+                self.activeListeners[name]['name'] = name
+
+                if self.mainMenu.socketio:
+                    self.mainMenu.socketio.emit('listeners/new', self.get_listener_for_socket(name), broadcast=True)
             else:
                 print(helpers.color('[!] Listener failed to start!'))
 
@@ -248,6 +252,17 @@ class Listeners(object):
                 del self.activeListeners[name]
             print(helpers.color("[!] Error starting listener: %s" % (e)))
 
+    def get_listener_for_socket(self, name):
+        cur = self.conn.cursor()
+        cur.execute('''
+            SELECT id, name, module, listener_type, listener_category, options, created_at
+            FROM listeners WHERE name = ?
+            ''', [name])
+        listener = cur.fetchone()
+        [ID, name, module, listener_type, listener_category, options, created_at] = listener
+        return {'ID': ID, 'name': name, 'module': module, 'listener_type': listener_type,
+                          'listener_category': listener_category, 'options': pickle.loads(options),
+                          'created_at': created_at}
 
     def start_existing_listeners(self):
         """

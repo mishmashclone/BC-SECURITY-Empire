@@ -20,3 +20,4 @@ simplejson
 bcrypt
 pycrypto
 pyparsing
+flask-socketio

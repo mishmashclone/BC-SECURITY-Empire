@@ -115,14 +115,6 @@ class Module(object):
         script += script_end
         script = helpers.keyword_obfuscation(script)
 
-        print(helpers.color("[*] Start your Invoke-SocksProxy server before continuing"))
-        print(helpers.color("[*] Follow directions at git clone https://github.com/BC-SECURITY/Invoke-SocksProxy.git"))
-
-        while True:
-            a = input(helpers.color("[>] Are you sure you want to continue [n/Y]: "))
-            if a.lower() == 'y':
-                break
-            else:
-                continue
+        print(helpers.color("[*] Follow directions at https://github.com/BC-SECURITY/Invoke-SocksProxy to start your Invoke-SocksProxy server "))
 
         return script

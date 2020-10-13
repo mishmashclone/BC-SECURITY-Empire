@@ -21,6 +21,10 @@ class Module(object):
                             "pre-staged, and register the agent in the database. This allows "
                             "the agent to begin beconing behavior immediately."),
 
+            'Software': '',
+
+            'Techniques': [''],
+
             'Background': True,
 
             'OutputExtension': None,

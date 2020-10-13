@@ -115,6 +115,6 @@ class Module(object):
         script += script_end
         script = helpers.keyword_obfuscation(script)
 
-        print(helpers.color("[*] Follow directions at https://github.com/BC-SECURITY/Invoke-SocksProxy to start your Invoke-SocksProxy server "))
+        print(helpers.color("[*] Follow directions at https://github.com/BC-SECURITY/Invoke-SocksProxy to start your Invoke-SocksProxy server"))
 
         return script

@@ -1611,6 +1611,7 @@ if __name__ == '__main__':
     launchGroup.add_argument('--rest', action='store_true', help='Run Empire and the RESTful API.')
     launchGroup.add_argument('--headless', action='store_true', help='Run Empire and the RESTful API headless without the usual interface.')
     restGroup.add_argument('--restport', type=int, nargs=1, help='Port to run the Empire RESTful API on. Defaults to 1337')
+    restGroup.add_argument('-n', '--notifications', action='store_true', help='Run the SocketIO notifications server.')
     restGroup.add_argument('--socketport', type=int, nargs=1, help='Port to run socketio on. Defaults to 5000')
     restGroup.add_argument('--username', nargs=1, help='Start the RESTful API with the specified username instead of pulling from empire.db')
     restGroup.add_argument('--password', nargs=1, help='Start the RESTful API with the specified password instead of pulling from empire.db')
@@ -1660,10 +1661,11 @@ if __name__ == '__main__':
             except SystemExit as e:
                 pass
 
-        thread2 = helpers.KThread(target=thread_websocket, args=(main,))
-        thread2.daemon = True
-        thread2.start()
-        sleep(2)
+        if args.notifications:
+            thread2 = helpers.KThread(target=thread_websocket, args=(main,))
+            thread2.daemon = True
+            thread2.start()
+            sleep(2)
 
         main.cmdloop()
 

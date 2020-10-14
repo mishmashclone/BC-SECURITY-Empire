@@ -112,13 +112,13 @@ def execute_db_query(conn, query, args=None):
     cur.close()
     return results
 
-
 ####################################################################
 #
-# The Empire RESTful API.
+# The Empire RESTful API. To see more information about it, check out the official wiki.
 #
-# Adapted from http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask
-#   example code at https://gist.github.com/miguelgrinberg/5614326
+# Adapted from http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask.
+# Example code at https://gist.github.com/miguelgrinberg/5614326.
+#
 #
 #    Verb     URI                                                   Action
 #    ----     ---                                                   ------
@@ -185,6 +185,7 @@ def execute_db_query(conn, query, args=None):
 #    PUT      http://localhost:1337/api/users/Y/updatepassword      update password for user Y
 #
 ####################################################################
+
 def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, password=None, port=1337):
     """
     Kick off the RESTful API with the given parameters.
@@ -278,23 +279,13 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         List all of the current registered API routes.
         """
-        import urllib.request as urllib
-        output = []
+        output = {}
         for rule in app.url_map.iter_rules():
-
-            options = {}
-            for arg in rule.arguments:
-                options[arg] = "[{0}]".format(arg)
-
             methods = ','.join(rule.methods)
-            url = url_for(rule.endpoint, **options)
-            line = urllib.parse.unquote("[ { '" + rule.endpoint + "': [ { 'methods': '" + methods + "', 'url': '" + url + "' } ] } ]")
-            output.append(line)
+            url = rule.rule
+            output.update({rule.endpoint: {'methods': methods, 'url': url}})
 
-        res = ''
-        for line in sorted(output):
-            res = res + '\r\n' + line
-        return jsonify({'Routes':res})
+        return jsonify({'Routes':output})
 
     @app.route('/api/config', methods=['GET'])
     def get_config():

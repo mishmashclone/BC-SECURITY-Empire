@@ -4,7 +4,7 @@
         - Added socketio notifications for Starkiller - #335 (@vinnybod)
         - Added Invoke-ZeroLogon - #333 (@Cx01N)
         - Added Invoke-SocksProxy - #332 (@Cx01N, @Hubbl3)
-        - Added powercat module - #319 (@xC01N)
+        - Added powercat module - #319 (@Cx01N)
         - Added powermad modules - #329 (@snovvcrash)
         - Added self cleanup functionality to plugins - #332 (@Hubbl3)
         - Updated Mimikatz 2.2.0 20200918 ZeroLogon - #330 (@Cx01N)

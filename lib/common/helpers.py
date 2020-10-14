@@ -940,9 +940,9 @@ def obfuscate(installPath, psScript, obfuscationCommand):
     toObfuscateFile.close()
     # Obfuscate using Invoke-Obfuscation w/ PowerShell
     subprocess.call(
-        "%s -C '$ErrorActionPreference = \"SilentlyContinue\";Invoke-Obfuscation -ScriptPath %s -Command \"%s\" -Quiet | Out-File -Encoding ASCII %s'" % (
-        get_powershell_name(), toObfuscateFilename, convert_obfuscation_command(obfuscationCommand),
-        obfuscatedFilename), shell=True)
+        "%s -C '$ErrorActionPreference = \"SilentlyContinue\";Import-Module ./lib/powershell/Invoke-Obfuscation/Invoke-Obfuscation.psd1;Invoke-Obfuscation -ScriptPath %s -Command \"%s\" -Quiet | Out-File -Encoding ASCII %s'" % (
+            get_powershell_name(), toObfuscateFilename, convert_obfuscation_command(obfuscationCommand),
+            obfuscatedFilename), shell=True)
     obfuscatedFile = open(obfuscatedFilename, 'r')
     # Obfuscation writes a newline character to the end of the file, ignoring that character
     psScript = obfuscatedFile.read()[0:-1]

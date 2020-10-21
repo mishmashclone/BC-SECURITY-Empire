@@ -125,20 +125,14 @@ class Module(object):
         # Set booleans to false by default
         Obfuscate = False
         AMSIBypass = False
-        AMSIBypass2 = False
-        
+        AMSIBypass2 = True
+        ObfuscateCommand = None
+
         moduleName = self.info["Name"]
         listenerName = self.options['Listener']['Value']
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
-        if (self.options['Obfuscate']['Value']).lower() == 'true':
-            Obfuscate = True
-        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
-        if (self.options['AMSIBypass']['Value']).lower() == 'true':
-            AMSIBypass = True
-        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
-            AMSIBypass2 = True
 
         if not self.mainMenu.listeners.is_listener_valid(listenerName):
             # not a valid listener, return nothing for the script

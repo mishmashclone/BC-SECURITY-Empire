@@ -21,7 +21,7 @@ class Module(object):
 
             'Techniques': ['T1028'],
 
-            'Background' : False,
+            'Background' : True,
 
             'OutputExtension' : None,
             

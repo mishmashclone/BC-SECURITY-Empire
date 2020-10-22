@@ -1,3 +1,10 @@
+10/22/2020
+------------
+- Version 3.5.2 Master Release
+        - Fixed token manipulation (steal_token) functionality in Windows 10 - #355 (@Hubbl3)
+        - Fixed lateral movement module New-GPOImmediateTask - #362 (@Cx01N)
+        - Fixed Invoke-PSRemoting blocking current agent - #359 (@mjokic)
+
 10/14/2020
 ------------
 - Version 3.5.1 Master Release

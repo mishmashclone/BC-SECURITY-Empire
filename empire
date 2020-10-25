@@ -1268,6 +1268,20 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         return jsonify({'reporting' : reportingEvents})
 
+    @app.route('/api/reporting/generate', methods=['POST'])
+    def generate_report():
+        """
+        Generates reports on the backend database.
+        Takes {'logo':'directory_location'}
+        """
+        if not request.json:
+            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+
+        directory_location = request.json['logo']
+
+        main.do_report(directory_location)
+        return jsonify({'success': True})
+
     @app.route('/api/reporting/agent/<string:reporting_agent>', methods=['GET'])
     def get_reporting_agent(reporting_agent):
         """

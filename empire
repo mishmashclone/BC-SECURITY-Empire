@@ -1470,8 +1470,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         active_plugins = list(empireMenu.loadedPlugins.keys())
         for plugin_name in all_plugin_names:
             if plugin_name in active_plugins:
-                data = empireMenu.loadedPlugins[plugin_name].get_commands()['info']
-                data['options'] = empireMenu.loadedPlugins[plugin_name].get_commands()['options']
+                data = empireMenu.loadedPlugins[plugin_name].info[0]
+                data['options'] = empireMenu.loadedPlugins[plugin_name].options
                 plugins.append(data)
 
         return jsonify({'plugins': plugins})
@@ -1495,21 +1495,25 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
     def execute_plugin(plugin_name):
         # check if the plugin has been loaded
         if plugin_name not in empireMenu.loadedPlugins.keys():
-            return make_response(jsonify({'error': 'plugin %s not loaded' % (plugin_name)}), 400)
-        else:
-            use_plugin = empireMenu.loadedPlugins[plugin_name]
-            command = request.json['command']
-            # check if the requested command is valid
-            if command not in use_plugin.commands.keys():
-                return make_response(jsonify({'error': ' %s is not a valid plugin command' % (command)}), 400)
-            # check if the command arguments are valid
-            for key, value in request.json['arguments'].items():
-                if key not in use_plugin.commands[command]:
-                    return make_response(jsonify({'error': 'invalid command argument'}), 400)
-            results = use_plugin.execute(request.json)
-            if results == False:
-                return make_response(jsonify({'error': 'internal plugin error'}), 400)
-            return jsonify(results)
+            return make_response(jsonify({'error': 'plugin %s not loaded' % (plugin_name)}), 404)
+
+        use_plugin = empireMenu.loadedPlugins[plugin_name]
+
+        # set all passed module options
+        for key, value in request.json.items():
+            if key not in use_plugin.options:
+                return make_response(jsonify({'error': 'invalid module option'}), 400)
+
+            use_plugin.options[key]['Value'] = value
+
+        for option, values in use_plugin.options.items():
+            if values['Required'] and ((not values['Value']) or (values['Value'] == '')):
+                return make_response(jsonify({'error': 'required module option missing'}), 400)
+
+        results = use_plugin.execute(request.json)
+        if results == False:
+            return make_response(jsonify({'error': 'internal plugin error'}), 400)
+        return jsonify(results)
 
     if not os.path.exists('./data/empire-chain.pem'):
         print("[!] Error: cannot find certificate ./data/empire-chain.pem")

@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import pickle
+import pkgutil
 import signal
 import sqlite3
 import ssl
@@ -1456,6 +1457,25 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         status = main.users.update_password(uid, request.json['password'])
         return jsonify({'success': status})
 
+    @app.route('/api/plugin/active', methods=['GET'])
+    def list_active_plugins():
+        """
+        Lists all active plugins
+        """
+        plugins = []
+
+        plugin_path = os.path.abspath("plugins")
+        all_plugin_names = [name for _, name, _ in pkgutil.walk_packages([plugin_path])]
+        # check if the plugin has already been loaded
+        active_plugins = list(empireMenu.loadedPlugins.keys())
+        for plugin_name in all_plugin_names:
+            if plugin_name in active_plugins:
+                data = empireMenu.loadedPlugins[plugin_name].get_commands()['info']
+                data['options'] = empireMenu.loadedPlugins[plugin_name].get_commands()['options']
+                plugins.append(data)
+
+        return jsonify({'plugins': plugins})
+
     @app.route('/api/plugin/<string:plugin_name>', methods=['GET'])
     def get_plugin(plugin_name):
         # check if the plugin has already been loaded
@@ -1465,8 +1485,11 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
             except:
                 return make_response(jsonify({'error': 'plugin %s not found' % (plugin_name)}), 400)
         # get the commands available to the user. This can probably be done in one step if desired
-        commands = empireMenu.loadedPlugins[plugin_name].get_commands()
-        return jsonify(commands)
+        name = empireMenu.loadedPlugins[plugin_name].get_commands()['name']
+        commands = empireMenu.loadedPlugins[plugin_name].get_commands()['commands']
+        description = empireMenu.loadedPlugins[plugin_name].get_commands()['description']
+        data = {'name': name, 'commands': commands, 'description': description}
+        return jsonify(data)
 
     @app.route('/api/plugin/<string:plugin_name>', methods=['POST'])
     def execute_plugin(plugin_name):
@@ -1474,16 +1497,16 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         if plugin_name not in empireMenu.loadedPlugins.keys():
             return make_response(jsonify({'error': 'plugin %s not loaded' % (plugin_name)}), 400)
         else:
-            usePlug = empireMenu.loadedPlugins[plugin_name]
+            use_plugin = empireMenu.loadedPlugins[plugin_name]
             command = request.json['command']
             # check if the requested command is valid
-            if command not in usePlug.commands.keys():
+            if command not in use_plugin.commands.keys():
                 return make_response(jsonify({'error': ' %s is not a valid plugin command' % (command)}), 400)
             # check if the command arguments are valid
             for key, value in request.json['arguments'].items():
-                if key not in usePlug.commands[command]:
+                if key not in use_plugin.commands[command]:
                     return make_response(jsonify({'error': 'invalid command argument'}), 400)
-            results = usePlug.execute(request.json)
+            results = use_plugin.execute(request.json)
             if results == False:
                 return make_response(jsonify({'error': 'internal plugin error'}), 400)
             return jsonify(results)

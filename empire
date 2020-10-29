@@ -1153,6 +1153,40 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         return jsonify({'success': True})
 
+    @app.route('/api/agents/<string:agent_name>/notes', methods=['POST'])
+    def update_agent_notes(agent_name):
+        """
+        Update notes on specified agent.
+        {"notes" : "notes here"}
+        """
+
+        if not request.json:
+            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+
+        if not 'notes' in request.json:
+            return make_response(jsonify({'error':'JSON body must include key "credentials"'}), 400)
+
+        notes = request.json['notes']
+
+        try:
+            cur = conn.cursor()
+            cur.execute("UPDATE agents SET notes = ? WHERE name = ?", (notes, agent_name))
+
+        finally:
+            cur.close()
+
+        return jsonify({'success': True})
+
+    @app.route('/api/agents/<string:agent_name>/notes', methods=['GET'])
+    def update_agent_notes(agent_name):
+        """
+        Return notes for a specified agent.
+        """
+
+        notes = execute_db_query(conn, 'SELECT notes from agents where name = ?', agent_name)
+
+        return jsonify({'notes': notes})
+
     @app.route('/api/creds', methods=['GET'])
     def get_creds():
         """
@@ -1456,6 +1490,40 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         status = main.users.update_password(uid, request.json['password'])
         return jsonify({'success': status})
+
+    @app.route('/api/users/<int:uid>/notes', methods=['POST'])
+    def update_user_notes(uid):
+        """
+        Update notes for a user.
+        {"notes" : "notes here"}
+        """
+
+        if not request.json:
+            return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
+
+        if not 'notes' in request.json:
+            return make_response(jsonify({'error': 'JSON body must include key "credentials"'}), 400)
+
+        notes = request.json['notes']
+
+        try:
+            cur = conn.cursor()
+            cur.execute("UPDATE users SET notes = ? WHERE id = ?", (notes, uid))
+
+        finally:
+            cur.close()
+
+        return jsonify({'success': True})
+
+    @app.route('/api/users/<int:uid>/notes', methods=['GET'])
+    def update_user_notes(uid):
+        """
+        Read notes for a user.
+        """
+
+        notes = execute_db_query(conn, 'SELECT notes from users where id = ?', uid)
+
+        return jsonify({'notes': notes})
 
     @app.route('/api/plugin/active', methods=['GET'])
     def list_active_plugins():

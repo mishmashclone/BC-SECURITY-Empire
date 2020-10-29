@@ -119,7 +119,8 @@ c.execute('''CREATE TABLE "agents" (
     "working_hours" text,
     "lost_limit" integer,
     "taskings" text,
-    "results" text
+    "results" text,
+    "notes" text
     )''')
 
 # the 'options' field contains a pickled version of all
@@ -186,10 +187,11 @@ c.execute('''CREATE TABLE "users" (
     "api_token" text,
     "last_logon_time" timestamp,
     "enabled" boolean,
-    "admin" boolean
+    "admin" boolean,
+    "notes" text
 )''')
 
-c.execute("INSERT INTO users VALUES (?,?,?,?,?,?,?)", ("1", API_USERNAME, API_PASSWORD, "", "", True, True))
+c.execute("INSERT INTO users VALUES (?,?,?,?,?,?,?,?)", ("1", API_USERNAME, API_PASSWORD, "", "", True, True, ""))
 
 c.execute('''CREATE TABLE "functions" (
     "Keyword" text,

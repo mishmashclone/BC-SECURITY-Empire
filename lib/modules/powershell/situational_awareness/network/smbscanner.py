@@ -133,6 +133,8 @@ class Module(object):
                         scriptEnd += " -" + str(option)
                     elif(option.lower() == "usernames"):
                         scriptEnd += " -Usernames" + " '" + values['Value'].replace(",", "','") + "'" 
+                    elif(option.lower() == "computername"):
+                        scriptEnd += " -ComputerName" + " '" + values['Value'].replace(",", "','") + "'" 
                     elif(option.lower() == "password"):
                         scriptEnd += " -Password" + " '" + values['Value'].replace("'", "''") + "'" 
                     else:
@@ -143,5 +145,6 @@ class Module(object):
         script += scriptEnd
         script = helpers.keyword_obfuscation(script)
 
+        print(script)
         return script
 

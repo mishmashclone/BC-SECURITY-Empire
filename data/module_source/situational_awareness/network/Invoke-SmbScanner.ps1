@@ -22,7 +22,7 @@ function Invoke-SMBScanner {
     
     [CmdletBinding()] Param(
         [Parameter(Mandatory = $False,ValueFromPipeline=$True)]
-        [String] $ComputerName,
+        [String[]] $ComputerName,
 
         [parameter(Mandatory = $True)]
         [String[]] $Usernames,

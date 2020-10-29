@@ -6,41 +6,17 @@ function Invoke-SMBScanner {
     If no machines are specified, the domain will be queries for active machines.
     For domain accounts, use the form DOMAIN\username for username specifications.
 
-    Author: Chris Campbell (@obscuresec), mods by @harmj0y
+    Author: Chris Campbell (@obscuresec), mods by @harmj0y, more mods by @kevin
     License: BSD 3-Clause
     Required Dependencies: None
     Optional Dependencies: None
-    Version: 0.1.0
+    Version: 0.1.1
  
 .DESCRIPTION
 
     Tests a username/password combination across a number of machines.
     If no machines are specified, the domain will be queries for active machines.
-    For domain accounts, use the form DOMAIN\username for username specifications.
-
-.EXAMPLE
-
-    PS C:\> Invoke-SMBScanner -ComputerName WINDOWS4 -UserName test123 -Password password123456! -Domain
-
-    ComputerName            Password                                Username
-    ----                    --------                                --------
-    WINDOWS4                password123456!                         test123
-
-
-.EXAMPLE
-
-    PS C:\> Get-Content 'c:\demo\computers.txt' | Invoke-SMBScanner -UserName dev\\test -Password 'Passsword123456!'
-    
-    ComputerName            Password                                Username
-    ----                    --------                                --------
-    WINDOWS3                password123456!                         dev\\test
-    WINDOWS4                password123456!                         dev\\test
-
-    ...
-
-
-.LINK
-    
+    For domain accounts, specify a domain to query 
 
 #>
     
@@ -49,10 +25,13 @@ function Invoke-SMBScanner {
         [String] $ComputerName,
 
         [parameter(Mandatory = $True)]
-        [String] $UserName,
+        [String[]] $Usernames,
 
         [parameter(Mandatory = $True)]
         [String] $Password,
+		
+        [parameter(Mandatory = $False)]
+        [String] $Domain,
 
         [parameter(Mandatory = $False)]
         [Switch] $NoPing
@@ -60,13 +39,13 @@ function Invoke-SMBScanner {
 
     Begin {
         Set-StrictMode -Version 2
+        [Collections.ArrayList]$OutList = @()
         #try to load assembly
         Try {Add-Type -AssemblyName System.DirectoryServices.AccountManagement}
         Catch {Write-Error $Error[0].ToString() + $Error[0].InvocationInfo.PositionMessage}
     }
 
     Process {
-
         $ComputerNames = @()
 
         # if no computer names are specified, try to query the current domain
@@ -83,8 +62,7 @@ function Invoke-SMBScanner {
         }
 
         foreach ($Computer in $ComputerNames){     
-
-            Try {
+            try {
                 
                 Write-Verbose "Checking: $Computer"
 
@@ -94,36 +72,36 @@ function Invoke-SMBScanner {
                 }
                 if($up){
 
-                    if ($Username.contains("\\")) {
-                        # if there's a \ in the username, assume we're checking a domain account
+                    if ($Domain) {
                         $ContextType = [System.DirectoryServices.AccountManagement.ContextType]::Domain
                     }
                     else{
                         # otherwise assume a local account
+                        $Domain = "<None>"
                         $ContextType = [System.DirectoryServices.AccountManagement.ContextType]::Machine
                     }
-
-                    $PrincipalContext = New-Object System.DirectoryServices.AccountManagement.PrincipalContext($ContextType, $Computer)
                 
-                    $Valid = $PrincipalContext.ValidateCredentials($Username, $Password).ToString()
-                    
-                    If ($Valid) {
-                        Write-Verbose "SUCCESS: $Username works with $Password on $Computer"
+                    foreach($Username in $Usernames) {
+                        $PrincipalContext = New-Object System.DirectoryServices.AccountManagement.PrincipalContext($ContextType, $Computer)
+                        $Valid = $PrincipalContext.ValidateCredentials($Username, $Password).ToString()           
 
                         $out = new-object psobject
                         $out | add-member Noteproperty 'ComputerName' $Computer
+                        $out | add-member Noteproperty 'Domain' $Domain
                         $out | add-member Noteproperty 'Username' $Username
                         $out | add-member Noteproperty 'Password' $Password
-                        $out
-                    }
-                
-                    Else {
-                        Write-Verbose "FAILURE: $Username did not work with $Password on $ComputerName"
+                        $out | add-member Noteproperty 'Valid' $Valid
+                        $null = $OutList.Add($out)
                     }
                 }
             }
-
-            Catch {Write-Error $($Error[0].ToString() + $Error[0].InvocationInfo.PositionMessage)}
+            catch {
+                Write-Error $($Error[0].ToString() + $Error[0].InvocationInfo.PositionMessage)
+            }
         }
+    }
+    End {
+        $OutList | Format-Table
+        Write-Output "SMBScanner execution completed"
     }
 }

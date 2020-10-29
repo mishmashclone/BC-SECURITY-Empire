@@ -13,9 +13,9 @@ class Module(object):
         self.info = {
             'Name': 'Invoke-SMBScanner',
 
-            'Author': ['@obscuresec', '@harmj0y'],
+            'Author': ['@obscuresec', '@harmj0y', '@kevin'],
 
-            'Description': ('Tests a username/password combination across a number of machines.'),
+            'Description': ('Tests usernames/password combination across a number of machines.'),
 
             'Software': '',
 
@@ -27,7 +27,7 @@ class Module(object):
             
             'NeedsAdmin' : False,
 
-            'OpsecSafe' : False,
+            'OpsecSafe' : True,
 
             'Language' : 'powershell',
 
@@ -62,10 +62,15 @@ class Module(object):
                 'Required'      :   True,
                 'Value'         :   ''
             },
-            'UserName' : {
-                'Description'   :   '[domain\]username to test.',
+            'Usernames' : {
+                'Description'   :   'Username(s) to use. Comma separated. Example: kclark,Administrator,sqlsvc',
                 'Required'      :   True,
                 'Value'         :   ''
+            },
+            'Domain' : {
+                'Description'   :   'Domain to use. Defaults to local authentication',
+                'Required'      :   False,
+                'Value'         :   '.'
             },
             'NoPing' : {
                 'Description'   :   'Switch. Don\'t ping hosts before enumeration.',
@@ -106,42 +111,32 @@ class Module(object):
         # if a credential ID is specified, try to parse
         credID = self.options["CredID"]['Value']
         if credID != "":
-            
             if not self.mainMenu.credentials.is_credential_valid(credID):
                 print(helpers.color("[!] CredID is invalid!"))
                 return ""
 
             (credID, credType, domainName, userName, password, host, os, sid, notes) = self.mainMenu.credentials.get_credentials(credID)[0]
 
-            if domainName != "":
-                self.options["UserName"]['Value'] = str(domainName) + "\\" + str(userName)
-            else:
-                self.options["UserName"]['Value'] = str(userName)
             if password != "":
                 self.options["Password"]['Value'] = password
 
-
-        if self.options["UserName"]['Value'] == "" or self.options["Password"]['Value'] == "":
+        if self.options["Usernames"]['Value'] == "" or self.options["Password"]['Value'] == "":
             print(helpers.color("[!] Username and password must be specified."))
 
-
-        if (self.options['ComputerName']['Value'] != ''):
-            usernames = "\"" + "\",\"".join(self.options['ComputerName']['Value'].split(",")) + "\""
-            scriptEnd += usernames + " | "
-        
-        scriptEnd += "Invoke-SMBScanner "
+        scriptEnd += "Invoke-SMBScanner"
 
         for option,values in self.options.items():
-            if option.lower() != "agent" and option.lower() != "computername" and option.lower() != "credid":
+            if option.lower() != "agent" and option.lower() != "credid":
                 if values['Value'] and values['Value'] != '':
                     if values['Value'].lower() == "true":
                         # if we're just adding a switch
                         scriptEnd += " -" + str(option)
+                    elif(option.lower() == "usernames"):
+                        scriptEnd += " -Usernames" + " '" + values['Value'].replace(",", "','") + "'" 
+                    elif(option.lower() == "password"):
+                        scriptEnd += " -Password" + " '" + values['Value'].replace("'", "''") + "'" 
                     else:
                         scriptEnd += " -" + str(option) + " '" + str(values['Value']) + "'" 
-
-        scriptEnd += "| Out-String | %{$_ + \"`n\"};"
-        scriptEnd += "'Invoke-SMBScanner completed'"
 
         if obfuscate:
             scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)

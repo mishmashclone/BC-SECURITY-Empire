@@ -18,6 +18,25 @@ function Invoke-SMBScanner {
     If no machines are specified, the domain will be queries for active machines.
     For domain accounts, specify a domain to query 
 
+.EXAMPLE
+
+    PS C:\> Invoke-SMBScanner -Domain 'Borgar.local' -ComputerName DC01 -Usernames 'kclark','Administrator','SQLSvc' -Password 'P@ssw0rd'
+    
+    ComputerName Domain       Username      Password Valid
+    ------------ ------       --------      -------- -----
+    DC01         Borgar.local kclark        P@ssw0rd False
+    DC01         Borgar.local Administrator P@ssw0rd True
+    DC01         Borgar.local SQLSvc        P@ssw0rd False
+
+
+    PS C:\> Invoke-SMBScanner -ComputerName '127.0.0.1' -Usernames 'kclark','Administrator','localadmin' -Password 'P@sssw0rd'
+    
+    ComputerName Domain Username      Password  Valid
+    ------------ ------ --------      --------  -----
+    127.0.0.1    <None> kclark        P@sssw0rd False
+    127.0.0.1    <None> Administrator P@sssw0rd False
+    127.0.0.1    <None> localadmin    P@sssw0rd True
+
 #>
     
     [CmdletBinding()] Param(

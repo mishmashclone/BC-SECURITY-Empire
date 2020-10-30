@@ -145,6 +145,5 @@ class Module(object):
         script += scriptEnd
         script = helpers.keyword_obfuscation(script)
 
-        print(script)
         return script
 

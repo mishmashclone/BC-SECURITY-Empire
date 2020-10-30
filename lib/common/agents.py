@@ -2137,19 +2137,18 @@ class Agents(object):
             if isinstance(data, bytes):
                 data = data.decode('UTF-8')
 
-            if '[+] Switched the current listener to: ' in data:
-                listener_name = data[38:]
+            listener_name = data[38:]
 
-                self.update_agent_listener_db(sessionID, listener_name)
-                self.update_agent_results_db(sessionID, data)
-                # update the agent log
-                self.save_agent_log(sessionID, data)
-                message = "[+] Updated comms for {} to {}".format(sessionID, listener_name)
-                signal = json.dumps({
-                    'print': False,
-                    'message': message
-                })
-                dispatcher.send(signal, sender="agents/{}".format(sessionID))
+            self.update_agent_listener_db(sessionID, listener_name)
+            self.update_agent_results_db(sessionID, data)
+            # update the agent log
+            self.save_agent_log(sessionID, data)
+            message = "[+] Updated comms for {} to {}".format(sessionID, listener_name)
+            signal = json.dumps({
+                'print': False,
+                'message': message
+            })
+            dispatcher.send(signal, sender="agents/{}".format(sessionID))
 
         elif responseName == "TASK_UPDATE_LISTENERNAME":
             # The agent listener name variable has been updated agent side

@@ -750,7 +750,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         # check to see if the listener was created
         listenerID = main.listeners.get_listener_id(listenerName)
         if listenerID:
-            return jsonify({'success': 'listener %s successfully started' % listenerName})
+            return jsonify({'success': 'Listener %s successfully started' % listenerName})
         else:
             return jsonify({'error': 'failed to start listener %s' % listenerName})
 

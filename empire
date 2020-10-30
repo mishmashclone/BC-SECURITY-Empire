@@ -1178,7 +1178,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         return jsonify({'success': True})
 
     @app.route('/api/agents/<string:agent_name>/notes', methods=['GET'])
-    def update_agent_notes(agent_name):
+    def get_agent_notes(agent_name):
         """
         Return notes for a specified agent.
         """

@@ -1516,7 +1516,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         return jsonify({'success': True})
 
     @app.route('/api/users/<int:uid>/notes', methods=['GET'])
-    def update_user_notes(uid):
+    def get_user_notes(uid):
         """
         Read notes for a user.
         """

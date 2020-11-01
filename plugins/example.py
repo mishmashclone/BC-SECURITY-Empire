@@ -24,13 +24,13 @@ class Plugin(Plugin):
         self.calledTimes = 0
 
         self.info = {
-                        # Name for the module that will appear in module menus
-                        'Name': 'Invoke-Something',
+                        # Plugin Name, at the moment this much match the do_ command
+                        'Name': 'example',
 
-                        # List of one or more authors for the module
+                        # List of one or more authors for the plugin
                         'Author': ['@yourname'],
 
-                        # More verbose multi-line description of the module
+                        # More verbose multi-line description of the plugin
                         'Description': ('description line 1 '
                                         'description line 2'),
 
@@ -45,9 +45,9 @@ class Plugin(Plugin):
                             'comment',
                             'http://link/'
                         ]
-                    }
+                    },
 
-        # Any options needed by the module, settable during runtime
+        # Any options needed by the plugin, settable during runtime
         self.options = {
                         # Format:
                         #   value_name : {description, required, default_value}
@@ -61,8 +61,8 @@ class Plugin(Plugin):
                             'Description': 'Message to print',
                             'Required': True,
                             'Value': 'test'
-                        }
-        }
+                        },
+                    }
 
     def execute(self, command):
         """
@@ -84,7 +84,7 @@ class Plugin(Plugin):
         """
         mainMenu.__class__.do_test = self.do_test
 
-    def do_test(self, *args):
+    def do_test(self, args):
         """
         An example of a plugin function.
 
@@ -94,25 +94,21 @@ class Plugin(Plugin):
         print(helpers.color("[*] It can even import Empire functionality!"))
 
         # Parse arguments from CLI or API
-        if len(args[0]) > 0:
-            if args[0] == 'help':
-                print(helpers.color("[!] example <start|stop> <message>"))
-                return
-            else:
-                self.status = args[0]
-                try:
-                    self.message = args[1]
-                except:
-                    self.message = self.options['Message']['Value']
-        else:
+        if not args:
+            print(helpers.color("[!] Usage: example <start|stop> <message>"))
             self.status = self.options['Status']['Value']
             self.message = self.options['Message']['Value']
+            print(helpers.color("[+] Defaults: example " + self.status + " " + self.message))
+        else:
+            self.status = args.split(" ")[0]
 
-        # Store data in the plugin (see onLoad)
-        self.calledTimes += 1
-        print("This function has been called {} times.".format(self.calledTimes))
+        if self.status == "start":
+            self.calledTimes += 1
+            print(helpers.color("[*] This function has been called {} times.".format(self.calledTimes)))
+            print(helpers.color("[*] Message: " + self.message))
 
-        print(self.message)
+        else:
+            print(helpers.color("[!] Usage: example <start|stop> <message>"))
 
     def shutdown(self):
         """

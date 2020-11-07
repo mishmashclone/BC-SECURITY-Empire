@@ -2297,9 +2297,9 @@ class PowerShellAgentMenu(SubMenu):
             self.mainMenu.agents.add_agent_task_db(self.sessionID, "TASK_DOWNLOAD", line)
             
             # dispatch this event
-            message = "[*] Tasked agent to get system information"
+            message = "[*] Tasked agent to download {}".format(line)
             signal = json.dumps({
-                'print': False,
+                'print': True,
                 'message': message
             })
             dispatcher.send(signal, sender="agents/{}".format(self.sessionID))

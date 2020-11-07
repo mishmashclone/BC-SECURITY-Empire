@@ -761,18 +761,18 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         activeAgentsRaw = execute_db_query(conn, 'SELECT id, session_id, listener, name, language, language_version, delay, jitter, external_ip, '+
             'internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, '+
-            'lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results FROM agents')
+            'lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results, notes FROM agents')
         agents = []
 
         for activeAgent in activeAgentsRaw:
-            [ID, session_id, listener, name, language, language_version, delay, jitter, external_ip, internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results] = activeAgent
+            [ID, session_id, listener, name, language, language_version, delay, jitter, external_ip, internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results, notes] = activeAgent
 
             stale = helpers.is_stale(lastseen_time, delay, jitter)
 
             if isinstance(session_key, bytes):
                 session_key = session_key.decode('latin-1').encode('utf-8')
 
-            agents.append({"ID":ID, "session_id":session_id, "listener":listener, "name":name, "language":language, "language_version":language_version, "delay":delay, "jitter":jitter, "external_ip":external_ip, "internal_ip":internal_ip, "username":username, "high_integrity":high_integrity, "process_name":process_name, "process_id":process_id, "hostname":hostname, "os_details":os_details, "session_key":session_key, "nonce":nonce, "checkin_time":checkin_time, "lastseen_time":lastseen_time, "parent":parent, "children":children, "servers":servers, "profile":profile,"functions":functions, "kill_date":kill_date, "working_hours":working_hours, "lost_limit":lost_limit, "taskings":taskings, "results":results, "stale":stale})
+            agents.append({"ID":ID, "session_id":session_id, "listener":listener, "name":name, "language":language, "language_version":language_version, "delay":delay, "jitter":jitter, "external_ip":external_ip, "internal_ip":internal_ip, "username":username, "high_integrity":high_integrity, "process_name":process_name, "process_id":process_id, "hostname":hostname, "os_details":os_details, "session_key":session_key, "nonce":nonce, "checkin_time":checkin_time, "lastseen_time":lastseen_time, "parent":parent, "children":children, "servers":servers, "profile":profile,"functions":functions, "kill_date":kill_date, "working_hours":working_hours, "lost_limit":lost_limit, "taskings":taskings, "results":results, "stale":stale, "notes":notes})
 
         return jsonify({'agents' : agents})
 
@@ -1177,16 +1177,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         return jsonify({'success': True})
 
-    @app.route('/api/agents/<string:agent_name>/notes', methods=['GET'])
-    def get_agent_notes(agent_name):
-        """
-        Return notes for a specified agent.
-        """
-
-        notes = execute_db_query(conn, 'SELECT notes from agents where name = ?', agent_name)
-
-        return jsonify({'notes': notes})
-
     @app.route('/api/creds', methods=['GET'])
     def get_creds():
         """
@@ -1436,13 +1426,13 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         return the user for an id
         """
-        user = execute_db_query(conn, 'SELECT ID, username, last_logon_time, enabled, admin FROM users WHERE id = ?', [uid,])
+        user = execute_db_query(conn, 'SELECT ID, username, last_logon_time, enabled, admin, notes FROM users WHERE id = ?', [uid,])
 
         if len(user) == 0:
             make_response(jsonify({'error': 'user %s not found' % uid}), 404)
 
-        [ID, username, last_logon_time, enabled, admin] = user[0]
-        return jsonify({"ID": ID, "username": username, "last_logon_time": last_logon_time, "enabled": bool(enabled), "admin": bool(admin)})
+        [ID, username, last_logon_time, enabled, admin, notes] = user[0]
+        return jsonify({"ID": ID, "username": username, "last_logon_time": last_logon_time, "enabled": bool(enabled), "admin": bool(admin), "notes": notes})
 
 
     @app.route('/api/users/me', methods=['GET'])
@@ -1514,16 +1504,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
             cur.close()
 
         return jsonify({'success': True})
-
-    @app.route('/api/users/<int:uid>/notes', methods=['GET'])
-    def get_user_notes(uid):
-        """
-        Read notes for a user.
-        """
-
-        notes = execute_db_query(conn, 'SELECT notes from users where id = ?', uid)
-
-        return jsonify({'notes': notes})
 
     @app.route('/api/plugin/active', methods=['GET'])
     def list_active_plugins():

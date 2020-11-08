@@ -73,6 +73,22 @@ class Listeners(object):
                 spec.loader.exec_module(mod)
                 self.loadedListeners[listenerName] = mod.Listener(self.mainMenu, [])
 
+    def default_listener_options(self, listener_name):
+        """
+        Load listeners options from the install + "/lib/listeners/*" path
+        """
+
+        root_path = "%s/lib/listeners/" % (self.mainMenu.installPath)
+        pattern = '*.py'
+
+        file_path = os.path.join(root_path, listener_name + '.py')
+
+        # instantiate the listener module and save it to the internal cache
+        spec = importlib.util.spec_from_file_location(listener_name, file_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.loadedListeners[listener_name].options = mod.Listener(self.mainMenu, []).options
+
     def set_listener_option(self, listenerName, option, value):
         """
         Sets an option for the given listener module or all listener module.
@@ -241,6 +257,9 @@ class Listeners(object):
                 })
                 dispatcher.send(signal, sender="listeners/{}/{}".format(moduleName, name))
                 self.activeListeners[name]['name'] = name
+
+                # TODO: listeners should not have their default options rewritten in memory after generation
+                self.default_listener_options(moduleName)
 
                 if self.mainMenu.socketio:
                     self.mainMenu.socketio.emit('listeners/new', self.get_listener_for_socket(name), broadcast=True)

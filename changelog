@@ -1,3 +1,20 @@
+11/9/2020
+------------
+- Version 3.6.0 Master Release
+        - Added new API endpoints for user and agent notes - #383 (@Cx01N)
+        - Added (readded) PowerView function add-netuser - #381 (@Cx01N)
+        - Added Invoke-SharpChisel module - #368 (@Invoke-Mimikatz)
+        - Added command option to psremoting and smbexec - #380 (@Invoke-Mimikatz)
+        - Added option to use multiple redirector listeners and chaining - #389 (@Cx01N)
+        - Added Invoke-Assembly module - #376 (@Invoke-Mimikatz)
+        - Updated API endpoints for dynamic plugin calls - #383 (@Cx01N)
+        - Updated plugin and module templates - #384 (@Cx01N)
+        - Fixed smbscanner to work on Windows 10 - #380 (@Invoke-Mimikatz)
+        - Fixed update agent comms (updatecomms) not properly changing - #382 (@Cx01N)
+        - Fixed download endpoint formatting and error handling - #383 (@Cx01N)
+        - Fixed issue with passing arguments to Get-DomainSID module - #374 (@mjokic)
+        - Fixed bat file length limit issue - #385 (@Hubbl3)
+
 10/22/2020
 ------------
 - Version 3.5.2 Master Release

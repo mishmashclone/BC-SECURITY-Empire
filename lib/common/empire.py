@@ -18,7 +18,7 @@ from typing import Optional
 
 from flask_socketio import SocketIO
 
-VERSION = "3.5.2 BC Security Fork"
+VERSION = "3.6.0 BC Security Fork"
 
 from pydispatch import dispatcher
 

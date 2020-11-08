@@ -94,7 +94,7 @@ Check out the [Empire wiki](https://github.com/BC-SECURITY/Empire/wiki/Quickstar
 ## Plugins
 Plugins are an extension of Empire that allow for custom scripts to be loaded. This allows anyone to easily build or add
 community projects to extend Empire functionality. Plugins can be accessed from the Empire CLI or the API as long as the 
-plugin follows the [template example](./plugins/example.py). A list of Empire Plugins is located [here](./plugins/PLUGINS.MD).
+plugin follows the [template example](./plugins/example.py). A list of Empire Plugins is located [here](plugins/PLUGINS.md).
 
 ## Contribution Rules
 

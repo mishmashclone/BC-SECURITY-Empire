@@ -15,7 +15,7 @@ class Module(object):
 
             'Author': ['@harmj0y'],
 
-            'Description': ('Returns the SID for the current of specified domain.'),
+            'Description': ('Returns the SID for the current or specified domain.'),
 
             'Software': '',
 
@@ -93,6 +93,7 @@ class Module(object):
                         scriptEnd += " -" + str(option) + " " + str(values['Value']) 
 
         scriptEnd += ' | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
+        script += scriptEnd
 
         if obfuscate:
             script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)

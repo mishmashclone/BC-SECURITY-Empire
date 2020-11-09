@@ -20,8 +20,10 @@ class Module(object):
             'Description': ('description line 1 '
                             'description line 2'),
 
+            # Software and tools that from the MITRE ATT&CK framework (https://attack.mitre.org/software/)
             'Software': 'SXXXX',
 
+            # Techniques that from the MITRE ATT&CK framework (https://attack.mitre.org/techniques/enterprise/)
             'Techniques': ['TXXXX', 'TXXXX'],
 
             # True if the module needs to run in the background

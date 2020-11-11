@@ -109,7 +109,7 @@ print('\\n'.join(choices))
                 # osascript prompt for the current application with System Preferences icon
                 script = """
 import os
-print(os.popen('osascript -e \\\'display dialog "Software Update requires that you type your password to apply changes." & return & return default answer "" with icon file "Applications:System Preferences.app:Contents:Resources:PrefApp.icns" with hidden answer with title "Software Update"\\\'').read())
+print(os.popen('osascript -e \\\'display dialog "Software Update requires that you type your password to apply changes." & return & return default answer "" with hidden answer with title "Software Update"\\\'').read())
 """
 
             else:

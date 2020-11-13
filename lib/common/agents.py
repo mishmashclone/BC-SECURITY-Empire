@@ -1161,8 +1161,8 @@ class Agents(object):
                     pk = (pk + 1) % 65536
                     cur.execute("INSERT INTO taskings (id, agent, data, user_id, timestamp, module_name) VALUES(?,?,?,?,?,?)",
                                 [pk, sessionID, task[:100], uid, timestamp, moduleName])
-                    if self.mainMenu.socketio:
-                        self.mainMenu.socketio.emit('agent/task', {'sessionID': sessionID, 'taskID': pk, 'data': task[:100]})
+                    #if self.mainMenu.socketio:
+                    #    self.mainMenu.socketio.emit('agents/task', {'sessionID': sessionID, 'taskID': pk, 'data': task[:100]})
 
                     # Create result for data when it arrives
                     cur.execute("INSERT INTO results (id, agent, user_id) VALUES (?,?,?)", (pk, sessionID, uid))
@@ -1812,8 +1812,8 @@ class Agents(object):
                 # Update result with data
                 cur.execute("UPDATE results SET data=? WHERE id=? AND agent=?", (data, taskID, sessionID))
 
-                if self.mainMenu.socketio:
-                    self.mainMenu.socketio.emit('agents/task', {'sessionID': sessionID, 'taskID': taskID, 'data': data})
+                #if self.mainMenu.socketio:
+                #    self.mainMenu.socketio.emit('agents/task', {'sessionID': sessionID, 'taskID': taskID, 'data': data.decode('UTF-8')})
 
                 try:
                     keyLogTaskID = cur.execute("SELECT id FROM taskings WHERE agent=? AND id=? AND data LIKE \"function Get-Keystrokes%\"", [sessionID, taskID]).fetchone()[0]

@@ -96,6 +96,12 @@ Plugins are an extension of Empire that allow for custom scripts to be loaded. T
 community projects to extend Empire functionality. Plugins can be accessed from the Empire CLI or the API as long as the 
 plugin follows the [template example](./plugins/example.py). A list of Empire Plugins is located [here](plugins/PLUGINS.md).
 
+## Official Discord Channel
+<p align="center">
+<a href="https://discord.gg/P8PZPyf">
+<img src="https://discordapp.com/api/guilds/716165691383873536/widget.png?style=banner3"/>
+</p>
+
 ## Contribution Rules
 
 Contributions are more than welcome! The more people who contribute to the project the better Empire will be for everyone. Below are a few guidelines for submitting contributions.

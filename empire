@@ -1117,7 +1117,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
     @app.route('/api/agents/<string:agent_name>/killdate', methods=['POST'])
     def agent_kill_date(agent_name):
         """
-        Get or set an agent's killdate (01/01/2016).
+        Set an agent's killdate (01/01/2016)
 
         Takes {'kill_date': 'date'}
         """
@@ -1143,6 +1143,37 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
             return jsonify({'success': True})
         except:
             return jsonify({'error': 'Unable to update agent killdate'})
+
+    @app.route('/api/agents/<string:agent_name>/workinghours', methods=['POST'])
+    def agent_working_hours(agent_name):
+        """
+        Set an agent's working hours (9:00-17:00)
+
+        Takes {'working_hours': 'working_hours'}
+        """
+
+        if not request.json:
+            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+
+        if not 'working_hours' in request.json:
+            return make_response(jsonify({'error':'JSON body must include key "working_hours"'}), 400)
+
+        try:
+            working_hours = request.json['working_hours']
+            working_hours = working_hours.replace(",", "-")
+
+            # update this agent's information in the database
+            main.agents.set_agent_field_db("working_hours", working_hours, agent_name)
+
+            # task the agent
+            main.agents.add_agent_task_db(agent_name, "TASK_SHELL", "Set-WorkingHours " + str(working_hours))
+
+            # update the agent log
+            msg = "Tasked agent to set working hours to " + str(working_hours)
+            main.agents.save_agent_log(agent_name, msg)
+            return jsonify({'success': True})
+        except:
+            return jsonify({'error': 'Unable to update agent workinghours'})
 
     @app.route('/api/agents/<string:agent_name>/rename', methods=['POST'])
     def task_agent_rename(agent_name):

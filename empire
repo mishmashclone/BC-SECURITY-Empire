@@ -1081,7 +1081,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
             taskID = main.agents.add_agent_task_db(agentSessionID, "TASK_SHELL", command, uid=g.user['id'])
         return jsonify({'success': True, 'taskID': taskID})
 
-    @app.route('/api/agents/<string:agent_name>/update_comms', methods=['POST'])
+    @app.route('/api/agents/<string:agent_name>/update_comms', methods=['PUT'])
     def agent_update_comms(agent_name):
         """
         Dynamically update the agent comms to another
@@ -1114,7 +1114,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
             else:
                 return jsonify({'error': 'Ineligible listener for updatecomms command: %s' % active_listener['moduleName']})
 
-    @app.route('/api/agents/<string:agent_name>/killdate', methods=['POST'])
+    @app.route('/api/agents/<string:agent_name>/killdate', methods=['PUT'])
     def agent_kill_date(agent_name):
         """
         Set an agent's killdate (01/01/2016)
@@ -1144,7 +1144,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         except:
             return jsonify({'error': 'Unable to update agent killdate'})
 
-    @app.route('/api/agents/<string:agent_name>/workinghours', methods=['POST'])
+    @app.route('/api/agents/<string:agent_name>/workinghours', methods=['PUT'])
     def agent_working_hours(agent_name):
         """
         Set an agent's working hours (9:00-17:00)

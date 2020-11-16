@@ -259,7 +259,8 @@ class Listeners(object):
                 self.activeListeners[name]['name'] = name
 
                 # TODO: listeners should not have their default options rewritten in memory after generation
-                self.default_listener_options(moduleName)
+                if moduleName == 'redirector':
+                    self.default_listener_options(moduleName)
 
                 if self.mainMenu.socketio:
                     self.mainMenu.socketio.emit('listeners/new', self.get_listener_for_socket(name), broadcast=True)

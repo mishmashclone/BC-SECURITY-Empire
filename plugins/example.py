@@ -87,7 +87,6 @@ class Plugin(Plugin):
     def do_test(self, args):
         """
         An example of a plugin function.
-
         Usage: test <start|stop> <message>
         """
         print("This is executed from a plugin!")
@@ -116,3 +115,4 @@ class Plugin(Plugin):
         """
         # If the plugin spawns a process provide a shutdown method for when Empire exits else leave it as pass
         pass
+

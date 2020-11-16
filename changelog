@@ -4,7 +4,7 @@
         - Added editable wiki and sync option to repo - #398 (@Cx01N)
         - Fixed byte error in python/collection/osx/prompt - #396 (@Cx01N)
         - Fixed clear option issue for malleable listener - #393 (@Cx01N)
-	- Added update_comms, killdate, and workinghours endpoints (@Cx01N)
+        - Added update_comms, killdate, and workinghours endpoints (@Cx01N)
 
 11/9/2020
 ------------

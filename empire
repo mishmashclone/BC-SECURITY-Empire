@@ -1081,12 +1081,106 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
             taskID = main.agents.add_agent_task_db(agentSessionID, "TASK_SHELL", command, uid=g.user['id'])
         return jsonify({'success': True, 'taskID': taskID})
 
+    @app.route('/api/agents/<string:agent_name>/update_comms', methods=['PUT'])
+    def agent_update_comms(agent_name):
+        """
+        Dynamically update the agent comms to another
+
+        Takes {'listener': 'name'}
+        """
+
+        if not request.json:
+            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+
+        if not 'listener' in request.json:
+            return make_response(jsonify({'error':'JSON body must include key "listener"'}), 400)
+
+        listener_name = request.json['listener']
+
+        if not main.listeners.is_listener_valid(listener_name):
+            return jsonify({'error': 'Please enter a valid listener name.'})
+        else:
+            active_listener = main.listeners.activeListeners[listener_name]
+            if active_listener['moduleName'] != 'meterpreter' or active_listener['moduleName'] != 'http_mapi':
+                listener_options = active_listener['options']
+                listener_comms = main.listeners.loadedListeners[active_listener['moduleName']].generate_comms(listener_options, language="powershell")
+
+                main.agents.add_agent_task_db(agent_name, "TASK_UPDATE_LISTENERNAME", listener_options['Name']['Value'])
+                main.agents.add_agent_task_db(agent_name, "TASK_SWITCH_LISTENER", listener_comms)
+
+                msg = "Tasked agent to update comms to %s listener" % listener_name
+                main.agents.save_agent_log(agent_name, msg)
+                return jsonify({'success': True})
+            else:
+                return jsonify({'error': 'Ineligible listener for updatecomms command: %s' % active_listener['moduleName']})
+
+    @app.route('/api/agents/<string:agent_name>/killdate', methods=['PUT'])
+    def agent_kill_date(agent_name):
+        """
+        Set an agent's killdate (01/01/2016)
+
+        Takes {'kill_date': 'date'}
+        """
+
+        if not request.json:
+            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+
+        if not 'kill_date' in request.json:
+            return make_response(jsonify({'error':'JSON body must include key "kill_date"'}), 400)
+
+        try:
+            kill_date = request.json['kill_date']
+
+            # update this agent's information in the database
+            main.agents.set_agent_field_db("kill_date", kill_date, agent_name)
+
+            # task the agent
+            main.agents.add_agent_task_db(agent_name, "TASK_SHELL", "Set-KillDate " + str(kill_date))
+
+            # update the agent log
+            msg = "Tasked agent to set killdate to " + str(kill_date)
+            main.agents.save_agent_log(agent_name, msg)
+            return jsonify({'success': True})
+        except:
+            return jsonify({'error': 'Unable to update agent killdate'})
+
+    @app.route('/api/agents/<string:agent_name>/workinghours', methods=['PUT'])
+    def agent_working_hours(agent_name):
+        """
+        Set an agent's working hours (9:00-17:00)
+
+        Takes {'working_hours': 'working_hours'}
+        """
+
+        if not request.json:
+            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+
+        if not 'working_hours' in request.json:
+            return make_response(jsonify({'error':'JSON body must include key "working_hours"'}), 400)
+
+        try:
+            working_hours = request.json['working_hours']
+            working_hours = working_hours.replace(",", "-")
+
+            # update this agent's information in the database
+            main.agents.set_agent_field_db("working_hours", working_hours, agent_name)
+
+            # task the agent
+            main.agents.add_agent_task_db(agent_name, "TASK_SHELL", "Set-WorkingHours " + str(working_hours))
+
+            # update the agent log
+            msg = "Tasked agent to set working hours to " + str(working_hours)
+            main.agents.save_agent_log(agent_name, msg)
+            return jsonify({'success': True})
+        except:
+            return jsonify({'error': 'Unable to update agent workinghours'})
+
     @app.route('/api/agents/<string:agent_name>/rename', methods=['POST'])
     def task_agent_rename(agent_name):
         """
         Renames the specified agent.
 
-        Takes {'newname':'NAME'}
+        Takes {'newname': 'NAME'}
         """
 
         agentNameID = execute_db_query(conn, 'SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
@@ -1164,7 +1258,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
             return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
 
         if not 'notes' in request.json:
-            return make_response(jsonify({'error':'JSON body must include key "credentials"'}), 400)
+            return make_response(jsonify({'error':'JSON body must include key "notes"'}), 400)
 
         notes = request.json['notes']
 

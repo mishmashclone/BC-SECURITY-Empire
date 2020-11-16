@@ -457,7 +457,7 @@ def parse_credentials(data):
 
     # python/collection/prompt (Mac OS)
     elif b"text returned:" in parts[0]:
-        parts2 = parts[0].split("text returned:")
+        parts2 = parts[0].split(b"text returned:")
         if len(parts2) >= 2:
             password = parts2[-1]
             return [("plaintext", "", "", password, "", "")]

@@ -1500,24 +1500,22 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         return jsonify({'success': True})
 
     @app.route('/api/admin/options', methods=['POST'])
-    def enable_powershell_obfuscation():
+    def set_admin_options():
         """
         Obfuscate all future powershell commands run on all agents.
         """
         if not request.json:
             return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
 
-        if not 'obfuscate' in request.json:
-            return make_response(jsonify({'error': 'JSON body must include key "obfuscation"'}), 400)
-
         # Set global obfuscation
-        if request.json['obfuscate'].lower() == 'true':
-            main.obfuscate = True
-        else:
-            main.obfuscate = False
+        if 'obfuscate' in request.json:
+            if request.json['obfuscate'].lower() == 'true':
+                main.obfuscate = True
+            else:
+                main.obfuscate = False
 
         # if obfuscate command is given then set, otherwise use default
-        if request.json['obfuscate_command']:
+        if 'obfuscate_command' in request.json:
             main.obfuscateCommand = request.json['obfuscate_command']
 
         return jsonify({'success': True})

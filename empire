@@ -14,10 +14,12 @@ import pkgutil
 import signal
 import sqlite3
 import ssl
+import string
 import subprocess
 import sys
 import time
 from datetime import datetime, timezone
+import random
 from time import sleep
 
 from flask import Flask, request, jsonify, make_response, abort, url_for, g
@@ -1517,6 +1519,22 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         # if obfuscate command is given then set, otherwise use default
         if 'obfuscate_command' in request.json:
             main.obfuscateCommand = request.json['obfuscate_command']
+
+        # add keywords to the obfuscation database
+        if 'keyword_obfuscation' in request.json:
+            cur = conn.cursor()
+            keyword = request.json['keyword_obfuscation']
+            try:
+                # if no replacement given then generate a random word
+                if not request.json['keyword_replacement']:
+                    keyword_replacement = random.choice(string.ascii_uppercase) + ''.join(
+                        random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+                else:
+                    keyword_replacement = request.json['keyword_replacement']
+                cur.execute("INSERT INTO functions VALUES(?,?)", (keyword, keyword_replacement))
+                cur.close()
+            except Exception:
+                print(helpers.color("couldn't connect to Database"))
 
         return jsonify({'success': True})
 

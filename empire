@@ -1567,7 +1567,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         [ID, username, last_logon_time, enabled, admin, notes] = user[0]
         return jsonify({"ID": ID, "username": username, "last_logon_time": last_logon_time, "enabled": bool(enabled), "admin": bool(admin), "notes": notes})
 
-
     @app.route('/api/users/me', methods=['GET'])
     def get_user_me():
         """

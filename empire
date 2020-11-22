@@ -24,7 +24,8 @@ from time import sleep
 
 from flask import Flask, request, jsonify, make_response, abort, url_for, g
 from flask.json import JSONEncoder
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room, \
+    close_room, rooms, disconnect
 
 # Empire imports
 from lib.common import empire, helpers, users
@@ -1778,6 +1779,7 @@ def start_sockets(empire_menu: MainMenu, port: int = 5000):
     app = Flask(__name__)
     socketio = SocketIO(app, cors_allowed_origins="*")
     empire_menu.socketio = socketio
+    chat_log = []
 
     @socketio.on('connect')
     def connect():
@@ -1793,6 +1795,36 @@ def start_sockets(empire_menu: MainMenu, port: int = 5000):
     @socketio.on('disconnect')
     def test_disconnect():
         print('Client disconnected from socketio')
+
+    @socketio.on('chat/join')
+    def on_join(data):
+        username = data['username']
+        room = data['room']
+        join_room(room)
+        socketio.emit("chat/join", {'message': username + ' has entered the room.'}, room=room)
+
+    @socketio.on('chat/leave')
+    def on_leave(data):
+        username = data['username']
+        room = data['room']
+        leave_room(room)
+        socketio.emit("chat/leave", {'message': username + ' has left the room.'}, room=room)
+
+    @socketio.on('chat/message')
+    def on_message(data):
+        username = data['username']
+        room = data['room']
+        chat_log.append({'username': username, 'message': data['message']})
+        socketio.emit("chat/message", {'username': username, 'message': data['message']}, room=room)
+
+    @socketio.on('chat/history')
+    def on_history(data):
+        room = data['room']
+        user_id = request.sid
+        for x in range(len(chat_log[-20:])):
+            username = chat_log[x]['username']
+            message = chat_log[x]['message']
+            socketio.emit("chat/history", {'username': username, 'message': message}, sid=user_id, room=room)
 
     print('')
     print(" * Starting Empire SocketIO on port: {}".format(port))

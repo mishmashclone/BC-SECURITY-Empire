@@ -1851,10 +1851,11 @@ def start_sockets(empire_menu: MainMenu, port: int = 5000):
         The calling user gets sent the last 20 messages.
         :return: Emit chat messages to the calling user.
         """
+        sid = request.sid
         for x in range(len(chat_log[-20:])):
             username = chat_log[x]['username']
             message = chat_log[x]['message']
-            socketio.emit("chat/message", {'username': username, 'message': message})
+            socketio.emit("chat/message", {'username': username, 'message': message}, room=sid)
 
     @socketio.on('chat/participants')
     def on_participants(data=None):

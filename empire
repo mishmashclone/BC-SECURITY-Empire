@@ -1779,10 +1779,18 @@ def start_sockets(empire_menu: MainMenu, port: int = 5000):
     app = Flask(__name__)
     socketio = SocketIO(app, cors_allowed_origins="*")
     empire_menu.socketio = socketio
-    chat_log = []
+    room = 'general'  # A socketio user is in the general channel if the join the chat.
+    chat_participants = {}
+    chat_log = []  # This is really just meant to provide some context to a user that joins the convo.
+    # In the future we can expand to store chat messages in the db if people want to retain a whole chat log.
 
     def get_user_from_token():
-        return empire_menu.users.get_user_from_token(request.args.get('token', ''))
+        user = empire_menu.users.get_user_from_token(request.args.get('token', ''))
+        if user:
+            user['password'] = ''
+            user['api_token'] = ''
+
+        return user
 
     @socketio.on('connect')
     def connect():
@@ -1799,39 +1807,62 @@ def start_sockets(empire_menu: MainMenu, port: int = 5000):
 
     @socketio.on('chat/join')
     def on_join(data=None):
-        if not data:
-            data = {}
+        """
+        The calling user gets added to the "general"  chat room.
+        Note: while 'data' is unused, it is good to leave it as a parameter for compatibility reasons.
+        The server fails if a client sends data when none is expected.
+        :return: emits a join event with the user's details.
+        """
         user = get_user_from_token()
-        room = data.get('room', 'general')
+        if user['username'] not in chat_participants:
+            chat_participants[user['username']] = user
         join_room(room)
-        socketio.emit("chat/join", {'message': f"{user['username']} has entered the room."}, room=room)
+        socketio.emit("chat/join", {'user': user,
+                                    'username': user['username'],
+                                    'message': f"{user['username']} has entered the room."}, room=room)
 
     @socketio.on('chat/leave')
     def on_leave(data=None):
-        if not data:
-            data = {}
+        """
+        The calling user gets removed from the "general" chat room.
+        :return: emits a leave event with the user's details.
+        """
         user = get_user_from_token()
-        room = data.get('room', 'general')
+        chat_participants.pop(user['username'], None)
         leave_room(room)
-        socketio.emit("chat/leave", {'message': user['username'] + ' has left the room.'}, room=room)
+        socketio.emit("chat/leave", {'user': user,
+                                     'username': user['username'],
+                                     'message': user['username'] + ' has left the room.'}, room=room)
 
     @socketio.on('chat/message')
     def on_message(data):
+        """
+        The calling user sends a message.
+        :param data: contains the user's message.
+        :return: Emits a message event containing the message and the user's username
+        """
         user = get_user_from_token()
-        room = data.get('room', 'general')
         chat_log.append({'username': user['username'], 'message': data['message']})
         socketio.emit("chat/message", {'username': user['username'], 'message': data['message']}, room=room)
 
     @socketio.on('chat/history')
     def on_history(data=None):
-        if not data:
-            data = {}
-        room = data.get('room', 'general')
-        user_id = request.sid
+        """
+        The calling user gets sent the last 20 messages.
+        :return: Emit chat messages to the calling user.
+        """
         for x in range(len(chat_log[-20:])):
             username = chat_log[x]['username']
             message = chat_log[x]['message']
-            socketio.emit("chat/history", {'username': username, 'message': message}, sid=user_id, room=room)
+            socketio.emit("chat/message", {'username': username, 'message': message})
+
+    @socketio.on('chat/participants')
+    def on_participants(data=None):
+        """
+        The calling user gets sent a list of "general" chat participants.
+        :return: emit participant event containing list of users.
+        """
+        socketio.emit("chat/participants", list(chat_participants.values()))
 
     print('')
     print(" * Starting Empire SocketIO on port: {}".format(port))

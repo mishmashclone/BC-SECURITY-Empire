@@ -96,14 +96,7 @@ Plugins are an extension of Empire that allow for custom scripts to be loaded. T
 community projects to extend Empire functionality. Plugins can be accessed from the Empire CLI or the API as long as the 
 plugin follows the [template example](./plugins/example.py). A list of Empire Plugins is located [here](plugins/PLUGINS.md).
 
-## Official Discord Channel
-<p align="center">
-<a href="https://discord.gg/P8PZPyf">
-<img src="https://discordapp.com/api/guilds/716165691383873536/widget.png?style=banner3"/>
-</p>
-
 ## Contribution Rules
-
 Contributions are more than welcome! The more people who contribute to the project the better Empire will be for everyone. Below are a few guidelines for submitting contributions.
 
 * As of Empire 3.1.0, Empire only officially supports Python 3. If you still need Python 2 support, please use the [3.0.x branch](https://github.com/BC-SECURITY/Empire/tree/3.0.x) or releases.
@@ -115,3 +108,9 @@ Contributions are more than welcome! The more people who contribute to the proje
 * PowerShell Version 2 compatibility is **STRONGLY** preferred.
 * TEST YOUR MODULE! Be sure to run it from an Empire agent and test Python 3.x functionality before submitting a pull to ensure everything is working correctly.
 * For additional guidelines for your PowerShell code itself, check out the [PowerSploit style guide](https://github.com/PowerShellMafia/PowerSploit/blob/master/README.md).
+
+## Official Discord Channel
+<p align="center">
+<a href="https://discord.gg/P8PZPyf">
+<img src="https://discordapp.com/api/guilds/716165691383873536/widget.png?style=banner3"/>
+</p>

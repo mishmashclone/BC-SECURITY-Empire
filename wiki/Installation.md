@@ -1,4 +1,9 @@
-# Kali
+The following operating systems have been tested for Empire compatibility. We will be unable to provide support for other OSs at this time. Consider using our [Prebuilt Docker containers](#Docker) which can run on any system.
+- Kali Linux
+- Ubuntu
+- Debian
+
+## Kali
 
 You can install the latest version of Empire by running the following:
 
@@ -6,7 +11,8 @@ You can install the latest version of Empire by running the following:
 apt install powershell-empire
 ```
 
-# Github
+## Github
+_Debian, Kali, Ubuntu_
 
 To install and run:
 
@@ -14,11 +20,11 @@ To install and run:
 git clone https://github.com/BC-SECURITY/Empire.git
 cd Empire
 sudo ./setup/install.sh
+sudo poetry install
+sudo poetry run python empire --rest -n
 ```
 
-There's also a [quickstart here](http://www.powershellempire.com/?page_id=110) and full [documentation here](http://www.powershellempire.com/?page_id=83).
-
-# Docker
+## Docker
 If you want to run Empire using a pre-built docker container:
 ```bash
 docker pull bcsecurity/empire:{version}
@@ -37,3 +43,10 @@ All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
 * The last commit from master will be deployed to the `latest` tag
 * The last commit from the dev branch will be deployed to the `dev` tag
 * All github tagged releases will be deployed using their version numbers (v3.0.0, v3.1.0, etc)
+
+# Community-Supported Operating Systems
+At this time, we are choosing to only support Kali, Debian, and Ubuntu installations, however we will accept pull requests that fix issues or provide installation scripts specific to other operating systems to this wiki.
+
+<!---
+## Fedora
+-->

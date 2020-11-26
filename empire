@@ -14,15 +14,18 @@ import pkgutil
 import signal
 import sqlite3
 import ssl
+import string
 import subprocess
 import sys
 import time
 from datetime import datetime, timezone
+import random
 from time import sleep
 
 from flask import Flask, request, jsonify, make_response, abort, url_for, g
 from flask.json import JSONEncoder
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room, \
+    close_room, rooms, disconnect
 
 # Empire imports
 from lib.common import empire, helpers, users
@@ -1499,6 +1502,43 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         shutdown_server()
         return jsonify({'success': True})
 
+    @app.route('/api/admin/options', methods=['POST'])
+    def set_admin_options():
+        """
+        Obfuscate all future powershell commands run on all agents.
+        """
+        if not request.json:
+            return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
+
+        # Set global obfuscation
+        if 'obfuscate' in request.json:
+            if request.json['obfuscate'].lower() == 'true':
+                main.obfuscate = True
+            else:
+                main.obfuscate = False
+
+        # if obfuscate command is given then set, otherwise use default
+        if 'obfuscate_command' in request.json:
+            main.obfuscateCommand = request.json['obfuscate_command']
+
+        # add keywords to the obfuscation database
+        if 'keyword_obfuscation' in request.json:
+            cur = conn.cursor()
+            keyword = request.json['keyword_obfuscation']
+            try:
+                # if no replacement given then generate a random word
+                if not request.json['keyword_replacement']:
+                    keyword_replacement = random.choice(string.ascii_uppercase) + ''.join(
+                        random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+                else:
+                    keyword_replacement = request.json['keyword_replacement']
+                cur.execute("INSERT INTO functions VALUES(?,?)", (keyword, keyword_replacement))
+                cur.close()
+            except Exception:
+                print(helpers.color("couldn't connect to Database"))
+
+        return jsonify({'success': True})
+
     @app.route('/api/users', methods=['GET'])
     def get_users():
         """
@@ -1527,7 +1567,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         [ID, username, last_logon_time, enabled, admin, notes] = user[0]
         return jsonify({"ID": ID, "username": username, "last_logon_time": last_logon_time, "enabled": bool(enabled), "admin": bool(admin), "notes": notes})
-
 
     @app.route('/api/users/me', methods=['GET'])
     def get_user_me():
@@ -1740,21 +1779,92 @@ def start_sockets(empire_menu: MainMenu, port: int = 5000):
     app = Flask(__name__)
     socketio = SocketIO(app, cors_allowed_origins="*")
     empire_menu.socketio = socketio
+    room = 'general'  # A socketio user is in the general channel if the join the chat.
+    chat_participants = {}
+    chat_log = []  # This is really just meant to provide some context to a user that joins the convo.
+    # In the future we can expand to store chat messages in the db if people want to retain a whole chat log.
+
+    def get_user_from_token():
+        user = empire_menu.users.get_user_from_token(request.args.get('token', ''))
+        if user:
+            user['password'] = ''
+            user['api_token'] = ''
+
+        return user
 
     @socketio.on('connect')
     def connect():
-        token = request.args.get('token', '')
-        if len(token) > 0:
-            user = empire_menu.users.get_user_from_token(token)
-            if user:
-                print(f"{user['username']} connected to socketio")
-                return
+        user = get_user_from_token()
+        if user:
+            print(f"{user['username']} connected to socketio")
+            return
 
         raise ConnectionRefusedError('unauthorized!')
 
     @socketio.on('disconnect')
     def test_disconnect():
         print('Client disconnected from socketio')
+
+    @socketio.on('chat/join')
+    def on_join(data=None):
+        """
+        The calling user gets added to the "general"  chat room.
+        Note: while 'data' is unused, it is good to leave it as a parameter for compatibility reasons.
+        The server fails if a client sends data when none is expected.
+        :return: emits a join event with the user's details.
+        """
+        user = get_user_from_token()
+        if user['username'] not in chat_participants:
+            chat_participants[user['username']] = user
+        join_room(room)
+        socketio.emit("chat/join", {'user': user,
+                                    'username': user['username'],
+                                    'message': f"{user['username']} has entered the room."}, room=room)
+
+    @socketio.on('chat/leave')
+    def on_leave(data=None):
+        """
+        The calling user gets removed from the "general" chat room.
+        :return: emits a leave event with the user's details.
+        """
+        user = get_user_from_token()
+        chat_participants.pop(user['username'], None)
+        leave_room(room)
+        socketio.emit("chat/leave", {'user': user,
+                                     'username': user['username'],
+                                     'message': user['username'] + ' has left the room.'}, room=room)
+
+    @socketio.on('chat/message')
+    def on_message(data):
+        """
+        The calling user sends a message.
+        :param data: contains the user's message.
+        :return: Emits a message event containing the message and the user's username
+        """
+        user = get_user_from_token()
+        chat_log.append({'username': user['username'], 'message': data['message']})
+        socketio.emit("chat/message", {'username': user['username'], 'message': data['message']}, room=room)
+
+    @socketio.on('chat/history')
+    def on_history(data=None):
+        """
+        The calling user gets sent the last 20 messages.
+        :return: Emit chat messages to the calling user.
+        """
+        sid = request.sid
+        for x in range(len(chat_log[-20:])):
+            username = chat_log[x]['username']
+            message = chat_log[x]['message']
+            socketio.emit("chat/message", {'username': username, 'message': message, 'history': True}, room=sid)
+
+    @socketio.on('chat/participants')
+    def on_participants(data=None):
+        """
+        The calling user gets sent a list of "general" chat participants.
+        :return: emit participant event containing list of users.
+        """
+        sid = request.sid
+        socketio.emit("chat/participants", list(chat_participants.values()), room=sid)
 
     print('')
     print(" * Starting Empire SocketIO on port: {}".format(port))

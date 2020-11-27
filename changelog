@@ -1,10 +1,18 @@
+11/27/2020
+------------
+- Version 3.6.2 Master Release
+        - Added python support for HTTP malleable listener - #404 (@adamczi)
+        - Added new admin menu API endpoints - #403 (@Vinnybod, @Cx01N)
+        - Added module PrivescCheck - #401 (@Invoke-Mimikatz)
+        - Fixed error in malleable profiles when http-stager is not defined - #407 (@Cx01N)
+
 11/16/2020
 ------------
 - Version 3.6.1 Master Release
         - Added editable wiki and sync option to repo - #398 (@Cx01N)
         - Fixed byte error in python/collection/osx/prompt - #396 (@Cx01N)
         - Fixed clear option issue for malleable listener - #393 (@Cx01N)
-        - Added update_comms, killdate, and workinghours endpoints (@Cx01N)
+        - Added update_comms, killdate, and workinghours endpoints - #399 (@Cx01N)
 
 11/9/2020
 ------------

@@ -3,6 +3,7 @@
 - Version 3.6.2 Master Release
         - Added python support for HTTP malleable listener - #404 (@adamczi)
         - Added new admin menu API endpoints - #403 (@Vinnybod, @Cx01N)
+        - Added chat server for Starkiller and new Empire CLI integration - #403 (@Vinnybod, @Cx01N)
         - Added module PrivescCheck - #401 (@Invoke-Mimikatz)
         - Fixed error in malleable profiles when http-stager is not defined - #407 (@Cx01N)
 

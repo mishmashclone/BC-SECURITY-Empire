@@ -107,6 +107,8 @@ def decode_routing_packet(data):
     """
     # returns {sessionID : (language, meta, additional, [encData]), ...}
     packets = parse_routing_packet(stagingKey, data)
+    if packets is None:
+        return
     for agentID, packet in packets.items():
         if agentID == sessionID:
             (language, meta, additional, encData) = packet

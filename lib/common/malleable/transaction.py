@@ -391,9 +391,13 @@ class MalleableRequest(MalleableObject):
         """Store the data according to the specified terminator.
 
         Args:
-            data (str): The data to be stored.
+            data (str): The data to be stored, has to be `str`
             terminator (Terminator): The terminator specifying where to store the data.
         """
+        try:
+            data = data.decode()
+        except AttributeError:
+            pass
         if terminator.type == Terminator.HEADER: self.header(terminator.arg, data)
         elif terminator.type == Terminator.PARAMETER: self.parameter(terminator.arg, data)
         elif terminator.type == Terminator.URIAPPEND: self.extra = data

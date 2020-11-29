@@ -1,4 +1,8 @@
 from __future__ import absolute_import
+
+import random
+import string
+
 import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 from pyparsing import *
 from .utility import MalleableError, MalleableUtil, MalleableObject
@@ -357,6 +361,12 @@ class Stager(Transaction):
         self.server.output = Container()
         self.client.verb = "GET"
 
+        # Having a missing http-stager and '/' in http-get or http-post throws an error
+        # This catches it and generates a random http-stager uri
+        if not self.client.uris:
+            self.client.uris = []
+            self.client.uris.append('/' + self.get_random_string(8) + '/')
+
     def _clone(self):
         """Deep copy of the Stager Transaction.
 
@@ -492,3 +502,9 @@ class Stager(Transaction):
         """
         output = response.extract(self.server, self.server.output.terminator)
         return self.server.output.transform_r(output) if output else None
+
+    def get_random_string(self, length):
+        letters = string.ascii_lowercase
+        result_str = ''.join(random.choice(letters) for i in range(length))
+        return result_str
+

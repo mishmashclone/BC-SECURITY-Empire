@@ -140,12 +140,12 @@ class Users(object):
         try:
             self.lock.acquire()
             cur = conn.cursor()
-            cur.execute("SELECT id, username, api_token, last_logon_time, enabled, admin FROM users WHERE api_token = ? LIMIT 1", (token,))
+            cur.execute("SELECT id, username, api_token, last_logon_time, enabled, admin, notes FROM users WHERE api_token = ? LIMIT 1", (token,))
             user = cur.fetchone()
 
             if user:
-                [id, username, api_token, last_logon_time, enabled, admin] = user
-                return {'id': id, 'username': username, 'api_token': api_token, 'last_logon_time': last_logon_time, 'enabled': bool(enabled), 'admin': bool(admin)}
+                [id, username, api_token, last_logon_time, enabled, admin, notes] = user
+                return {'id': id, 'username': username, 'api_token': api_token, 'last_logon_time': last_logon_time, 'enabled': bool(enabled), 'admin': bool(admin), "notes": notes}
 
             return None
         finally:

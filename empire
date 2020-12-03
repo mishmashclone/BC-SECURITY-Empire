@@ -663,42 +663,27 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Returns JSON describing all currently registered listeners.
         """
-        listeners = Session().query(models.Listener).all()
-        dictret = dict(listeners.__dict__);
+        active_listeners_raw = Session().query(models.Listener).all()
 
-        dictret.pop('_sa_instance_state', None)
+        listeners = []
+        for active_listener in active_listeners_raw:
+            listeners.append({'ID': active_listener.id, 'name': active_listener.name, 'module': active_listener.module, 'listener_type': active_listener.listener_type,
+                              'listener_category': active_listener.listener_category, 'options': active_listener.options,
+                              'created_at': active_listener.created_at})
 
-        return jsonify({"listeners": dictret})
-
-        # activeListenersRaw = execute_db_query(conn,
-        #                                       'SELECT id, name, module, listener_type, listener_category, options, created_at FROM listeners')
-        # listeners = []
-        #
-        # for activeListener in activeListenersRaw:
-        #     [ID, name, module, listener_type, listener_category, options, created_at] = activeListener
-        #     listeners.append({'ID': ID, 'name': name, 'module': module, 'listener_type': listener_type,
-        #                       'listener_category': listener_category, 'options': pickle.loads(options),
-        #                       'created_at': created_at})
-        #
-        # return jsonify({'listeners': listeners})
+        return jsonify({"listeners": listeners})
 
     @app.route('/api/listeners/<string:listener_name>', methods=['GET'])
     def get_listener_name(listener_name):
         """
         Returns JSON describing the listener specified by listener_name.
         """
-        activeListenersRaw = execute_db_query(conn,
-                                              'SELECT id, name, module, listener_type, listener_category, options FROM listeners WHERE name=?',
-                                              [listener_name])
+        active_listener = Session().query(models.Listener).filter(models.Listener.name == listener_name).first()
+
         listeners = []
-
-        # if listener_name != "" and main.listeners.is_listener_valid(listener_name):
-        for activeListener in activeListenersRaw:
-            [ID, name, module, listener_type, listener_category, options] = activeListener
-            if name == listener_name:
-                listeners.append({'ID': ID, 'name': name, 'module': module, 'listener_type': listener_type,
-                                  'listener_category': listener_category, 'options': pickle.loads(activeListener[5])})
-
+        if active_listener.name == listener_name:
+            listeners.append({'ID': active_listener.id, 'name': active_listener.name, 'module': active_listener.module, 'listener_type': active_listener.listener_type,
+                              'listener_category': active_listener.listener_category, 'options': active_listener.options})
             return jsonify({'listeners': listeners})
         else:
             return make_response(jsonify({'error': 'listener name %s not found' % (listener_name)}), 404)
@@ -709,10 +694,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         Kills the listener specified by listener_name.
         """
         if listener_name.lower() == "all":
-            activeListenersRaw = execute_db_query(conn, 'SELECT id, name, module, listener_type, listener_category, options FROM listeners')
-            for activeListener in activeListenersRaw:
-                [ID, name, module, listener_type, listener_category, options] = activeListener
-                main.listeners.kill_listener(name)
+            active_listeners_raw = Session().query(models.Listener).all()
+            for active_listener in active_listeners_raw:
+                main.listeners.kill_listener(active_listener.name)
 
             return jsonify({'success': True})
         else:

@@ -32,6 +32,7 @@ class Listener(Base):
     listener_category = Column(String, nullable=False)
     enabled = Column(Boolean, nullable=False)
     options = Column(PickleType)
+    created_at = Column(String, nullable=False)
 
     def __repr__(self):
         return "<Listener(name='%s')>" % (

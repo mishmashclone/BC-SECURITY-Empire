@@ -6,7 +6,7 @@ from lib.database import models
 from lib.database.defaults import get_default_user, get_default_config, get_default_functions
 from lib.database.models import Base
 
-engine = create_engine('sqlite:///data/' + arguments.args.db, echo=True)
+engine = create_engine('sqlite:///data/' + 'empire.db', echo=True)
 
 Session = scoped_session(sessionmaker(bind=engine))
 

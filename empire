@@ -31,6 +31,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room, \
 from lib.common import empire, helpers, users
 from lib.common.empire import MainMenu
 from lib.database.base import Session
+from lib.database import models
 
 # Check if running Python 3
 if sys.version[0] == '2':
@@ -299,11 +300,16 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         api_username = g.user['username']
         api_current_token = g.user['api_token']
-        configRaw = execute_db_query(conn, 'SELECT staging_key, install_path, ip_whitelist, ip_blacklist, autorun_command, autorun_data, rootuser FROM config')
 
-        [staging_key, install_path, ip_whitelist, ip_blacklist, autorun_command, autorun_data, rootuser] = configRaw[0]
-        config = [{"api_username":api_username, "autorun_command":autorun_command, "autorun_data":autorun_data, "current_api_token":api_current_token, "install_path":install_path, "ip_blacklist":ip_blacklist, "ip_whitelist":ip_whitelist, "staging_key":staging_key, "version":empire.VERSION}]
-        return jsonify({'config': config})
+        config = Session().query(models.Config).first()
+        dictret = dict(config.__dict__);
+
+        dictret.pop('_sa_instance_state', None)
+        dictret['api_username'] = api_username
+        dictret['current_api_token'] = api_current_token
+        dictret['version'] = empire.VERSION
+
+        return jsonify({"config": dictret})
 
     @app.route('/api/stagers', methods=['GET'])
     def get_stagers():
@@ -657,17 +663,24 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Returns JSON describing all currently registered listeners.
         """
-        activeListenersRaw = execute_db_query(conn,
-                                              'SELECT id, name, module, listener_type, listener_category, options, created_at FROM listeners')
-        listeners = []
+        listeners = Session().query(models.Listener).all()
+        dictret = dict(listeners.__dict__);
 
-        for activeListener in activeListenersRaw:
-            [ID, name, module, listener_type, listener_category, options, created_at] = activeListener
-            listeners.append({'ID': ID, 'name': name, 'module': module, 'listener_type': listener_type,
-                              'listener_category': listener_category, 'options': pickle.loads(options),
-                              'created_at': created_at})
+        dictret.pop('_sa_instance_state', None)
 
-        return jsonify({'listeners': listeners})
+        return jsonify({"listeners": dictret})
+
+        # activeListenersRaw = execute_db_query(conn,
+        #                                       'SELECT id, name, module, listener_type, listener_category, options, created_at FROM listeners')
+        # listeners = []
+        #
+        # for activeListener in activeListenersRaw:
+        #     [ID, name, module, listener_type, listener_category, options, created_at] = activeListener
+        #     listeners.append({'ID': ID, 'name': name, 'module': module, 'listener_type': listener_type,
+        #                       'listener_category': listener_category, 'options': pickle.loads(options),
+        #                       'created_at': created_at})
+        #
+        # return jsonify({'listeners': listeners})
 
     @app.route('/api/listeners/<string:listener_name>', methods=['GET'])
     def get_listener_name(listener_name):

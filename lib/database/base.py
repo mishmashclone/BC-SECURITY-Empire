@@ -25,7 +25,3 @@ if len(Session().query(models.Config).all()) == 0:
     Session().commit()
     Session.remove()
 
-if len(Session().query(models.Function).all()) == 0:
-    Session().add(get_default_functions())
-    Session().commit()
-    Session.remove()

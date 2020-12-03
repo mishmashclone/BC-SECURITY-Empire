@@ -164,8 +164,8 @@ class Reporting(Base):
 class Function(Base):
     __tablename__ = "functions"
     id = Column(Integer, Sequence("functions_id_seq"), primary_key=True)
-    Invoke_Empire = Column(String)
-    Invoke_Mimikatz = Column(String)
+    invoke_empire = Column(String)
+    invoke_mimikatz = Column(String)
 
     def __repr__(self):
         return "<Function(id='%s')>" % (

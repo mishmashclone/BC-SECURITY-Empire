@@ -760,22 +760,38 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Returns JSON describing all currently registered agents.
         """
-        activeAgentsRaw = execute_db_query(conn, 'SELECT id, session_id, listener, name, language, language_version, delay, jitter, external_ip, '+
-            'internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, '+
-            'lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results, notes FROM agents')
+        active_agents_raw = Session().query(models.Agent).all()
         agents = []
 
-        for activeAgent in activeAgentsRaw:
-            [ID, session_id, listener, name, language, language_version, delay, jitter, external_ip, internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results, notes] = activeAgent
+        for active_agent in active_agents_raw:
+            try:
+                last_seen = datetime.strptime(active_agent.lastseen_time, "%Y-%m-%dT%H:%M:%S.%f%z")
+            except:
+                last_seen = datetime.strptime(active_agent.lastseen_time, "%Y-%m-%d%H:%M:%S.%f%z")
 
-            stale = helpers.is_stale(lastseen_time, delay, jitter)
+            stale = helpers.is_stale(last_seen, active_agent.delay, active_agent.jitter)
 
-            if isinstance(session_key, bytes):
-                session_key = session_key.decode('latin-1').encode('utf-8')
+            #if isinstance(active_agent.session_key, bytes):
+            #    session_key = active_agent.session_key.decode('latin-1').encode('utf-8')
 
-            agents.append({"ID":ID, "session_id":session_id, "listener":listener, "name":name, "language":language, "language_version":language_version, "delay":delay, "jitter":jitter, "external_ip":external_ip, "internal_ip":internal_ip, "username":username, "high_integrity":high_integrity, "process_name":process_name, "process_id":process_id, "hostname":hostname, "os_details":os_details, "session_key":session_key, "nonce":nonce, "checkin_time":checkin_time, "lastseen_time":lastseen_time, "parent":parent, "children":children, "servers":servers, "profile":profile,"functions":functions, "kill_date":kill_date, "working_hours":working_hours, "lost_limit":lost_limit, "taskings":taskings, "results":results, "stale":stale, "notes":notes})
+            agents.append(
+                {"ID": active_agent.id, "session_id": active_agent.session_id, "listener": active_agent.listener,
+                 "name": active_agent.name, "language": active_agent.language,
+                 "language_version": active_agent.language_version, "delay": active_agent.delay,
+                 "jitter": active_agent.jitter, "external_ip": active_agent.external_ip,
+                 "internal_ip": active_agent.internal_ip, "username": username,
+                 "high_integrity": active_agent.high_integrity, "process_name": active_agent.process_name,
+                 "process_id": active_agent.process_id, "hostname": active_agent.hostname,
+                 "os_details": active_agent.os_details, "session_key": active_agent.session_key,
+                 "nonce": active_agent.nonce, "checkin_time": active_agent.checkin_time,
+                 "lastseen_time": active_agent.lastseen_time, "parent": active_agent.parent,
+                 "children": active_agent.children, "servers": active_agent.servers, "profile": active_agent.profile,
+                 "functions": active_agent.functions, "kill_date": active_agent.kill_date,
+                 "working_hours": active_agent.working_hours, "lost_limit": active_agent.lost_limit,
+                 "taskings": active_agent.taskings, "results": active_agent.results, "stale": stale,
+                 "notes": active_agent.notes})
 
-        return jsonify({'agents' : agents})
+        return jsonify({'agents': agents})
 
     @app.route('/api/agents/stale', methods=['GET'])
     def get_agents_stale():

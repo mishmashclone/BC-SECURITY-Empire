@@ -57,7 +57,7 @@ class Agent(Base):
     process_id = Column(String)
     hostname = Column(String)
     os_details = Column(String)
-    session_key = Column(BLOB)
+    session_key = Column(String)
     nonce = Column(String)
     checkin_time = Column(String)
     lastseen_time = Column(String)
@@ -72,6 +72,7 @@ class Agent(Base):
     taskings = Column(String)  # Queue of tasks. Should refactor to manage queued tasks from the taskings table itself.
     taskings_executed = relationship("Tasking")
     results = relationship("Result")
+    notes = Column(String)
 
     @hybrid_property
     def stale(self):

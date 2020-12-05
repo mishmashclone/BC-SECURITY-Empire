@@ -1077,10 +1077,10 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
 
         if not request.json:
-            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+            return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
 
         if not 'listener' in request.json:
-            return make_response(jsonify({'error':'JSON body must include key "listener"'}), 400)
+            return make_response(jsonify({'error': 'JSON body must include key "listener"'}), 400)
 
         listener_name = request.json['listener']
 
@@ -1110,10 +1110,10 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
 
         if not request.json:
-            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+            return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
 
         if not 'kill_date' in request.json:
-            return make_response(jsonify({'error':'JSON body must include key "kill_date"'}), 400)
+            return make_response(jsonify({'error': 'JSON body must include key "kill_date"'}), 400)
 
         try:
             kill_date = request.json['kill_date']
@@ -1140,10 +1140,10 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
 
         if not request.json:
-            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+            return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
 
         if not 'working_hours' in request.json:
-            return make_response(jsonify({'error':'JSON body must include key "working_hours"'}), 400)
+            return make_response(jsonify({'error': 'JSON body must include key "working_hours"'}), 400)
 
         try:
             working_hours = request.json['working_hours']
@@ -1170,43 +1170,36 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         Takes {'newname': 'NAME'}
         """
 
-        agentNameID = execute_db_query(conn, 'SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
+        agent = Session().query(models.Agent).filter((models.Agent.name == agent_name) or (models.Agent.session_id == agent_name)).first()
 
-        if not agentNameID or len(agentNameID) == 0:
+        if not agent:
             return make_response(jsonify({'error': 'agent name %s not found' %(agent_name)}), 404)
 
-        (agentName, agentSessionID) = agentNameID[0]
-        newName = request.json['newname']
+        new_name = request.json['newname']
 
         try:
-            result = main.agents.rename_agent(agentName, newName)
+            result = main.agents.rename_agent(agent_name, new_name)
 
             if not result:
-                return make_response(jsonify({'error': 'error in renaming %s to %s, new name may have already been used' %(agentName, newName)}), 400)
+                return make_response(jsonify({'error': 'error in renaming %s to %s, new name may have already been used' %(agent_name, new_name)}), 400)
 
             return jsonify({'success': True})
 
         except Exception:
-            return make_response(jsonify({'error': 'error in renaming %s to %s' %(agentName, newName)}), 400)
+            return make_response(jsonify({'error': 'error in renaming %s to %s' %(agent_name, new_name)}), 400)
 
     @app.route('/api/agents/<string:agent_name>/clear', methods=['POST', 'GET'])
     def task_agent_clear(agent_name):
         """
         Clears the tasking buffer for the specified agent.
         """
-        if agent_name.lower() == "all":
-            # enumerate all target agent sessionIDs
-            agentNameIDs = execute_db_query(conn, "SELECT name,session_id FROM agents WHERE name like '%' OR session_id like '%'")
-        else:
-            agentNameIDs = execute_db_query(conn, 'SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
+        agent = Session().query(models.Agent).filter((models.Agent.name == agent_name) or
+                                                     (models.Agent.session_id == agent_name)).first()
 
-        if not agentNameIDs or len(agentNameIDs) == 0:
+        if agent is None:
             return make_response(jsonify({'error': 'agent name %s not found' %(agent_name)}), 404)
 
-        for agentNameID in agentNameIDs:
-            (agentName, agentSessionID) = agentNameID
-
-            main.agents.clear_agent_tasks_db(agentSessionID)
+        main.agents.clear_agent_tasks_db(agent_name)
 
         return jsonify({'success': True})
 

@@ -77,7 +77,8 @@ from . import events
 from . import helpers
 from . import messages
 from . import packets
-
+from lib.database.base import Session
+from lib.database import models
 
 class Agents(object):
     """
@@ -164,7 +165,6 @@ class Agents(object):
             cur = conn.cursor()
             # add the agent
             cur.execute("INSERT INTO agents (name, session_id, delay, jitter, external_ip, session_key, nonce, checkin_time, lastseen_time, profile, kill_date, working_hours, lost_limit, listener, language) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (sessionID, sessionID, delay, jitter, externalIP, sessionKey, nonce, checkinTime, lastSeenTime, profile, killDate, workingHours, lostLimit, listener, language))
-            cur.close()
 
             # dispatch this event
             message = "[*] New agent {} checked in".format(sessionID)
@@ -216,9 +216,7 @@ class Agents(object):
                 self.agents.pop(sessionID, None)
 
             # remove the agent from the database
-            cur = conn.cursor()
-            cur.execute("DELETE FROM agents WHERE session_id LIKE ?", [sessionID])
-            cur.close()
+            Session().connection().execute("DELETE FROM agents WHERE session_id LIKE ?", [sessionID])
 
             # dispatch this event
             message = "[*] Agent {} deleted".format(sessionID)
@@ -421,7 +419,7 @@ class Agents(object):
     def is_agent_elevated(self, sessionID):
         """
         Check whether a specific sessionID is currently elevated.
-
+=
         This means root for OS X/Linux and high integrity for Windows.
         """
 
@@ -430,15 +428,7 @@ class Agents(object):
         if nameid:
             sessionID = nameid
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT high_integrity FROM agents WHERE session_id=?", [sessionID])
-            elevated = cur.fetchone()
-            cur.close()
-        finally:
-            self.lock.release()
+        elevated = Session().connection().execute("SELECT high_integrity FROM agents WHERE session_id=?", [sessionID]).first()
 
         if elevated and elevated != None and elevated != ():
             return int(elevated[0]) == 1
@@ -450,19 +440,11 @@ class Agents(object):
         """
         Return all active agents from the database.
         """
-        conn = self.get_db_connection()
-        results = None
-        try:
-            self.lock.acquire()
-            oldFactory = conn.row_factory
-            conn.row_factory = helpers.dict_factory # return results as a dictionary
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM agents")
-            results = cur.fetchall()
-            cur.close()
-            conn.row_factory = oldFactory
-        finally:
-            self.lock.release()
+        results = []
+
+        results_raw = Session().connection().execute("SELECT * FROM agents").fetchall()
+        for x in range(len(results_raw)):
+            results.append(dict(results_raw[x]))
 
         return results
 

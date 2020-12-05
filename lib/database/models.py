@@ -129,7 +129,9 @@ class Tasking(Base):
     agent = Column(String, ForeignKey('agents.id'), primary_key=True)
     data = Column(String)
     user_id = Column(String, ForeignKey('users.id'))
-    time_stamp = Column(String)  # TODO Dates?
+    timestamp = Column(String)  # TODO Dates?
+    module_name = Column(String)
+
 
     def __repr__(self):
         return "<Tasking(id='%s')>" % (

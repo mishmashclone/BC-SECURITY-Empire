@@ -771,9 +771,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
             stale = helpers.is_stale(last_seen, active_agent.delay, active_agent.jitter)
 
-            #if isinstance(active_agent.session_key, bytes):
-            #    session_key = active_agent.session_key.decode('latin-1').encode('utf-8')
-
             agents.append(
                 {"ID": active_agent.id, "session_id": active_agent.session_id, "listener": active_agent.listener,
                  "name": active_agent.name, "language": active_agent.language,
@@ -799,23 +796,30 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         Returns JSON describing all stale agents.
         """
 
-        agentsRaw = execute_db_query(conn, 'SELECT id, session_id, listener, name, language, language_version, delay, jitter, external_ip, '+
-            'internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, '+
-            'lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results FROM agents')
-        staleAgents = []
+        agents_raw = Session().query(models.Agent).all()
+        stale_agents = []
 
-        for agent in agentsRaw:
-            [ID, session_id, listener, name, language, language_version, delay, jitter, external_ip, internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results] = agent
-
-            stale = helpers.is_stale(lastseen_time, delay, jitter)
+        for agent in agents_raw:
+            try:
+                last_seen = datetime.strptime(agent.lastseen_time, "%Y-%m-%dT%H:%M:%S.%f%z")
+            except:
+                last_seen = datetime.strptime(agent.lastseen_time, "%Y-%m-%d%H:%M:%S.%f%z")
+            stale = helpers.is_stale(last_seen, agent.delay, agent.jitter)
 
             if stale:
-                if isinstance(session_key, bytes):
-                    session_key = session_key.decode('latin-1').encode('utf-8')
+                stale_agents.append(
+                    {"ID": agent.id, "session_id": agent.session_id, "listener": agent.listener, "name": agent.name,
+                     "language": agent.language, "language_version": agent.language_version, "delay": agent.delay,
+                     "jitter": agent.jitter, "external_ip": agent.external_ip, "internal_ip": agent.internal_ip,
+                     "username": agent.username, "high_integrity": agent.high_integrity,
+                     "process_name": agent.process_name, "process_id": agent.process_id, "hostname": agent.hostname,
+                     "os_details": agent.os_details, "session_key": agent.session_key, "nonce": agent.nonce,
+                     "checkin_time": agent.checkin_time, "lastseen_time": agent.lastseen_time, "parent": agent.parent,
+                     "children": agent.children, "servers": agent.servers, "profile": agent.profile,
+                     "functions": agent.functions, "kill_date": agent.kill_date, "working_hours": agent.working_hours,
+                     "lost_limit": agent.lost_limit, "taskings": agent.taskings, "results": agent.results})
 
-                staleAgents.append({"ID":ID, "session_id":session_id, "listener":listener, "name":name, "language":language, "language_version":language_version, "delay":delay, "jitter":jitter, "external_ip":external_ip, "internal_ip":internal_ip, "username":username, "high_integrity":high_integrity, "process_name":process_name, "process_id":process_id, "hostname":hostname, "os_details":os_details, "session_key":session_key, "nonce":nonce, "checkin_time":checkin_time, "lastseen_time":lastseen_time, "parent":parent, "children":children, "servers":servers, "profile":profile,"functions":functions, "kill_date":kill_date, "working_hours":working_hours, "lost_limit":lost_limit, "taskings":taskings, "results":results})
-
-        return jsonify({'agents' : staleAgents})
+        return jsonify({'agents': stale_agents})
 
     @app.route('/api/agents/stale', methods=['DELETE'])
     def remove_stale_agent():
@@ -824,15 +828,18 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         WARNING: doesn't kill the agent first! Ensure the agent is dead.
         """
-        agentsRaw = execute_db_query(conn, 'SELECT * FROM agents')
+        agents_raw = Session().query(models.Agent).all()
 
-        for agent in agentsRaw:
-            [ID, sessionID, listener, name, language, language_version, delay, jitter, external_ip, internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results] = agent
-
-            stale = helpers.is_stale(lastseen_time, delay, jitter)
+        for agent in agents_raw:
+            try:
+                last_seen = datetime.strptime(agent.lastseen_time, "%Y-%m-%dT%H:%M:%S.%f%z")
+            except:
+                last_seen = datetime.strptime(agent.lastseen_time, "%Y-%m-%d%H:%M:%S.%f%z")
+            stale = helpers.is_stale(last_seen, agent.delay, agent.jitter)
 
             if stale:
-                execute_db_query(conn, "DELETE FROM agents WHERE session_id LIKE ?", [sessionID])
+                Session().delete(agent)
+            Session().commit()
 
         return jsonify({'success': True})
 
@@ -843,19 +850,14 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         WARNING: doesn't kill the agent first! Ensure the agent is dead.
         """
-        if agent_name.lower() == "all":
-            # enumerate all target agent sessionIDs
-            agentNameIDs = execute_db_query(conn, "SELECT name,session_id FROM agents WHERE name like '%' OR session_id like '%'")
-        else:
-            agentNameIDs = execute_db_query(conn, 'SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
+        agent = Session().query(models.Agent).filter(
+            (models.Agent.name == agent_name) or (models.Agent.session_id == agent_name)).first()
 
-        if not agentNameIDs or len(agentNameIDs) == 0:
+        if not agent:
             return make_response(jsonify({'error': 'agent name %s not found' %(agent_name)}), 404)
 
-        for agentNameID in agentNameIDs:
-            (agentName, agentSessionID) = agentNameID
-
-            execute_db_query(conn, "DELETE FROM agents WHERE session_id LIKE ?", [agentSessionID])
+        Session().delete(agent)
+        Session().commit()
 
         return jsonify({'success': True})
 
@@ -864,21 +866,22 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Returns JSON describing the agent specified by agent_name.
         """
-        activeAgentsRaw = execute_db_query(conn, 'SELECT id, session_id, listener, name, language, language_version, delay, jitter, external_ip, '+
-            'internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, '+
-            'lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results FROM agents ' +
-            'WHERE name=? OR session_id=?', [agent_name, agent_name])
-        activeAgents = []
+        agent = Session().query(models.Agent).filter(models.Agent.name == agent_name).first()
 
-        for activeAgent in activeAgentsRaw:
-            [ID, session_id, listener, name, language, language_version, delay, jitter, external_ip, internal_ip, username, high_integrity, process_name, process_id, hostname, os_details, session_key, nonce, checkin_time, lastseen_time, parent, children, servers, profile, functions, kill_date, working_hours, lost_limit, taskings, results] = activeAgent
+        active_agent = ({"ID": agent.id, "session_id": agent.session_id, "listener": agent.listener, "name": agent.name,
+                         "language": agent.language, "language_version": agent.language_version, "delay": agent.delay,
+                         "jitter": agent.jitter, "external_ip": agent.external_ip, "internal_ip": agent.internal_ip,
+                         "username": agent.username, "high_integrity": agent.high_integrity,
+                         "process_name": agent.process_name,
+                         "process_id": agent.process_id, "hostname": agent.hostname, "os_details": agent.os_details,
+                         "session_key": agent.session_key, "nonce": agent.nonce, "checkin_time": agent.checkin_time,
+                         "lastseen_time": agent.lastseen_time, "parent": agent.parent, "children": agent.children,
+                         "servers": agent.servers, "profile": agent.profile, "functions": agent.functions,
+                         "kill_date": agent.kill_date, "working_hours": agent.working_hours,
+                         "lost_limit": agent.lost_limit,
+                         "taskings": agent.taskings, "results": agent.results})
 
-            if isinstance(session_key, bytes):
-                session_key = session_key.decode('latin-1').encode('utf-8')
-
-            activeAgents.append({"ID":ID, "session_id":session_id, "listener":listener, "name":name, "language":language, "language_version":language_version, "delay":delay, "jitter":jitter, "external_ip":external_ip, "internal_ip":internal_ip, "username":username, "high_integrity":high_integrity, "process_name":process_name, "process_id":process_id, "hostname":hostname, "os_details":os_details, "session_key":session_key, "nonce":nonce, "checkin_time":checkin_time, "lastseen_time":lastseen_time, "parent":parent, "children":children, "servers":servers, "profile":profile,"functions":functions, "kill_date":kill_date, "working_hours":working_hours, "lost_limit":lost_limit, "taskings":taskings, "results":results})
-
-        return jsonify({'agents' : activeAgents})
+        return jsonify({'agents': active_agent})
 
     @app.route('/api/agents/<string:agent_name>/directory', methods=['POST'])
     def scrape_agent_directory(agent_name):
@@ -926,61 +929,38 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         Returns JSON describing the agent's results and removes the result field
         from the backend database.
         """
-        agentTaskResults = []
+        agent_results = Session() \
+            .query(models.Result.id.label("task_id"),
+                   models.Tasking.data.label("command"),
+                   models.Result.data.label("result"),
+                   models.User.id.label("user_id"),
+                   models.User.username.label("username")) \
+            .select_from(models.Result) \
+            .join(models.Tasking,
+                  models.Tasking.id == models.Result.id and models.Tasking.agent == models.Result.agent) \
+            .outerjoin(models.User, models.Tasking.user_id == models.User.id) \
+            .filter(models.Result.agent == agent_name) \
+            .all()
 
-        if agent_name.lower() == "all":
-            # enumerate all target agent sessionIDs
-            agentNameIDs = execute_db_query(conn, "SELECT name, session_id FROM agents WHERE name like '%' OR session_id like '%'")
-        else:
-            agentNameIDs = execute_db_query(conn, 'SELECT name, session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
-
-        for agentNameID in agentNameIDs:
-            [agentName, agentSessionID] = agentNameID
-
-            agentResults = execute_db_query(conn,
-                """
-                SELECT
-                    results.id,
-                    taskings.data AS command,
-                    results.data AS response,
-                    users.id as user_id,
-                    users.username as username
-                FROM results
-                INNER JOIN taskings ON results.id = taskings.id AND results.agent = taskings.agent
-                LEFT JOIN users on results.user_id = users.id
-                WHERE results.agent=?;
-                """, [agentSessionID])
-
-            results = []
-            if len(agentResults) > 0:
-                for taskID, command, result, user_id, username in agentResults:
-                    results.append({'taskID': taskID, 'command': command, 'results': result, 'user_id': user_id, 'username': username})
-
-                agentTaskResults.append({"AgentName": agentSessionID, "AgentResults": results})
-            else:
-                agentTaskResults.append({"AgentName": agentSessionID, "AgentResults": []})
-
-        return jsonify({'results': agentTaskResults})
+        return jsonify({'results': agent_results})
 
     @app.route('/api/agents/<string:agent_name>/task/<int:task_id>', methods=['GET'])
     def get_task(agent_name, task_id):
-        results = execute_db_query(conn, """
-            SELECT
-                taskings.id AS task,
-                taskings.data AS command,
-                results.data AS response,
-                users.id AS user_id,
-                users.username AS username
-             FROM taskings
-             LEFT JOIN users ON taskings.user_id = users.id
-             LEFT JOIN results on results.id = taskings.id AND results.agent = taskings.agent
-             WHERE taskings.agent = ?
-             AND taskings.id = ?
-             """, [agent_name, task_id])
+        agent_results = Session() \
+            .query(models.Result.id.label("task_id"),
+                   models.Tasking.data.label("command"),
+                   models.Result.data.label("result"),
+                   models.User.id.label("user_id"),
+                   models.User.username.label("username")) \
+            .select_from(models.Result) \
+            .join(models.Tasking,
+                  task_id == models.Result.id and agent_name == models.Result.agent) \
+            .outerjoin(models.User, models.Tasking.user_id == models.User.id) \
+            .filter(models.Result.agent == agent_name) \
+            .first()
 
-        if len(results) > 0:
-            [taskID, command, results, user_id, username] = results[0]
-            return make_response(jsonify({'taskID': taskID, 'command': command, 'results': results, 'user_id': user_id, 'username': username}))
+        if len(agent_results) > 0:
+            return make_response(jsonify({'taskID': agent_results.task_id, 'command': agent_results.command, 'results': agent_results.result, 'user_id': agent_results.user_id, 'username': agent_results.username}))
 
         return make_response(jsonify({'error': 'task not found.'}), 404)
 

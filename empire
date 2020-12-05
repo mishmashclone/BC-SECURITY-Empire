@@ -9,7 +9,6 @@ import hashlib
 import json
 import logging
 import os
-import pickle
 import pkgutil
 import signal
 import sqlite3
@@ -92,7 +91,7 @@ def database_connect():
     try:
         sqlite3.register_adapter(datetime, adapt_datetime)
         sqlite3.register_converter("timestamp", convert_timestamp)
-        # set the database connectiont to autocommit w/ isolation level
+        # set the database connection to autocommit w/ isolation level
         conn = sqlite3.connect('./data/empire.db', check_same_thread=False, detect_types=sqlite3.PARSE_DECLTYPES)
         conn.text_factory = str
         conn.isolation_level = None
@@ -103,20 +102,6 @@ def database_connect():
         print(helpers.color("[!] Please run setup_database.py"))
         sys.exit()
 
-
-def execute_db_query(conn, query, args=None):
-    """
-    Execute the supplied query on the provided db conn object
-    with optional args for a paramaterized query.
-    """
-    cur = conn.cursor()
-    if args:
-        cur.execute(query, args)
-    else:
-        cur.execute(query)
-    results = cur.fetchall()
-    cur.close()
-    return results
 
 ####################################################################
 #
@@ -1208,22 +1193,16 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Tasks the specified agent to exit.
         """
-        if agent_name.lower() == "all":
-            # enumerate all target agent sessionIDs
-            agentNameIDs = execute_db_query(conn, "SELECT name,session_id FROM agents WHERE name like '%' OR session_id like '%'")
-        else:
-            agentNameIDs = execute_db_query(conn, 'SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
+        agent = Session().query(models.Agent).filter((
+                        models.Agent.name == agent_name) or (models.Agent.session_id == agent_name)).first()
 
-        if not agentNameIDs or len(agentNameIDs) == 0:
+        if agent is None:
             return make_response(jsonify({'error': 'agent name %s not found' %(agent_name)}), 404)
 
-        for agentNameID in agentNameIDs:
-            (agentName, agentSessionID) = agentNameID
-
-            # task the agent to exit
-            msg = "tasked agent %s to exit" %(agentSessionID)
-            main.agents.save_agent_log(agentSessionID, msg)
-            main.agents.add_agent_task_db(agentSessionID, 'TASK_EXIT', uid=g.user['id'])
+        # task the agent to exit
+        msg = "tasked agent %s to exit" % (agent.session_id)
+        main.agents.save_agent_log(agent.session_id, msg)
+        main.agents.add_agent_task_db(agent.session_id, 'TASK_EXIT', uid=g.user['id'])
 
         return jsonify({'success': True})
 
@@ -1242,12 +1221,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         notes = request.json['notes']
 
-        try:
-            cur = conn.cursor()
-            cur.execute("UPDATE agents SET notes = ? WHERE name = ?", (notes, agent_name))
-
-        finally:
-            cur.close()
+        Session().connection().execute("UPDATE agents SET notes = ? WHERE name = ?", (notes, agent_name))
 
         return jsonify({'success': True})
 
@@ -1256,14 +1230,16 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Returns JSON describing the credentials stored in the backend database.
         """
-        credsRaw = execute_db_query(conn, 'SELECT ID, credtype, domain, username, password, host, os, sid, notes FROM credentials')
-        creds = []
+        credential_list = []
+        credentials_raw = Session().query(models.Credential).all()
 
-        for credRaw in credsRaw:
-            [ID, credtype, domain, username, password, host, os, sid, notes] = credRaw
-            creds.append({"ID":ID, "credtype":credtype, "domain":domain, "username":username, "password":password, "host":host, "os":os, "sid":sid, "notes":notes})
+        for credential in credentials_raw:
+            credential_list.append({"ID": credential.id, "credtype": credential.credtype, "domain": credential.domain,
+                                    "username": credential.username, "password": credential.password,
+                                    "host": credential.host, "os": credential.os, "sid": credential.sid,
+                                    "notes": credential.notes})
 
-        return jsonify({'creds' : creds})
+        return jsonify({'creds': credential_list})
 
     @app.route('/api/creds', methods=['POST'])
     def add_creds():
@@ -1271,15 +1247,15 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         Adds credentials to the database
         """
         if not request.json:
-            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+            return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
 
         if not 'credentials' in request.json:
-            return make_response(jsonify({'error':'JSON body must include key "credentials"'}), 400)
+            return make_response(jsonify({'error': 'JSON body must include key "credentials"'}), 400)
 
         creds = request.json['credentials']
 
         if not type(creds) == list:
-            return make_response(jsonify({'error':'credentials must be provided as a list'}), 400)
+            return make_response(jsonify({'error': 'credentials must be provided as a list'}), 400)
 
         required_fields = ["credtype", "domain", "username", "password", "host"]
         optional_fields = ["OS", "notes", "sid"]
@@ -1291,7 +1267,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
             # ensure the type is either "hash" or "plaintext"
             if not (cred['credtype'] == u'hash' or cred['credtype'] == u'plaintext'):
-                return make_response(jsonify({'error':'invalid credential type in %s, must be "hash" or "plaintext"' %(cred)}), 400)
+                return make_response(jsonify({'error': 'invalid credential type in %s, must be "hash" or "plaintext"' %(cred)}), 400)
 
         # other than that... just assume everything is valid
 
@@ -1331,9 +1307,10 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Returns JSON describing the reporting events from the backend database.
         """
-        reportingRaw = execute_db_query(conn, '''
+        # Add filters for agent, event_type, and MAYBE a like filter on msg
+        reporting_raw = Session().connection().execute('''
         SELECT
-                reporting.timestamp,
+                reporting.time_stamp,
                 event_type,
                 u.username,
                 substr(reporting.name, pos+1) as agent_name,
@@ -1344,28 +1321,29 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
             FROM
             (
                 SELECT
-                    timestamp,
+                    time_stamp,
                     event_type,
                     name,
                     instr(name, '/') as pos,
                     taskID
                 FROM reporting
                 WHERE name LIKE 'agent%'
-                AND reporting.event_type == 'task' OR reporting.event_type == 'checkin'
-            ) reporting
+                AND reporting.event_type == 'task' OR reporting.event_type == 'checkin') reporting
             LEFT OUTER JOIN taskings t on (reporting.taskID = t.id) AND (agent_name = t.agent)
             LEFT OUTER JOIN results r on (reporting.taskID = r.id) AND (agent_name = r.agent)
             JOIN agents a on agent_name = a.session_id
             LEFT OUTER JOIN users u on t.user_id = u.id
-            ORDER BY reporting.timestamp DESC
+            ORDER BY reporting.time_stamp DESC
         ''')
-        reportingEvents = []
+        reporting_events = []
 
-        for reportingEvent in reportingRaw:
-            [timestamp, event_type, user_name, agent_name, host_name, taskID, task, results] = reportingEvent
-            reportingEvents.append({"timestamp":timestamp, "event_type":event_type, "username":user_name, "agent_name":agent_name, "host_name":host_name, "taskID":taskID, "task":task, "results":results})
+        for reporting_event in reporting_raw:
+            [time_stamp, event_type, user_name, agent_name, host_name, taskID, task, results] = reporting_event
+            reporting_events.append(
+                {"timestamp": time_stamp, "event_type": event_type, "username": user_name, "agent_name": agent_name,
+                 "host_name": host_name, "taskID": taskID, "task": task, "results": results})
 
-        return jsonify({'reporting' : reportingEvents})
+        return jsonify({'reporting': reporting_events})
 
     @app.route('/api/reporting/generate', methods=['POST'])
     def generate_report():
@@ -1374,7 +1352,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         Takes {'logo':'directory_location'}
         """
         if not request.json:
-            return make_response(jsonify({'error':'request body must be valid JSON'}), 400)
+            return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
 
         directory_location = request.json['logo']
 
@@ -1389,20 +1367,20 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
 
         # first resolve the supplied name to a sessionID
-        results = execute_db_query(conn, 'SELECT session_id FROM agents WHERE name=?', [reporting_agent])
+        results = Session().connection().execute('SELECT session_id FROM agents WHERE name=?', [reporting_agent])
         if results:
             sessionID = results[0][0]
         else:
-            return jsonify({'reporting' : ''})
+            return jsonify({'reporting': ''})
 
-        reportingRaw = execute_db_query(conn, 'SELECT ID, name, event_type, message, timestamp, taskID FROM reporting WHERE name=?', [sessionID])
-        reportingEvents = []
+        reporting_raw = Session().connection().execute('SELECT ID, name, event_type, message, timestamp, taskID FROM reporting WHERE name=?', [sessionID])
+        reporting_events = []
 
-        for reportingEvent in reportingRaw:
-            [ID, name, event_type, message, timestamp, taskID] = reportingEvent
-            reportingEvents.append({"ID":ID, "agentname":name, "event_type":event_type, "message":json.loads(message), "timestamp":timestamp, "taskID":taskID})
+        for reporting_event in reporting_raw:
+            [ID, name, event_type, message, timestamp, taskID] = reporting_event
+            reporting_events.append({"ID": ID, "agentname": name, "event_type": event_type, "message": json.loads(message), "timestamp": timestamp, "taskID": taskID})
 
-        return jsonify({'reporting' : reportingEvents})
+        return jsonify({'reporting': reporting_events})
 
     @app.route('/api/reporting/type/<string:event_type>', methods=['GET'])
     def get_reporting_type(event_type):
@@ -1410,14 +1388,14 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         Returns JSON describing the reporting events from the backend database for
         the event type specified by event_type.
         """
-        reportingRaw = execute_db_query(conn, 'SELECT ID, name, event_type, message, timestamp, taskID FROM reporting WHERE event_type=?', [event_type])
-        reportingEvents = []
+        reporting_raw = Session().connection().execute('SELECT ID, name, event_type, message, timestamp, taskID FROM reporting WHERE event_type=?', [event_type])
+        reporting_events = []
 
-        for reportingEvent in reportingRaw:
-            [ID, name, event_type, message, timestamp, taskID] = reportingEvent
-            reportingEvents.append({"ID":ID, "agentname":name, "event_type":event_type, "message":json.loads(message), "timestamp":timestamp, "taskID":taskID})
+        for reporting_event in reporting_raw:
+            [ID, name, event_type, message, timestamp, taskID] = reporting_event
+            reporting_events.append({"ID": ID, "agentname": name, "event_type": event_type, "message": json.loads(message), "timestamp": timestamp, "taskID": taskID})
 
-        return jsonify({'reporting' : reportingEvents})
+        return jsonify({'reporting': reporting_events})
 
     @app.route('/api/reporting/msg/<string:msg>', methods=['GET'])
     def get_reporting_msg(msg):
@@ -1425,14 +1403,14 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         Returns JSON describing the reporting events from the backend database for
         the any messages with *msg* specified by msg.
         """
-        reportingRaw = execute_db_query(conn, "SELECT ID, name, event_type, message, timestamp, taskID FROM reporting WHERE message like ?", ['%'+msg+'%'])
-        reportingEvents = []
+        reporting_raw = Session().connection().execute("SELECT ID, name, event_type, message, timestamp, taskID FROM reporting WHERE message like ?", ['%'+msg+'%'])
+        reporting_events = []
 
-        for reportingEvent in reportingRaw:
-            [ID, name, event_type, message, timestamp, taskID] = reportingEvent
-            reportingEvents.append({"ID":ID, "agentname":name, "event_type":event_type, "message":json.loads(message), "timestamp":timestamp, "taskID":taskID})
+        for reporting_event in reporting_raw:
+            [ID, name, event_type, message, timestamp, taskID] = reporting_event
+            reporting_events.append({"ID": ID, "agentname": name, "event_type": event_type, "message": json.loads(message), "timestamp": timestamp, "taskID": taskID})
 
-        return jsonify({'reporting' : reportingEvents})
+        return jsonify({'reporting': reporting_events})
 
     @app.route('/api/admin/login', methods=['POST'])
     def server_login():
@@ -1443,12 +1421,12 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         if not request.json or not 'username' in request.json or not 'password' in request.json:
             abort(400)
 
-        suppliedUsername = request.json['username']
-        suppliedPassword = request.json['password']
+        supplied_username = request.json['username']
+        supplied_password = request.json['password']
 
         # try to prevent some basic bruting
         time.sleep(2)
-        token = main.users.user_login(suppliedUsername, suppliedPassword)
+        token = main.users.user_login(supplied_username, supplied_password)
 
         if token:
             return jsonify({'token': token})
@@ -1500,7 +1478,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         # add keywords to the obfuscation database
         if 'keyword_obfuscation' in request.json:
-            cur = conn.cursor()
             keyword = request.json['keyword_obfuscation']
             try:
                 # if no replacement given then generate a random word
@@ -1509,8 +1486,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
                         random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
                 else:
                     keyword_replacement = request.json['keyword_replacement']
-                cur.execute("INSERT INTO functions VALUES(?,?)", (keyword, keyword_replacement))
-                cur.close()
+                Session().connection().execute("INSERT INTO functions VALUES(?,?)", (keyword, keyword_replacement))
             except Exception:
                 print(helpers.color("couldn't connect to Database"))
 
@@ -1521,13 +1497,12 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Returns JSON of the users from the backend database.
         """
-        reportingRaw = execute_db_query(conn, 'SELECT ID, username, last_logon_time, enabled, admin FROM users')
-        reporting_users = []
+        users_raw = Session().query(models.User).all()
+
         user_report = []
 
-        for reporting_users in reportingRaw:
-            [ID, username, last_logon_time, enabled, admin] = reporting_users
-            data = {"ID": ID, "username": username, "last_logon_time": last_logon_time, "enabled": bool(enabled), "admin": bool(admin)}
+        for reporting_users in users_raw:
+            data = {"ID": reporting_users.id, "username": reporting_users.username, "last_logon_time": reporting_users.last_logon_time, "enabled": reporting_users.enabled, "admin": reporting_users.admin}
             user_report.append(data)
 
         return jsonify({'users': user_report})
@@ -1537,13 +1512,12 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         return the user for an id
         """
-        user = execute_db_query(conn, 'SELECT ID, username, last_logon_time, enabled, admin, notes FROM users WHERE id = ?', [uid,])
+        user = Session().query(models.User).filter(models.User.id == uid).first()
 
-        if len(user) == 0:
+        if user is None:
             make_response(jsonify({'error': 'user %s not found' % uid}), 404)
 
-        [ID, username, last_logon_time, enabled, admin, notes] = user[0]
-        return jsonify({"ID": ID, "username": username, "last_logon_time": last_logon_time, "enabled": bool(enabled), "admin": bool(admin), "notes": notes})
+        return jsonify({"ID": user.id, "username": user.username, "last_logon_time": user.last_logon_time, "enabled": user.enabled, "admin": user.admin, "notes": user.notes})
 
     @app.route('/api/users/me', methods=['GET'])
     def get_user_me():
@@ -1606,12 +1580,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         notes = request.json['notes']
 
-        try:
-            cur = conn.cursor()
-            cur.execute("UPDATE users SET notes = ? WHERE id = ?", (notes, uid))
-
-        finally:
-            cur.close()
+        Session().connection().execute("UPDATE users SET notes = ? WHERE id = ?", (notes, uid))
 
         return jsonify({'success': True})
 

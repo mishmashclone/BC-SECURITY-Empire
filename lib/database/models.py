@@ -17,6 +17,7 @@ class User(Base):
     last_logon_time = Column(String(50))  # DateTime # todo vr rename
     enabled = Column(Boolean, nullable=False)
     admin = Column(Boolean, nullable=False)
+    notes = Column(String)
 
     def __repr__(self):
         return "<User(username='%s')>" % (

@@ -316,7 +316,7 @@ class Agents(object):
         percent = round(int(os.path.getsize("%s/%s" % (save_path, filename)))/int(filesize)*100,2)
 
         # notify everyone that the file was downloaded
-        message = "[+] Part of file {} from {} saved [{}%]".format(filename, sessionID, percent)
+        message = "[+] Part of file {} from {} saved [{}%] to {}".format(filename, sessionID, percent, save_path)
         signal = json.dumps({
             'print': True,
             'message': message

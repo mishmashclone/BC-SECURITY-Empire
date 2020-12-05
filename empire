@@ -929,7 +929,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         Returns JSON describing the agent's results and removes the result field
         from the backend database.
         """
-        agent_results = Session() \
+        agent_task_results = []
+
+        agent_results_raw = Session() \
             .query(models.Result.id.label("task_id"),
                    models.Tasking.data.label("command"),
                    models.Result.data.label("result"),
@@ -942,7 +944,17 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
             .filter(models.Result.agent == agent_name) \
             .all()
 
-        return jsonify({'results': agent_results})
+        for agent_results in agent_results_raw:
+            results = []
+            if len(agent_results) > 0:
+                results.append({'taskID': agent_results.task_id, 'command': agent_results.command, 'results': agent_results.result, 'user_id': agent_results.user_id,
+                                    'username': agent_results.username})
+
+                agent_task_results.append({"AgentName": agent_name, "AgentResults": results})
+            else:
+                agent_task_results.append({"AgentName": agent_name, "AgentResults": []})
+
+        return jsonify({'results': agent_task_results})
 
     @app.route('/api/agents/<string:agent_name>/task/<int:task_id>', methods=['GET'])
     def get_task(agent_name, task_id):
@@ -969,11 +981,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Removes the specified agent results field from the backend database.
         """
-        if agent_name.lower() == "all":
-            # enumerate all target agent sessionIDs
-            agentNameIDs = execute_db_query(conn, "SELECT name,session_id FROM agents WHERE name like '%' OR session_id like '%'")
-        else:
-            agentNameIDs = execute_db_query(conn, 'SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
+        agentNameIDs = execute_db_query(conn, 'SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
 
         if not agentNameIDs or len(agentNameIDs) == 0:
             return make_response(jsonify({'error': 'agent name %s not found' %(agent_name)}), 404)
@@ -990,26 +998,21 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Tasks the specified agent to download a file
         """
+        agent = Session().query(models.Agent).filter((models.Agent.name == agent_name) or
+                                                     (models.Agent.session_id == agent_name)).first()
 
-        if agent_name.lower() == "all":
-            # enumerate all target agent sessionIDs
-            agent_name_ids = execute_db_query(conn, "SELECT name,session_id FROM agents WHERE name like '%' OR session_id like '%'")
-        else:
-            agent_name_ids = execute_db_query(conn, 'SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
 
-        if not agent_name_ids or len(agent_name_ids) == 0:
+        if agent is None:
             return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
 
         if not request.json['filename']:
             return make_response(jsonify({'error':'file name not provided'}), 404)
 
         file_name = request.json['filename']
-        for agent_name_id in agent_name_ids:
-            (agentName, agentSessionID) = agent_name_id
 
-            msg = "Tasked agent to download %s" % file_name
-            main.agents.save_agent_log(agentSessionID, msg)
-            task_id = main.agents.add_agent_task_db(agentSessionID, 'TASK_DOWNLOAD', file_name, uid=g.user['id'])
+        msg = "Tasked agent to download %s" % file_name
+        main.agents.save_agent_log(agent.session_id, msg)
+        task_id = main.agents.add_agent_task_db(agent.session_id, 'TASK_DOWNLOAD', file_name, uid=g.user['id'])
 
         return jsonify({'success': True, 'taskID': task_id})
 
@@ -1018,39 +1021,32 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Tasks the specified agent to upload a file
         """
+        agent = Session().query(models.Agent).filter((models.Agent.name == agent_name) or
+                                                     (models.Agent.session_id == agent_name)).first()
 
-        if agent_name.lower() == "all":
-            # enumerate all target agent sessionIDs
-            agentNameIDs = execute_db_query(conn, "SELECT name,session_id FROM agents WHERE name like '%' OR session_id like '%'")
-        else:
-            agentNameIDs = execute_db_query(conn, 'SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
-
-        if not agentNameIDs or len(agentNameIDs) == 0:
+        if agent is None:
             return make_response(jsonify({'error': 'agent name %s not found' %(agent_name)}), 404)
 
         if not request.json['data']:
-            return make_response(jsonify({'error':'file data not provided'}), 404)
+            return make_response(jsonify({'error': 'file data not provided'}), 404)
 
         if not request.json['filename']:
-            return make_response(jsonify({'error':'file name not provided'}), 404)
+            return make_response(jsonify({'error': 'file name not provided'}), 404)
 
-        fileData = request.json['data']
-        fileName = request.json['filename']
+        file_data = request.json['data']
+        file_name = request.json['filename']
 
-        rawBytes = base64.b64decode(fileData)
+        raw_bytes = base64.b64decode(file_data)
 
-        if len(rawBytes) > 1048576:
-            return make_response(jsonify({'error':'file size too large'}), 404)
+        if len(raw_bytes) > 1048576:
+            return make_response(jsonify({'error': 'file size too large'}), 404)
 
-        for agentNameID in agentNameIDs:
-            (agentName, agentSessionID) = agentNameID
+        msg = "Tasked agent to upload %s : %s" % (file_name, hashlib.md5(raw_bytes).hexdigest())
+        main.agents.save_agent_log(agent.session_id, msg)
+        data = file_name + "|" + file_data
+        task_id = main.agents.add_agent_task_db(agent.session_id, 'TASK_UPLOAD', data, uid=g.user['id'])
 
-            msg = "Tasked agent to upload %s : %s" % (fileName, hashlib.md5(rawBytes).hexdigest())
-            main.agents.save_agent_log(agentSessionID, msg)
-            data = fileName + "|" + fileData
-            taskID = main.agents.add_agent_task_db(agentSessionID, 'TASK_UPLOAD', data, uid=g.user['id'])
-
-        return jsonify({'success': True, 'taskID': taskID})
+        return jsonify({'success': True, 'taskID': task_id})
 
     @app.route('/api/agents/<string:agent_name>/shell', methods=['POST'])
     def task_agent_shell(agent_name):

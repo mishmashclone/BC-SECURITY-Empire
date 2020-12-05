@@ -158,28 +158,37 @@ class Agents(object):
         if not profile or profile == '':
             profile = "/admin/get.php,/news.php,/login/process.php|Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
 
-        conn = self.get_db_connection()
+        # add the agent
+        Session().add(models.Agent(name=sessionID,
+                                   session_id=sessionID,
+                                   delay=delay,
+                                   jitter=jitter,
+                                   external_ip=externalIP,
+                                   session_key=sessionKey,
+                                   nonce=nonce,
+                                   checkin_time=checkinTime,
+                                   lastseen_time=lastSeenTime,
+                                   profile=profile,
+                                   kill_date=killDate,
+                                   working_hours=workingHours,
+                                   lost_limit=lostLimit,
+                                   listener=listener,
+                                   language=language
+                                   ))
+        Session().commit()
 
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            # add the agent
-            cur.execute("INSERT INTO agents (name, session_id, delay, jitter, external_ip, session_key, nonce, checkin_time, lastseen_time, profile, kill_date, working_hours, lost_limit, listener, language) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (sessionID, sessionID, delay, jitter, externalIP, sessionKey, nonce, checkinTime, lastSeenTime, profile, killDate, workingHours, lostLimit, listener, language))
+        # dispatch this event
+        message = "[*] New agent {} checked in".format(sessionID)
+        signal = json.dumps({
+            'print': True,
+            'message': message,
+            'timestamp': checkinTime.isoformat(),
+            'event_type': 'checkin'
+        })
+        dispatcher.send(signal, sender="agents/{}".format(sessionID))
 
-            # dispatch this event
-            message = "[*] New agent {} checked in".format(sessionID)
-            signal = json.dumps({
-                'print': True,
-                'message': message,
-                'timestamp': checkinTime.isoformat(),
-                'event_type': 'checkin'
-            })
-            dispatcher.send(signal, sender="agents/{}".format(sessionID))
-
-            # initialize the tasking/result buffers along with the client session key
-            self.agents[sessionID] = {'sessionKey': sessionKey, 'functions': []}
-        finally:
-            self.lock.release()
+        # initialize the tasking/result buffers along with the client session key
+        self.agents[sessionID] = {'sessionKey': sessionKey, 'functions': []}
 
     def get_agent_for_socket(self, session_id):
         agent = self.get_agent_db(session_id)
@@ -623,20 +632,13 @@ class Agents(object):
         if sessionID not in self.agents:
             print(helpers.color("[!] Agent %s not active." % (agent_name)))
         else:
-            conn = self.get_db_connection()
-            try:
-                self.lock.acquire()
-                cur = conn.cursor()
-                cur.execute("SELECT results FROM agents WHERE session_id=?", [sessionID])
-                results = cur.fetchone()
+            agent = Session().query(models.Agent).filter(models.Agent.session_id == sessionID).first()
+            results = agent.results
+            agent.results = ''
+            Session().commit()
 
-                cur.execute("UPDATE agents SET results=? WHERE session_id=?", ['', sessionID])
-                cur.close()
-            finally:
-                self.lock.release()
-
-            if results and results[0] and results[0] != '':
-                out = json.loads(results[0])
+            if results and results != '':
+                out = json.loads(results)
                 if out:
                     return "\n".join(out)
             else:

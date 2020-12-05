@@ -243,6 +243,11 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         response.headers['Access-Control-Allow-Origin'] = '*'
         return response
 
+    @app.teardown_request
+    def remove_session(ex):
+        Session().commit()
+        Session.remove()
+
     @app.errorhandler(Exception)
     def exception_handler(error):
         """
@@ -749,12 +754,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         agents = []
 
         for active_agent in active_agents_raw:
-            try:
-                last_seen = datetime.strptime(active_agent.lastseen_time, "%Y-%m-%dT%H:%M:%S.%f%z")
-            except:
-                last_seen = datetime.strptime(active_agent.lastseen_time, "%Y-%m-%d%H:%M:%S.%f%z")
-
-            stale = helpers.is_stale(last_seen, active_agent.delay, active_agent.jitter)
 
             agents.append(
                 {"ID": active_agent.id, "session_id": active_agent.session_id, "listener": active_agent.listener,
@@ -770,7 +769,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
                  "children": active_agent.children, "servers": active_agent.servers, "profile": active_agent.profile,
                  "functions": active_agent.functions, "kill_date": active_agent.kill_date,
                  "working_hours": active_agent.working_hours, "lost_limit": active_agent.lost_limit,
-                 "taskings": active_agent.taskings, "results": active_agent.results, "stale": stale,
+                 "taskings": active_agent.taskings, "results": active_agent.results, "stale": active_agent.stale,
                  "notes": active_agent.notes})
 
         return jsonify({'agents': agents})
@@ -785,13 +784,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         stale_agents = []
 
         for agent in agents_raw:
-            try:
-                last_seen = datetime.strptime(agent.lastseen_time, "%Y-%m-%dT%H:%M:%S.%f%z")
-            except:
-                last_seen = datetime.strptime(agent.lastseen_time, "%Y-%m-%d%H:%M:%S.%f%z")
-            stale = helpers.is_stale(last_seen, agent.delay, agent.jitter)
-
-            if stale:
+            if agent.stale:
                 stale_agents.append(
                     {"ID": agent.id, "session_id": agent.session_id, "listener": agent.listener, "name": agent.name,
                      "language": agent.language, "language_version": agent.language_version, "delay": agent.delay,
@@ -816,13 +809,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         agents_raw = Session().query(models.Agent).all()
 
         for agent in agents_raw:
-            try:
-                last_seen = datetime.strptime(agent.lastseen_time, "%Y-%m-%dT%H:%M:%S.%f%z")
-            except:
-                last_seen = datetime.strptime(agent.lastseen_time, "%Y-%m-%d%H:%M:%S.%f%z")
-            stale = helpers.is_stale(last_seen, agent.delay, agent.jitter)
 
-            if stale:
+            if agent.stale:
                 Session().delete(agent)
             Session().commit()
 
@@ -879,12 +867,12 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         # Would be cool to add a "depth" param
         directory = '/' if request.args.get('directory') is None else request.args.get('directory')
 
-        found = execute_db_query(conn, "SELECT * FROM file_directory WHERE session_id = ? AND path = ? AND is_file = 0",
+        found = Session().connection().execute(conn, "SELECT * FROM file_directory WHERE session_id = ? AND path = ? AND is_file = 0",
                                  [agent_name, directory])
         if len(found) == 0:
             return make_response(jsonify({'error': "Directory not found."}), 404)
 
-        results = execute_db_query(conn, """
+        results = Session().connection().execute(conn, """
             SELECT
                 base.id,
                 base.session_id,
@@ -964,7 +952,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         """
         Removes the specified agent results field from the backend database.
         """
-        agentNameIDs = execute_db_query(conn, 'SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
+        agentNameIDs = Session().connection().execute('SELECT name,session_id FROM agents WHERE name like ? OR session_id like ?', [agent_name, agent_name])
 
         if not agentNameIDs or len(agentNameIDs) == 0:
             return make_response(jsonify({'error': 'agent name %s not found' %(agent_name)}), 404)
@@ -972,7 +960,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
         for agentNameID in agentNameIDs:
             (agentName, agentSessionID) = agentNameID
 
-            execute_db_query(conn, 'UPDATE agents SET results=? WHERE session_id=? OR name=?', ['', agentSessionID, agentName])
+            Session().connection().execute('UPDATE agents SET results=? WHERE session_id=? OR name=?', ['', agentSessionID, agentName])
 
         return jsonify({'success': True})
 

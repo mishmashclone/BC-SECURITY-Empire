@@ -1,9 +1,10 @@
-import time
-
+from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, Sequence, String, Boolean, BLOB, ForeignKey, PickleType, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
+
+from lib.common import helpers
 
 Base = declarative_base()
 
@@ -72,14 +73,16 @@ class Agent(Base):
     lost_limit = Column(Integer)
     taskings = Column(String)  # Queue of tasks. Should refactor to manage queued tasks from the taskings table itself.
     taskings_executed = relationship("Tasking")
-    results = relationship("Result")
+    results = Column(String)
     notes = Column(String)
 
     @hybrid_property
     def stale(self):
-        interval_max = (self.delay + self.delay * self.jitter) + 30
-        agent_time = time.mktime(time.strptime(self.lastseen_time, "%Y-%m-%d %H:%M:%S"))
-        stale = agent_time < time.mktime(time.localtime()) - interval_max
+        try:
+            last_seen = datetime.strptime(self.lastseen_time, "%Y-%m-%dT%H:%M:%S.%f%z")
+        except:
+            last_seen = datetime.strptime(self.lastseen_time, "%Y-%m-%d%H:%M:%S.%f%z")
+        stale = helpers.is_stale(last_seen, self.delay, self.jitter)
 
         return stale
 

@@ -944,14 +944,13 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
             .filter(models.Result.agent == agent_name) \
             .all()
 
+        results = []
         for agent_results in agent_results_raw:
             if len(agent_results) > 0:
-                results = {'taskID': agent_results.task_id, 'command': agent_results.command, 'results': agent_results.result, 'user_id': agent_results.user_id,
-                                    'username': agent_results.username}
+                results.append({'taskID': agent_results.task_id, 'command': agent_results.command, 'results': agent_results.result, 'user_id': agent_results.user_id,
+                                    'username': agent_results.username})
 
-                agent_task_results.append({"AgentName": agent_name, "AgentResults": results})
-            else:
-                agent_task_results.append({"AgentName": agent_name, "AgentResults": []})
+        agent_task_results.append({"AgentName": agent_name, "AgentResults": results})
 
         return jsonify({'results': agent_task_results})
 

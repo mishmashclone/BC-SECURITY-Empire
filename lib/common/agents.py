@@ -601,21 +601,10 @@ class Agents(object):
         Return AES session key from the database for this sessionID.
         """
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT session_key FROM agents WHERE session_id = ? OR name = ?", [sessionID, sessionID])
-            sessionKey = cur.fetchone()
-            cur.close()
-        finally:
-            self.lock.release()
+        agent = Session().query(models.Agent).filter((models.Agent.session_id == sessionID) or (models.Agent.name == sessionID)).first()
 
-        if sessionKey is not None:
-            if isinstance(sessionKey, str):
-                return sessionKey
-            else:
-                return sessionKey[0]
+        if agent is not None:
+            return agent.session_key
 
 
     def get_agent_results_db(self, sessionID):
@@ -650,17 +639,10 @@ class Agents(object):
         Get an agent sessionID based on the name.
         """
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT session_id FROM agents WHERE name=?", [name])
-            results = cur.fetchone()
-            cur.close()
-        finally:
-            self.lock.release()
-        if results:
-            return results[0]
+        agent = Session().query(models.Agent).filter((models.Agent.name == name)).first()
+
+        if agent:
+            return agent.session_id
         else:
             return None
 

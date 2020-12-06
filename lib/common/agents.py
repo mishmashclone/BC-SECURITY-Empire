@@ -79,6 +79,8 @@ from . import messages
 from . import packets
 from lib.database.base import Session
 from lib.database import models
+from sqlalchemy import or_
+
 
 class Agents(object):
     """
@@ -601,7 +603,7 @@ class Agents(object):
         Return AES session key from the database for this sessionID.
         """
 
-        agent = Session().query(models.Agent).filter((models.Agent.session_id == sessionID) or (models.Agent.name == sessionID)).first()
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
 
         if agent is not None:
             return agent.session_key
@@ -651,19 +653,10 @@ class Agents(object):
         """
         Return an agent name based on sessionID.
         """
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT name FROM agents WHERE session_id = ? or name = ?", [sessionID, sessionID])
-            results = cur.fetchone()
-            cur.close()
-        finally:
-            self.lock.release()
-
-        if results:
-            return results[0]
+        if agent:
+            return agent.name
         else:
             return None
 
@@ -672,19 +665,10 @@ class Agents(object):
         """
         Return an agent's hostname based on sessionID.
         """
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT hostname FROM agents WHERE session_id=? or name=?", [sessionID, sessionID])
-            results = cur.fetchone()
-            cur.close()
-        finally:
-            self.lock.release()
-
-        if results:
-            return results[0]
+        if agent:
+            return agent.hostname
         else:
             return None
 
@@ -693,19 +677,10 @@ class Agents(object):
         """
         Return an agent's operating system details based on sessionID.
         """
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT os_details FROM agents WHERE session_id=? or name=?", [sessionID, sessionID])
-            results = cur.fetchone()
-            cur.close()
-        finally:
-            self.lock.release()
-
-        if results:
-            return results[0]
+        if agent:
+            return agent.os_details
         else:
             return None
 
@@ -736,19 +711,10 @@ class Agents(object):
         """
         Return the tab-completable functions for an agent from the database.
         """
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT functions FROM agents WHERE session_id=? OR name=?", [sessionID, sessionID])
-            functions = cur.fetchone()
-            cur.close()
-        finally:
-            self.lock.release()
-
-        if functions is not None and functions[0] is not None:
-            return functions[0].split(',')
+        if agent.functions is not None:
+            return agent.functions.split(',')
         else:
             return []
 
@@ -757,19 +723,10 @@ class Agents(object):
         """
         Return agent objects linked to a given listener name.
         """
-
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT session_id FROM agents WHERE listener=?", [listenerName])
-            results = cur.fetchall()
-            cur.close()
-        finally:
-            self.lock.release()
+        agent = Session().query(models.Agent).filter(models.Agent.listener == listenerName).all()
 
         # make sure names all ascii encoded
-        results = [r[0].encode('ascii', 'ignore') for r in results]
+        results = [r[0].encode('ascii', 'ignore') for r in agent.session_id]
         return results
 
 
@@ -778,19 +735,7 @@ class Agents(object):
         Return agent names linked to the given listener name.
         """
 
-        conn = self.get_db_connection()
-
-        try:
-            self.lock.acquire()
-            oldFactory = conn.row_factory
-            conn.row_factory = helpers.dict_factory # return results as a dictionary
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM agents WHERE listener=?", [listenerName])
-            agents = cur.fetchall()
-            cur.close()
-            conn.row_factory = oldFactory
-        finally:
-            self.lock.release()
+        agents = Session().query(models.Agent).filter(models.Agent.listener == listenerName).all()
 
         return agents
 
@@ -932,14 +877,19 @@ class Agents(object):
         if nameid:
             sessionID = nameid
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("UPDATE agents SET internal_ip = ?, username = ?, hostname = ?, os_details = ?, high_integrity = ?, process_name = ?, process_id = ?, language_version = ?, language = ? WHERE session_id=?", [internal_ip, username, hostname, os_details, high_integrity, process_name, process_id, language_version, language, sessionID])
-            cur.close()
-        finally:
-            self.lock.release()
+        agent = Session().query(models.Agent).filter(models.Agent.session_id == sessionID).first()
+
+        agent.internal_ip = internal_ip
+        agent.username = username
+        agent.hostname = hostname
+        agent.os_details = os_details
+        agent.high_integrity = high_integrity
+        agent.process_name = process_name
+        agent.process_id = process_id
+        agent.language_version = language_version
+        agent.language = language
+
+        Session().commit()
 
 
     def update_agent_lastseen_db(self, sessionID, current_time=None):
@@ -949,14 +899,12 @@ class Agents(object):
 
         if not current_time:
             current_time = helpers.getutcnow()
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("UPDATE agents SET lastseen_time=? WHERE session_id=? OR name=?", [current_time, sessionID, sessionID])
-            cur.close()
-        finally:
-            self.lock.release()
+
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
+
+        agent.lastseen_time = current_time
+
+        Session.commit()
 
 
     def update_agent_listener_db(self, sessionID, listenerName):
@@ -964,56 +912,47 @@ class Agents(object):
         Update the specified agent's linked listener name in the database.
         """
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("UPDATE agents SET listener=? WHERE session_id=? OR name=?", [listenerName, sessionID, sessionID])
-            cur.close()
-        finally:
-            self.lock.release()
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
+
+        agent.listener = listenerName
+
+        Session.commit()
 
 
-    def rename_agent(self, oldname, newname):
+    def rename_agent(self, old_name, new_name):
         """
         Rename a given agent from 'oldname' to 'newname'.
         """
 
-        if not newname.isalnum():
+        if not new_name.isalnum():
             print(helpers.color("[!] Only alphanumeric characters allowed for names."))
             return False
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            # rename the logging/downloads folder
-            oldPath = "%s/downloads/%s/" % (self.installPath, oldname)
-            newPath = "%s/downloads/%s/" % (self.installPath, newname)
-            retVal = True
+        # rename the logging/downloads folder
+        old_path = "%s/downloads/%s/" % (self.installPath, old_name)
+        new_path = "%s/downloads/%s/" % (self.installPath, new_name)
+        ret_val = True
 
-            # check if the folder is already used
-            if os.path.exists(newPath):
-                print(helpers.color("[!] Name already used by current or past agent."))
-                retVal = False
-            else:
-                # move the old folder path to the new one
-                if os.path.exists(oldPath):
-                    os.rename(oldPath, newPath)
+        # check if the folder is already used
+        if os.path.exists(new_path):
+            print(helpers.color("[!] Name already used by current or past agent."))
+            ret_val = False
+        else:
+            # move the old folder path to the new one
+            if os.path.exists(old_path):
+                os.rename(old_path, new_path)
 
-                # rename the agent in the database
-                cur = conn.cursor()
-                cur.execute("UPDATE agents SET name=? WHERE name=?", [newname, oldname])
-                events.agent_rename(oldname, newname)
-                cur.close()
+            # rename the agent in the database
+            agent = Session().query(models.Agent).filter(models.Agent.name == old_name).first()
+            agent.name = new_name
+            Session.commit()
 
-                retVal = True
-        finally:
-            self.lock.release()
+            ret_val = True
 
         # signal in the log that we've renamed the agent
-        self.save_agent_log(oldname, "[*] Agent renamed from %s to %s" % (oldname, newname))
+        self.save_agent_log(old_name, "[*] Agent renamed from %s to %s" % (old_name, new_name))
 
-        return retVal
+        return ret_val
 
     def set_agent_field_db(self, field, value, sessionID):
         """

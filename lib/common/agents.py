@@ -945,8 +945,20 @@ class Agents(object):
             # rename the agent in the database
             agent = Session().query(models.Agent).filter(models.Agent.name == old_name).first()
             agent.name = new_name
-            Session.commit()
 
+            # change tasking and results to new agent
+            taskings = Session().query(models.Tasking).filter(models.Tasking.agent == old_name).all()
+            results = Session().query(models.Result).filter(models.Result.agent == old_name).all()
+
+            if taskings:
+                for x in range(len(taskings)):
+                    taskings[x].agent = new_name
+
+            if results:
+                for x in range(len(results)):
+                    results[x].agent = new_name
+
+            Session.commit()
             ret_val = True
 
         # signal in the log that we've renamed the agent

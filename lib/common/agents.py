@@ -464,16 +464,7 @@ class Agents(object):
         """
         Return all names of active agents from the database.
         """
-
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT name FROM agents")
-            results = cur.fetchall()
-            cur.close()
-        finally:
-            self.lock.release()
+        results = Session().query(models.Agent.name).all()
 
         # make sure names all ascii encoded
         results = [r[0].encode('ascii', 'ignore') for r in results]
@@ -484,58 +475,34 @@ class Agents(object):
         """
         Return all IDs of active agents from the database.
         """
-
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT session_id FROM agents")
-            results = cur.fetchall()
-            cur.close()
-        finally:
-            self.lock.release()
+        results = Session().query(models.Agent.session_id).all()
 
         # make sure names all ascii encoded
         results = [str(r[0]).encode('ascii', 'ignore') for r in results if r]
         return results
 
 
-    def get_agent_db(self, sessionID):
+    def get_agent_db(self, session_id):
         """
         Return complete information for the specified agent from the database.
         """
 
-        conn = self.get_db_connection()
+        agents_raw = Session().connection().execute("SELECT * FROM agents WHERE session_id = ? OR name = ?",
+                                                     [session_id, session_id]).fetchall()
 
-        try:
-            self.lock.acquire()
-            oldFactory = conn.row_factory
-            conn.row_factory = helpers.dict_factory # return results as a dictionary
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM agents WHERE session_id = ? OR name = ?", [sessionID, sessionID])
-            agent = cur.fetchone()
-            cur.close()
-            conn.row_factory = oldFactory
-        finally:
-            self.lock.release()
+        agent = []
+        for x in range(len(agents_raw)):
+            agent.append(dict(agents_raw[x]))
 
-        return agent
+        return agent[0]
 
 
-    def get_agent_nonce_db(self, sessionID):
+    def get_agent_nonce_db(self, session_id):
         """
         Return the nonce for this sessionID.
         """
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT nonce FROM agents WHERE session_id=?", [sessionID])
-            nonce = cur.fetchone()
-            cur.close()
-        finally:
-            self.lock.release()
+        nonce = Session().query(models.Agent.nonce).filter(models.Agent.session_id == session_id).first()
 
         if nonce and nonce is not None:
             if type(nonce) is str:
@@ -544,25 +511,16 @@ class Agents(object):
                 return nonce[0]
 
 
-    def get_language_db(self, sessionID):
+    def get_language_db(self, session_id):
         """
         Return the language used by this agent.
         """
-
         # see if we were passed a name instead of an ID
-        nameid = self.get_agent_id_db(sessionID)
-        if nameid:
-            sessionID = nameid
+        name_id = self.get_agent_id_db(session_id)
+        if name_id:
+            session_id = name_id
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT language FROM agents WHERE session_id=?", [sessionID])
-            language = cur.fetchone()
-            cur.close()
-        finally:
-            self.lock.release()
+        language = Session().query(models.Agent.language).filter(models.Agent.session_id == session_id).first()
 
         if language is not None:
             if isinstance(language, str):
@@ -571,59 +529,50 @@ class Agents(object):
                 return language[0]
 
 
-    def get_language_version_db(self, sessionID):
+    def get_language_version_db(self, session_id):
         """
         Return the language version used by this agent.
         """
-
         # see if we were passed a name instead of an ID
-        nameid = self.get_agent_id_db(sessionID)
-        if nameid:
-            sessionID = nameid
+        name_id = self.get_agent_id_db(session_id)
+        if name_id:
+            session_id = name_id
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT language_version FROM agents WHERE session_id=?", [sessionID])
-            language = cur.fetchone()
-            cur.close()
-        finally:
-            self.lock.release()
+        language_version = Session().query(models.Agent.language_version).filter(models.Agent.session_id == session_id).first()
 
-        if language is not None:
-            if isinstance(language, str):
-                return language
+        if language_version is not None:
+            if isinstance(language_version, str):
+                return language_version
             else:
-                return language[0]
+                return language_version[0]
 
 
-    def get_agent_session_key_db(self, sessionID):
+    def get_agent_session_key_db(self, session_id):
         """
         Return AES session key from the database for this sessionID.
         """
 
-        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
 
         if agent is not None:
             return agent.session_key
 
 
-    def get_agent_results_db(self, sessionID):
+    def get_agent_results_db(self, session_id):
         """
         Return agent results from the backend database.
         """
-        agent_name = sessionID
+        agent_name = session_id
 
         # see if we were passed a name instead of an ID
-        nameid = self.get_agent_id_db(sessionID)
-        if nameid:
-            sessionID = nameid
+        name_id = self.get_agent_id_db(session_id)
+        if name_id:
+            session_id = name_id
 
-        if sessionID not in self.agents:
+        if session_id not in self.agents:
             print(helpers.color("[!] Agent %s not active." % (agent_name)))
         else:
-            agent = Session().query(models.Agent).filter(models.Agent.session_id == sessionID).first()
+            agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
             results = agent.results
             agent.results = ''
             Session().commit()
@@ -649,11 +598,11 @@ class Agents(object):
             return None
 
 
-    def get_agent_name_db(self, sessionID):
+    def get_agent_name_db(self, session_id):
         """
         Return an agent name based on sessionID.
         """
-        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
 
         if agent:
             return agent.name
@@ -661,11 +610,11 @@ class Agents(object):
             return None
 
 
-    def get_agent_hostname_db(self, sessionID):
+    def get_agent_hostname_db(self, session_id):
         """
         Return an agent's hostname based on sessionID.
         """
-        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
 
         if agent:
             return agent.hostname
@@ -673,11 +622,11 @@ class Agents(object):
             return None
 
 
-    def get_agent_os_db(self, sessionID):
+    def get_agent_os_db(self, session_id):
         """
         Return an agent's operating system details based on sessionID.
         """
-        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
 
         if agent:
             return agent.os_details
@@ -685,33 +634,33 @@ class Agents(object):
             return None
 
 
-    def get_agent_functions(self, sessionID):
+    def get_agent_functions(self, session_id):
         """
         Get the tab-completable functions for an agent.
         """
 
         # see if we were passed a name instead of an ID
-        nameid = self.get_agent_id_db(sessionID)
-        if nameid:
-            sessionID = nameid
+        name_id = self.get_agent_id_db(session_id)
+        if name_id:
+            session_id = name_id
 
         results = []
 
         try:
             self.lock.acquire()
-            if sessionID in self.agents:
-                results = self.agents[sessionID]['functions']
+            if session_id in self.agents:
+                results = self.agents[session_id]['functions']
         finally:
             self.lock.release()
 
         return results
 
 
-    def get_agent_functions_db(self, sessionID):
+    def get_agent_functions_db(self, session_id):
         """
         Return the tab-completable functions for an agent from the database.
         """
-        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
 
         if agent.functions is not None:
             return agent.functions.split(',')
@@ -719,23 +668,23 @@ class Agents(object):
             return []
 
 
-    def get_agents_for_listener(self, listenerName):
+    def get_agents_for_listener(self, listener_name):
         """
         Return agent objects linked to a given listener name.
         """
-        agent = Session().query(models.Agent).filter(models.Agent.listener == listenerName).all()
+        agent = Session().query(models.Agent).filter(models.Agent.listener == listener_name).all()
 
         # make sure names all ascii encoded
         results = [r[0].encode('ascii', 'ignore') for r in agent.session_id]
         return results
 
 
-    def get_agent_names_listener_db(self, listenerName):
+    def get_agent_names_listener_db(self, listener_name):
         """
         Return agent names linked to the given listener name.
         """
 
-        agents = Session().query(models.Agent).filter(models.Agent.listener == listenerName).all()
+        agents = Session().query(models.Agent).filter(models.Agent.listener == listener_name).all()
 
         return agents
 
@@ -826,7 +775,7 @@ class Agents(object):
                 conn.row_factory = old_factory
                 self.lock.release()
 
-    def update_agent_results_db(self, sessionID, results):
+    def update_agent_results_db(self, session_id, results):
         """
         Update agent results in the database.
         """
@@ -835,18 +784,18 @@ class Agents(object):
         if isinstance(results, bytes):
             results = results.decode('UTF-8')
 
-        nameid = self.get_agent_id_db(sessionID)
+        nameid = self.get_agent_id_db(session_id)
         if nameid:
-            sessionID = nameid
+            session_id = nameid
 
-        if sessionID in self.agents:
+        if session_id in self.agents:
             conn = self.get_db_connection()
             try:
                 self.lock.acquire()
                 cur = conn.cursor()
 
                 # get existing agent results
-                cur.execute("SELECT results FROM agents WHERE session_id LIKE ?", [sessionID])
+                cur.execute("SELECT results FROM agents WHERE session_id LIKE ?", [session_id])
                 agent_results = cur.fetchone()
                 if agent_results and agent_results[0]:
                     agent_results = json.loads(agent_results[0])
@@ -854,17 +803,17 @@ class Agents(object):
                     agent_results = []
 
                 agent_results.append(results)
-                cur.execute("UPDATE agents SET results=? WHERE session_id=?", [json.dumps(agent_results), sessionID])
+                cur.execute("UPDATE agents SET results=? WHERE session_id=?", [json.dumps(agent_results), session_id])
                 cur.close()
             finally:
                 self.lock.release()
         else:
-            message = "[!] Non-existent agent %s returned results".format(sessionID)
+            message = "[!] Non-existent agent %s returned results".format(session_id)
             signal = json.dumps({
                 'print': True,
                 'message': message
             })
-            dispatcher.send(signal, sender="agents/{}".format(sessionID))
+            dispatcher.send(signal, sender="agents/{}".format(session_id))
 
 
     def update_agent_sysinfo_db(self, sessionID, listener='', external_ip='', internal_ip='', username='', hostname='', os_details='', high_integrity=0, process_name='', process_id='', language_version='', language=''):
@@ -1118,39 +1067,31 @@ class Agents(object):
                     self.lock.release()
 
 
-    def get_agent_tasks_db(self, sessionID):
+    def get_agent_tasks_db(self, session_id):
         """
         Retrieve tasks for our agent from the database.
         """
 
-        agentName = sessionID
+        agent_name = session_id
 
         # see if we were passed a name instead of an ID
-        nameid = self.get_agent_id_db(sessionID)
-        if nameid:
-            sessionID = nameid
+        name_id = self.get_agent_id_db(session_id)
+        if name_id:
+            session_id = name_id
 
-        if sessionID not in self.agents:
-            print(helpers.color("[!] Agent %s not active." % (agentName)))
+        if session_id not in self.agents:
+            print(helpers.color("[!] Agent %s not active." % agent_name))
             return []
         else:
-            conn = self.get_db_connection()
-            try:
-                self.lock.acquire()
-                cur = conn.cursor()
-                cur.execute("SELECT taskings FROM agents WHERE session_id=?", [sessionID])
-                tasks = cur.fetchone()
+            agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
+            if agent.taskings:
+                tasks = json.loads(agent.taskings)
 
-                if tasks and tasks[0]:
-                    tasks = json.loads(tasks[0])
-                    # clear the taskings out
-                    cur.execute("UPDATE agents SET taskings=? WHERE session_id=?", ['', sessionID])
-                else:
-                    tasks = []
-
-                cur.close()
-            finally:
-                self.lock.release()
+                # clear the taskings out
+                agent.taskings = ''
+                Session().commit
+            else:
+                tasks = []
 
             return tasks
 

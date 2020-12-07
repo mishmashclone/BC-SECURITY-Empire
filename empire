@@ -1027,8 +1027,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, username=None, passw
 
         Takes {'command':'shell_command'}
         """
-        agent = Session().query(models.Agent).filter((models.Agent.name == agent_name) or
-                                                     (models.Agent.session_id == agent_name)).first()
+        agent = Session().query(models.Agent).filter(or_(models.Agent.name == agent_name,
+                                                         models.Agent.session_id == agent_name)).first()
 
         if agent is None:
             return make_response(jsonify({'error': 'agent name %s not found' %(agent_name)}), 404)

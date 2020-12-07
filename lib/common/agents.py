@@ -784,29 +784,22 @@ class Agents(object):
         if isinstance(results, bytes):
             results = results.decode('UTF-8')
 
-        nameid = self.get_agent_id_db(session_id)
-        if nameid:
-            session_id = nameid
+        name_id = self.get_agent_id_db(session_id)
+        if name_id:
+            session_id = name_id
 
         if session_id in self.agents:
-            conn = self.get_db_connection()
-            try:
-                self.lock.acquire()
-                cur = conn.cursor()
+            agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
 
-                # get existing agent results
-                cur.execute("SELECT results FROM agents WHERE session_id LIKE ?", [session_id])
-                agent_results = cur.fetchone()
-                if agent_results and agent_results[0]:
-                    agent_results = json.loads(agent_results[0])
-                else:
-                    agent_results = []
+            if agent.results:
+                agent_results = agent.results
+            else:
+                agent_results = []
 
-                agent_results.append(results)
-                cur.execute("UPDATE agents SET results=? WHERE session_id=?", [json.dumps(agent_results), session_id])
-                cur.close()
-            finally:
-                self.lock.release()
+            agent_results.append(results)
+            agent.results = json.dumps(agent_results)
+            Session().commit()
+
         else:
             message = "[!] Non-existent agent %s returned results".format(session_id)
             signal = json.dumps({

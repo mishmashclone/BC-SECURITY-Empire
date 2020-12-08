@@ -171,9 +171,8 @@ class Reporting(Base):
 # TODO there's probably a better way to lay this one out
 class Function(Base):
     __tablename__ = "functions"
-    id = Column(Integer, Sequence("functions_id_seq"), primary_key=True)
-    invoke_empire = Column(String)
-    invoke_mimikatz = Column(String)
+    keyword = Column(String, primary_key=True)
+    replacement = Column(String)
 
     def __repr__(self):
         return "<Function(id='%s')>" % (

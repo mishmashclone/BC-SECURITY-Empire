@@ -194,8 +194,8 @@ c.execute('''CREATE TABLE "users" (
 c.execute("INSERT INTO users VALUES (?,?,?,?,?,?,?,?)", ("1", API_USERNAME, API_PASSWORD, "", "", True, True, ""))
 
 c.execute('''CREATE TABLE "functions" (
-    "Keyword" text,
-    "Replacement" text 
+    "keyword" text,
+    "replacement" text 
 )''')
 
 rand1 = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))

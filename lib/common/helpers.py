@@ -70,6 +70,8 @@ import hashlib
 import datetime
 
 from datetime import datetime, timezone
+from lib.database.base import Session
+from lib.database import models
 
 ###############################################################
 #
@@ -273,15 +275,10 @@ def strip_powershell_comments(data):
 
 
 def keyword_obfuscation(data):
-    conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
-    conn.isolation_level = None
-    conn.row_factory = None
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM functions")
-    for replacement in cur.fetchall():
-        data = data.replace(replacement[0], replacement[1])
-    cur.close()
-    conn.close()
+    functions = Session().query(models.Function).all()
+
+    for x in range(len(functions)):
+        data = data.replace(functions[x].keyword, functions[x].replacement)
 
     return data
 

@@ -794,9 +794,9 @@ class Agents(object):
             if agent.results:
                 agent_results = agent.results
             else:
-                agent_results = []
+                agent_results = ''
 
-            agent_results.append(results)
+            agent_results += '\n' + results
             agent.results = json.dumps(agent_results)
             Session().commit()
 

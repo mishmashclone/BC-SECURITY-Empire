@@ -622,21 +622,15 @@ def get_config(fields):
     return results
 
 
-def get_listener_options(listenerName):
+def get_listener_options(listener_name):
     """
     Returns the options for a specified listenername from the database outside
     of the normal menu execution.
     """
     try:
-        conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
-        conn.isolation_level = None
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        cur.execute("SELECT options FROM listeners WHERE name = ?", [listenerName])
-        result = cur.fetchone()
-        cur.close()
-        conn.close()
-        return pickle.loads(result['options'])
+        listener_options = Session().query(models.Listener.options).filter(models.Listener.name == listener_name).first()
+        return listener_options
+
     except Exception:
         return None
 

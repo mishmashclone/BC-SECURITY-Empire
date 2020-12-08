@@ -5,7 +5,8 @@ import bcrypt
 from . import helpers
 import json
 from pydispatch import dispatcher
-
+from lib.database.base import Session
+from lib.database import models
 
 class Users(object):
     def __init__(self, mainMenu):
@@ -30,41 +31,35 @@ class Users(object):
         """
         Return whether a user exists or not
         """
-        conn = self.get_db_connection()
-        cur = conn.cursor()
-        exists = cur.execute("SELECT 1 FROM users WHERE id = ? LIMIT 1", (uid,)).fetchone()
-        if exists:
+        user = Session().query(models.User).filter(models.User.id == uid).first()
+        if user:
             return True
-
-        return False
+        else:
+            return False
 
     def add_new_user(self, user_name, password):
         """
         Add new user to cache
         """
         last_logon = helpers.getutcnow()
-        conn = self.get_db_connection()
-        message = False
+        success = Session().add(models.User(username=user_name,
+                                   password=self.get_hashed_password(password),
+                                   last_logon_time=last_logon,
+                                   enabled=True,
+                                   admin=False,
+                                   ))
+        Session().commit()
 
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            success = cur.execute("INSERT INTO users (username, password, last_logon_time, enabled, admin) VALUES (?,?,?,?,?)",
-                        (user_name, self.get_hashed_password(password), last_logon, True, False))
-
-            if success:
-                # dispatch the event
-                signal = json.dumps({
-                    'print': True,
-                    'message': "Added {} to Users".format(user_name)
-                })
-                dispatcher.send(signal, sender="Users")
-                message = True
-            else:
-                message = False
-        finally:
-            cur.close()
-            self.lock.release()
+        if success:
+            # dispatch the event
+            signal = json.dumps({
+                'print': True,
+                'message': "Added {} to Users".format(user_name)
+            })
+            dispatcher.send(signal, sender="Users")
+            message = True
+        else:
+            message = False
 
         return message
 
@@ -72,107 +67,76 @@ class Users(object):
         """
         Disable user
         """
-        conn = self.get_db_connection()
+        user = Session().query(models.User).filter(models.User.id == uid).first()
 
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-
-            if not self.user_exists(uid):
-                    message = False
-            elif self.is_admin(uid):
-                signal = json.dumps({
-                    'print': True,
-                    'message': "Cannot disable admin account"
-                })
+        if not self.user_exists(uid):
                 message = False
-            else:
-                cur.execute("UPDATE users SET enabled = ? WHERE id = ?",
-                            (not(disable), uid))
-                signal = json.dumps({
-                    'print': True,
-                    'message': 'User {}'.format('disabled' if disable else 'enabled')
-                })
-                message = True
-        finally:
-            cur.close()
-            self.lock.release()
+        elif self.is_admin(uid):
+            signal = json.dumps({
+                'print': True,
+                'message': "Cannot disable admin account"
+            })
+            message = False
+        else:
+            user.enabled = not(disable)
+            Session.commit()
+
+            signal = json.dumps({
+                'print': True,
+                'message': 'User {}'.format('disabled' if disable else 'enabled')
+            })
+            message = True
 
         dispatcher.send(signal, sender="Users")
         return message
 
     def user_login(self, user_name, password):
         last_logon = helpers.getutcnow()
-        conn = self.get_db_connection()
 
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            user = cur.execute("SELECT password from users WHERE username = ? AND enabled = 1 LIMIT 1", (user_name,)).fetchone()
+        user = Session().query(models.User).filter(models.User.username == user_name).first()
             
-            if user == None:
-                return None
-            
-            if not self.check_password(password, user[0]):
-                return None
+        if user == None:
+            return None
 
-            cur.execute("SELECT * FROM users WHERE username = ? LIMIT 1"
-                        , (user_name,))
-            user = cur.fetchone()
+        if not self.check_password(password, user.password):
+            return None
 
-            token = self.refresh_api_token()
-            cur.execute("UPDATE users SET last_logon_time = ?, api_token = ? WHERE username = ?",
-                        (last_logon, token, user_name))
-            # dispatch the event
-            signal = json.dumps({
-                'print': True,
-                'message': "{} connected".format(user_name)
-            })
-            dispatcher.send(signal, sender="Users")
-            return token
-        finally:
-            cur.close()
-            self.lock.release()
+        user.api_token = self.refresh_api_token()
+        user.last_logon_time = last_logon
+        user.username = user_name
+        Session.commit()
+
+        # dispatch the event
+        signal = json.dumps({
+            'print': True,
+            'message': "{} connected".format(user_name)
+        })
+        dispatcher.send(signal, sender="Users")
+        return user.api_token
 
     def get_user_from_token(self, token):
-        conn = self.get_db_connection()
+        user = Session().query(models.User).filter(models.User.api_token == token).first()
 
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("SELECT id, username, api_token, last_logon_time, enabled, admin, notes FROM users WHERE api_token = ? LIMIT 1", (token,))
-            user = cur.fetchone()
+        if user:
+            return {'id': user.id, 'username': user.username, 'api_token': user.api_token, 'last_logon_time': user.last_logon_time, 'enabled': user.enabled, 'admin': user.admin, "notes": user.notes}
 
-            if user:
-                [id, username, api_token, last_logon_time, enabled, admin, notes] = user
-                return {'id': id, 'username': username, 'api_token': api_token, 'last_logon_time': last_logon_time, 'enabled': bool(enabled), 'admin': bool(admin), "notes": notes}
-
-            return None
-        finally:
-            cur.close()
-            self.lock.release()
+        return None
 
     def update_username(self, uid, username):
         """
         Update a user's username.
         Currently only when empire is start up with the username arg.
         """
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
+        user = Session().query(models.User).filter(models.User.id == uid).first()
+        user.username = username
+        Session.commit()
 
-            cur.execute("UPDATE users SET username=? WHERE id=?", (username, uid))
-
-            # dispatch the event
-            signal = json.dumps({
-                'print': True,
-                'message': "Username updated"
-            })
-            dispatcher.send(signal, sender="Users")
-        finally:
-            cur.close()
-            self.lock.release()
+        # dispatch the event
+        signal = json.dumps({
+            'print': True,
+            'message': "Username updated"
+        })
+        dispatcher.send(signal, sender="Users")
 
         return True
 
@@ -180,48 +144,33 @@ class Users(object):
         """
         Update the last logon timestamp for a user
         """
-        conn = self.get_db_connection()
-
         if not self.user_exists(uid):
             return False
 
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
+        user = Session().query(models.User).filter(models.User.id == uid).first()
+        user.password = self.get_hashed_password(password)
+        Session.commit()
 
-            cur.execute("UPDATE users SET password=? WHERE id=?", (self.get_hashed_password(password), uid))
-
-            # dispatch the event
-            signal = json.dumps({
-                'print': True,
-                'message': "Password updated"
-            })
-            dispatcher.send(signal, sender="Users")
-        finally:
-            cur.close()
-            self.lock.release()
+        # dispatch the event
+        signal = json.dumps({
+            'print': True,
+            'message': "Password updated"
+        })
+        dispatcher.send(signal, sender="Users")
 
         return True
 
-
     def user_logout(self, uid):
-        conn = self.get_db_connection()
+        user = Session().query(models.User).filter(models.User.id == uid).first()
+        user.api_token = ''
+        Session.commit()
 
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("UPDATE users SET api_token=null WHERE id=?", (uid,))
-
-            # dispatch the event
-            signal = json.dumps({
-                'print': True,
-                'message': "User disconnected"
-            })
-            dispatcher.send(signal, sender="Users")
-
-        finally:
-            cur.close()
-            self.lock.release()
+        # dispatch the event
+        signal = json.dumps({
+            'print': True,
+            'message': "User disconnected"
+        })
+        dispatcher.send(signal, sender="Users")
 
     def refresh_api_token(self):
         """
@@ -238,9 +187,7 @@ class Users(object):
         """
         Returns whether a user is an admin or not.
         """
-        conn = self.get_db_connection()
-        cur = conn.cursor()
-        admin = cur.execute("SELECT admin FROM users WHERE id=?", (uid,)).fetchone()
+        admin = Session().query(models.User.admin).filter(models.User.id == uid).first()
 
         if admin[0] == True:
             return True

@@ -580,7 +580,7 @@ class Agents(object):
             if results and results != '':
                 out = json.loads(results)
                 if out:
-                    return "\n".join(out)
+                    return out
             else:
                 return ''
 

@@ -337,7 +337,9 @@ class Listeners(object):
                 print(helpers.color("[!] Error starting listener: %s" % e))
 
     def enable_listener(self, listenerName):
-        "Starts an existing listener and sets it to enabled"
+        """
+        Starts an existing listener and sets it to enabled
+        """
         if listenerName in list(self.activeListeners.keys()):
             print(helpers.color("[!] Listener already running!"))
             return False

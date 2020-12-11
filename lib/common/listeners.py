@@ -381,7 +381,7 @@ class Listeners(object):
                 del self.activeListeners[listener_name]
             print(helpers.color("[!] Error starting listener: %s" % e))
 
-    def kill_listener(self, listenerName):
+    def kill_listener(self, listener_name):
         """
         Shut down the server associated with a listenerName and delete the
         listener from the database.
@@ -389,33 +389,28 @@ class Listeners(object):
         To kill all listeners, use listenerName == 'all'
         """
 
-        if listenerName.lower() == 'all':
-            listenerNames = list(self.activeListeners.keys())
+        if listener_name.lower() == 'all':
+            listener_names = list(self.activeListeners.keys())
         else:
-            listenerNames = [listenerName]
+            listener_names = [listener_name]
 
-        for listenerName in listenerNames:
-            if listenerName not in self.activeListeners:
-                print(helpers.color("[!] Listener '%s' not active!" % (listenerName)))
+        for listener_name in listener_names:
+            if listener_name not in self.activeListeners:
+                print(helpers.color("[!] Listener '%s' not active!" % (listener_name)))
                 return False
+            listener = Session().query(models.Listener).filter(models.Listener.name == listener_name).first()
 
             # shut down the listener and remove it from the cache
-            if self.mainMenu.listeners.get_listener_module(listenerName) == 'redirector':
-                # remove the listener object from the internal cache
-                del self.activeListeners[listenerName]
-                self.conn.row_factory = None
-                cur = self.conn.cursor()
-                cur.execute("DELETE FROM listeners WHERE name=?", [listenerName])
-                cur.close()
+            if self.mainMenu.listeners.get_listener_module(listener_name) == 'redirector':
+                del self.activeListeners[listener_name]
+                Session().delete(listener)
                 continue
 
-            self.shutdown_listener(listenerName)
+            self.shutdown_listener(listener_name)
 
             # remove the listener from the database
-            self.conn.row_factory = None
-            cur = self.conn.cursor()
-            cur.execute("DELETE FROM listeners WHERE name=?", [listenerName])
-            cur.close()
+            Session().delete(listener)
+        Session().commit()
 
     def delete_listener(self, listener_name):
         """

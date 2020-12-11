@@ -90,6 +90,12 @@ class Agent(Base):
         return "<Agent(name='%s')>" % (
             self.name)
 
+    def __getitem__(self, item):
+        return self.__dict__[item]
+
+    def __setitem__(self, item, value):
+        self.__dict__[item] = value
+
 
 class Config(Base):
     __tablename__ = 'config'

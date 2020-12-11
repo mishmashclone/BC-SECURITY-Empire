@@ -18,7 +18,9 @@ import traceback
 from builtins import filter
 from builtins import object
 from builtins import str
-
+from lib.database.base import Session
+from lib.database import models
+from sqlalchemy import or_
 from pydispatch import dispatcher
 
 from . import helpers

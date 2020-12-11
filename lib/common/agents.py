@@ -809,17 +809,17 @@ class Agents(object):
             dispatcher.send(signal, sender="agents/{}".format(session_id))
 
 
-    def update_agent_sysinfo_db(self, sessionID, listener='', external_ip='', internal_ip='', username='', hostname='', os_details='', high_integrity=0, process_name='', process_id='', language_version='', language=''):
+    def update_agent_sysinfo_db(self, session_id, listener='', external_ip='', internal_ip='', username='', hostname='', os_details='', high_integrity=0, process_name='', process_id='', language_version='', language=''):
         """
         Update an agent's system information.
         """
 
         # see if we were passed a name instead of an ID
-        nameid = self.get_agent_id_db(sessionID)
+        nameid = self.get_agent_id_db(session_id)
         if nameid:
-            sessionID = nameid
+            session_id = nameid
 
-        agent = Session().query(models.Agent).filter(models.Agent.session_id == sessionID).first()
+        agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
 
         agent.internal_ip = internal_ip
         agent.username = username
@@ -834,7 +834,7 @@ class Agents(object):
         Session().commit()
 
 
-    def update_agent_lastseen_db(self, sessionID, current_time=None):
+    def update_agent_lastseen_db(self, session_id, current_time=None):
         """
         Update the agent's last seen timestamp in the database.
         """
@@ -842,22 +842,18 @@ class Agents(object):
         if not current_time:
             current_time = helpers.getutcnow()
 
-        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
-
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
         agent.lastseen_time = current_time
-
         Session.commit()
 
 
-    def update_agent_listener_db(self, sessionID, listenerName):
+    def update_agent_listener_db(self, session_id, listener_name):
         """
         Update the specified agent's linked listener name in the database.
         """
 
-        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == sessionID, models.Agent.name == sessionID)).first()
-
-        agent.listener = listenerName
-
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
+        agent.listener = listener_name
         Session.commit()
 
 
@@ -909,37 +905,34 @@ class Agents(object):
 
         return ret_val
 
-    def set_agent_field_db(self, field, value, sessionID):
+    def set_agent_field_db(self, field, value, session_id):
         """
         Set field:value for a particular sessionID in the database.
         """
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
 
-        conn = self.get_db_connection()
-        cur = conn.cursor()
-        cur.execute("UPDATE agents SET " + str(field) + "=? WHERE session_id=? OR name=?", [value, sessionID, sessionID])
-        cur.close()
+        agent[field] = value
 
+        Session.commit()
 
-    def set_agent_functions_db(self, sessionID, functions):
+    def set_agent_functions_db(self, session_id, functions):
         """
         Set the tab-completable functions for the agent in the database.
         """
 
         # see if we were passed a name instead of an ID
-        nameid = self.get_agent_id_db(sessionID)
-        if nameid:
-            sessionID = nameid
+        name_id = self.get_agent_id_db(session_id)
+        if name_id:
+            session_id = name_id
 
-        if sessionID in self.agents:
-            self.agents[sessionID]['functions'] = functions
+        if session_id in self.agents:
+            self.agents[session_id]['functions'] = functions
 
         functions = ','.join(functions)
 
-        conn = self.get_db_connection()
-        cur = conn.cursor()
-        cur.execute("UPDATE agents SET functions=? WHERE session_id=?", [functions, sessionID])
-        cur.close()
-
+        agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
+        agent.functions = functions
+        Session.commit()
 
     def set_autoruns_db(self, taskCommand, moduleData):
         """
@@ -1123,32 +1116,21 @@ class Agents(object):
         return results
 
 
-    def clear_agent_tasks_db(self, sessionID):
+    def clear_agent_tasks_db(self, session_id):
         """
-        Clear out one (or all) agent tasks in the database.
+        Clear out agent tasks in the database.
         """
 
-        if sessionID.lower() == "all":
-            sessionID = '%'
+        agent = Session().query(models.Agent).filter(or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
+        agent.taskings = ''
+        Session.commit()
 
-        conn = self.get_db_connection()
-        try:
-            self.lock.acquire()
-            cur = conn.cursor()
-            cur.execute("UPDATE agents SET taskings=? WHERE session_id LIKE ? OR name LIKE ?", ['', sessionID, sessionID])
-            cur.close()
-        finally:
-            self.lock.release()
-
-        if sessionID == '%':
-            sessionID = 'all'
-
-        message = "[*] Tasked {} to clear tasks".format(sessionID)
+        message = "[*] Tasked {} to clear tasks".format(session_id)
         signal = json.dumps({
             'print': True,
             'message': message
         })
-        dispatcher.send(signal, sender="agents/{}".format(sessionID))
+        dispatcher.send(signal, sender="agents/{}".format(session_id))
 
 
     ###############################################################

@@ -19,7 +19,7 @@ from builtins import object
 from builtins import str
 from lib.database.base import Session
 from lib.database import models
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from pydispatch import dispatcher
 
 from . import helpers
@@ -140,7 +140,7 @@ class Listeners(object):
                     elif listenerObject.options['Port']['Value'] != '':
                         # otherwise, check if the port value was manually set
                         listenerObject.options['Host']['Value'] = "%s://%s:%s" % (
-                        protocol, value, listenerObject.options['Port']['Value'])
+                            protocol, value, listenerObject.options['Port']['Value'])
                     else:
                         # otherwise use default port
                         listenerObject.options['Host']['Value'] = "%s://%s" % (protocol, value)
@@ -167,13 +167,13 @@ class Listeners(object):
                         address = ''.join(address.split(':')[0])
                         protocol = "https"
                         listenerObject.options['Host']['Value'] = "%s://%s:%s" % (
-                        protocol, address, listenerObject.options['Port']['Value'])
+                            protocol, address, listenerObject.options['Port']['Value'])
                     elif parts.startswith('http'):
                         address = parts[7:]
                         address = ''.join(address.split(':')[0])
                         protocol = "http"
                         listenerObject.options['Host']['Value'] = "%s://%s:%s" % (
-                        protocol, address, listenerObject.options['Port']['Value'])
+                            protocol, address, listenerObject.options['Port']['Value'])
                     return True
 
                 elif option == 'StagingKey':
@@ -285,7 +285,8 @@ class Listeners(object):
     def get_listener_for_socket(self, name):
         listener = Session().query(models.Listener).filter(models.Listener.name == name).first()
 
-        return {'ID': listener.id, 'name': listener.name, 'module': listener.module, 'listener_type': listener.listener_type,
+        return {'ID': listener.id, 'name': listener.name, 'module': listener.module,
+                'listener_type': listener.listener_type,
                 'listener_category': listener.listener_category, 'options': listener.options,
                 'created_at': listener.created_at}
 
@@ -336,53 +337,49 @@ class Listeners(object):
                     del self.activeListeners[listener_name]
                 print(helpers.color("[!] Error starting listener: %s" % e))
 
-    def enable_listener(self, listenerName):
+    def enable_listener(self, listener_name):
         """
         Starts an existing listener and sets it to enabled
         """
-        if listenerName in list(self.activeListeners.keys()):
+        if listener_name in list(self.activeListeners.keys()):
             print(helpers.color("[!] Listener already running!"))
             return False
 
-        oldFactory = self.conn.row_factory
-        self.conn.row_factory = helpers.dict_factory
-        cur = self.conn.cursor()
-        cur.execute("SELECT id,name,module,listener_type,listener_category,options FROM listeners WHERE name=?",
-                    [listenerName])
-        result = cur.fetchone()
+        result = Session().query(models.Listener).filter(models.Listener.name == listener_name).first()
+
         if not result:
-            print(helpers.color("[!] Listener %s doesn't exist!" % listenerName))
+            print(helpers.color("[!] Listener %s doesn't exist!" % listener_name))
             return False
-        moduleName = result['module']
-        options = pickle.loads(result['options'])
+        module_name = result['module']
+        options = result['options']
+
         try:
-            listenerModule = self.loadedListeners[moduleName]
+            listener_module = self.loadedListeners[module_name]
 
             for option, value in options.items():
-                listenerModule.options[option] = value
+                listener_module.options[option] = value
 
-            print(helpers.color("[*] Starting listener '%s'" % (listenerName)))
-            if moduleName == 'redirector':
+            print(helpers.color("[*] Starting listener '%s'" % listener_name))
+            if module_name == 'redirector':
                 success = True
             else:
-                success = listenerModule.start(name=listenerName)
+                success = listener_module.start(name=listener_name)
 
             if success:
                 print(helpers.color('[+] Listener successfully started!'))
-                listenerOptions = copy.deepcopy(listenerModule.options)
-                self.activeListeners[listenerName] = {'moduleName': moduleName, 'options': listenerOptions}
-                cur.execute("UPDATE listeners SET enabled=? WHERE name=? AND NOT module=?",
-                            [True, listenerName, 'redirector'])
+                listener_options = copy.deepcopy(listener_module.options)
+                self.activeListeners[listener_name] = {'moduleName': module_name, 'options': listener_options}
+                Session().query(models.Listener).filter(
+                    and_(models.Listener.name == listener_name, models.Listener.module != 'redirector')).update(
+                    enabled=True)
+                Session().commit()
             else:
                 print(helpers.color('[!] Listener failed to start!'))
         except Exception as e:
             traceback.print_exc()
-            if listenerName in self.activeListeners:
-                del self.activeListeners[listenerName]
-            print(helpers.color("[!] Error starting listener: %s" % (e)))
-
-        cur.close()
-        self.conn.row_factory = oldFactory
+            if listener_name in self.activeListeners:
+                del self.activeListeners[listener_name]
+            print(helpers.color("[!] Error starting listener: %s" % e))
 
     def kill_listener(self, listenerName):
         """

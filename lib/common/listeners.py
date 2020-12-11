@@ -418,11 +418,9 @@ class Listeners(object):
         """
 
         try:
-            old_factory = self.conn.row_factory
-            self.conn.row_factory = helpers.dict_factory
-            cur = self.conn.cursor()
-            cur.execute("SELECT name FROM listeners")
-            db_names = [x['name'] for x in cur.fetchall()]
+            listeners = Session().query(models.Listener).all()
+
+            db_names = [x['name'] for x in listeners]
             if listener_name.lower() == "all":
                 names = db_names
             else:
@@ -435,13 +433,13 @@ class Listeners(object):
 
                 if name in list(self.activeListeners.keys()):
                     self.shutdown_listener(name)
-                cur.execute("DELETE FROM listeners WHERE name=?", [name])
+
+                listener = Session().query(models.Listener).filter(models.Listener.name == name).first()
+                Session().delete(listener)
+            Session().commit()
 
         except Exception as e:
             print(helpers.color("[!] Error deleting listener '%s'" % name))
-
-        cur.close()
-        self.conn.row_factory = old_factory
 
     def shutdown_listener(self, listenerName):
         """

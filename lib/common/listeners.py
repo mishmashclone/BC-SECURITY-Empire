@@ -480,7 +480,8 @@ class Listeners(object):
         """
         active_listener_module_name = self.activeListeners[listener_name]['moduleName']
 
-        listener = Session().query(models.Listener).filter(and_(models.Listener.name == listener_name.lower(), models.Listener.module != 'redirector')).first()
+        listener = Session().query(models.Listener).filter(
+            and_(models.Listener.name == listener_name.lower(), models.Listener.module != 'redirector')).first()
         listener.enabled = False
 
         self.shutdown_listener(listener_name)
@@ -501,7 +502,8 @@ class Listeners(object):
         """
         Resolve a name to listener ID.
         """
-        results = Session().query(models.Listener.id).filter(or_(models.Listener.name == name, models.Listener.id == name)).first()
+        results = Session().query(models.Listener.id).filter(
+            or_(models.Listener.name == name, models.Listener.id == name)).first()
 
         if results:
             return results[0]
@@ -512,7 +514,8 @@ class Listeners(object):
         """
         Resolve a listener ID to a name.
         """
-        results = Session().query(models.Listener.name).filter(or_(models.Listener.name == listener_id, models.Listener.id == listener_id)).first()
+        results = Session().query(models.Listener.name).filter(
+            or_(models.Listener.name == listener_id, models.Listener.id == listener_id)).first()
 
         if results:
             return results[0]
@@ -564,8 +567,9 @@ class Listeners(object):
         return inactive_listeners
 
     def update_listener_options(self, listener_name, option_name, option_value):
-        "Updates a listener option in the database"
-
+        """
+        Updates a listener option in the database
+        """
         try:
             cur = self.conn.cursor()
             cur.execute('SELECT id,options FROM listeners WHERE name=?', [listener_name])
@@ -580,3 +584,15 @@ class Listeners(object):
         except ValueError:
             print(helpers.color("[!] Listener %s not found" % listener_name))
         cur.close()
+        # try:
+        #     listener = Session().query(models.Listener).filter(models.Listener.name == listener_name).first()
+        #
+        #     if not option_name in list(listener.options.keys()):
+        #         print(helpers.color("[!] Listener %s does not have the option %s" % (listener_name, option_name)))
+        #         return
+        #
+        #     listener.options[option_name]['Value'] = option_value
+        #     Session().commit()
+        #
+        # except ValueError:
+        #     print(helpers.color("[!] Listener %s not found" % listener_name))

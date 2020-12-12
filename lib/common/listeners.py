@@ -369,9 +369,10 @@ class Listeners(object):
                 print(helpers.color('[+] Listener successfully started!'))
                 listener_options = copy.deepcopy(listener_module.options)
                 self.activeListeners[listener_name] = {'moduleName': module_name, 'options': listener_options}
-                Session().query(models.Listener).filter(
-                    and_(models.Listener.name == listener_name, models.Listener.module != 'redirector')).update(
-                    enabled=True)
+
+                listener = Session().query(models.Listener).filter(
+                    and_(models.Listener.name == listener_name, models.Listener.module != 'redirector'))
+                listener.enabled = True
                 Session().commit()
             else:
                 print(helpers.color('[!] Listener failed to start!'))
@@ -473,25 +474,25 @@ class Listeners(object):
             # remove the listener object from the internal cache
             del self.activeListeners[listenerName]
 
-    def disable_listener(self, listenerName):
-        "Wrapper for shutdown_listener(), also marks listener as 'disabled' so it won't autostart"
+    def disable_listener(self, listener_name):
+        """
+        Wrapper for shutdown_listener(), also marks listener as 'disabled' so it won't autostart
+        """
+        active_listener_module_name = self.activeListeners[listener_name]['moduleName']
 
-        activeListenerModuleName = self.activeListeners[listenerName]['moduleName']
-        cur = self.conn.cursor()
-        if listenerName.lower() == "all":
-            cur.execute("UPDATE listeners SET enabled=? WHERE NOT module=?", [False, "redirector"])
-        else:
-            cur.execute("UPDATE listeners SET enabled=? WHERE name=? AND NOT module=?",
-                        [False, listenerName.lower(), "redirector"])
-        cur.close()
-        self.shutdown_listener(listenerName)
+        listener = Session().query(models.Listener).filter(and_(models.Listener.name == listener_name.lower(), models.Listener.module != 'redirector')).first()
+        listener.enabled = False
+
+        self.shutdown_listener(listener_name)
+        Session.commit()
+
         # dispatch this event
-        message = "[*] Listener {} killed".format(listenerName)
+        message = "[*] Listener {} killed".format(listener_name)
         signal = json.dumps({
             'print': True,
             'message': message
         })
-        dispatcher.send(signal, sender="listeners/{}/{}".format(activeListenerModuleName, listenerName))
+        dispatcher.send(signal, sender="listeners/{}/{}".format(active_listener_module_name, listener_name))
 
     def is_listener_valid(self, name):
         return name in self.activeListeners
@@ -500,41 +501,29 @@ class Listeners(object):
         """
         Resolve a name to listener ID.
         """
-        oldFactory = self.conn.row_factory
-        self.conn.row_factory = None
-        cur = self.conn.cursor()
-        cur.execute('SELECT id FROM listeners WHERE name=? or id=?', [name, name])
-        results = cur.fetchone()
-        cur.close()
-        self.conn.row_factory = oldFactory
+        results = Session().query(models.Listener.id).filter(or_(models.Listener.name == name, models.Listener.id == name)).first()
 
         if results:
             return results[0]
         else:
             return None
 
-    def get_listener_name(self, listenerId):
+    def get_listener_name(self, listener_id):
         """
         Resolve a listener ID to a name.
         """
-        cur = self.conn.cursor()
-        cur.execute('SELECT name FROM listeners WHERE name=? or id=?', [listenerId, listenerId])
-        results = cur.fetchone()
-        cur.close()
+        results = Session().query(models.Listener.name).filter(or_(models.Listener.name == listener_id, models.Listener.id == listener_id)).first()
 
         if results:
             return results[0]
         else:
             return None
 
-    def get_listener_module(self, listenerName):
+    def get_listener_module(self, listener_name):
         """
         Resolve a listener name to the module used to instantiate it.
         """
-        cur = self.conn.cursor()
-        cur.execute('SELECT module FROM listeners WHERE name=?', [listenerName])
-        results = cur.fetchone()
-        cur.close()
+        results = Session().query(models.Listener.module).filter(models.Listener.name == listener_name).first()
 
         if results:
             return results[0]
@@ -565,21 +554,13 @@ class Listeners(object):
         """
         Returns any listeners that are not currently running
         """
-
-        oldFactory = self.conn.row_factory
-        self.conn.row_factory = helpers.dict_factory
-        cur = self.conn.cursor()
-
-        cur.execute("SELECT name,module,options FROM listeners")
-        db_listeners = cur.fetchall()
+        db_listeners = Session().query(models.Listener).filter(models.Listener.enabled == False).all()
 
         inactive_listeners = {}
-        for listener in filter((lambda x: x['name'] not in list(self.activeListeners.keys())), db_listeners):
+        for listener in db_listeners:
             inactive_listeners[listener['name']] = {'moduleName': listener['module'],
-                                                    'options': pickle.loads(listener['options'])}
+                                                    'options': listener['options']}
 
-        cur.close()
-        self.conn.row_factory = oldFactory
         return inactive_listeners
 
     def update_listener_options(self, listener_name, option_name, option_value):

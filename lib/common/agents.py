@@ -2059,6 +2059,22 @@ class Agents(object):
                 # dynamic script output -> non-blocking
                 self.update_agent_results_db(sessionID, data)
 
+                # see if there are any credentials to parse
+                time = helpers.get_datetime()
+                creds = helpers.parse_credentials(data)
+                if creds:
+                    for cred in creds:
+
+                        hostname = cred[4]
+
+                        if hostname == "":
+                            hostname = self.get_agent_hostname_db(sessionID)
+
+                        osDetails = self.get_agent_os_db(sessionID)
+
+                        self.mainMenu.credentials.add_credential(cred[0], cred[1], cred[2], cred[3], hostname,
+                                                                 osDetails, cred[5], time)
+
                 # update the agent log
                 self.save_agent_log(sessionID, data)
 

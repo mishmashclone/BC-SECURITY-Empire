@@ -851,7 +851,7 @@ def decode_base64(data):
         data += b'=' * missing_padding
 
     try:
-        result = base64.decodestring(data)
+        result = base64.decodebytes(data)
         return result
     except binascii.Error:
         # if there's a decoding error, just return the data

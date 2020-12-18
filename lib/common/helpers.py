@@ -560,7 +560,7 @@ def parse_mimikatz(data):
                             krbtgtHash = lines[x + 2].split(b":")[1].strip()
                             break
 
-                    if krbtgtHash != "":
+                    if krbtgtHash != b"":
                         creds.append(("hash", domain.decode('UTF-8'), "krbtgt", krbtgtHash.decode('UTF-8'), hostName.decode('UTF-8'), sid.decode('UTF-8')))
                 except Exception as e:
                     pass

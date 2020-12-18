@@ -1,3 +1,11 @@
+12/18/2020
+------------
+- Version 3.6.3 Master Release
+        - Added save path to download file message - #414 (@meldridge)
+        - Updated installation file formatting - #410 (@Pernat1y)
+        - Fixed python 3.9.1 issue with deprecated base64 function - #422 (@brimstone)
+        - Fixed dump creds and hash not being logged in credentials properly - #423 (@Cx01N)
+
 11/27/2020
 ------------
 - Version 3.6.2 Master Release

@@ -543,25 +543,25 @@ def parse_mimikatz(data):
         for x in range(8, 13):
             if lines[x].startswith(b"Domain :"):
 
-                domain, sid, krbtgtHash = "", "", ""
+                domain, sid, krbtgtHash = b"", b"", b""
 
                 try:
-                    domainParts = lines[x].split(":")[1]
-                    domain = domainParts.split("/")[0].strip()
-                    sid = domainParts.split("/")[1].strip()
+                    domainParts = lines[x].split(b":")[1]
+                    domain = domainParts.split(b"/")[0].strip()
+                    sid = domainParts.split(b"/")[1].strip()
 
                     # substitute the FQDN in if it matches
-                    if hostDomain.startswith(domain.lower()):
+                    if hostDomain.startswith(domain.decode("UTF-8").lower()):
                         domain = hostDomain
                         sid = domainSid
 
                     for x in range(0, len(lines)):
-                        if lines[x].startswith("User : krbtgt"):
-                            krbtgtHash = lines[x + 2].split(":")[1].strip()
+                        if lines[x].startswith(b"User : krbtgt"):
+                            krbtgtHash = lines[x + 2].split(b":")[1].strip()
                             break
 
-                    if krbtgtHash != "":
-                        creds.append(("hash", domain, "krbtgt", krbtgtHash, hostName, sid))
+                    if krbtgtHash != b"":
+                        creds.append(("hash", domain.decode('UTF-8'), "krbtgt", krbtgtHash.decode('UTF-8'), hostName.decode('UTF-8'), sid.decode('UTF-8')))
                 except Exception as e:
                     pass
 
@@ -570,23 +570,20 @@ def parse_mimikatz(data):
         if b'** SAM ACCOUNT **' in lines:
             domain, user, userHash, dcName, sid = "", "", "", "", ""
             for line in lines:
-                try:
-                    if line.strip().endswith("will be the domain"):
-                        domain = line.split("'")[1]
-                    elif line.strip().endswith("will be the DC server"):
-                        dcName = line.split("'")[1].split(".")[0]
-                    elif line.strip().startswith("SAM Username"):
-                        user = line.split(":")[1].strip()
-                    elif line.strip().startswith("Object Security ID"):
-                        parts = line.split(":")[1].strip().split("-")
-                        sid = "-".join(parts[0:-1])
-                    elif line.strip().startswith("Hash NTLM:"):
-                        userHash = line.split(":")[1].strip()
-                except:
-                    pass
+                if line.strip().endswith(b"will be the domain"):
+                    domain = line.split(b"'")[1]
+                elif line.strip().endswith(b"will be the DC server"):
+                    dcName = line.split(b"'")[1].split(b".")[0]
+                elif line.strip().startswith(b"SAM Username"):
+                    user = line.split(b":")[1].strip()
+                elif line.strip().startswith(b"Object Security ID"):
+                    parts = line.split(b":")[1].strip().split(b"-")
+                    sid = b"-".join(parts[0:-1])
+                elif line.strip().startswith(b"Hash NTLM:"):
+                    userHash = line.split(b":")[1].strip()
 
             if domain != "" and userHash != "":
-                creds.append(("hash", domain, user, userHash, dcName, sid))
+                creds.append(("hash", domain.decode('UTF-8'), user.decode('UTF-8'), userHash.decode('UTF-8'), dcName.decode('UTF-8'), sid.decode('UTF-8')))
 
     return uniquify_tuples(creds)
 
@@ -851,7 +848,7 @@ def decode_base64(data):
         data += b'=' * missing_padding
 
     try:
-        result = base64.decodestring(data)
+        result = base64.decodebytes(data)
         return result
     except binascii.Error:
         # if there's a decoding error, just return the data

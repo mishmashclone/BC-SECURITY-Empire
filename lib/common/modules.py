@@ -22,9 +22,6 @@ class Modules(object):
     def __init__(self, MainMenu, args):
 
         self.mainMenu = MainMenu
-
-        # pull the database connection object out of the main menu
-        self.conn = self.mainMenu.conn
         self.args = args
 
         # module format:

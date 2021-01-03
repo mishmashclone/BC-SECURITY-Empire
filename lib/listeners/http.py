@@ -164,25 +164,11 @@ class Listener(object):
         # randomize the length of the default_response and index_page headers to evade signature based scans
         self.header_offset = random.randint(0, 64)
 
-        # used to protect self.http and self.mainMenu.conn during threaded listener access
-        self.lock = threading.Lock()
-
         self.session_cookie = ''
         
         # check if the current session cookie not empty and then generate random cookie
         if self.session_cookie == '':
             self.options['Cookie']['Value'] = self.generate_cookie()
-
-    # this might not be necessary. Could probably be achieved by just callingg mainmenu.get_db but all the other files have
-    # implemented it in place. Might be worthwhile to just make a database handling file
-    def get_db_connection(self):
-        """
-        Returns the cursor for SQLlite DB
-        """
-        self.lock.acquire()
-        self.mainMenu.conn.row_factory = None
-        self.lock.release()
-        return self.mainMenu.conn
 
     def default_response(self):
         """
@@ -610,11 +596,7 @@ class Listener(object):
             f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
             stager = helpers.keyword_obfuscation(stager)
-            self.lock.release()
-
 
             # make sure the server ends with "/"
             if not host.endswith("/"):
@@ -732,18 +714,13 @@ class Listener(object):
         
         if language == 'powershell':
             
-            f = open(self.mainMenu.installPath + "./data/agent/agent.ps1")
+            f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
             code = f.read()
             f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
             code = helpers.keyword_obfuscation(code)
-            self.lock.release()
 
-
-            
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
             code = code.replace('REPLACE_COMMS', commsCode)
@@ -768,7 +745,7 @@ class Listener(object):
             return code
         
         elif language == 'python':
-            f = open(self.mainMenu.installPath + "./data/agent/agent.py")
+            f = open(self.mainMenu.installPath + "/data/agent/agent.py")
             code = f.read()
             f.close()
             

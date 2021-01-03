@@ -78,16 +78,6 @@ class Module(object):
             option, value = param
             if option in self.options:
                 self.options[option]['Value'] = value
-    # this might not be necessary. Could probably be achieved by just callingg mainmenu.get_db but all the other files have
-    # implemented it in place. Might be worthwhile to just make a database handling file -Hubbl3
-    def get_db_connection(self):
-        """
-        Returns the cursor for SQLlite DB
-        """
-        self.lock.acquire()
-        self.mainMenu.conn.row_factory = None
-        self.lock.release()
-        return self.mainMenu.conn
 
     def generate(self, obfuscate=False, obfuscationCommand=""):
         

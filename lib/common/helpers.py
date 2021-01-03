@@ -70,6 +70,8 @@ import hashlib
 import datetime
 
 from datetime import datetime, timezone
+from lib.database.base import Session
+from lib.database import models
 
 ###############################################################
 #
@@ -273,15 +275,10 @@ def strip_powershell_comments(data):
 
 
 def keyword_obfuscation(data):
-    conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
-    conn.isolation_level = None
-    conn.row_factory = None
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM functions")
-    for replacement in cur.fetchall():
-        data = data.replace(replacement[0], replacement[1])
-    cur.close()
-    conn.close()
+    functions = Session().query(models.Function).all()
+
+    for function in functions:
+        data = data.replace(function.keyword, function.replacement)
 
     return data
 
@@ -602,41 +599,24 @@ def get_config(fields):
     Fields should be comma separated.
         i.e. 'version,install_path'
     """
+    results = []
+    config = Session().query(models.Config).first()
 
-    conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
-    conn.isolation_level = None
-
-    cur = conn.cursor()
-
-    # Check if there is a new field not in the database
-    columns = [i[1] for i in cur.execute('PRAGMA table_info(config)')]
     for field in fields.split(','):
-        if field.strip() not in columns:
-            cur.execute("ALTER TABLE config ADD COLUMN %s BLOB" % (field))
-
-    cur.execute("SELECT %s FROM config" % (fields))
-    results = cur.fetchone()
-    cur.close()
-    conn.close()
+        results.append(config[field.strip()])
 
     return results
 
 
-def get_listener_options(listenerName):
+def get_listener_options(listener_name):
     """
     Returns the options for a specified listenername from the database outside
     of the normal menu execution.
     """
     try:
-        conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
-        conn.isolation_level = None
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        cur.execute("SELECT options FROM listeners WHERE name = ?", [listenerName])
-        result = cur.fetchone()
-        cur.close()
-        conn.close()
-        return pickle.loads(result['options'])
+        listener_options = Session().query(models.Listener.options).filter(models.Listener.name == listener_name).first()
+        return listener_options
+
     except Exception:
         return None
 
@@ -766,7 +746,7 @@ def color(string, color=None):
             return string
 
 
-def is_stale(lastseen : datetime, delay: int, jitter: float):
+def is_stale(lastseen: datetime, delay: int, jitter: float):
     """Convenience function for calculating staleness"""
     interval_max = (delay + delay * jitter) + 30
     diff = getutcnow() - lastseen
@@ -774,18 +754,13 @@ def is_stale(lastseen : datetime, delay: int, jitter: float):
     return stale
 
 
-def lastseen(stamp, delay, jitter):
+def lastseen(stamp: datetime, delay, jitter):
     """
     Colorize the Last Seen field based on measured delays
     """
     try:
-        if "T" in stamp:
-            stamp_date = datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%S.%f%z").astimezone(tz=None) # Display local
-        else:
-            stamp_date = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S.%f%z").astimezone(tz=None) # Display local
-            
-        stamp_display_local = stamp_date.strftime('%Y-%m-%d %H:%M:%S')
-        delta = getutcnow() - stamp_date
+        stamp_display_local = stamp.strftime('%Y-%m-%d %H:%M:%S')
+        delta = getutcnow() - stamp
 
         # Set min threshold for delay/jitter
         if delay < 1:

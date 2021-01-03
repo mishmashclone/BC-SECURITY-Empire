@@ -142,18 +142,6 @@ class Listener(object):
         # set the default staging key to the controller db default
         self.options['StagingKey']['Value'] = str(helpers.get_config('staging_key')[0])
 
-        # used to protect self.http and self.mainMenu.conn during threaded listener access
-        self.lock = threading.Lock()
-
-    def get_db_connection(self):
-        """
-        Returns the cursor for SQLlite DB
-        """
-        self.lock.acquire()
-        self.mainMenu.conn.row_factory = None
-        self.lock.release()
-        return self.mainMenu.conn
-
     def default_response(self):
         """
         Returns an IIS 7.5 404 not found page.
@@ -638,10 +626,7 @@ class Listener(object):
             f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
             stager = helpers.keyword_obfuscation(stager)
-            self.lock.release()
 
             # patch in custom headers
             if profile.stager.client.headers:
@@ -746,15 +731,12 @@ class Listener(object):
 
         if language == 'powershell':
             #read in agent code
-            f = open(self.mainMenu.installPath + "./data/agent/agent.ps1")
+            f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
             code = f.read()
             f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
             code = helpers.keyword_obfuscation(code)
-            self.lock.release()
 
             # path in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
@@ -781,7 +763,7 @@ class Listener(object):
 
             # read in the agent base
             code = ""
-            with open(self.mainMenu.installPath + "./data/agent/agent.py") as f:
+            with open(self.mainMenu.installPath + "/data/agent/agent.py") as f:
                 code = f.read()
 
             # patch in the comms methods

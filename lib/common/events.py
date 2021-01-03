@@ -8,8 +8,11 @@ which help manage those events - logging them, fetching them, etc.
 import json
 
 from pydispatch import dispatcher
+from lib.database.base import Session
+from lib.database import models
 
-#from lib.common import db # used in the disabled TODO below
+
+# from lib.common import db # used in the disabled TODO below
 
 ################################################################################
 # Helper functions for logging common events
@@ -30,7 +33,7 @@ def agent_rename(old_name, new_name):
         'message': message,
         'old_name': old_name,
         'new_name': new_name,
-        'event_type' : 'rename'
+        'event_type': 'rename'
     })
     # signal twice, once for each name (that way, if you search by sender,
     # the last thing in the old agent and the first thing in the new is that
@@ -39,15 +42,9 @@ def agent_rename(old_name, new_name):
     dispatcher.send(signal, sender="agents/{}".format(new_name))
 
     # TODO rename all events left over using agent's old name?
-    # in order to handle "agents/<name>" as well as "agents/<name>/stuff"
-    # we'll need to query, iterate the list to build replacements, then send
-    # a bunch of updates... kind of a pain
 
-    #cur = db.cursor()
-    #cur.execute("UPDATE reporting SET name=? WHERE name REGEXP ?", [new_name, old_sender])
-    #cur.close()
 
-def log_event(cur, name, event_type, message, timestamp, task_id=None):
+def log_event(name, event_type, message, timestamp, task_id=None):
     """
     Log arbitrary events
 
@@ -63,13 +60,9 @@ def log_event(cur, name, event_type, message, timestamp, task_id=None):
     task_id    - the ID of the task this event is in relation to. Enables quick
                  queries of an agent's task and its result together.
     """
-    cur.execute(
-        "INSERT INTO reporting (name, event_type, message, timestamp, taskID) VALUES (?,?,?,?,?)",
-        (
-            name,
-            event_type,
-            message,
-            timestamp,
-            task_id
-        )
-    )
+    Session().add(models.Reporting(name=name,
+                                   event_type=event_type,
+                                   message=message,
+                                   timestamp=timestamp,
+                                   taskID=task_id))
+    Session().commit()

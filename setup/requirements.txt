@@ -21,3 +21,4 @@ bcrypt
 pycrypto
 pyparsing
 flask-socketio
+sqlalchemy

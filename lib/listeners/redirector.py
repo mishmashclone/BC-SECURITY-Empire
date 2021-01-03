@@ -489,7 +489,7 @@ class Listener(object):
 
         if language == 'powershell':
 
-            f = open(self.mainMenu.installPath + "./data/agent/agent.ps1")
+            f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
             code = f.read()
             f.close()
             # Get the random function name generated at install and patch the stager with the proper function name
@@ -518,7 +518,7 @@ class Listener(object):
             return code
 
         elif language == 'python':
-            f = open(self.mainMenu.installPath + "./data/agent/agent.py")
+            f = open(self.mainMenu.installPath + "/data/agent/agent.py")
             code = f.read()
             f.close()
 

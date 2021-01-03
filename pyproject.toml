@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Empire - BC Security Fork"
-version = "3.5.0"
+version = "3.6.3"
 description = ""
 authors = ["BC Security <info@bc-security.org>"]
 readme = "README.md"
@@ -27,11 +27,15 @@ cryptography = "*"
 pyminifier = "*"
 xlutils = "*"
 pefile = "*"
-simplejson = "*"
 bcrypt = "*"
 pycrypto = "*"
 pyparsing = "*"
-flask-socketio = "*"
+PyMySQL = "^0.10.1"
+SQLAlchemy = "^1.3.20"
+PyYAML = "^5.3.1"
+cffi = "1.14.4"
+Flask-SocketIO = "^4.3.2"
+SQLAlchemy-Utc = "^0.11.0"
 
 [tool.poetry.dev-dependencies]
 

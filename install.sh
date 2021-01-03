@@ -82,7 +82,7 @@ function install_powershell() {
 
 	# Install Invoke-Obfuscation module
 	mkdir -p /usr/local/share/powershell/Modules
-	cp -r ../lib/powershell/Invoke-Obfuscation /usr/local/share/powershell/Modules
+	cp -r ./lib/powershell/Invoke-Obfuscation /usr/local/share/powershell/Modules
 }
 
 function install_xar() {
@@ -172,12 +172,12 @@ install_powershell
 # Install Python dependencies
 sudo pip3 install -r "$Pip_file"
 
-# Set up the database schema
-python3 ./setup_database.py
-
 # Generate a cert
 ./cert.sh
 
 cd ..
+
+# Set up the database schema
+python3 ./setup_database.py
 
 echo -e '\n [*] Setup complete!\n'

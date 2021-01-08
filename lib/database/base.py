@@ -1,6 +1,9 @@
+import subprocess
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+from lib import arguments
 from lib.common.config import empire_config
 from lib.database import models
 from lib.database.defaults import get_default_user, get_default_config
@@ -18,6 +21,15 @@ else:
     engine = create_engine(f'sqlite:///{location}?check_same_thread=false', echo=False)
 
 Session = scoped_session(sessionmaker(bind=engine))
+
+args = arguments.args
+if args.reset:
+    choice = input("\n [>] Would you like to reset your Empire instance? [y/N]: ")
+    if choice.lower() == "y":
+        Base.metadata.drop_all(engine)
+        subprocess.call("./reset.sh")
+    else:
+        pass
 
 Base.metadata.create_all(engine)
 

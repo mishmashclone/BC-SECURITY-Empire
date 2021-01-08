@@ -7,14 +7,6 @@ fi
 
 IFS='/' read -a array <<< pwd
 
-# reset the database
-if [ -e ./data/empire.db ]
-then
-	rm ./data/empire.db
-fi
-
-python3 setup_database.py
-
 # remove the debug file if it exists
 if [ -e empire.debug ]
 then

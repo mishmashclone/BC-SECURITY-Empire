@@ -1808,10 +1808,27 @@ if __name__ == '__main__':
         print(empire.VERSION)
 
     if args.reset:
-        choice = input("\n [>] Would you like to reset your Empire instance? [y/N]: ")
-        if choice.lower() == "y":
-            subprocess.call("./reset.sh")
-        else:
+        # Reset called from database/base.py
+        sys.exit()
+
+    elif args.headless:
+        # start an Empire instance and RESTful API and suppress output
+        main = empire.MainMenu(args=args)
+        def thread_websocket(empire_menu):
+            try:
+                start_sockets(empire_menu=empire_menu, suppress=True, port=int(args.socketport))
+            except SystemExit as e:
+                pass
+
+        thread2 = helpers.KThread(target=thread_websocket, args=(main,))
+        thread2.daemon = True
+        thread2.start()
+        sleep(2)
+
+        try:
+            start_restful_api(empireMenu=main, suppress=True, headless=True, username=args.username, password=args.password,
+                              port=args.restport)
+        except SystemExit as e:
             pass
 
     elif args.headless:

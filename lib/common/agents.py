@@ -636,10 +636,14 @@ class Agents(object):
         """
         Return agent objects linked to a given listener name.
         """
-        agent = Session().query(models.Agent).filter(models.Agent.listener == listener_name).all()
+        agents = Session().query(models.Agent.session_id).filter(models.Agent.listener == listener_name).all()
 
-        # make sure names all ascii encoded
-        results = [r[0].encode('ascii', 'ignore') for r in agent.session_id]
+        if agents:
+            # make sure names all ascii encoded
+            results = [r[0].encode('ascii', 'ignore') for r in agents]
+        else:
+            results = []
+
         return results
 
     def get_agent_names_listener_db(self, listener_name):

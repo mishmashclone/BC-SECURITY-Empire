@@ -36,6 +36,7 @@ import threading
 import json
 import random
 import string
+import time
 
 # Empire imports
 from . import helpers
@@ -49,6 +50,10 @@ from . import users
 from . import plugins
 from .events import log_event
 from zlib_wrapper import compress
+from prompt_toolkit import PromptSession, HTML
+from prompt_toolkit.completion import Completer
+from prompt_toolkit.history import InMemoryHistory
+from prompt_toolkit.patch_stdout import patch_stdout
 from lib.database.base import Session
 from lib.database import models
 from sqlalchemy import or_, func, and_
@@ -401,6 +406,58 @@ class MainMenu(cmd.Cmd):
             except Exception as e:
                 print(helpers.color("[!] Exception: %s" % (e)))
                 time.sleep(5)
+
+    def info(self):
+        """
+        The main cmdloop logic that handles navigation to other menus.
+        """
+        session = PromptSession(
+            complete_in_thread=True,
+            bottom_toolbar=self.bottom_toolbar,
+            refresh_interval=5
+        )
+
+        while True:
+            try:
+                # get active listeners, agents, and loaded modules
+                num_agents = len(self.agents.get_agents_db() or [])
+
+                num_modules = self.modules.modules
+                if num_modules:
+                    num_modules = len(num_modules)
+                else:
+                    num_modules = 0
+
+                num_listeners = self.listeners.activeListeners
+                if num_listeners:
+                    num_listeners = len(num_listeners)
+                else:
+                    num_listeners = 0
+
+                messages.headless_title(VERSION, num_modules, num_listeners, num_agents)
+
+                with patch_stdout():
+                    text = session.prompt('Empire > ', refresh_interval=None)
+                    print(helpers.color('[!] Type exit to quit'))
+            except KeyboardInterrupt:
+                print(helpers.color("[!] Type exit to quit"))
+                continue  # Control-C pressed. Try again.
+            except EOFError:
+                break  # Control-D pressed.
+
+            if text == 'exit':
+                choice = input(helpers.color("[>] Exit? [y/N] ", "red"))
+                if choice.lower() == "y":
+                    self.shutdown()
+                    return True
+                else:
+                    pass
+
+    def bottom_toolbar(self):
+        return HTML(f'EMPIRE TEAM SERVER | ' +
+                    str(len(self.agents.agents)) + ' Agents | ' +
+                    str(len(self.listeners.activeListeners)) + ' Listeners | ' +
+                    str(len(self.loadedPlugins)) + ' Plugins')
 
     def print_topics(self, header, commands, cmdlen, maxcol):
         """

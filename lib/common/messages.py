@@ -46,6 +46,35 @@ def title(version):
 
 """)
 
+
+def headless_title(version, num_modules, num_listeners, num_agents):
+    """
+    Print the tool title, with version.
+    """
+    os.system('clear')
+    print("================================================================================")
+    print(" [Empire]  Post-Exploitation Framework")
+    print('================================================================================')
+    print(" [Version] %s | [Web] https://github.com/BC-SECURITY/Empire" % (version))
+    print('================================================================================')
+    print("""
+   _______ .___  ___. .______    __  .______       _______
+  |   ____||   \/   | |   _  \  |  | |   _  \     |   ____|
+  |  |__   |  \  /  | |  |_)  | |  | |  |_)  |    |  |__
+  |   __|  |  |\/|  | |   ___/  |  | |      /     |   __|
+  |  |____ |  |  |  | |  |      |  | |  |\  \----.|  |____
+  |_______||__|  |__| | _|      |__| | _| `._____||_______|
+""")
+    print("       " + helpers.color(str(num_modules), "green") + " modules currently loaded\n")
+    print("       " + helpers.color(str(num_listeners), "green") + " listeners currently active\n")
+    print("       " + helpers.color(str(num_agents), "green") + " agents currently active\n\n")
+
+    print('                              EMPIRE API REQUIRES:                              ')
+    print('================================================================================')
+    print(' [Starkiller] Multi-User GUI | [Web] https://github.com/BC-SECURITY/Starkiller')
+    print(' [Empire CLI] New Empire CLI | [Web] https://github.com/BC-SECURITY/Empire-Cli \n\n')
+
+
 def loading():
     """
     Print and ascii loading screen.

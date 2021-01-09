@@ -25,6 +25,9 @@ Please reach out to us on our [Discord](https://discord.gg/P8PZPyf) if you have 
 
 Thank you to the original team of developers: [@harmj0y](https://twitter.com/harmj0y), [@sixdub](https://twitter.com/sixdub), [@enigma0x3](https://twitter.com/enigma0x3), [@rvrsh3ll](https://twitter.com/424f424f), [@killswitch_gui](https://twitter.com/killswitch_gui), & [@xorrior](https://twitter.com/xorrior)
 
+## Sponsors
+[<img src="https://user-images.githubusercontent.com/20302208/104083160-41552780-51f1-11eb-8428-3b8cfaf76861.png" width="300"/>](https://www.kali.org/)
+
 ## Release Notes
 As of Empire 3.1, we will no longer be actively supporting the Python 2.7 base code. If you wish to continue to leverage Python 2.7 then please use the [3.0.x Releases](https://github.com/BC-SECURITY/Empire/releases), since they were built to ensure backward compatibility.
 
@@ -50,7 +53,6 @@ sudo poetry run python empire --rest -n
 ```
 
 ### Kali
-
 You can install the latest version of Empire by running the following:
 
 ```sh
@@ -88,7 +90,6 @@ All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
 * All github tagged releases will be deployed using their version numbers (v3.0.0, v3.1.0, etc)
 
 ## Quickstart
-
 Check out the [Empire wiki](https://github.com/BC-SECURITY/Empire/wiki/Quickstart) for instructions on getting started with Empire.
 
 ## Plugins

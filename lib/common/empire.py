@@ -959,7 +959,7 @@ class MainMenu(cmd.Cmd):
 
         # Preobfuscate a selected module_source file
         else:
-            module_source_fullpath = self.installPath + 'data/module_source/' + module
+            module_source_fullpath = self.installPath + '/data/module_source/' + module
             if not os.path.isfile(module_source_fullpath):
                 print(helpers.color("[!] The module_source file:" + module_source_fullpath + " does not exist."))
                 return
@@ -978,9 +978,9 @@ class MainMenu(cmd.Cmd):
             if obfuscate_all:
                 files = [file for file in helpers.get_module_source_files()]
             else:
-                files = ['data/module_source/' + module]
+                files = ['/data/module_source/' + module]
             for file in files:
-                file = self.installPath + file
+                file = self.installPath + '/' + file
                 if reobfuscate or not helpers.is_obfuscated(file):
                     message = "[*] Obfuscating {}...".format(os.path.basename(file))
                     signal = json.dumps({
@@ -1216,7 +1216,7 @@ class MainMenu(cmd.Cmd):
 
     def complete_preobfuscate(self, text, line, begidx, endidx):
         "Tab-complete an interact command"
-        options = [(option[len('data/module_source/'):]) for option in helpers.get_module_source_files()]
+        options = [(option[len('/data/module_source/'):]) for option in helpers.get_module_source_files()]
         options.append('all')
 
         mline = line.partition(' ')[2]

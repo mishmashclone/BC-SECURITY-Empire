@@ -905,8 +905,8 @@ def obfuscate(installPath, psScript, obfuscationCommand):
         print(color("[!] PowerShell is not installed and is required to use obfuscation, please install it first."))
         return ""
     # When obfuscating large scripts, command line length is too long. Need to save to temp file
-    toObfuscateFilename = installPath + "data/misc/ToObfuscate.ps1"
-    obfuscatedFilename = installPath + "data/misc/Obfuscated.ps1"
+    toObfuscateFilename = installPath + "/data/misc/ToObfuscate.ps1"
+    obfuscatedFilename = installPath + "/data/misc/Obfuscated.ps1"
     toObfuscateFile = open(toObfuscateFilename, 'w')
     toObfuscateFile.write(psScript)
     toObfuscateFile.close()

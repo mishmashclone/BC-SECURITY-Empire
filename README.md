@@ -61,7 +61,7 @@ To install and run:
 ```sh
 git clone --recursive https://github.com/BC-SECURITY/Empire.git
 cd Empire
-sudo ./install.sh
+sudo ./setup/install.sh
 sudo poetry install
 sudo poetry run python empire
 ```

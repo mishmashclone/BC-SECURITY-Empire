@@ -27,7 +27,7 @@ if args.reset:
     choice = input("\n [>] Would you like to reset your Empire instance? [y/N]: ")
     if choice.lower() == "y":
         Base.metadata.drop_all(engine)
-        subprocess.call("./reset.sh")
+        subprocess.call("./setup/reset.sh")
     else:
         pass
 

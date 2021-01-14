@@ -3,6 +3,7 @@
 - Version 3.7.0 Master Release
         - Revamped backend database from SQL to SQLAlchemy (@Cx01N, @Vinnybod)
         - Added new Empire CLI to packaging (@Vinnybod)
+        - Added malleable C2 profiles to empire directory: /data/profiles (@Cx01N)
         - Added --teamserver option to launcher (@Cx01N)
         - Added support for logging into Empire from multiple locations (@Vinnybod)
         - Added Invoke-WireTap (@Cx01N)

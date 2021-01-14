@@ -82,11 +82,11 @@ function install_powershell() {
 
 	# Install Invoke-Obfuscation module
 	mkdir -p /usr/local/share/powershell/Modules
-	cp -r ./lib/powershell/Invoke-Obfuscation /usr/local/share/powershell/Modules
+	cp -r ../lib/powershell/Invoke-Obfuscation /usr/local/share/powershell/Modules
 }
 
 function install_xar() {
-	# xar-1.6.1 has an incompatability with libssl 1.1.x that is patched here
+	# xar-1.6.1 has an incompatibility with libssl 1.1.x that is patched here
 	# for older OS on libssl 1.0.x, we continue to use 1.6.1
 	if is_libssl_1_0; then
 		wget https://github.com/BC-SECURITY/xar/archive/xar-1.6.1.tar.gz

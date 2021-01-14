@@ -12,7 +12,8 @@
 
 Keep up-to-date on our blog at [https://www.bc-security.org/blog][1]
 
-Check out the Empire GUI: [Starkiller](https://github.com/BC-SECURITY/Starkiller)
+[Starkiller](https://github.com/BC-SECURITY/Starkiller) | [Empire CLI](https://github.com/BC-SECURITY/Empire-Cli)
+
 # Empire
 Empire 3 is a post-exploitation framework that includes a pure-PowerShell Windows agent, and compatibility with Python 3.x Linux/OS X agents. It is the merger of the previous PowerShell Empire and Python EmPyre projects. The framework offers cryptologically-secure communications and flexible architecture.
 
@@ -34,38 +35,35 @@ As of Empire 3.1, we will no longer be actively supporting the Python 2.7 base c
 Please see our [Releases](https://github.com/BC-SECURITY/Empire/releases) or [Changelog](/changelog) page for detailed release notes.
 
 ## Install
+We recommend the use of [Kali](https://www.kali.org/downloads/), [Poetry](https://python-poetry.org/docs/), or our [Docker images](https://hub.docker.com/r/bcsecurity/empire) to run Empire.
+Kali Linux users and [Direct Sponsors](https://github.com/sponsors/BC-SECURITY) will receive 30-day early access to new Empire and Starkiller features.
+
 The following operating systems have been tested for Empire compatibility. We will be unable to provide support for other OSs at this time. Consider using our [Prebuilt Docker containers](#Docker) which can run on any system.
 - Kali Linux
 - Ubuntu
 - Debian
-
-__Note:__ Newer versions of Kali require you to run ```sudo``` before starting Empire.
-
-Beginning with Empire 3.5.0, we recommend the use of [Poetry](https://python-poetry.org/docs/) or the Docker images to run Empire. Poetry is a dependency and virtual environment management tool.
-This is highly recommended if using the SocketIO notification feature introduced in 3.5.0. To install Poetry, please follow the installation guide in the documentation or run `sudo pip3 install poetry`.
-
-```sh
-git clone https://github.com/BC-SECURITY/Empire.git
-cd Empire
-sudo ./setup/install.sh
-sudo poetry install
-sudo poetry run python empire --rest -n
-```
 
 ### Kali
 You can install the latest version of Empire by running the following:
 
 ```sh
 sudo apt install powershell-empire
+sudo powershell-empire
 ```
 
-### Github
-To install and run:
+__Note:__ Newer versions of Kali require you to run ```sudo``` before starting Empire.
 
+
+### Github
+Poetry is a dependency and virtual environment management tool. This is highly recommended if using the SocketIO notification feature introduced in 3.5.0. To install Poetry, please follow the installation guide in the documentation or run `sudo pip3 install poetry`.
+
+To install and run:
 ```sh
-git clone https://github.com/BC-SECURITY/Empire.git
+git clone --recursive https://github.com/BC-SECURITY/Empire.git
 cd Empire
-sudo ./setup/install.sh
+sudo ./install.sh
+sudo poetry install
+sudo poetry run python empire
 ```
 
 

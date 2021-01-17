@@ -22,3 +22,6 @@ simplejson
 pyparsing
 flask-socketio
 sqlalchemy
+PyMySQL
+SQLAlchemy-Utc
+prompt-toolkit

@@ -1,7 +1,7 @@
 1/18/2021
 ------------
 - Version 3.7.0 Master Release
-        - Revamped backend database from SQL to SQLAlchemy (@Cx01N, @Vinnybod)
+        - Revamped backend database from direct sqlite3 to SQLAlchemy (@Cx01N, @Vinnybod)
         - Added new Empire CLI to packaging (@Vinnybod)
         - Added malleable C2 profiles to empire directory: /data/profiles (@Cx01N)
         - Added --teamserver option to launcher (@Cx01N)

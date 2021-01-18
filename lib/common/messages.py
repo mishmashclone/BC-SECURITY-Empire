@@ -46,6 +46,35 @@ def title(version):
 
 """)
 
+
+def headless_title(version, num_modules, num_listeners, num_agents):
+    """
+    Print the tool title, with version.
+    """
+    os.system('clear')
+    print("================================================================================")
+    print(" [Empire]  Post-Exploitation Framework")
+    print('================================================================================')
+    print(" [Version] %s | [Web] https://github.com/BC-SECURITY/Empire" % (version))
+    print('================================================================================')
+    print("""
+   _______ .___  ___. .______    __  .______       _______
+  |   ____||   \/   | |   _  \  |  | |   _  \     |   ____|
+  |  |__   |  \  /  | |  |_)  | |  | |  |_)  |    |  |__
+  |   __|  |  |\/|  | |   ___/  |  | |      /     |   __|
+  |  |____ |  |  |  | |  |      |  | |  |\  \----.|  |____
+  |_______||__|  |__| | _|      |__| | _| `._____||_______|
+""")
+    print("       " + helpers.color(str(num_modules), "green") + " modules currently loaded\n")
+    print("       " + helpers.color(str(num_listeners), "green") + " listeners currently active\n")
+    print("       " + helpers.color(str(num_agents), "green") + " agents currently active\n\n")
+
+    print('                              EMPIRE API REQUIRES:                              ')
+    print('================================================================================')
+    print(' [Starkiller] Multi-User GUI | [Web] https://github.com/BC-SECURITY/Starkiller')
+    print(' [Empire CLI] New Empire CLI | [Web] https://github.com/BC-SECURITY/Empire-Cli \n\n')
+
+
 def loading():
     """
     Print and ascii loading screen.
@@ -186,7 +215,7 @@ def display_agents(agents):
         print(" ----     -- -----------     ------------      --------                -------            ---    -----    ---------            ----------------")
 
         for agent in agents:
-            if str(agent['high_integrity']) == '1':
+            if str(agent['high_integrity']) == '1' or agent['high_integrity'] is True:
                 # add a * to the username if it's high integrity
                 agent['username'] = '*' + str(agent['username'])
             if not agent['language'] or agent['language'] == '':
@@ -224,16 +253,44 @@ def display_agent(agent, returnAsString=False):
 
     Takes in the tuple of the raw agent database results.
     """
+    if not isinstance(agent, dict):
+        agent_table = {}
+        agent_table['checkin_time'] = str(agent.checkin_time)
+        agent_table['delay'] = str(agent.delay)
+        agent_table['external_ip'] = agent.external_ip
+        agent_table['high_integrity'] = str(agent.high_integrity)
+        agent_table['hostname'] = agent.hostname
+        agent_table['internal_ip'] = agent.internal_ip
+        agent_table['jitter'] = str(agent.jitter)
+        agent_table['kill_date'] = agent.kill_date
+        agent_table['language'] = agent.language
+        agent_table['language_version'] = agent.language_version
+        agent_table['lastseen_time'] = str(agent.lastseen_time)
+        agent_table['listener'] = agent.listener
+        agent_table['lost_limit'] = str(agent.lost_limit)
+        agent_table['name'] = agent.name
+        agent_table['nonce'] = agent.nonce
+        agent_table['os_details'] = agent.os_details
+        agent_table['process_id'] = str(agent.process_id)
+        agent_table['process_name'] = agent.process_name
+        agent_table['profile'] = agent.profile
+        agent_table['session_id'] = agent.session_id
+        agent_table['session_key'] = agent.session_key
+        agent_table['username'] = agent.username
+        agent_table['working_hours'] = agent.working_hours
+
+    else:
+        agent_table = agent
 
     if returnAsString:
         agentString = "\n[*] Agent info:\n"
-        for key, value in agent.items():
+        for key, value in agent_table.items():
             if key != 'functions' and key != 'takings' and key != 'results':
                 agentString += "  %s\t%s\n" % ('{0: <16}'.format(key), wrap_string(value, width=70))
         return agentString + '\n'
     else:
         print(helpers.color("\n[*] Agent info:\n"))
-        for key, value in agent.items():
+        for key, value in agent_table.items():
             if key != 'functions' and key != 'takings' and key != 'results':
                 print("\t%s\t%s" % (helpers.color('{0: <16}'.format(key), "blue"), wrap_string(value, width=70)))
         print('')
@@ -472,15 +529,15 @@ def display_credentials(creds):
 
     for cred in creds:
         # (id, credtype, domain, username, password, host, notes, sid)
-        credID = cred[0]
-        credType = cred[1]
-        domain = cred[2]
-        username = cred[3]
-        password = cred[4]
-        if isinstance(cred[5], bytes):
-            host = cred[5].decode('latin-1')
+        credID = cred['id']
+        credType = cred['credtype']
+        domain = cred['domain']
+        username = cred['username']
+        password = cred['password']
+        if isinstance(cred['host'], bytes):
+            host = cred['host'].decode('latin-1')
         else:
-            host = cred[5]
+            host = cred['host']
         print("  %s%s%s%s%s%s" % ('{0: <8}'.format(credID), '{0: <11}'.format(credType), '{0: <25}'.format(domain), '{0: <17}'.format(username), '{0: <17}'.format(host), password))
 
     print('')

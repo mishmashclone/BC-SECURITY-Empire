@@ -112,14 +112,6 @@ class Stager(object):
 				return ""
 			else:
 				filesToExtractImportsFrom_List = []
-
-				# pull the database connection object out of the main menu
-				self.conn = self.mainMenu.conn
-				# pull out the code install path from the database config
-				cur = self.conn.cursor()
-				
-				cur.close()
-				
 				
 				stagerFFP_Str = self.mainMenu.installPath + "/data/agent/stagers/http.py"
 				stagerFFP_Str = os.path.join(self.mainMenu.installPath, "data/agent/stagers/http.py")

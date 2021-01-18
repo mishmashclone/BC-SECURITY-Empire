@@ -52,11 +52,11 @@ RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod
 
 WORKDIR /empire
 
-COPY setup/requirements.txt /empire
-
-RUN pip install -r requirements.txt
+COPY pyproject.toml /empire
 
 COPY . /empire
+
+RUN sudo pip install poetry && sudo poetry config virtualenvs.create false && sudo poetry install
 
 RUN rm -rf /empire/data/empire*
 
@@ -64,4 +64,4 @@ RUN cd setup && ./reset.sh
 
 RUN cd setup && ./cert.sh
 
-CMD ["python", "empire", "--rest", "--notifications"]
+CMD ["sudo", "poetry", "run", "python", "empire", "--rest", "--notifications"]

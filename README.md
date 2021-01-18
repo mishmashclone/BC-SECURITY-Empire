@@ -12,11 +12,12 @@
 
 Keep up-to-date on our blog at [https://www.bc-security.org/blog][1]
 
-Check out the Empire GUI: [Starkiller](https://github.com/BC-SECURITY/Starkiller)
+[Starkiller](https://github.com/BC-SECURITY/Starkiller) | [Empire CLI](https://github.com/BC-SECURITY/Empire-Cli)
+
 # Empire
 Empire 3 is a post-exploitation framework that includes a pure-PowerShell Windows agent, and compatibility with Python 3.x Linux/OS X agents. It is the merger of the previous PowerShell Empire and Python EmPyre projects. The framework offers cryptologically-secure communications and flexible architecture.
 
-On the PowerShell side, Empire implements the ability to run PowerShell agents without needing powershell.exe, rapidly deployable post-exploitation modules ranging from key loggers to Mimikatz, and adaptable communications to evade network detection, all wrapped up in a usability-focused framework. PowerShell Empire premiered at [BSidesLV in 2015](https://www.youtube.com/watch?v=Pq9t59w0mUI) and Python EmPyre premiered at HackMiami 2016. BC-Security presented updates to further evade Microsoft Antimalware Scan Interface (AMSI) and JA3/S signatures at [DEF CON 27](https://github.com/BC-SECURITY/DEFCON27).
+On the PowerShell side, Empire implements the ability to run PowerShell agents without needing powershell.exe, rapidly deployable post-exploitation modules ranging from key loggers to Mimikatz, and adaptable communications to evade network detection, all wrapped up in a usability-focused framework. PowerShell Empire premiered at [BSidesLV in 2015](https://www.youtube.com/watch?v=Pq9t59w0mUI) and Python EmPyre premiered at HackMiami 2016. BC Security presented updates to further evade Microsoft Antimalware Scan Interface (AMSI) and JA3/S signatures at [DEF CON 27](https://github.com/BC-SECURITY/DEFCON27).
 
 Empire relies heavily on the work from several other projects for its underlying functionality. We have tried to call out a few of those people we've interacted with [heavily here](http://www.powershellempire.com/?page_id=2) and have included author/reference link information in the source of each Empire module as appropriate. If we have failed to properly cite existing or prior work, please let us know at Empire@BC-Security.org.
 
@@ -25,45 +26,44 @@ Please reach out to us on our [Discord](https://discord.gg/P8PZPyf) if you have 
 
 Thank you to the original team of developers: [@harmj0y](https://twitter.com/harmj0y), [@sixdub](https://twitter.com/sixdub), [@enigma0x3](https://twitter.com/enigma0x3), [@rvrsh3ll](https://twitter.com/424f424f), [@killswitch_gui](https://twitter.com/killswitch_gui), & [@xorrior](https://twitter.com/xorrior)
 
+## Sponsors
+[<img src="https://user-images.githubusercontent.com/20302208/104083160-41552780-51f1-11eb-8428-3b8cfaf76861.png" width="300"/>](https://www.kali.org/)
+
 ## Release Notes
 As of Empire 3.1, we will no longer be actively supporting the Python 2.7 base code. If you wish to continue to leverage Python 2.7 then please use the [3.0.x Releases](https://github.com/BC-SECURITY/Empire/releases), since they were built to ensure backward compatibility.
 
 Please see our [Releases](https://github.com/BC-SECURITY/Empire/releases) or [Changelog](/changelog) page for detailed release notes.
 
 ## Install
+We recommend the use of [Kali](https://www.kali.org/downloads/), [Poetry](https://python-poetry.org/docs/), or our [Docker images](https://hub.docker.com/r/bcsecurity/empire) to run Empire.
+Kali Linux users and [Direct Sponsors](https://github.com/sponsors/BC-SECURITY) will receive 30-day early access to new Empire and Starkiller features.
+
 The following operating systems have been tested for Empire compatibility. We will be unable to provide support for other OSs at this time. Consider using our [Prebuilt Docker containers](#Docker) which can run on any system.
 - Kali Linux
 - Ubuntu
 - Debian
 
-__Note:__ Newer versions of Kali require you to run ```sudo``` before starting Empire.
-
-Beginning with Empire 3.5.0, we recommend the use of [Poetry](https://python-poetry.org/docs/) or the Docker images to run Empire. Poetry is a dependency and virtual environment management tool.
-This is highly recommended if using the SocketIO notification feature introduced in 3.5.0. To install Poetry, please follow the installation guide in the documentation or run `sudo pip3 install poetry`.
-
-```sh
-git clone https://github.com/BC-SECURITY/Empire.git
-cd Empire
-sudo ./setup/install.sh
-sudo poetry install
-sudo poetry run python empire --rest -n
-```
-
 ### Kali
-
 You can install the latest version of Empire by running the following:
 
 ```sh
 sudo apt install powershell-empire
+sudo powershell-empire
 ```
 
-### Github
-To install and run:
+__Note:__ Newer versions of Kali require you to run ```sudo``` before starting Empire.
 
+
+### Github
+Poetry is a dependency and virtual environment management tool. This is highly recommended if using the SocketIO notification feature introduced in 3.5.0. To install Poetry, please follow the installation guide in the documentation or run `sudo pip3 install poetry`.
+
+To install and run:
 ```sh
-git clone https://github.com/BC-SECURITY/Empire.git
+git clone --recursive https://github.com/BC-SECURITY/Empire.git
 cd Empire
 sudo ./setup/install.sh
+sudo poetry install
+sudo poetry run python empire
 ```
 
 
@@ -71,15 +71,15 @@ sudo ./setup/install.sh
 If you want to run Empire using a pre-built docker container:
 ```bash
 docker pull bcsecurity/empire:{version}
-docker run -it bcsecurity/empire:{version}
+docker run -it -p 1337:1337 -p 5000:5000 bcsecurity/empire:{version}
 
 # with persistent storage
 docker pull bcsecurity/empire:{version}
 docker create -v /empire --name data bcsecurity/empire:{version}
-docker run -it --volumes-from data bcsecurity/empire:{version}
+docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data bcsecurity/empire:{version}
 
 # if you prefer to be dropped into bash instead of directly into empire
-docker run -it --volumes-from data bcsecurity/empire:{version} /bin/bash
+docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data bcsecurity/empire:{version} /bin/bash
 ```
 
 All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
@@ -88,7 +88,6 @@ All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
 * All github tagged releases will be deployed using their version numbers (v3.0.0, v3.1.0, etc)
 
 ## Quickstart
-
 Check out the [Empire wiki](https://github.com/BC-SECURITY/Empire/wiki/Quickstart) for instructions on getting started with Empire.
 
 ## Plugins

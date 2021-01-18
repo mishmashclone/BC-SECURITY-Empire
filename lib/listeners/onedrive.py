@@ -631,7 +631,12 @@ class Listener(object):
             })
             dispatcher.send(signal, sender="listeners/onedrive/{}".format(listener_name))
         else:
-            token = get_token(client_id, client_secret, auth_code)
+            try:
+                token = get_token(client_id, client_secret, auth_code)
+            except:
+                print(helpers.color("[!] Unable to retrieve OneDrive Token"))
+                return
+
             message = "[*] Got new auth token"
             signal = json.dumps({
                 'print': True,
@@ -802,12 +807,7 @@ class Listener(object):
                             s.delete("%s/drive/items/%s" % (base_url, item['id']))
                             continue
 
-                        try:  # Update the agent's last seen time, from the file timestamp
-                            seen_time = datetime.strptime(item['lastModifiedDateTime'], "%Y-%m-%dT%H:%M:%S.%fZ")
-                        except:  # sometimes no ms for some reason...
-                            seen_time = datetime.strptime(item['lastModifiedDateTime'], "%Y-%m-%dT%H:%M:%SZ")
-                        seen_time = helpers.utc_to_local(seen_time)
-                        self.mainMenu.agents.update_agent_lastseen_db(agent_id, seen_time)
+                        self.mainMenu.agents.update_agent_lastseen_db(agent_id)
 
                         # If the agent is just checking in, the file will only be 1 byte, so no results to fetch
                         if (item['size'] > 1):

@@ -11,18 +11,21 @@ from builtins import str
 from builtins import object
 from . import helpers
 import os
-# import sqlite3
+from lib.database.base import Session
+from lib.database import models
+from sqlalchemy import or_, and_
+
 
 class Credentials(object):
     """
     Class that handles interaction with the backend credential model
     (adding creds, displaying, etc.).
     """
+
     def __init__(self, MainMenu, args=None):
 
         # pull out the controller objects
         self.mainMenu = MainMenu
-        self.conn = MainMenu.conn
         self.installPath = self.mainMenu.installPath
         self.args = args
 
@@ -31,20 +34,14 @@ class Credentials(object):
         # credtype = hash or plaintext
         # sid is stored for krbtgt
 
-
     def is_credential_valid(self, credentialID):
         """
         Check if this credential ID is valid.
         """
-
-        cur = self.conn.cursor()
-        cur.execute('SELECT * FROM credentials WHERE id=? limit 1', [credentialID])
-        results = cur.fetchall()
-        cur.close()
+        results = Session().query(models.Credential).filter(models.Credential.id == credentialID).all()
         return len(results) > 0
 
-
-    def get_credentials(self, filterTerm=None, credtype=None, note=None, os=None):
+    def get_credentials(self, filter_term=None, credtype=None, note=None, os=None):
         """
         Return credentials from the database.
 
@@ -52,36 +49,38 @@ class Credentials(object):
         Values are: hash, plaintext, and token.
         """
 
-        cur = self.conn.cursor()
         # if we're returning a single credential by ID
-        if self.is_credential_valid(filterTerm):
-            cur.execute("SELECT * FROM credentials WHERE id=? limit 1", [filterTerm])
+        if self.is_credential_valid(filter_term):
+            results = Session().query(models.Credential).filter(models.Credential.id == filter_term).first()
 
         # if we're filtering by host/username
-        elif filterTerm and filterTerm != '':
-            filterTerm = filterTerm.replace('*', '%')
-            cur.execute("SELECT * FROM credentials WHERE LOWER(domain) LIKE LOWER(?) or LOWER(username) like LOWER(?) or LOWER(host) like LOWER(?) or LOWER(password) like LOWER(?)", [filterTerm, filterTerm, filterTerm, filterTerm])
+        elif filter_term and filter_term != '':
+            filter_term = filter_term.replace('*', '%')
+            search = "%{}%".format(filter_term)
+            results = Session().query(models.Credential).filter(or_(models.Credential.domain.like(search),
+                                                                    models.Credential.username.like(search),
+                                                                    models.Credential.host.like(search),
+                                                                    models.Credential.password.like(search))).all()
 
         # if we're filtering by credential type (hash, plaintext, token)
         elif credtype and credtype != "":
-            cur.execute("SELECT * FROM credentials WHERE LOWER(credtype) LIKE LOWER(?)", [credtype])
+            results = Session().query(models.Credential).filter(models.Credential.credtype.ilike(f'%credtype%')).all()
 
         # if we're filtering by content in the note field
         elif note and note != "":
-            cur.execute("SELECT * FROM credentials WHERE LOWER(note) LIKE LOWER(%?%)", [note])
+            search = "%{}%".format(note)
+            results = Session().query(models.Credential).filter(models.Credential.note.ilike(f'%search%')).all()
 
         # if we're filtering by content in the OS field
         elif os and os != "":
-            cur.execute("SELECT * FROM credentials WHERE LOWER(os) LIKE LOWER(%?%)", [os])
+            search = "%{}%".format(os)
+            results = Session().query(models.Credential).filter(models.Credential.os.ilike('%search%')).all()
 
         # otherwise return all credentials
         else:
-            cur.execute("SELECT * FROM credentials")
+            results = Session().query(models.Credential).all()
 
-        results = cur.fetchall()
-        cur.close()
         return results
-
 
     def get_krbtgt(self):
         """
@@ -89,50 +88,52 @@ class Credentials(object):
         """
         return self.get_credentials(credtype="hash", filterTerm="krbtgt")
 
-
     def add_credential(self, credtype, domain, username, password, host, os='', sid='', notes=''):
         """
         Add a credential with the specified information to the database.
         """
-        cur = self.conn.cursor()
-
-        cur.execute("SELECT * FROM credentials WHERE LOWER(credtype) LIKE LOWER(?) AND LOWER(domain) LIKE LOWER(?) AND LOWER(username) LIKE LOWER(?) AND password LIKE ?", [credtype, domain, username, password])
-        results = cur.fetchall()
+        results = Session().query(models.Credential).filter(and_(models.Credential.credtype.like(credtype),
+                                                                 models.Credential.domain.like(domain),
+                                                                 models.Credential.username.like(username),
+                                                                 models.Credential.password.like(password))).all()
 
         if results == []:
-            # only add the credential if the (credtype, domain, username, password) tuple doesn't already exist
-            cur.execute("INSERT INTO credentials (credtype, domain, username, password, host, os, sid, notes) VALUES (?,?,?,?,?,?,?,?)", [credtype, domain, username, password, host, os, sid, notes])
+            Session().add(models.Credential(credtype=credtype,
+                                            domain=domain,
+                                            username=username,
+                                            password=password,
+                                            host=host,
+                                            os=os,
+                                            sid=sid,
+                                            notes=notes))
 
-        cur.close()
+            Session().commit()
 
-
-    def add_credential_note(self, credentialID, note):
+    def add_credential_note(self, credential_id, note):
         """
         Update a note to a credential in the database.
         """
-        cur = self.conn.cursor()
-        cur.execute("UPDATE credentials SET note = ? WHERE id=?", [note, credentialID])
-        cur.close()
-
+        results = Session().query(models.Agent).filter(models.Credential.id == credential_id).first()
+        results.notes = note
+        Session().commit()
 
     def remove_credentials(self, credIDs):
         """
         Removes a list of IDs from the database
         """
         for credID in credIDs:
-            cur = self.conn.cursor()
-            cur.execute("DELETE FROM credentials WHERE id=?", [credID])
-            cur.close()
-
+            cred_entry = Session().query(models.Credential).filter(models.Credential.id == credID).first()
+            Session().delete(cred_entry)
+        Session().commit()
 
     def remove_all_credentials(self):
         """
         Remove all credentials from the database.
         """
-        cur = self.conn.cursor()
-        cur.execute("DELETE FROM credentials")
-        cur.close()
-
+        creds = Session().query(models.Credential).all()
+        for cred in creds:
+            Session().delete(cred)
+        Session().commit()
 
     def export_credentials(self, export_path=''):
         """

@@ -86,7 +86,7 @@ function install_powershell() {
 }
 
 function install_xar() {
-	# xar-1.6.1 has an incompatability with libssl 1.1.x that is patched here
+	# xar-1.6.1 has an incompatibility with libssl 1.1.x that is patched here
 	# for older OS on libssl 1.0.x, we continue to use 1.6.1
 	if is_libssl_1_0; then
 		wget https://github.com/BC-SECURITY/xar/archive/xar-1.6.1.tar.gz
@@ -147,10 +147,7 @@ elif lsb_release -d 2>/dev/null | grep -q "Ubuntu"; then
 		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
 	sudo apt-get update
-	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip libxml2-dev default-jdk "$LibSSL_pkgs" build-essential
-elif grep "Fedora release" /etc/redhat-release 2>/dev/null; then
-	sudo dnf update
-	sudo dnf install -y autoconf autogen make gcc-c++ libxml2-devel openssl-devel python3-pip python3-devel python3-m2crypto
+	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip libxml2-dev default-jdk $LibSSL_pkgs build-essential
 else
 	echo "Unknown distro - Debian/Ubuntu Fallback"
 	if is_libssl_1_0; then
@@ -160,7 +157,7 @@ else
 		LibSSL_pkgs="libssl1.1 libssl-dev"
 	fi
 	sudo apt-get update
-	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip libxml2-dev default-jdk libffi-dev "$LibSSL_pkgs" build-essential
+	sudo apt-get install -y make autoconf g++ python3-dev swig python3-pip libxml2-dev default-jdk libffi-dev $LibSSL_pkgs build-essential
 fi
 
 install_xar
@@ -172,11 +169,11 @@ install_powershell
 # Install Python dependencies
 sudo pip3 install -r "$Pip_file"
 
-# Set up the database schema
-python3 ./setup_database.py
-
 # Generate a cert
 ./cert.sh
+
+# Set up the database schema
+python3 ./setup_database.py
 
 cd ..
 

@@ -1,0 +1,7 @@
+[submodule "data/profiles"]
+	path = data/profiles
+	url = https://github.com/BC-SECURITY/Malleable-C2-Profiles
+
+[submodule "cli"]
+	path = cli
+	url = https://github.com/BC-SECURITY/Empire-Cli

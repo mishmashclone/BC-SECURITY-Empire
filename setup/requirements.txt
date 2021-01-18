@@ -21,3 +21,8 @@ bcrypt
 pycrypto
 pyparsing
 flask-socketio
+sqlalchemy
+pyyaml
+PyMySQL
+SQLAlchemy-Utc
+prompt-toolkit

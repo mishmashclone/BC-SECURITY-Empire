@@ -290,10 +290,7 @@ class Listener(object):
             f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
             stager = helpers.keyword_obfuscation(stager)
-            self.lock.release()
 
             # make sure the server ends with "/"
             if not host.endswith("/"):
@@ -353,15 +350,12 @@ class Listener(object):
 
         if language == 'powershell':
 
-            f = open(self.mainMenu.installPath + "./data/agent/agent.ps1")
+            f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
             code = f.read()
             f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
-            conn = self.get_db_connection()
-            self.lock.acquire()
             code = helpers.keyword_obfuscation(code)
-            self.lock.release()
 
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)

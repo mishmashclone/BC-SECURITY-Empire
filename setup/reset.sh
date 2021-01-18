@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $EUID -ne 0 ]]; then
-   echo " [!]This script must be run as root" 1>&2
+   echo " [!] This script must be run as root" 1>&2
    exit 1
 fi
 
@@ -12,13 +12,6 @@ then
 	cd ./setup
 fi
 
-# reset the database
-if [ -e ../data/empire.db ]
-then
-	rm ../data/empire.db
-fi
-
-python3 ./setup_database.py
 cd ..
 
 # remove the debug file if it exists

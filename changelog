@@ -11,6 +11,7 @@
         - Added Invoke-SharpLoginPrompt (@Cx01N)
         - Fixed OneDrive Listener with new database (@Cx01N)
         - Removed need to run setup database script (@Vinnybod)
+        - Updated docker image to use the locked dependencies in pyproject.toml (@Vinnybod)
 
 12/18/2020
 ------------

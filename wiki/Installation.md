@@ -28,15 +28,15 @@ sudo poetry run python empire --rest -n
 If you want to run Empire using a pre-built docker container:
 ```bash
 docker pull bcsecurity/empire:{version}
-docker run -it bcsecurity/empire:{version}
+docker run -it -p 1337:1337 -p 5000:5000 bcsecurity/empire:{version}
 
 # with persistent storage
 docker pull bcsecurity/empire:{version}
 docker create -v /empire --name data bcsecurity/empire:{version}
-docker run -it --volumes-from data bcsecurity/empire:{version}
+docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data bcsecurity/empire:{version}
 
 # if you prefer to be dropped into bash instead of directly into empire
-# docker run -it --volumes-from data bcsecurity/empire:{version} /bin/bash
+# docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data bcsecurity/empire:{version} /bin/bash
 ```
 
 All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/

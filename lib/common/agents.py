@@ -428,7 +428,6 @@ class Agents(object):
     def is_agent_elevated(self, session_id):
         """
         Check whether a specific sessionID is currently elevated.
-=
         This means root for OS X/Linux and high integrity for Windows.
         """
 

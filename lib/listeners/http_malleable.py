@@ -887,7 +887,7 @@ class Listener(object):
                     getTask += "$data = [System.Text.Encoding]::Default.GetString($data);"
 
                 # ==== INTERPRET RESULTS ====
-                getTask += profile.get.server.output.generate_powershell_r("$data");
+                getTask += profile.get.server.output.generate_powershell_r("$data")
                 getTask += "$data = [System.Text.Encoding]::Default.GetBytes($data);"
 
                 # ==== RETURN RESULTS ====

@@ -1,3 +1,14 @@
+2/5/2021
+------------
+- Version 3.7.2 Master Release
+        - Fixed Malleable C2 issue where netbios/netbiosu transformations used excessive resources (@Cx01N)
+        - Fixed error when loading http_hop listener options (@Cx01N)
+
+1/27/2021
+------------
+- Version 3.7.1 Master Release
+        - Added Kali message to main menu
+
 1/18/2021
 ------------
 - Version 3.7.0 Master Release

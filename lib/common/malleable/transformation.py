@@ -272,6 +272,10 @@ class Transform(MalleableObject):
         netbios algorithm."""
         self.transform = lambda data: netbios_transform(data)
         self.transform_r = lambda data: netbios_transform_r(data)
+        self.generate_python = lambda var: "f_ord=ord if __import__('sys').version_info[0]<3 else int;%(var)s=''.join([chr((f_ord(_)>>4)+0x61)+chr((f_ord(_)&0xF)+0x61) for _ in %(var)s])\n" % {"var":var}
+        self.generate_python_r = lambda var: "f_ord=ord if __import__('sys').version_info[0]<3 else int;%(var)s=''.join([chr(((f_ord(%(var)s[_])-0x61)<<4)|((f_ord(%(var)s[_+1])-0x61)&0xF)) for _ in range(0,len(%(var)s),2)])\n" % {"var":var}
+        self.generate_powershell = lambda var: netbios_powershell(var)
+        self.generate_powershell_r = lambda var: netbios_powershell_r(var)
 
         def netbios_transform(data):
             if isinstance(data, str):
@@ -285,33 +289,39 @@ class Transform(MalleableObject):
             r = "".join([chr(((data[i]-0x61)<<4)|((data[i+1]-0x61)&0xF)) for i in range(0, len(data), 2)])
             return r.encode('latin-1')
 
-        self.generate_python = lambda var: "f_ord=ord if __import__('sys').version_info[0]<3 else int;%(var)s=''.join([chr((f_ord(_)>>4)+0x61)+chr((f_ord(_)&0xF)+0x61) for _ in %(var)s])\n" % {"var":var}
-        self.generate_python_r = lambda var: "f_ord=ord if __import__('sys').version_info[0]<3 else int;%(var)s=''.join([chr(((f_ord(%(var)s[_])-0x61)<<4)|((f_ord(%(var)s[_+1])-0x61)&0xF)) for _ in range(0,len(%(var)s),2)])\n" % {"var":var}
-        self.generate_powershell = lambda var: "%(var)s=[System.Text.Encoding]::Default.GetString($(for($_=0;$_ -lt %(var)s.length;$_++){([System.Text.Encoding]::Default.GetBytes(%(var)s)[$_] -shr 4)+97;([System.Text.Encoding]::Default.GetBytes(%(var)s)[$_] -band 15)+97;}));" % {"var":var}
-        self.generate_powershell_r = lambda var: "%(var)s=[System.Text.Encoding]::Default.GetString($(for($_=0;$_ -lt %(var)s.length;$_+=2){(([System.Text.Encoding]::Default.GetBytes(%(var)s)[$_]-97) -shl 4) -bor (([System.Text.Encoding]::Default.GetBytes(%(var)s)[$_+1]-97) -band 15);}));" % {"var":var}
+        def netbios_powershell(var):
+            return "$data2=[System.Text.Encoding]::Default.GetBytes(%(var)s);%(var)s=[System.Text.Encoding]::Default.GetString($(for($i=0;$i -lt %(var)s.Length;$i++){($data2[$i] -shr 4)+97;($data2[$i] -band 15)+97;}));" % {"var": var}
+
+        def netbios_powershell_r(var):
+            return "$data2=[System.Text.Encoding]::Default.GetBytes(%(var)s);%(var)s=[System.Text.Encoding]::Default.GetString($(for($i=0;$i -lt %(var)s.Length;$i+=2){($data2[$i]-97 -shl 4) -bor ($data2[$i+1]-97 -band 15);}));" % {"var":var}
 
     def _netbiosu(self):
         """Configure the `netbiosu` Transform, which encodes an arbitrary input using the upper-case
         netbios algorithm."""
-        self.transform = lambda data: netbios_transform(data)
-        self.transform_r = lambda data: netbios_transform_r(data)
+        self.transform = lambda data: netbiosu_transform(data)
+        self.transform_r = lambda data: netbiosu_transform_r(data)
+        self.generate_python = lambda var: "f_ord=ord if __import__('sys').version_info[0]<3 else int;%(var)s=''.join([chr((f_ord(_)>>4)+0x41)+chr((f_ord(_)&0xF)+0x41) for _ in %(var)s])\n" % {"var":var}
+        self.generate_python_r = lambda var: "f_ord=ord if __import__('sys').version_info[0]<3 else int;%(var)s=''.join([chr(((f_ord(%(var)s[_])-0x41)<<4)|((f_ord(%(var)s[_+1])-0x41)&0xF)) for _ in range(0,len(%(var)s),2)])\n" % {"var":var}
+        self.generate_powershell = lambda var: netbiosu_powershell(var)
+        self.generate_powershell_r = lambda var: netbiosu_powershell_r(var)
 
-        def netbios_transform(data):
+        def netbiosu_transform(data):
             if isinstance(data, str):
                 data = data.encode('latin-1')
             r = "".join([chr((c>>4)+0x41)+chr((c&0xF)+0x41) for c in data])
             return r.encode('latin-1')
 
-        def netbios_transform_r(data):
+        def netbiosu_transform_r(data):
             if isinstance(data, str):
                 data = data.encode('latin-1')
             r = "".join([chr(((data[i]-0x41)<<4)|((data[i+1]-0x41)&0xF)) for i in range(0, len(data), 2)])
             return r.encode('latin-1')
 
-        self.generate_python = lambda var: "f_ord=ord if __import__('sys').version_info[0]<3 else int;%(var)s=''.join([chr((f_ord(_)>>4)+0x41)+chr((f_ord(_)&0xF)+0x41) for _ in %(var)s])\n" % {"var":var}
-        self.generate_python_r = lambda var: "f_ord=ord if __import__('sys').version_info[0]<3 else int;%(var)s=''.join([chr(((f_ord(%(var)s[_])-0x41)<<4)|((f_ord(%(var)s[_+1])-0x41)&0xF)) for _ in range(0,len(%(var)s),2)])\n" % {"var":var}
-        self.generate_powershell = lambda var: "%(var)s=[System.Text.Encoding]::Default.GetString($(for($_=0;$_ -lt %(var)s.length;$_++){([System.Text.Encoding]::Default.GetBytes(%(var)s)[$_] -shr 4)+65;([System.Text.Encoding]::Default.GetBytes(%(var)s)[$_] -band 15)+65;}));" % {"var":var}
-        self.generate_powershell_r = lambda var: "%(var)s=[System.Text.Encoding]::Default.GetString($(for($_=0;$_ -lt %(var)s.length;$_+=2){(([System.Text.Encoding]::Default.GetBytes(%(var)s)[$_]-65) -shl 4) -bor (([System.Text.Encoding]::Default.GetBytes(%(var)s)[$_+1]-65) -band 15);}));" % {"var":var}
+        def netbiosu_powershell(var):
+            return "$data2=[System.Text.Encoding]::Default.GetBytes(%(var)s);%(var)s=[System.Text.Encoding]::Default.GetString($(for($i=0;$i -lt %(var)s.Length;$i++){($data2[$i] -shr 4)+65;($data2[$i] -band 15)+65;}));" % {"var":var}
+
+        def netbiosu_powershell_r(var):
+            return "$data2=[System.Text.Encoding]::Default.GetBytes(%(var)s);%(var)s=[System.Text.Encoding]::Default.GetString($(for($i=0;$i -lt %(var)s.Length;$i+=2){($data2[$i]-65 -shl 4) -bor ($data2[$i+1]-65 -band 15);}));" % {"var":var}
 
     def _prepend(self, string):
         """Configure the `prepend` Transform, which prepends a static string to an arbitrary input.

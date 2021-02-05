@@ -486,9 +486,9 @@ def send_message(packets=None):
 
         if redirectListenerOptions:
 
-            self.options['RedirectStagingKey']['Value'] = redirectListenerOptions['StagingKey']['Value']
-            self.options['DefaultProfile']['Value'] = redirectListenerOptions['DefaultProfile']['Value']
-            redirectHost = redirectListenerOptions['Host']['Value']
+            self.options['RedirectStagingKey']['Value'] = redirectListenerOptions.options['StagingKey']['Value']
+            self.options['DefaultProfile']['Value'] = redirectListenerOptions.options['DefaultProfile']['Value']
+            redirectHost = redirectListenerOptions.options['Host']['Value']
 
             uris = [a for a in self.options['DefaultProfile']['Value'].split('|')[0].split(',')]
 

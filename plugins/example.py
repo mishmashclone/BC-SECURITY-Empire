@@ -1,8 +1,8 @@
 """ An example of a plugin. """
 from __future__ import print_function
 
-from lib.common.plugins import Plugin
-import lib.common.helpers as helpers
+from empire.server.common.plugins import Plugin
+import empire.server.common.helpers as helpers
 
 # anything you simply write out (like a script) will run immediately when the
 # module is imported (before the class is instantiated)

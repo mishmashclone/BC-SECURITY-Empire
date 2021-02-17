@@ -25,7 +25,7 @@ Session = scoped_session(sessionmaker(bind=engine))
 
 args = arguments.args
 if args.reset:
-    choice = input("\n [>] Would you like to reset your Empire instance? [y/N]: ")
+    choice = input("[>] Would you like to reset your Empire instance? [y/N]: ")
     if choice.lower() == "y":
         Base.metadata.drop_all(engine)
         subprocess.call("./setup/reset.sh")

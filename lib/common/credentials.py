@@ -147,7 +147,7 @@ class Credentials(object):
 
         if os.path.exists(export_path):
             try:
-                choice = input(helpers.color("\n[>] File %s already exists, overwrite? [y/N] " % (export_path), "red"))
+                choice = input(helpers.color("[>] File %s already exists, overwrite? [y/N] " % (export_path), "red"))
                 if choice.lower() != "" and choice.lower()[0] == "y":
                     pass
                 else:

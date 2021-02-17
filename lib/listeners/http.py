@@ -1097,7 +1097,7 @@ def send_message(packets=None):
                                 # handle_agent_data() signals that the listener should return the stager.ps1 code
                                 # step 2 of negotiation -> return stager.ps1 (stage 1)
                                 listenerName = self.options['Name']['Value']
-                                message = "\n[*] Sending {} stager (stage 1) to {}".format(language, clientIP)
+                                message = "[*] Sending {} stager (stage 1) to {}".format(language, clientIP)
                                 signal = json.dumps({
                                     'print': True,
                                     'message': message

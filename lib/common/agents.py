@@ -294,7 +294,7 @@ class Agents(object):
 
             if "python" in lang:
                 print(
-                    helpers.color("\n[*] Compressed size of %s download: %s" % (filename, helpers.get_file_size(data)),
+                    helpers.color("[*] Compressed size of %s download: %s" % (filename, helpers.get_file_size(data)),
                                   color="green"))
                 d = decompress.decompress()
                 dec_data = d.dec_data(data)
@@ -341,7 +341,7 @@ class Agents(object):
 
         # decompress data if coming from a python agent:
         if "python" in lang:
-            print(helpers.color("\n[*] Compressed size of %s download: %s" % (filename, helpers.get_file_size(data)),
+            print(helpers.color("[*] Compressed size of %s download: %s" % (filename, helpers.get_file_size(data)),
                                 color="green"))
             d = decompress.decompress()
             dec_data = d.dec_data(data)
@@ -384,7 +384,7 @@ class Agents(object):
             self.lock.release()
 
         # notify everyone that the file was downloaded
-        message = "\n[+] File {} from {} saved".format(path, sessionID)
+        message = "[+] File {} from {} saved".format(path, sessionID)
         signal = json.dumps({
             'print': True,
             'message': message
@@ -1340,7 +1340,7 @@ class Agents(object):
 
             # save the initial sysinfo information in the agent log
             output = messages.display_agent(agent, returnAsString=True)
-            output += "\n[+] Agent %s now active:\n" % (sessionID)
+            output += "[+] Agent %s now active:\n" % (sessionID)
             self.mainMenu.agents.save_agent_log(sessionID, output)
 
             # if a script autorun is set, set that as the agent's first tasking
@@ -1600,7 +1600,7 @@ class Agents(object):
 
         if response_name == "ERROR":
             # error code
-            message = "\n[!] Received error response from {}".format(session_id)
+            message = "[!] Received error response from {}".format(session_id)
             signal = json.dumps({
                 'print': True,
                 'message': message

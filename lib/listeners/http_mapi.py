@@ -560,7 +560,7 @@ class Listener(object):
                                 # handle_agent_data() signals that the listener should return the stager.ps1 code
 
                                 # step 2 of negotiation -> return stager.ps1 (stage 1)
-                                dispatcher.send("\n[*] Sending %s stager (stage 1) to %s" % (language, clientIP), sender='listeners/http')
+                                dispatcher.send("[*] Sending %s stager (stage 1) to %s" % (language, clientIP), sender='listeners/http')
                                 stage = self.generate_stager(language=language, listenerOptions=listenerOptions)
                                 return make_response(stage, 200)
 

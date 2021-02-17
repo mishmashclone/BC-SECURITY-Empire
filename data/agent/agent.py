@@ -454,7 +454,7 @@ def process_packet(packetType, data, resultID):
             result += data[0].strip()
             try:
                 os.remove(implantPath)
-                result += "\n[*] Module path was properly removed: %s" %(implantPath)
+                result += "[*] Module path was properly removed: %s" %(implantPath)
             except Exception as e:
                 print("error removing module filed: %s" %(e))
             fileCheck = os.path.isfile(implantPath)

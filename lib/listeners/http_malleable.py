@@ -1212,7 +1212,7 @@ class Listener(object):
                                         # step 2 of negotiation -> server returns stager (stage 1)
 
                                         # log event
-                                        message = "\n[*] Sending {} stager (stage 1) to {}".format(language, clientIP)
+                                        message = "[*] Sending {} stager (stage 1) to {}".format(language, clientIP)
                                         signal = json.dumps({
                                             'print': True,
                                             'message': message

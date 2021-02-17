@@ -778,7 +778,7 @@ class Listener(object):
 
                                 # step 2 of negotiation -> return stager.ps1 (stage 1)
                                 listenerName = self.options['Name']['Value']
-                                message = "\n[*] Sending {} stager (stage 1) to {}".format(language, clientIP)
+                                message = "[*] Sending {} stager (stage 1) to {}".format(language, clientIP)
                                 signal = json.dumps({
                                     'print': True,
                                     'message': message
@@ -931,7 +931,7 @@ class Listener(object):
         except Exception as e:
             listenerName = self.options['Name']['Value']
             message = "[!] Listener startup on port {} failed: {}".format(port, e)
-            message += "\n[!] Ensure the folder specified in CertPath exists and contains your pem and private key file."
+            message += "[!] Ensure the folder specified in CertPath exists and contains your pem and private key file."
             signal = json.dumps({
                 'print': True,
                 'message': message

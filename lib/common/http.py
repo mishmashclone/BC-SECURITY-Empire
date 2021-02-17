@@ -10,15 +10,18 @@ These are the first places URI requests are processed.
 
 """
 from __future__ import absolute_import
-
 from future import standard_library
 
 standard_library.install_aliases()
-from http.server import BaseHTTPRequestHandler
-import http.server, threading, ssl, os
-from pydispatch import dispatcher
+import http.server
+import threading
+import ssl
+import os
 import re
 import json
+
+from http.server import BaseHTTPRequestHandler
+from pydispatch import dispatcher
 
 # Empire imports
 from . import helpers
@@ -38,6 +41,7 @@ def default_page(path_to_html_file="empty"):
         html = open(path_to_html_file, 'r').read()
         return html
 
+
 ###############################################################
 #
 # Host2lhost helper.
@@ -49,8 +53,9 @@ def host2lhost(s):
     Return lhost for Empire's native listener from Host value
     """
     reg = r'(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
-    res = re.findall( reg, s)
+    res = re.findall(reg, s)
     return res[0] if len(res) == 1 else '0.0.0.0'
+
 
 ###############################################################
 #
@@ -82,7 +87,6 @@ class RequestHandler(BaseHTTPRequestHandler):
     # fake out our server headers base
     BaseHTTPRequestHandler.server_version = serverVersion
     BaseHTTPRequestHandler.sys_version = ""
-
 
     def do_GET(self):
 
@@ -157,7 +161,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             postData = self.rfile.read(length)
 
             # get the appropriate response for this agent
-            (code, responsedata) = self.server.agents.process_post(self.server.server_port, clientIP, sessionID, resource, postData)
+            (code, responsedata) = self.server.agents.process_post(self.server.server_port, clientIP, sessionID,
+                                                                   resource, postData)
 
             # write the response out
             self.send_response(code)
@@ -223,15 +228,14 @@ class EmpireServer(threading.Thread):
             })
             dispatcher.send(signal, sender="empire")
 
-
     def base_server(self):
         return self.server
 
-
     def run(self):
-        try: self.server.serve_forever()
-        except: pass
-
+        try:
+            self.server.serve_forever()
+        except:
+            pass
 
     def shutdown(self):
 

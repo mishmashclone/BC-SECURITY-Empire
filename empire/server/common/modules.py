@@ -34,10 +34,10 @@ class Modules(object):
     def load_modules(self, rootPath=''):
         """
         Load Empire modules from a specified path, default to
-        installPath + "/lib/modules/*"
+        installPath + "/modules/*"
         """
         if rootPath == '':
-            rootPath = "%s/lib/modules/" % (self.mainMenu.installPath)
+            rootPath = "%s/modules/" % (self.mainMenu.installPath)
 
         pattern = '*.py'
         print(helpers.color("[*] Loading modules from: %s" % (rootPath)))
@@ -53,7 +53,7 @@ class Modules(object):
                 # extract just the module name from the full path
                 moduleName = filePath.split(rootPath)[-1][0:-3]
 
-                if rootPath != "%s/lib/modules/" % (self.mainMenu.installPath):
+                if rootPath != "%s/modules/" % (self.mainMenu.installPath):
                     moduleName = "external/%s" %(moduleName)
 
                 # instantiate the module and save it to the internal cache
@@ -65,10 +65,10 @@ class Modules(object):
 
     def reload_module(self, moduleToReload):
         """
-        Reload a specific module from the install + "/lib/modules/*" path
+        Reload a specific module from the install + "/modules/*" path
         """
 
-        rootPath = "%s/lib/modules/" % (self.mainMenu.installPath)
+        rootPath = "%s/modules/" % (self.mainMenu.installPath)
         pattern = '*.py'
          
         for root, dirs, files in os.walk(rootPath):
@@ -79,7 +79,7 @@ class Modules(object):
                 if filename == 'template.py': continue
                 
                 # extract just the module name from the full path
-                moduleName = filePath.split("/lib/modules/")[-1][0:-3]
+                moduleName = filePath.split("/modules/")[-1][0:-3]
 
                 # check to make sure we've found the specific module
                 if moduleName.lower() == moduleToReload.lower():

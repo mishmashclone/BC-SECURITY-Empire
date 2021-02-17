@@ -27,7 +27,7 @@ def get_default_user():
 def get_default_config():
     # Calculate the install path. We know the project directory will always be two levels up of the current directory.
     # Any modifications of the folder structure will need to be applied here.
-    install_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    install_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     return models.Config(staging_key=get_staging_key(),
                          install_path=install_path,
                          ip_whitelist=database_config.get('ip-whitelist', ''),

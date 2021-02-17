@@ -255,7 +255,7 @@ class MainMenu(cmd.Cmd):
 
                 messages.headless_title(VERSION, num_modules, num_listeners, num_agents)
 
-                with patch_stdout():
+                with patch_stdout(raw=True):
                     text = session.prompt('Empire > ', refresh_interval=None)
                     print(helpers.color('[!] Type exit to quit'))
             except KeyboardInterrupt:

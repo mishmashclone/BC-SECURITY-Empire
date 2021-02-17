@@ -54,10 +54,10 @@ class Stagers(object):
 
     def load_stagers(self):
         """
-        Load stagers from the install + "/lib/stagers/*" path
+        Load stagers from the install + "/stagers/*" path
         """
 
-        rootPath = "%s/lib/stagers/" % (self.mainMenu.installPath)
+        rootPath = "%s/stagers/" % (self.mainMenu.installPath)
         pattern = '*.py'
 
         print(helpers.color("[*] Loading stagers from: %s" % (rootPath)))
@@ -71,7 +71,7 @@ class Stagers(object):
                     continue
 
                 # extract just the module name from the full path
-                stagerName = filePath.split("/lib/stagers/")[-1][0:-3]
+                stagerName = filePath.split("/stagers/")[-1][0:-3]
 
                 # instantiate the module and save it to the internal cache
                 spec = importlib.util.spec_from_file_location(stagerName, filePath)

@@ -47,10 +47,10 @@ class Listeners(object):
 
     def load_listeners(self):
         """
-        Load listeners from the install + "/lib/listeners/*" path
+        Load listeners from the install + "/listeners/*" path
         """
 
-        rootPath = "%s/lib/listeners/" % (self.mainMenu.installPath)
+        rootPath = "%s/listeners/" % (self.mainMenu.installPath)
         pattern = '*.py'
         print(helpers.color("[*] Loading listeners from: %s" % (rootPath)))
 
@@ -63,7 +63,7 @@ class Listeners(object):
                     continue
 
                 # extract just the listener module name from the full path
-                listenerName = filePath.split("/lib/listeners/")[-1][0:-3]
+                listenerName = filePath.split("/listeners/")[-1][0:-3]
 
                 # instantiate the listener module and save it to the internal cache
                 spec = importlib.util.spec_from_file_location(listenerName, filePath)
@@ -73,10 +73,10 @@ class Listeners(object):
 
     def default_listener_options(self, listener_name):
         """
-        Load listeners options from the install + "/lib/listeners/*" path
+        Load listeners options from the install + "/listeners/*" path
         """
 
-        root_path = "%s/lib/listeners/" % (self.mainMenu.installPath)
+        root_path = "%s/listeners/" % (self.mainMenu.installPath)
         pattern = '*.py'
 
         file_path = os.path.join(root_path, listener_name + '.py')

@@ -1612,8 +1612,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             return make_response(jsonify({'error': 'internal plugin error'}), 400)
         return jsonify(results)
 
-    if not os.path.exists('./data/empire-chain.pem'):
-        print("[!] Error: cannot find certificate ./data/empire-chain.pem")
+    if not os.path.exists('./empire/server/data/empire-chain.pem'):
+        print("[!] Error: cannot find certificate ./empire/server/data/empire-chain.pem")
         sys.exit()
 
     def shutdown_server():
@@ -1667,7 +1667,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         pass
 
     # wrap the Flask connection in SSL and start it
-    cert_path = os.path.abspath("./data/")
+    cert_path = os.path.abspath("./empire/server/data/")
 
     # support any version of tls
     pyversion = sys.version_info
@@ -1785,15 +1785,14 @@ def start_sockets(empire_menu: MainMenu, port: int = 5000, suppress: bool = Fals
     print('')
     print(" * Starting Empire SocketIO on port: {}".format(port))
 
-    cert_path = os.path.abspath("./data/")
+    cert_path = os.path.abspath("./empire/server/data/")
     proto = ssl.PROTOCOL_TLS
     context = ssl.SSLContext(proto)
     context.load_cert_chain("{}/empire-chain.pem".format(cert_path), "{}/empire-priv.key".format(cert_path))
     socketio.run(app, host='0.0.0.0', port=port, ssl_context=context)
 
 
-if __name__ == '__main__':
-
+def run():
     def thread_websocket(empire_menu, suppress=False):
         try:
             start_sockets(empire_menu=empire_menu, suppress=suppress, port=int(args.socketport))

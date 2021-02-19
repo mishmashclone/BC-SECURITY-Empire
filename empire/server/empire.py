@@ -1792,7 +1792,7 @@ def start_sockets(empire_menu: MainMenu, port: int = 5000, suppress: bool = Fals
     socketio.run(app, host='0.0.0.0', port=port, ssl_context=context)
 
 
-def run():
+def run(args):
     def thread_websocket(empire_menu, suppress=False):
         try:
             start_sockets(empire_menu=empire_menu, suppress=suppress, port=int(args.socketport))
@@ -1807,7 +1807,6 @@ def run():
         except SystemExit as e:
             pass
 
-    args = arguments.args
     database_check_docker()
 
     if not args.restport:

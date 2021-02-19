@@ -5,6 +5,10 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
+launcher_type = parser.add_argument_group('Client/Server Launcher')
+launcher_type.add_argument('--server', action='store_true', help='Launcher Empire Teamserver')
+launcher_type.add_argument('--client', action='store_true', help='Launcher Empire CLI')
+
 generalGroup = parser.add_argument_group('General Options')
 generalGroup.add_argument('--debug', nargs='?', const='1',
                           help='Debug level for output (default of 1, 2 for msg display).')

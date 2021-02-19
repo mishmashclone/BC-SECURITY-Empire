@@ -8,7 +8,7 @@ homepage = "https://github.com/BC-SECURITY/Empire"
 repository = "https://github.com/BC-SECURITY/Empire.git"
 packages = [
     { include = "empire" },
-    { include = "lib/**/*.py" },
+    { include = "empire/server/**/*.py" },
 ]
 
 [tool.poetry.dependencies]

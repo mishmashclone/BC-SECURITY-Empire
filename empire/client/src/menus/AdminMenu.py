@@ -165,7 +165,10 @@ class AdminMenu(Menu):
         """
         self.user_notes = state.get_user_me()['notes']
 
-        options = {'notes': self.user_notes + '\n' + add_user_notes}
+        if self.user_notes is None:
+            self.user_notes = ""
+
+        options = {'notes': self.user_notes + '\n' + date_util.get_utc_now() + ' - ' + add_user_notes}
         response = state.update_user_notes(self.user_id, options)
 
         if 'success' in response.keys():

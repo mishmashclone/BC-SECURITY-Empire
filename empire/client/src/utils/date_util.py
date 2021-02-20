@@ -16,3 +16,6 @@ def humanize_datetime(iso_string: str = None):
     local_str = parsed.astimezone().strftime('%Y-%m-%d %H:%M:%S %Z')
 
     return f"{local_str} ({humanize.naturaltime(datetime.now(timezone.utc) - parsed)})"
+
+def get_utc_now():
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")

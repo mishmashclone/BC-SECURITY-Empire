@@ -21,3 +21,6 @@ empire/server/setup/bomutils/
 .DS_Store
 venv/
 addons/
+__pycache__/
+workspace.xml
+empire/client/generated-stagers

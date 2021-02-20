@@ -1451,7 +1451,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                         random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
                 else:
                     keyword_replacement = request.json['keyword_replacement']
-                Session().add(models.Function(keyword=keyword, keyword_replacement=keyword_replacement))
+                Session().add(models.Function(keyword=keyword, replacement=keyword_replacement))
                 Session().commit()
             except Exception:
                 print(helpers.color("couldn't connect to Database"))

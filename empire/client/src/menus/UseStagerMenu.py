@@ -71,10 +71,10 @@ class UseStagerMenu(UseMenu):
         if response[self.selected].get('OutFile', {}).get('Value'):
             file_name = response[self.selected].get('OutFile').get('Value').split('/')[-1]
             output_bytes = base64.b64decode(response[self.selected]['Output'])
-            file = open(f'generated-stagers/{file_name}', 'wb')
+            file = open(f'empire/client/generated-stagers/{file_name}', 'wb')
             file.write(output_bytes)
             file.close()
-            print(f'{file_name} written to generated_stagers directory')
+            print(print_util.color(f'[*] {file_name} written to generated_stagers directory'))
         else:
             print(response[self.selected]['Output'])
 

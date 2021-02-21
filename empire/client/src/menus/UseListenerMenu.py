@@ -56,6 +56,12 @@ class UseListenerMenu(UseMenu):
         for key, value in self.record_options.items():
             post_body[key] = self.record_options[key]['Value']
 
+        # Validate options before generating listener, used specifically for onedrive listener AuthCode
+        validate_response = state.validate_listener(self.selected, post_body)
+        if 'error' in validate_response.keys():
+            print(print_util.color(validate_response['error']))
+            return
+
         response = state.create_listener(self.selected, post_body)
         if 'success' in response.keys():
             return

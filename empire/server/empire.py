@@ -648,6 +648,36 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({"listeners": listeners})
 
+    @app.route('/api/listeners/<string:listener_type>/validate', methods=['POST'])
+    def validate_listeners(listener_type):
+        """
+        Returns JSON describing all currently registered listeners.
+        """
+        if listener_type.lower() not in main.listeners.loadedListeners:
+            return make_response(jsonify({'error': f"listener type {listener_type} not found"}), 404)
+
+        listener_object = main.listeners.loadedListeners[listener_type]
+        # set all passed options
+        for option, values in request.json.items():
+            if isinstance(values, bytes):
+                values = values.decode('UTF-8')
+            if option == "Name":
+                listener_name = values
+
+            return_options = main.listeners.set_listener_option(listener_type, option, values)
+            if not return_options:
+                return make_response(
+                    jsonify({'error': 'error setting listener value %s with option %s' % (option, values)}), 400)
+
+        validation = listener_object.validate_options()
+
+        if validation == True:
+            return jsonify({'success': True})
+        elif not validation:
+            return jsonify({'error': 'failed to validate listener %s options' % listener_name})
+        else:
+            return jsonify({'error': validation})
+
     @app.route('/api/listeners/<string:listener_name>', methods=['GET'])
     def get_listener_name(listener_name):
         """

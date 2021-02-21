@@ -115,6 +115,14 @@ class EmpireCliState(object):
 
         return self.listeners
 
+    def validate_listener(self, listener_type: str, options: Dict):
+        response = requests.post(url=f'{self.host}:{self.port}/api/listeners/{listener_type}/validate',
+                                 json=options,
+                                 verify=False,
+                                 params={'token': self.token})
+
+        return json.loads(response.content)
+
     def get_version(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/version',
                                 verify=False,

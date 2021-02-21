@@ -151,7 +151,7 @@ class Listener(object):
                 str(self.options['AuthCode']['Value']).strip() == ''):
             if (str(self.options['ClientID']['Value']).strip() == ''):
                 print(helpers.color("[!] ClientID needed to generate AuthCode URL!"))
-                return False
+                return "[!] ClientID needed to generate AuthCode URL!"
             params = {'client_id': str(self.options['ClientID']['Value']).strip(),
                       'response_type': 'code',
                       'redirect_uri': self.options['RedirectURI']['Value'],
@@ -159,12 +159,12 @@ class Listener(object):
             req = Request('GET', 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize', params=params)
             prep = req.prepare()
             print(helpers.color("[*] Get your AuthCode from \"%s\" and try starting the listener again." % prep.url))
-            return False
+            return f"[*] Get your AuthCode from \"{prep.url}\" and try starting the listener again."
 
         for key in self.options:
             if self.options[key]['Required'] and (str(self.options[key]['Value']).strip() == ''):
                 print(helpers.color("[!] Option \"%s\" is required." % (key)))
-                return False
+                return "[!] Option \"%s\" is required." % (key)
 
         return True
 

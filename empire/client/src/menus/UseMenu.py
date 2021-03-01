@@ -101,7 +101,7 @@ class UseMenu(Menu):
             if (key in ['Name', 'Author', 'Comments', 'Description', 'Language', 'Background', 'NeedsAdmin',
                         'OpsecSafe', 'Techniques', 'Software']):
                 if isinstance(values, list):
-                    if values[0] != '':
+                    if len(values) > 0 and values[0] != '':
                         for i, value in enumerate(values):
                             if i == 0:
                                 record_list.append([print_util.color(key, 'blue'), print_util.text_wrap(value, width=40)])

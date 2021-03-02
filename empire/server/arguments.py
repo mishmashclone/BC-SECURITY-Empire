@@ -22,8 +22,7 @@ launchGroup = restGroup.add_mutually_exclusive_group()
 launchGroup.add_argument('--rest', action='store_true', help='No longer needed, RESTful API is on by default.')
 launchGroup.add_argument('--headless', action='store_true',
                          help='Run the RESTful API and Socket Server headless without the usual interface.')
-restGroup.add_argument('-n', '--notifications', action='store_true', help='No longer needed, SocketIO notifications '
-                                                                          'server is on by default.')
+restGroup.add_argument('--restip', nargs=1, help='IP to bind the Empire RESTful API on. Defaults to 0.0.0.0')
 restGroup.add_argument('--restport', type=int, nargs=1, help='Port to run the Empire RESTful API on. Defaults to 1337')
 restGroup.add_argument('--socketport', type=int, nargs=1, help='Port to run socketio on. Defaults to 5000')
 restGroup.add_argument('--username', nargs=1,

@@ -1682,7 +1682,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
     app.run(host=ip, port=int(port), ssl_context=context, threaded=True)
 
 
-def start_sockets(empire_menu: MainMenu, port: int = 5000, suppress: bool = False):
+def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppress: bool = False):
     app = Flask(__name__)
     app.json_encoder = MyJsonEncoder
     socketio = SocketIO(app, cors_allowed_origins="*", json=flask.json)
@@ -1822,7 +1822,7 @@ if __name__ == '__main__':
         main = empire.MainMenu(args=args)
         def thread_websocket(empire_menu):
             try:
-                start_sockets(empire_menu=empire_menu, suppress=True, port=int(args.socketport))
+                start_sockets(empire_menu=empire_menu, suppress=True, ip=args.restip, port=int(args.socketport))
             except SystemExit as e:
                 pass
 
@@ -1833,7 +1833,7 @@ if __name__ == '__main__':
 
         try:
             start_restful_api(empireMenu=main, suppress=True, headless=True, username=args.username, password=args.password,
-                              port=args.restport)
+                              ip=args.restip, port=args.restport)
         except SystemExit as e:
             pass
 
@@ -1842,7 +1842,7 @@ if __name__ == '__main__':
         main = empire.MainMenu(args=args)
         def thread_websocket(empire_menu):
             try:
-                start_sockets(empire_menu=empire_menu, suppress=True, port=int(args.socketport))
+                start_sockets(empire_menu=empire_menu, suppress=True, ip=args.restip, port=int(args.socketport))
             except SystemExit as e:
                 pass
 
@@ -1853,7 +1853,7 @@ if __name__ == '__main__':
 
         try:
             start_restful_api(empireMenu=main, suppress=True, headless=True, username=args.username, password=args.password,
-                              port=args.restport)
+                              ip=args.restip, port=args.restport)
         except SystemExit as e:
             pass
 
@@ -1865,7 +1865,8 @@ if __name__ == '__main__':
         def thread_api(empireMenu):
 
             try:
-                start_restful_api(empireMenu=empireMenu, suppress=False, username=args.username, password=args.password, ip=args.restip, port=args.restport)
+                start_restful_api(empireMenu=empireMenu, suppress=False, username=args.username, password=args.password,
+                                  ip=args.restip, port=args.restport)
             except SystemExit as e:
                 pass
 
@@ -1877,7 +1878,7 @@ if __name__ == '__main__':
 
         def thread_websocket(empire_menu):
             try:
-                start_sockets(empire_menu=empire_menu, suppress=False, port=int(args.socketport))
+                start_sockets(empire_menu=empire_menu, suppress=False, ip=args.restip, port=int(args.socketport))
             except SystemExit as e:
                 pass
 
@@ -1895,8 +1896,8 @@ if __name__ == '__main__':
         def thread_api(empireMenu):
 
             try:
-                start_restful_api(empireMenu=empireMenu, suppress=True, username=args.username, password=args.password, ip=args.restip,
-                                  port=args.restport)
+                start_restful_api(empireMenu=empireMenu, suppress=True, username=args.username, password=args.password,
+                                  ip=args.restip, port=args.restport)
             except SystemExit as e:
                 pass
 
@@ -1907,7 +1908,7 @@ if __name__ == '__main__':
 
         def thread_websocket(empire_menu):
             try:
-                start_sockets(empire_menu=empire_menu, suppress=True, port=int(args.socketport))
+                start_sockets(empire_menu=empire_menu, suppress=True, ip=args.restip, port=int(args.socketport))
             except SystemExit as e:
                 pass
 

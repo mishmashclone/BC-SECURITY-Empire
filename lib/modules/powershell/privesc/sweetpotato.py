@@ -19,7 +19,7 @@ class Module(object):
 
             'Software': '',
 
-            'Techniques': ['TA0004'],
+            'Techniques': ['T1068'],
 
             'Background': False,
 
@@ -42,11 +42,6 @@ class Module(object):
                 'Required': True,
                 'Value': ''
             },
-#            'Listener': {
-#                'Description': 'Listener to generate Powershell agent stager from',
-#                'Required': False,
-#                'Value': ''
-#            },
             'Binary': {
                 'Description': 'Full path to the process to spawn. Default: C:\Windows\System32\WindowsPowerShell\\v1.0\powershell.exe',
                 'Required': False,

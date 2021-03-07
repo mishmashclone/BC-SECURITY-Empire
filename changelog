@@ -5,6 +5,14 @@ X/XX/2021
         - Added new launch parameters for starting server/client (@Cx01N, @Vinnybod)
         - Removed old Empire CLI and cmdloop from server (@Cx01N)
 
+3/7/2021
+------------
+- Version 3.8.0 Master Release
+        - Fix for literal comparison warnings in Python agent - #428 (@mattbogenberger)
+        - Add an Invoke-SweetPotato module - #433 (@Invoke-Mimikatz)
+        - Fix failed ticket generation in Invoke-Kerberoast - #434 (@Pen-Git)
+        - Add ability to specify the bind IP for RESTful API - #431 (@meldridge)
+
 2/5/2021
 ------------
 - Version 3.7.2 Master Release

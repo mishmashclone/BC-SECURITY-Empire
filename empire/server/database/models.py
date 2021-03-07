@@ -78,6 +78,7 @@ class Agent(Base):
     taskings = Column(String(255))  # Queue of tasks. Should refactor to manage queued tasks from the taskings table itself.
     results = Column(String(255))
     notes = Column(Text)
+    killed = Column(Boolean, nullable=False)
 
     @hybrid_property # todo @stale.expression
     def stale(self):

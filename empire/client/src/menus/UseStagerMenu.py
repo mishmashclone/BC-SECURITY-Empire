@@ -35,7 +35,7 @@ class UseStagerMenu(UseMenu):
             self.options()
             return True
 
-    def use(self, module: string) -> None:
+    def use(self, module: str) -> None:
         """
         Use the selected stager.
 

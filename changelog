@@ -4,6 +4,7 @@ X/XX/2021
         - Integrated server and client into Empire (@Cx01N, @Vinnybod)
         - Added new launch parameters for starting server/client (@Cx01N, @Vinnybod)
         - Removed old Empire CLI and cmdloop from server (@Cx01N)
+        - Simplified kill/remove commands and added 'all' and 'stale' options (@Cx01N)
 
 2/5/2021
 ------------

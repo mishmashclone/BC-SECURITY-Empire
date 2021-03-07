@@ -230,6 +230,13 @@ class EmpireCliState(object):
 
         return json.loads(response.content)
 
+    def remove_stale_agents(self):
+        response = requests.delete(url=f'{self.host}:{self.port}/api/agents/stale',
+                                   verify=False,
+                                   params={'token': self.token})
+
+        return json.loads(response.content)
+
     def update_agent_comms(self, agent_name: str, listener_name: str):
         response = requests.put(url=f'{self.host}:{self.port}/api/agents/{agent_name}/update_comms',
                                 json={'listener': listener_name},

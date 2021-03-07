@@ -171,7 +171,8 @@ class Agents(object):
                                    working_hours=workingHours,
                                    lost_limit=lostLimit,
                                    listener=listener,
-                                   language=language
+                                   language=language,
+                                   killed=False,
                                    ))
         Session().commit()
 
@@ -1680,19 +1681,18 @@ class Agents(object):
             dispatcher.send(signal, sender="agents/{}".format(session_id))
 
             # update the agent results and log
-            # self.update_agent_results(sessionID, data)
             self.save_agent_log(session_id, data)
 
-            # remove this agent from the cache/database
-            self.remove_agent_db(session_id)
-
+            # set agent to killed in the database
+            agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
+            agent.killed = True
+            Session().commit()
 
         elif response_name == "TASK_SHELL":
             # shell command response
             self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
-
 
         elif response_name == "TASK_DOWNLOAD":
             # file download

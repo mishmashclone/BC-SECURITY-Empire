@@ -768,7 +768,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         """
         Returns JSON describing all currently registered agents.
         """
-        active_agents_raw = Session().query(models.Agent).all()
+        active_agents_raw = Session().query(models.Agent).filter(models.Agent.killed == False).all()
         agents = []
 
         for active_agent in active_agents_raw:
@@ -820,16 +820,15 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
     @app.route('/api/agents/stale', methods=['DELETE'])
     def remove_stale_agent():
         """
-        Removes stale agents from the controller.
+        Removes all stale agents from the controller.
 
         WARNING: doesn't kill the agent first! Ensure the agent is dead.
         """
         agents_raw = Session().query(models.Agent).all()
 
         for agent in agents_raw:
-
             if agent.stale:
-                Session().delete(agent)
+                agent.killed = True
         Session().commit()
 
         return jsonify({'success': True})
@@ -841,12 +840,12 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         WARNING: doesn't kill the agent first! Ensure the agent is dead.
         """
-        agent = main.agents.get_agent_from_name_or_session_id(agent_name)
+        agent = Session().query(models.Agent).filter(models.Agent.name == agent_name).first()
 
         if not agent:
             return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
 
-        Session().delete(agent)
+        agent.killed = True
         Session().commit()
 
         return jsonify({'success': True})
@@ -1828,7 +1827,6 @@ def run(args):
             start_sockets(empire_menu=empire_menu, suppress=suppress, port=int(args.socketport))
         except SystemExit as e:
             pass
-
 
     def thread_api(empire_menu):
         try:

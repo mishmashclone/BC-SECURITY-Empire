@@ -18,7 +18,12 @@ class AgentMenu(Menu):
         return self._cmd_registry + super().autocomplete()
 
     def get_completions(self, document, complete_event, cmd_line, word_before_cursor):
-        if cmd_line[0] in ['kill', 'clear', 'rename'] and position_util(cmd_line, 2, word_before_cursor):
+        if cmd_line[0] in ['kill'] and position_util(cmd_line, 2, word_before_cursor):
+            for agent in filtered_search_list(word_before_cursor, state.agents.keys()):
+                yield Completion(agent, start_position=-len(word_before_cursor))
+            yield Completion('all', start_position=-len(word_before_cursor))
+            yield Completion('stale', start_position=-len(word_before_cursor))
+        elif cmd_line[0] in ['clear', 'rename'] and position_util(cmd_line, 2, word_before_cursor):
             for agent in filtered_search_list(word_before_cursor, state.agents.keys()):
                 yield Completion(agent, start_position=-len(word_before_cursor))
         elif position_util(cmd_line, 1, word_before_cursor):
@@ -51,16 +56,24 @@ class AgentMenu(Menu):
         table_util.print_agent_table(agent_list, agent_formatting, 'Agents')
 
     @command
-    def kill(self, agent_name: string) -> None:
+    def kill(self, agent_name: str) -> None:
         """
-        Kill the selected listener
+        Kills and removes specified agent [agent_name, stale, or all].
 
         Usage: kill <agent_name>
         """
-        state.kill_agent(agent_name)
+        if agent_name == 'all':
+            for agent_name in state.get_agents().keys():
+                self.kill_agent(agent_name)
+        elif agent_name == 'stale':
+            for agent_name, agent in state.get_agents().items():
+                if agent['stale'] == True:
+                    self.kill_agent(agent_name)
+        else:
+            self.kill_agent(agent_name)
 
     @command
-    def clear(self, agent_name: string) -> None:
+    def clear(self, agent_name: str) -> None:
         """
         Clear tasks for selected listener
 
@@ -69,20 +82,7 @@ class AgentMenu(Menu):
         state.clear_agent(agent_name)
 
     @command
-    def remove(self, agent_name: string) -> None:
-        """
-        Removes an agent from the controller specified by agent_name. Doesn't kill the agent first.
-
-        Usage: remove <agent_name>
-        """
-        response = state.remove_agent(agent_name)
-        if 'success' in response.keys():
-            print(print_util.color('[*] Removed agent ' + agent_name))
-        elif 'error' in response.keys():
-            print(print_util.color('[!] Error: ' + response['error']))
-
-    @command
-    def rename(self, agent_name: string, new_agent_name: string) -> None:
+    def rename(self, agent_name: str, new_agent_name: str) -> None:
         """
         Rename selected listener
 
@@ -90,8 +90,21 @@ class AgentMenu(Menu):
         """
         state.rename_agent(agent_name, new_agent_name)
 
+    @staticmethod
+    def kill_agent(agent_name: str) -> None:
+        kill_response = state.kill_agent(agent_name)
+        if 'success' in kill_response.keys():
+            print(print_util.color('[*] Kill command sent to agent ' + agent_name))
+            remove_response = state.remove_agent(agent_name)
+            if 'success' in remove_response.keys():
+                print(print_util.color('[*] Removed agent ' + agent_name + ' from list'))
+            elif 'error' in remove_response.keys():
+                print(print_util.color('[!] Error: ' + remove_response['error']))
+        elif 'error' in kill_response.keys():
+            print(print_util.color('[!] Error: ' + kill_response['error']))
 
-def trunc(value: string = '', limit: int = 1) -> string:
+
+def trunc(value: str = '', limit: int = 1) -> str:
     if value:
         if len(value) > limit:
             return value[:limit - 2] + '..'

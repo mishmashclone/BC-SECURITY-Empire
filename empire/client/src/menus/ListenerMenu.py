@@ -43,7 +43,7 @@ class ListenerMenu(Menu):
         table_util.print_table(listener_list, 'Listeners List')
 
     @command
-    def options(self, listener_name: string) -> None:
+    def options(self, listener_name: str) -> None:
         """
         Get option details for the selected listener
 
@@ -63,7 +63,7 @@ class ListenerMenu(Menu):
         table_util.print_table(listener_list, listener_name)
 
     @command
-    def kill(self, listener_name: string) -> None:
+    def kill(self, listener_name: str) -> None:
         """
         Kill the selected listener
 

@@ -160,7 +160,7 @@ class MyJsonEncoder(JSONEncoder):
 #
 ####################################################################
 
-def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, username=None, password=None, port=1337):
+def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, username=None, password=None, ip='0.0.0.0', port=1337):
     """
     Kick off the RESTful API with the given parameters.
 
@@ -168,6 +168,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
     suppress    -   suppress most console output
     username    -   optional username to use for the API, otherwise pulls from the empire.db config
     password    -   optional password to use for the API, otherwise pulls from the empire.db config
+    ip          -   ip to bind the API to, defaults to 0.0.0.0
     port        -   port to start the API on, defaults to 1337 ;)
     """
     app = Flask(__name__)
@@ -185,7 +186,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         main.users.update_password(1, password[0])
 
     print('')
-    print(" * Starting Empire RESTful API on port: %s" % (port))
+    print(" * Starting Empire RESTful API on %s:%s" % (ip, port))
 
     oldStdout = sys.stdout
     if suppress:
@@ -1709,10 +1710,10 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
     context = ssl.SSLContext(proto)
     context.load_cert_chain("%s/empire-chain.pem" % cert_path, "%s/empire-priv.key" % cert_path)
-    app.run(host='0.0.0.0', port=int(port), ssl_context=context, threaded=True)
+    app.run(host=ip, port=int(port), ssl_context=context, threaded=True)
 
 
-def start_sockets(empire_menu: MainMenu, port: int = 5000, suppress: bool = False):
+def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppress: bool = False):
     app = Flask(__name__)
     app.json_encoder = MyJsonEncoder
     socketio = SocketIO(app, cors_allowed_origins="*", json=flask.json)
@@ -1818,20 +1819,20 @@ def start_sockets(empire_menu: MainMenu, port: int = 5000, suppress: bool = Fals
     proto = ssl.PROTOCOL_TLS
     context = ssl.SSLContext(proto)
     context.load_cert_chain("{}/empire-chain.pem".format(cert_path), "{}/empire-priv.key".format(cert_path))
-    socketio.run(app, host='0.0.0.0', port=port, ssl_context=context)
+    socketio.run(app, host=ip, port=port, ssl_context=context)
 
 
 def run(args):
     def thread_websocket(empire_menu, suppress=False):
         try:
-            start_sockets(empire_menu=empire_menu, suppress=suppress, port=int(args.socketport))
+            start_sockets(empire_menu=empire_menu, suppress=suppress, ip=args.restip, port=int(args.socketport))
         except SystemExit as e:
             pass
 
     def thread_api(empire_menu):
         try:
             start_restful_api(empireMenu=empire_menu, suppress=True, username=args.username, password=args.password,
-                              port=args.restport)
+                              ip=args.restip, port=args.restport)
         except SystemExit as e:
             pass
 
@@ -1841,6 +1842,11 @@ def run(args):
         args.restport = '1337'
     else:
         args.restport = args.restport[0]
+
+    if not args.restip:
+        args.restip = '0.0.0.0'
+    else:
+        args.restip = args.restip[0]
 
     if not args.socketport:
         args.socketport = '5000'
@@ -1863,9 +1869,8 @@ def run(args):
         sleep(2)
 
         try:
-            start_restful_api(empireMenu=main, suppress=True, headless=True, username=args.username,
-                              password=args.password,
-                              port=args.restport)
+            start_restful_api(empireMenu=main, suppress=True, headless=True, username=args.username, password=args.password,
+                              ip=args.restip, port=args.restport)
         except SystemExit as e:
             pass
 

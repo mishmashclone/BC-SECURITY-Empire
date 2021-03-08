@@ -29,6 +29,7 @@ launchGroup.add_argument('--headless', action='store_true',
 launchGroup.add_argument('--teamserver', action='store_true',
                          help='Run Empire Team Server with RESTful API and Socket Server.')
 restGroup.add_argument('-n', '--notifications', action='store_true', help='Run the SocketIO notifications server.')
+restGroup.add_argument('--restip', nargs=1, help='IP to bind the Empire RESTful API on. Defaults to 0.0.0.0')
 restGroup.add_argument('--restport', type=int, nargs=1, help='Port to run the Empire RESTful API on. Defaults to 1337')
 restGroup.add_argument('--socketport', type=int, nargs=1, help='Port to run socketio on. Defaults to 5000')
 restGroup.add_argument('--username', nargs=1,

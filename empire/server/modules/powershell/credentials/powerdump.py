@@ -13,9 +13,10 @@ class Module(object):
         self.info = {
             'Name': 'Invoke-PowerDump',
 
-            'Author': ['DarkOperator', 'winfang', 'Kathy Peters', 'ReL1K'],
+            'Author': ['DarkOperator', 'winfang', 'Kathy Peters', 'ReL1K', '@Cx01N'],
 
-            'Description': "Dumps hashes from the local system using Posh-SecMod's Invoke-PowerDump",
+            'Description': "Dumps hashes from the local system using an updated version of "
+                           "Posh-SecMod's Invoke-PowerDump.",
 
             'Software': '',
 
@@ -34,7 +35,9 @@ class Module(object):
             'MinLanguageVersion' : '2',
             
             'Comments': [
-                'https://github.com/darkoperator/Posh-SecMod/blob/master/PostExploitation/PostExploitation.psm1'
+                'https://github.com/darkoperator/Posh-SecMod/blob/master/PostExploitation/PostExploitation.psm1',
+                'https://www.insecurity.be/blog/2018/01/21/retrieving-ntlm-hashes-and-what-changed-technical-writeup/',
+                'https://github.com/rapid7/metasploit-framework/blob/master/modules/post/windows/gather/hashdump.rb'
             ]
         }
 

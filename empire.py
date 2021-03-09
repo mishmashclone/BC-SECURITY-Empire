@@ -8,11 +8,11 @@ if __name__ == '__main__':
     args = arguments.args  # todo move arg parsing to root level.
 
     if args.server:
-        import empire.server.empire as server
+        import empire.server.server as server
         server.run(args)
 
     elif args.client:
-        import empire.client.main as client
+        import empire.client.client as client
         client.start()
 
     sys.exit()

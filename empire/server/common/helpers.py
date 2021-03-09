@@ -942,7 +942,7 @@ def obfuscate_module(moduleSource, obfuscationCommand="", forceReobfuscation=Fal
 
 
     # obfuscate and write to obfuscated source path
-    path = os.path.abspath('empire.py').split('empire.py')[0] + "/"
+    path = os.path.abspath('server.py').split('server.py')[0] + "/"
     obfuscatedCode = obfuscate(path, moduleCode, obfuscationCommand)
     obfuscatedSource = moduleSource.replace("module_source", "obfuscated_module_source")
     try:

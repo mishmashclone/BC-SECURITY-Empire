@@ -95,7 +95,7 @@ sudo powershell-empire --server
 
 #### Github
 ```sh
-sudo poetry run python main.py --server
+sudo poetry run python3 empire.py --server
 ```
 
 ### Client
@@ -107,7 +107,7 @@ sudo powershell-empire --client
 
 #### Github
 ```sh
-sudo poetry run python main.py --client
+sudo poetry run python3 empire.py --client
 ```
 
 Check out the [Empire wiki](https://github.com/BC-SECURITY/Empire/wiki/Quickstart) for more instructions on getting started with Empire.

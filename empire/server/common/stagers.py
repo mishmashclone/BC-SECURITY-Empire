@@ -3,7 +3,7 @@
 Functionality that loads Empire stagers, sets generic stager options,
 and abstracts the invocation of launcher generation.
 
-The Stagers() class in instantiated in ./empire.py by the main menu and includes:
+The Stagers() class in instantiated in ./server.py by the main menu and includes:
 
     load_stagers() - loads stagers from the install path
     set_stager_option() - sets and option for all stagers

@@ -2,9 +2,9 @@
 
 Main agent handling functionality for Empire.
 
-The Agents() class in instantiated in ./empire.py by the main menu and includes:
+The Agents() class in instantiated in ./server.py by the main menu and includes:
 
-    get_db_connection()         - returns the empire.py:mainMenu database connection object
+    get_db_connection()         - returns the server.py:mainMenu database connection object
     is_agent_present()          - returns True if an agent is present in the self.agents cache
     add_agent()                 - adds an agent to the self.agents cache and the backend database
     remove_agent_db()           - removes an agent from the self.agents cache and the backend database
@@ -111,7 +111,7 @@ class Agents(object):
             agentInfo = {'sessionKey': agent['session_key'], 'functions': agent['functions']}
             self.agents[agent['session_id']] = agentInfo
 
-        # pull out common configs from the main menu object in empire.py
+        # pull out common configs from the main menu object in server.py
         self.ipWhiteList = self.mainMenu.ipWhiteList
         self.ipBlackList = self.mainMenu.ipBlackList
 

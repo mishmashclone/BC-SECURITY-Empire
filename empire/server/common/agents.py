@@ -899,7 +899,7 @@ class Agents(object):
             Session().commit()
         except Exception:
             print(helpers.color(
-                "[!] Error: script autoruns not a database field, run ./setup_database.py to reset DB schema."))
+                "[!] Error: script autoruns not a database field, run --reset to reset DB schema."))
             print(helpers.color("[!] Warning: this will reset ALL agent connections!"))
 
     def clear_autoruns_db(self):

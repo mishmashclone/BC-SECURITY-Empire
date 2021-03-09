@@ -56,7 +56,7 @@ def database_check_docker():
     if os.path.exists('/.dockerenv'):
         if not os.path.exists('data/empire.db'):
             print('[*] Fresh start in docker, running reset.sh for you')
-            subprocess.call(['./setup/reset.sh'])
+            subprocess.call(['./empire/server/setup/reset.sh'])
 
 
 def adapt_datetime(val):
@@ -1591,7 +1591,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         """
         plugins = []
 
-        plugin_path = os.path.abspath("plugins")
+        plugin_path = empireMenu.installPath + "/plugins"
         all_plugin_names = [name for _, name, _ in pkgutil.walk_packages([plugin_path])]
         # check if the plugin has already been loaded
         active_plugins = list(empireMenu.loadedPlugins.keys())

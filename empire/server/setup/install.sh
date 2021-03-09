@@ -172,9 +172,6 @@ sudo pip3 install -r "$Pip_file"
 # Generate a cert
 ./cert.sh
 
-# Set up the database schema
-python3 ./setup_database.py
-
 cd ..
 
 echo -e '\n [*] Setup complete!\n'

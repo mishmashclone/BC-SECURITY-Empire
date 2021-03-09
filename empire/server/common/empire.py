@@ -151,7 +151,7 @@ class MainMenu(cmd.Cmd):
         """
         Load plugins at the start of Empire
         """
-        pluginPath = os.path.abspath("plugins")
+        pluginPath = self.installPath + "/plugins"
         print(helpers.color("[*] Searching for plugins at {}".format(pluginPath)))
 
         # From walk_packages: "Note that this function must import all packages

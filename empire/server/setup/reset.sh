@@ -7,13 +7,6 @@ fi
 
 IFS='/' read -a array <<< pwd
 
-if [[ "$(pwd)" != *setup ]]
-then
-	cd ./setup
-fi
-
-cd ..
-
 # remove the debug file if it exists
 if [ -e empire.debug ]
 then

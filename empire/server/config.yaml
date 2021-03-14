@@ -1,3 +1,4 @@
+suppress-self-cert-warning: true
 database:
   type: sqlite
   location: empire/server/data/empire.db

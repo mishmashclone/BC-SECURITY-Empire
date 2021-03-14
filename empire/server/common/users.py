@@ -95,8 +95,8 @@ class Users(object):
 
         # dispatch the event
         signal = json.dumps({
-            'print': True,
-            'message': "{} connected".format(user_name)
+            'print': False,
+            'message': "[+] {} connected".format(user_name)
         })
         dispatcher.send(signal, sender="Users")
         return user.api_token

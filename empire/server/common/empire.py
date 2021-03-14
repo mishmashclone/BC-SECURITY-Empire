@@ -103,9 +103,6 @@ class MainMenu(cmd.Cmd):
         })
         dispatcher.send(signal, sender="empire")
 
-        # print the loading menu
-        messages.loading()
-
     def handle_event(self, signal, sender):
         """
         Whenver an event is received from the dispatcher, log it to the DB,
@@ -238,25 +235,8 @@ class MainMenu(cmd.Cmd):
 
         while True:
             try:
-                # get active listeners, agents, and loaded modules
-                num_agents = len(self.agents.get_agents_db() or [])
-
-                num_modules = self.modules.modules
-                if num_modules:
-                    num_modules = len(num_modules)
-                else:
-                    num_modules = 0
-
-                num_listeners = self.listeners.activeListeners
-                if num_listeners:
-                    num_listeners = len(num_listeners)
-                else:
-                    num_listeners = 0
-
-                messages.headless_title(VERSION, num_modules, num_listeners, num_agents)
-
                 with patch_stdout(raw=True):
-                    text = session.prompt('Empire > ', refresh_interval=None)
+                    text = session.prompt('Server > ', refresh_interval=None)
                     print(helpers.color('[!] Type exit to quit'))
             except KeyboardInterrupt:
                 print(helpers.color("[!] Type exit to quit"))
@@ -274,9 +254,9 @@ class MainMenu(cmd.Cmd):
 
     def bottom_toolbar(self):
         return HTML(f'EMPIRE TEAM SERVER | ' +
-                    str(len(self.agents.agents)) + ' Agents | ' +
-                    str(len(self.listeners.activeListeners)) + ' Listeners | ' +
-                    str(len(self.loadedPlugins)) + ' Plugins')
+                    str(len(self.agents.agents)) + ' Agent(s) | ' +
+                    str(len(self.listeners.activeListeners)) + ' Listener(s) | ' +
+                    str(len(self.loadedPlugins)) + ' Plugin(s)')
 
     ###################################################
     # CMD methods

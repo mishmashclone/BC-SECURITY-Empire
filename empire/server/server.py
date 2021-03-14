@@ -16,6 +16,10 @@ import string
 import subprocess
 import sys
 import time
+import urllib3
+
+import requests
+import socketio
 from datetime import datetime, timezone
 from time import sleep
 
@@ -32,6 +36,7 @@ from empire.server.common import empire, helpers, users
 from empire.server.common.empire import MainMenu
 from empire.server.database.base import Session
 from empire.server.database import models
+from empire.server.common.config import empire_config
 
 # Check if running Python 3
 if sys.version[0] == '2':
@@ -41,6 +46,13 @@ if sys.version[0] == '2':
 global serverExitCommand
 serverExitCommand = 'restart'
 
+# Disable flask warning banner for development server in production environment
+cli = sys.modules['flask.cli']
+cli.show_server_banner = lambda *x: None
+
+# Disable http warnings
+if empire_config.yaml.get('suppress-self-cert-warning', True):
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 #####################################################
 #
@@ -185,8 +197,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
     if password:
         main.users.update_password(1, password[0])
 
-    print('')
-    print(" * Starting Empire RESTful API on %s:%s" % (ip, port))
+    print(helpers.color("[*] Starting Empire RESTful API on %s:%s" % (ip, port)))
 
     oldStdout = sys.stdout
     if suppress:
@@ -1645,7 +1656,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         return jsonify(results)
 
     if not os.path.exists('./empire/server/data/empire-chain.pem'):
-        print("[!] Error: cannot find certificate ./empire/server/data/empire-chain.pem")
+        print(helpers.color("[!] Error: cannot find certificate ./empire/server/data/empire-chain.pem"))
         sys.exit()
 
     def shutdown_server():
@@ -1654,10 +1665,10 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         """
         global serverExitCommand
 
-        print("\n * Shutting down Empire RESTful API")
+        print(helpers.color("[*] Shutting down Empire RESTful API"))
 
         if suppress:
-            print(" * Shutting down the Empire instance")
+            print(helpers.color("[*] Shutting down the Empire instance"))
             main.shutdown()
 
         serverExitCommand = 'shutdown'
@@ -1719,6 +1730,7 @@ def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppres
     app = Flask(__name__)
     app.json_encoder = MyJsonEncoder
     socketio = SocketIO(app, cors_allowed_origins="*", json=flask.json)
+
     empire_menu.socketio = socketio
     room = 'general'  # A socketio user is in the general channel if the join the chat.
     chat_participants = {}
@@ -1743,14 +1755,14 @@ def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppres
     def connect():
         user = get_user_from_token()
         if user:
-            print(f"{user['username']} connected to socketio")
+            print(helpers.color(f"[+] {user['username']} connected to socketio"))
             return
 
         raise ConnectionRefusedError('unauthorized!')
 
     @socketio.on('disconnect')
     def test_disconnect():
-        print('Client disconnected from socketio')
+        print(helpers.color('[+] Client disconnected from socketio'))
 
     @socketio.on('chat/join')
     def on_join(data=None):
@@ -1814,15 +1826,17 @@ def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppres
         sid = request.sid
         socketio.emit("chat/participants", list(chat_participants.values()), room=sid)
 
-    print('')
-    print(" * Starting Empire SocketIO on port: {}".format(port))
+    @socketio.on('startup_validator')
+    def test():
+        socketio.emit("startup_validator")
+
+    print(helpers.color("[*] Starting Empire SocketIO on %s:%s" % (ip, port)))
 
     cert_path = os.path.abspath("./empire/server/data/")
     proto = ssl.PROTOCOL_TLS
     context = ssl.SSLContext(proto)
     context.load_cert_chain("{}/empire-chain.pem".format(cert_path), "{}/empire-priv.key".format(cert_path))
     socketio.run(app, host=ip, port=port, ssl_context=context)
-
 
 def run(args):
     def thread_websocket(empire_menu, suppress=False):
@@ -1837,6 +1851,36 @@ def run(args):
                               ip=args.restip, port=args.restport)
         except SystemExit as e:
             pass
+
+    def server_startup_validator():
+        response = requests.post(url=f'https://{args.restip}:{args.restport}/api/admin/login',
+                                 json={'username': 'empireadmin', 'password': 'password123'},
+                                 verify=False)
+        if response:
+            print(helpers.color('[+] Empire RESTful API successfully started'))
+
+            try:
+                sio = socketio.Client(ssl_verify=False)
+                sio.emit('startup_validator')
+
+                t_end = time.time() + 10
+                sio_check = False
+                while time.time() < t_end:
+                    if sio.on('startup_validator'):
+                        sio_check = True
+                        break
+
+                if sio_check is True:
+                    print(helpers.color('[+] Empire SocketIO successfully started'))
+                else:
+                    print(helpers.color('[!] Empire SocketIO failed to start'))
+            except:
+                print(helpers.color('[!] Empire SocketIO failed to start'))
+            finally:
+                sio.disconnect()
+
+        else:
+            print(helpers.color('[!] Empire RESTful API failed to start'))
 
     database_check_docker()
 
@@ -1862,20 +1906,6 @@ def run(args):
         # Reset called from database/base.py
         sys.exit()
 
-    elif args.headless:
-        # start an Empire instance and RESTful API and suppress output
-        main = empire.MainMenu(args=args)
-        thread2 = helpers.KThread(target=thread_websocket, args=(main, False))
-        thread2.daemon = True
-        thread2.start()
-        sleep(2)
-
-        try:
-            start_restful_api(empireMenu=main, suppress=True, headless=True, username=args.username, password=args.password,
-                              ip=args.restip, port=args.restport)
-        except SystemExit as e:
-            pass
-
     else:
         # start an Empire instance and RESTful API with the teamserver interface
         main = empire.MainMenu(args=args)
@@ -1890,6 +1920,7 @@ def run(args):
         thread2.start()
         sleep(2)
 
+        server_startup_validator()
         main.teamserver()
 
     sys.exit()

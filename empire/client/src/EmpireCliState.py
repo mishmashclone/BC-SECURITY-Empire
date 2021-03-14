@@ -51,20 +51,24 @@ class EmpireCliState(object):
         except Exception as e:
             return e
 
-        self.token = json.loads(response.content)['token']
-        self.connected = True
+        if response.status_code == 200:
+            self.token = json.loads(response.content)['token']
+            self.connected = True
 
-        self.sio = socketio.Client(ssl_verify=False)
-        self.sio.connect(f'{host}:{socketport}?token={self.token}')
+            self.sio = socketio.Client(ssl_verify=False)
+            self.sio.connect(f'{host}:{socketport}?token={self.token}')
 
-        # Wait for version to be returned
-        self.empire_version = self.get_version()['version']
+            # Wait for version to be returned
+            self.empire_version = self.get_version()['version']
 
-        self.init()
-        self.init_handlers()
-        self.notify_connected()
-        print_util.title(self.empire_version, len(self.modules), len(self.listeners), len(self.agents))
-        return response
+            self.init()
+            self.init_handlers()
+            self.notify_connected()
+            print_util.title(self.empire_version, len(self.modules), len(self.listeners), len(self.agents))
+            return response
+
+        elif response.status_code == 401:
+            return response
 
     def init(self):
         self.get_listeners()

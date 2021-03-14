@@ -31,7 +31,8 @@ class ChatMenu(Menu):
         state.sio.emit('chat/join')
 
     def on_disconnect(self):
-        state.sio.emit('chat/leave')
+        if state.sio is not None:
+            state.sio.emit('chat/leave')
 
     def on_enter(self):
         print('Exit Chat Menu with ctrl-c')

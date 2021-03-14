@@ -26,8 +26,9 @@ def print_table(data: List[List[str]] = None, title: str = '', colored_header: b
         table.inner_footing_row_border = False
         table.inner_heading_row_border = False
 
+    print('')
     print(table.table)
-
+    print('')
 
 def print_agent_table(data: List[List[str]] = None, formatting: List[List[str]] = None, title: str = ''):
     if data is None:
@@ -56,4 +57,6 @@ def print_agent_table(data: List[List[str]] = None, formatting: List[List[str]] 
     table.title = title
     table.inner_row_border = True
 
+    print('')
     print(table.table)
+    print('')

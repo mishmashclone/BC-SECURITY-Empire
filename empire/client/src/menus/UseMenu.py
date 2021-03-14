@@ -79,7 +79,7 @@ class UseMenu(Menu):
         """
         record_list = []
         for key, value in self.record_options.items():
-            values = list(map(lambda x: '\n'.join(textwrap.wrap(str(x), width=35)), value.values()))
+            values = list(map(lambda x: '\n'.join(textwrap.wrap(str(x), width=40)), value.values()))
             values.reverse()
             temp = [key] + values
             record_list.append(temp)
@@ -103,11 +103,16 @@ class UseMenu(Menu):
                 if isinstance(values, list):
                     if len(values) > 0 and values[0] != '':
                         for i, value in enumerate(values):
+                            if key == 'Techniques':
+                                value = 'http://attack.mitre.org/techniques/' + value
                             if i == 0:
-                                record_list.append([print_util.color(key, 'blue'), print_util.text_wrap(value, width=40)])
+                                record_list.append([print_util.color(key, 'blue'), print_util.text_wrap(value, width=70)])
                             else:
-                                record_list.append(['', print_util.text_wrap(value)])
+                                record_list.append(['', print_util.text_wrap(value, width=70)])
                 elif values != '':
-                    record_list.append([print_util.color(key, 'blue'), print_util.text_wrap(values, width=40)])
+                    if key == 'Software':
+                        values = 'http://attack.mitre.org/software/' + values
+
+                    record_list.append([print_util.color(key, 'blue'), print_util.text_wrap(values, width=70)])
 
         table_util.print_table(record_list, 'Record Info', colored_header=False, no_borders=True)

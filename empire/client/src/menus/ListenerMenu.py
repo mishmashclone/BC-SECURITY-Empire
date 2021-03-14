@@ -55,10 +55,12 @@ class ListenerMenu(Menu):
         listener_list = []
 
         for key, value in state.listeners[listener_name]['options'].items():
-            values = list(map(lambda x: '\n'.join(textwrap.wrap(str(x), width=35)), value.values()))
+            values = list(map(lambda x: '\n'.join(textwrap.wrap(str(x), width=40)), value.values()))
             values.reverse()
             temp = [key] + values
             listener_list.append(temp)
+
+        listener_list.insert(0, ['Name', 'Value', 'Required', 'Description'])
 
         table_util.print_table(listener_list, listener_name)
 

@@ -732,7 +732,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             return make_response(jsonify({'error': 'listener type %s not found' % listener_type}), 404)
 
         options = main.listeners.loadedListeners[listener_type].options
-        return jsonify({'listeneroptions': options})
+        info = main.listeners.loadedListeners[listener_type].info
+
+        return jsonify({'listeneroptions': options, 'listenerinfo': info})
 
     @app.route('/api/listeners/<string:listener_type>', methods=['POST'])
     def start_listener(listener_type):

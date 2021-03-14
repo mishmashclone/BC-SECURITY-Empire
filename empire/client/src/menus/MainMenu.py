@@ -74,8 +74,15 @@ class MainMenu(Menu):
         if hasattr(response, 'status_code'):
             if response.status_code == 200:
                 print(print_util.color('[*] Connected to ' + host))
+            elif response.status_code == 401:
+                print(print_util.color('[!] Invalid username and/or password'))
+
         else:
-            print(print_util.color("[!] Error: " + response.args[0].reason.args[0]))
+            # Print error messages that have reason available
+            try:
+                print(print_util.color("[!] Error: " + response.args[0].reason.args[0]))
+            except:
+                print(print_util.color("[!] Error: " + response.args[0]))
 
     @command
     def disconnect(self):

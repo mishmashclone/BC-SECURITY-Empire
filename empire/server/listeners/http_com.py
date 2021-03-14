@@ -719,7 +719,7 @@ class Listener(object):
             Return default server web page if user navigates to index.
             """
 
-            static_dir = self.mainMenu.installPath + "data/misc/"
+            static_dir = self.mainMenu.installPath + "/data/misc/"
             return make_response(self.index_page(), 200)
 
         @app.route('/<path:request_uri>', methods=['GET'])
@@ -735,7 +735,7 @@ class Listener(object):
                 #
                 # Thanks to making it case-insensitive it works the same way as in 
                 # an actual IIS server
-                static_dir = self.mainMenu.installPath + "data/misc/"
+                static_dir = self.mainMenu.installPath + "/data/misc/"
                 return send_from_directory(static_dir, 'welcome.png')
 
             clientIP = request.remote_addr

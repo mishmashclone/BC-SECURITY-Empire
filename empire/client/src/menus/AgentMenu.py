@@ -62,15 +62,19 @@ class AgentMenu(Menu):
 
         Usage: kill <agent_name>
         """
-        if agent_name == 'all':
-            for agent_name in state.get_agents().keys():
-                self.kill_agent(agent_name)
-        elif agent_name == 'stale':
-            for agent_name, agent in state.get_agents().items():
-                if agent['stale'] == True:
+        choice = input(print_util.color(f"[>] Are you sure you want to kill { agent_name }? [y/N] ", "red"))
+        if choice.lower() == "y":
+            if agent_name == 'all':
+                for agent_name in state.get_agents().keys():
                     self.kill_agent(agent_name)
+            elif agent_name == 'stale':
+                for agent_name, agent in state.get_agents().items():
+                    if agent['stale'] == True:
+                        self.kill_agent(agent_name)
+            else:
+                self.kill_agent(agent_name)
         else:
-            self.kill_agent(agent_name)
+            return
 
     @command
     def clear(self, agent_name: str) -> None:

@@ -1197,7 +1197,7 @@ def send_message(packets=None):
                             try:
                                 hopListener = helpers.get_listener_options(hopListenerName)
                                 tempListenerOptions = copy.deepcopy(listenerOptions)
-                                tempListenerOptions['Host']['Value'] = hopListener['Host']['Value']
+                                tempListenerOptions['Host']['Value'] = hopListener.options['Host']['Value']
                             except TypeError:
                                 tempListenerOptions = listenerOptions
                             

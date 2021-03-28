@@ -1,141 +1,68 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
 
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Invoke-SSHCommand',
-
-            'Author': ['@424f424f'],
-
-            'Description': ('Executes a command on a remote host via SSH.'),
-
-            'Software': '',
-
-            'Techniques': ['T1071'],
-
-            'Background' : True,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : True,
-
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [
-                'Open Source is the Best Source'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'CredID' : {
-                'Description'   :   'CredID from the store to use.',
-                'Required'      :   False,
-                'Value'         :   ''                
-            },
-            'IP' : {
-                'Description'   :   'Address of the target server.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Username' : {
-                'Description'   :   'The username to login with.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Password' : {
-                'Description'   :   'The password to login with.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Command' : {
-                'Description'   :   'The command to run on the remote host.',
-                'Required'      :   True,
-                'Value'         :   ''
-            }
-        }
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-
-        moduleSource = self.mainMenu.installPath + "/data/module_source/lateral_movement/Invoke-SSHCommand.ps1"
+        module_source = main_menu.installPath + "/data/module_source/lateral_movement/Invoke-SSHCommand.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
 
-        script = moduleCode
+        script = module_code
 
-        scriptEnd = "\nInvoke-SSHCommand "
+        script_end = "\nInvoke-SSHCommand "
 
         # if a credential ID is specified, try to parse
-        credID = self.options["CredID"]['Value']
-        if credID != "":
+        cred_id = params["CredID"]
+        if cred_id != "":
             
-            if not self.mainMenu.credentials.is_credential_valid(credID):
+            if not main_menu.credentials.is_credential_valid(cred_id):
                 print(helpers.color("[!] CredID is invalid!"))
                 return ""
 
-            (credID, credType, domainName, userName, password, host, os, sid, notes) = self.mainMenu.credentials.get_credentials(credID)[0]
+            (cred_id, credType, domainName, username, password, host, os, sid, notes) = main_menu.credentials.get_credentials(cred_id)[0]
 
-            if userName != "":
-                self.options["Username"]['Value'] = str(userName)
+            if username != "":
+                params["Username"] = str(username)
             if password != "":
-                self.options["Password"]['Value'] = str(password)
+                params["Password"] = str(password)
 
-        if self.options["Username"]['Value'] == "":
+        if params["Username"] == "":
             print(helpers.color("[!] Either 'CredId' or Username/Password must be specified."))
             return ""
-        if self.options["Password"]['Value'] == "":
+        if params["Password"] == "":
             print(helpers.color("[!] Either 'CredId' or Username/Password must be specified."))
             return ""
             
-        for option,values in self.options.items():
+        for option, values in params.items():
             if option.lower() != "agent" and option.lower() != "credid":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
+                if values and values != '':
+                    if values.lower() == "true":
                         # if we're just adding a switch
-                        scriptEnd += " -" + str(option)
+                        script_end += " -" + str(option)
                     else:
-                        scriptEnd += " -" + str(option) + " " + str(values['Value']) 
+                        script_end += " -" + str(option) + " " + str(values)
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         return script

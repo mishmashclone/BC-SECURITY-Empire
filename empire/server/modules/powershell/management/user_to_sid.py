@@ -1,76 +1,21 @@
-from builtins import object
+from __future__ import print_function
 
+from builtins import str
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'User-to-SID',
-
-            'Author': ['@harmj0y'],
-
-            'Description': ("Converts a specified domain\\user to a domain sid."),
-
-            'Software': '',
-
-            'Techniques': ['T1098'],
-
-            'Background' : False,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : True,
-            
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': []
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Domain' : {
-                'Description'   :   'Domain name for translation.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'User' : {
-                'Description'   :   'Username for translation.',
-                'Required'      :   True,
-                'Value'         :   ''
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-        
-        script = "(New-Object System.Security.Principal.NTAccount(\"%s\",\"%s\")).Translate([System.Security.Principal.SecurityIdentifier]).Value" %(self.options['Domain']['Value'], self.options['User']['Value'])
+        script = "(New-Object System.Security.Principal.NTAccount(\"%s\",\"%s\")).Translate([System.Security.Principal.SecurityIdentifier]).Value" %(params['Domain'], params['User'])
    
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
         script = helpers.keyword_obfuscation(script)
 
         return script

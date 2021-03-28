@@ -1,112 +1,24 @@
 from __future__ import print_function
 
+from builtins import str
 from builtins import object
+from typing import Dict
 
 from empire.server.common import helpers
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-    def __init__(self, mainMenu, params=[]):
-        # metadata info about the module, not modified during runtime
-        self.info = {
-            # name for the module that will appear in module menus
-            'Name': 'SSHCommand',
-
-            # list of one or more authors for the module
-            'Author': ['@424f424f'],
-
-            # more verbose multi-line description of the module
-            'Description': 'This module will send an launcher via ssh.',
-
-            'Software': '',
-
-            'Techniques': ['T1021'],
-
-            # True if the module needs to run in the background
-            'Background' : True,
-
-            # File extension to save the file as
-            'OutputExtension' : "",
-
-            # if the module needs administrative privileges
-            'NeedsAdmin' : False,
-
-            # True if the method doesn't touch disk/is reasonably opsec safe
-            'OpsecSafe' : True,
-
-            # the module language
-            'Language' : 'python',
-
-            # the minimum language version needed
-            'MinLanguageVersion' : '2.6',
-
-            # list of any references/other comments
-            'Comments': [
-                'http://stackoverflow.com/questions/17118239/how-to-give-subprocess-a-password-and-get-stdout-at-the-same-time'
-                            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'Agent to use ssh from.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Login' : {
-                'Description'   :   'user@127.0.0.1',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Password' : {
-                'Description'   :   'Password',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'SafeChecks' : {
-                'Description'   :   'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required'      :   True,
-                'Value'         :   'True'
-            },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        # During instantiation, any settable option parameters
-        #   are passed as an object set to the module and the
-        #   options dictionary is automatically set. This is mostly
-        #   in case options are passed on the command line
-        if params:
-            for param in params:
-                # parameter format is [Name, Value]
-                option, value = param
-                if option in self.options:
-                    self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-        login = self.options['Login']['Value']
-        password = self.options['Password']['Value']
-        listenerName = self.options['Listener']['Value']
-        userAgent = self.options['UserAgent']['Value']
-        safeChecks = self.options['SafeChecks']['Value']
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
+        login = params['Login']
+        password = params['Password']
+        listener_name = params['Listener']
+        user_agent = params['UserAgent']
+        safe_checks = params['SafeChecks']
 
         # generate the launcher code
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='python', userAgent=userAgent, safeChecks=safeChecks)
+        launcher = main_menu.stagers.generate_launcher(listener_name, language='python', userAgent=user_agent, safeChecks=safe_checks)
         launcher = launcher.replace("'", "\\'")
         launcher = launcher.replace('"', '\\"')
         if launcher == "":

@@ -1,69 +1,16 @@
+from __future__ import print_function
+
 from builtins import str
 from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
+
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Get-Screenshot',
-
-            'Author': ['@obscuresec', '@harmj0y'],
-
-            'Description': ('Takes a screenshot of the current desktop and '
-                            'returns the output as a .PNG.'),
-
-            'Software': '',
-
-            'Techniques': ['T1113'],
-
-            'Background' : False,
-
-            'OutputExtension' : 'png',
-            
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : True,
-
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [
-                'https://github.com/mattifestation/PowerSploit/blob/master/Exfiltration/Get-TimedScreenshot.ps1'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Ratio' : {
-                'Description'   :   "JPEG Compression ratio: 1 to 100.",
-                'Required'      :   False,
-                'Value'         :   ''
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-        
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-        
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         script = """
 function Get-Screenshot 
 {
@@ -103,26 +50,26 @@ function Get-Screenshot
 }
 Get-Screenshot"""
 
-        if self.options['Ratio']['Value']:
-            if self.options['Ratio']['Value']!='0':
-                self.info['OutputExtension'] = 'jpg'
+        if params['Ratio']:
+            if params['Ratio']!='0':
+                module.output_extension = 'jpg'
             else:
-                self.options['Ratio']['Value'] = ''
-                self.info['OutputExtension'] = 'png'
+                params['Ratio'] = ''
+                module.output_extension = 'png'
         else:
-            self.info['OutputExtension'] = 'png'
+            module.output_extension = 'png'
 
-        for option,values in self.options.items():
+        for option,values in params.items():
             if option.lower() != "agent":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
+                if values and values != '':
+                    if values.lower() == "true":
                         # if we're just adding a switch
                         script += " -" + str(option)
                     else:
-                        script += " -" + str(option) + " " + str(values['Value'])
+                        script += " -" + str(option) + " " + str(values)
         # Get the random function name generated at install and patch the stager with the proper function name
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
         script = helpers.keyword_obfuscation(script)
 
         return script

@@ -204,6 +204,12 @@ class Function(Base):
             self.id)
 
 
+class Module(Base):
+    __tablename__ = "modules"
+    name = Column(String(255), primary_key=True)
+    enabled = Column(Boolean, nullable=False)
+
+
 def is_stale(lastseen: datetime, delay: int, jitter: float):
     """
     Convenience function for calculating staleness

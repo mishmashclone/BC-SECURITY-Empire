@@ -1,94 +1,36 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Invoke-Script',
-
-            'Author': ['@harmj0y'],
-
-            'Description': ('Run a custom script. Useful for mass-taskings or script autoruns.'),
-
-            'Software': '',
-
-            'Techniques': ['T1064'],
-
-            'Background' : True,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : True,
-
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': []
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'ScriptPath' : {
-                'Description'   :   'Full path to the PowerShell script.ps1 to run (on attacker machine)',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'ScriptCmd' : {
-                'Description'   :   'Script command (Invoke-X) from file to run, along with any specified arguments.',
-                'Required'      :   True,
-                'Value'         :   ''
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         
-        scriptPath = self.options['ScriptPath']['Value']
-        scriptCmd = self.options['ScriptCmd']['Value']
+        script_path = params['ScriptPath']
+        script_cmd = params['ScriptCmd']
         script = ''
 
-        if(scriptPath != ''):
+        if script_path != '':
             try:
-                f = open(scriptPath, 'r')
+                f = open(script_path, 'r')
             except:
-                print(helpers.color("[!] Could not read script source path at: " + str(scriptPath)))
+                print(helpers.color("[!] Could not read script source path at: " + str(script_path)))
                 return ""
 
             script = f.read()
             f.close()
             script += '\n'
 
-        script += "%s" %(scriptCmd)
+        script += "%s" % script_cmd
 
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
         script = helpers.keyword_obfuscation(script)
 
         return script

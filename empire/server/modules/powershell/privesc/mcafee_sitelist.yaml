@@ -1,0 +1,23 @@
+name: Get-SiteListPassword
+authors:
+  - '@harmj0y'
+  - '@funoverip'
+description: Retrieves the plaintext passwords for found McAfee's SiteList.xml files.
+software: ''
+techniques:
+  - T1003
+background: true
+output_extension:
+needs_admin: false
+opsec_safe: true
+language: powershell
+min_language_version: '2'
+comments:
+  - https://github.com/funoverip/mcafee-sitelist-pwd-decryption/
+options:
+  - name: Agent
+    description: Agent to run module on.
+    required: true
+    value: ''
+script_path: 'empire/server/data/module_source/privesc/Get-SiteListPassword.ps1'
+script_end: Get-SiteListPassword {{ PARAMS }} | Out-String | %{$_ + "`n"}; 'Get-SiteListPassword completed'

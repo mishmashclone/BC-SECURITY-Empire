@@ -27,7 +27,7 @@ zlib_wrapper = "*"
 netifaces = "*"
 M2Crypto = "*"
 jinja2 = "*"
-cryptography = "*"
+cryptography = "==3.1.1"
 pyminifier = "*"
 xlutils = "*"
 pefile = "*"
@@ -45,6 +45,7 @@ terminaltables = "^3.1.0"
 docopt = "^0.6.2"
 python-socketio = {extras = ["client"], version = "^4.6.0"}
 humanize = "^3.2.0"
+pydantic = "^1.8.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

@@ -32,7 +32,7 @@ Function Get-KerberosServiceTicket {
 #>
     
     [CmdletBinding()]
-	param([string]$UserName=$null,[int]$MaxEvents=1000,[bool]$ExcludeComputers=$true)
+	param([string]$UserName=$null,[int]$MaxEvents=1000,[switch]$ExcludeComputers)
 
     #Check if username is in the right format
     if(-not [System.String]::IsNullOrEmpty($UserName))

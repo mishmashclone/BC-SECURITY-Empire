@@ -17,3 +17,5 @@ database:
     # an IP black list to reject accept clients from
     #   format is "192.168.1.1,192.168.1.10-192.168.1.100,10.0.0.0/8"
     ip-blacklist: ""
+modules:
+  retain-last-value: true

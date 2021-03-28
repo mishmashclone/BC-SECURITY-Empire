@@ -1,3 +1,8 @@
+3/28/2021
+------------
+- Version 3.8.2 Master Release
+       - Fixed issue with try/catch preventing for http_hop/http listener (@Cx01N)
+
 3/22/2021
 ------------
 - Version 3.8.1 Master Release

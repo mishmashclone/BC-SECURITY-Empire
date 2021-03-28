@@ -1194,11 +1194,13 @@ def send_message(packets=None):
                             dispatcher.send(signal, sender="listeners/http/{}".format(listenerName))
                             
                             hopListenerName = request.headers.get('Hop-Name')
-                            try:
-                                hopListener = helpers.get_listener_options(hopListenerName)
-                                tempListenerOptions = copy.deepcopy(listenerOptions)
+
+                            # Check for hop listener
+                            hopListener = helpers.get_listener_options(hopListenerName)
+                            tempListenerOptions = copy.deepcopy(listenerOptions)
+                            if hopListener is not None:
                                 tempListenerOptions['Host']['Value'] = hopListener.options['Host']['Value']
-                            except TypeError:
+                            else:
                                 tempListenerOptions = listenerOptions
                             
                             # step 6 of negotiation -> server sends patched agent.ps1/agent.py

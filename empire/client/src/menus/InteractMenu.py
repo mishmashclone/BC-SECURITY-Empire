@@ -112,6 +112,25 @@ class InteractMenu(Menu):
         agent_return.start()
 
     @command
+    def scriptimport(self, script_location: str) -> None:
+        """
+        Imports a PowerShell script from the server and keeps it in memory in the agent.
+
+        Usage: scriptimport <script_location>
+        """
+        response = state.agent_scriptimport(self.session_id, script_location)
+
+        if 'success' in response.keys():
+            print(print_util.color(
+                '[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
+            agent_return = threading.Thread(target=self.tasking_id_returns,
+                                            args=[self.session_id, response['taskID']])
+            agent_return.daemon = True
+            agent_return.start()
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
+
+    @command
     def upload(self, local_file_directory: str, destination_file_name: str) -> None:
         """
         Tasks an the specified agent to upload a file.

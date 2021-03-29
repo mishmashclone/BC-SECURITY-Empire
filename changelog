@@ -12,6 +12,11 @@ X/XX/2021
         - Removed old Empire CLI and cmdloop from server (@Cx01N)
         - Simplified kill/remove commands and added 'all' and 'stale' options (@Cx01N)
 
+3/28/2021
+------------
+- Version 3.8.2 Master Release
+       - Fixed issue with try/catch preventing agent connections for http_hop/http listeners (@Cx01N)
+
 3/22/2021
 ------------
 - Version 3.8.1 Master Release

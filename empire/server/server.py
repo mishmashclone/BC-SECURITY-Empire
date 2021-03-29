@@ -1655,10 +1655,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             return make_response(jsonify({'error': 'internal plugin error'}), 400)
         return jsonify(results)
 
-    if not os.path.exists('./empire/server/data/empire-chain.pem'):
-        print(helpers.color("[!] Error: cannot find certificate ./empire/server/data/empire-chain.pem"))
-        sys.exit()
-
     def shutdown_server():
         """
         Shut down the Flask server and any Empire instance gracefully.
@@ -1906,7 +1902,15 @@ def run(args):
         # Reset called from database/base.py
         sys.exit()
 
+    elif args.cert:
+        subprocess.call("./setup/cert.sh")
+
     else:
+        if not os.path.exists('./empire/server/data/empire-chain.pem'):
+            print(helpers.color("[!] Error: cannot find certificate ./empire/server/data/empire-chain.pem"))
+            print(helpers.color("[!] Run --cert or supply your own certificate."))
+            sys.exit()
+
         # start an Empire instance and RESTful API with the teamserver interface
         main = empire.MainMenu(args=args)
 

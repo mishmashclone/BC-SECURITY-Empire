@@ -7,7 +7,14 @@
 #openssl x509 -req -days 365 -in ./data/empire.csr -signkey ./data/empire.key -out ./data/empire.crt
 
 #openssl req -new -x509 -keyout ../data/empire-priv.key -out ../data/empire-chain.pem -days 365 -nodes
-openssl req -new -x509 -keyout ../data/empire-priv.key -out ../data/empire-chain.pem -days 365 -nodes -subj "/C=US" >/dev/null 2>&1
+if [[ "$(pwd)" != *setup ]]
+then
+	cd ./setup
+fi
 
-echo -e "\n [*] Certificate written to ../data/empire-chain.pem"
-echo -e "\r [*] Private key written to ../data/empire-priv.key\n"
+openssl req -new -x509 -keyout ../empire/server/data/empire-priv.key -out ../empire/server/data/empire-chain.pem -days 365 -nodes -subj "/C=US" >/dev/null 2>&1
+
+echo -e "\n [*] Certificate written to ../empire/server/data/empire-chain.pem"
+echo -e "\r [*] Private key written to ../empire/server/data/empire-priv.key\n"
+
+cd ..

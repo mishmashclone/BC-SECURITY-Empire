@@ -8,6 +8,8 @@ fi
 IFS='/' read -a array <<< pwd
 
 # remove the debug file if it exists
+cd empire/server
+
 if [ -e empire.debug ]
 then
 	rm empire.debug
@@ -18,3 +20,5 @@ if [ -d ./downloads/ ]
 then
 	rm -rf ./downloads/
 fi
+
+cd ../..

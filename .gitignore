@@ -15,8 +15,8 @@ empire/server/downloads/*
 .idea/*
 *.txt
 LastTask*
-empire/server/setup/xar*/
-empire/server/setup/bomutils/
+setup/xar*/
+setup/bomutils/
 .venv
 .DS_Store
 venv/

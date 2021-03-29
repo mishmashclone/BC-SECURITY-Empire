@@ -16,6 +16,7 @@ generalGroup.add_argument('--reset', action='store_true', help="Resets Empire's 
 generalGroup.add_argument('-v', '--version', action='store_true', help='Display current Empire version.')
 generalGroup.add_argument('-r', '--resource', nargs=1,
                           help='Run the Empire commands in the specified resource file after startup.')
+generalGroup.add_argument('--cert', action='store_true', help='Generate certificate for Empire.')
 
 restGroup = parser.add_argument_group('RESTful API Options')
 restGroup.add_argument('--restip', nargs=1, help='IP to bind the Empire RESTful API on. Defaults to 0.0.0.0')

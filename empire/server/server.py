@@ -1075,8 +1075,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'success': True, 'taskID': task_id})
 
-    @app.route('/api/agents/<string:agent_name>/scriptimport', methods=['POST'])
-    def task_agent_scriptimport(agent_name):
+    @app.route('/api/agents/<string:agent_name>/script_import', methods=['POST'])
+    def task_agent_script_import(agent_name):
         """
         Imports a PowerShell script and keeps it in memory in the agent.
 
@@ -1101,6 +1101,39 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             msg = "tasked agent %s to run command %s" % (agent.session_id, script_data)
             main.agents.save_agent_log(agent.session_id, msg)
             task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_SCRIPT_IMPORT", script_data, uid=g.user['id'])
+
+            return jsonify({'success': True, 'taskID': task_id})
+
+        else:
+            return make_response(jsonify({'error': 'Unable to find script'}))
+
+    @app.route('/api/agents/<string:agent_name>/script_command', methods=['POST'])
+    def task_agent_scriptimport(agent_name):
+        """
+        Imports a PowerShell script and keeps it in memory in the agent.
+
+        Takes {'script':'scipt_location'}
+        """
+        agent = main.agents.get_agent_from_name_or_session_id(agent_name)
+
+        if agent is None:
+            return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
+
+        path = main.installPath + '/' + request.json['script_location']
+
+        if path != "" and os.path.exists(path):
+            open_file = open(path, 'r')
+            script_data = open_file.read()
+            open_file.close()
+
+            # strip out comments and blank lines from the imported script
+            script_data = helpers.strip_powershell_comments(script_data)
+
+            # add task command to agent taskings
+            msg = "tasked agent %s to run command %s" % (agent.session_id, script_data)
+            main.agents.save_agent_log(agent.session_id, msg)
+            task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_SCRIPT_IMPORT", script_data,
+                                                    uid=g.user['id'])
 
             return jsonify({'success': True, 'taskID': task_id})
 

@@ -112,11 +112,11 @@ class InteractMenu(Menu):
         agent_return.start()
 
     @command
-    def scriptimport(self, script_location: str) -> None:
+    def script_import(self, script_location: str) -> None:
         """
         Imports a PowerShell script from the server and keeps it in memory in the agent.
 
-        Usage: scriptimport <script_location>
+        Usage: script_import <script_location>
         """
         response = state.agent_scriptimport(self.session_id, script_location)
 

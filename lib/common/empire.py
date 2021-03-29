@@ -19,7 +19,7 @@ from typing import Optional
 from datetime import datetime, timezone
 from flask_socketio import SocketIO
 
-VERSION = "3.8.1 BC Security Fork"
+VERSION = "3.8.2 BC Security Fork"
 
 from pydispatch import dispatcher
 

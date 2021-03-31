@@ -31,8 +31,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import aliased
 
 # Empire imports
-from empire.server import arguments
-from empire.server.common import empire, helpers, users
+from empire.server.common import empire, helpers
 from empire.server.common.empire import MainMenu
 from empire.server.common.module_models import PydanticModule
 from empire.server.database.base import Session

@@ -1887,14 +1887,11 @@ def run(args):
         # Reset called from database/base.py
         sys.exit()
 
-    elif args.cert:
-        subprocess.call("./setup/cert.sh")
-
     else:
         if not os.path.exists('./empire/server/data/empire-chain.pem'):
-            print(helpers.color("[!] Error: cannot find certificate ./empire/server/data/empire-chain.pem"))
-            print(helpers.color("[!] Run --cert or supply your own certificate."))
-            sys.exit()
+            print(helpers.color("[*] Certificate not found. Generating..."))
+            subprocess.call("./setup/cert.sh")
+            time.sleep(3)
 
         # start an Empire instance and RESTful API with the teamserver interface
         main = empire.MainMenu(args=args)

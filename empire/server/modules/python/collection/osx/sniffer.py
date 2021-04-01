@@ -1,120 +1,23 @@
-#!/usr/bin/env python
 from builtins import object
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
+
+
 class Module(object):
-    def __init__(self, mainMenu, params=[]):
-        # metadata info about the module, not modified during runtime
-        self.info = {
-            # name for the module that will appear in module menus
-            'Name': 'PcapSniffer',
-
-            # list of one or more authors for the module
-            'Author': ['Alex Rymdeko-Harvey', '@Killswitch-GUI'],
-
-            # more verbose multi-line description of the module
-            'Description': 'This module will do a full network stack capture.',
-
-            'Software': '',
-
-            'Techniques': ['T1040'],
-
-            # True if the module needs to run in the background
-            'Background' : False,
-
-            # File extension to save the file as
-            'OutputExtension' : "pcap",
-
-            # if the module needs administrative privileges
-            'NeedsAdmin' : True,
-
-            # True if the method doesn't touch disk/is reasonably opsec safe
-            'OpsecSafe' : False,
-
-            # Use on disk execution method, rather than a dynamic exec method
-            'RunOnDisk' : False,
-
-            # the module language
-            'Language' : 'python',
-
-            # the minimum language version needed
-            'MinLanguageVersion' : '2.6',
-
-            # the imports required for this module
-            'Imports' : ['ctypes','threading','sys','os','errno','base64'],
-
-            # list of any references/other comments
-            'Comments': [
-                'Using libpcap.dylib we can perform full pcap on a remote host.'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'Agent to run from.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'CaptureInterface': {
-                'Description'   :   'Set interface name ie. en0 (Auto resolve by default)',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'MaxPackets': {
-                'Description'   :   'Set max packets to capture.',
-                'Required'      :   True,
-                'Value'         :   '100'
-            },
-            'SavePath': {
-                'Description'   :   'Path of the  file to save',
-                'Required'      :   True,
-                'Value'         :   '/tmp/debug.pcap'
-            },
-            'PcapDylib': {
-                'Description'   :   'Path of the Pcap Dylib (Defualt)',
-                'Required'      :   True,
-                'Value'         :   '/usr/lib/libpcap.A.dylib'
-            },
-            'LibcDylib': {
-                'Description'   :   'Path of the std C Dylib (Defualt)',
-                'Required'      :   True,
-                'Value'         :   '/usr/lib/libSystem.B.dylib'
-            },
-            'Debug' : {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'Enable to get verbose message status (Dont enable OutputExtension for this).',
-                'Required'      :   True,
-                'Value'         :   'False'
-            },
-        }
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        # During instantiation, any settable option parameters
-        #   are passed as an object set to the module and the
-        #   options dictionary is automatically set. This is mostly
-        #   in case options are passed on the command line
-        if params:
-            for param in params:
-                # parameter format is [Name, Value]
-                option, value = param
-                if option in self.options:
-                    self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False,
+                 obfuscation_command: str = "") -> str:
         script = '\n'
-        for item in self.info['Imports']:
+        for item in ['ctypes','threading','sys','os','errno','base64']:
             script += "import %s \n" % item
-        savePath = self.options['SavePath']['Value']
-        Debug = self.options['Debug']['Value']
-        maxPackets = self.options['MaxPackets']['Value']
-        libcPath = self.options['LibcDylib']['Value']
-        pcapPath = self.options['PcapDylib']['Value']
-        if self.options['CaptureInterface']['Value']:
-            script += "INTERFACE = '%s' \n" % self.options['CaptureInterface']['Value']
+        savePath = params['SavePath']
+        Debug = params['Debug']
+        maxPackets = params['MaxPackets']
+        libcPath = params['LibcDylib']
+        pcapPath = params['PcapDylib']
+        if params['CaptureInterface']:
+            script += "INTERFACE = '%s' \n" % params['CaptureInterface']
         else:
             script += "INTERFACE = '' \n"
         script += "DEBUG = %s \n" % Debug

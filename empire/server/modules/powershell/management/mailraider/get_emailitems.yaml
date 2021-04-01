@@ -1,0 +1,31 @@
+name: Get-EmailItems
+authors:
+  - '@xorrior'
+description: Returns all of the items for the specified folder.
+software: ''
+techniques:
+  - T1114
+background: true
+output_extension:
+needs_admin: false
+opsec_safe: true
+language: powershell
+min_language_version: '2'
+comments:
+  - https://github.com/xorrior/EmailRaider
+  - http://www.xorrior.com/phishing-on-the-inside/
+options:
+  - name: Agent
+    description: Agent to run module on.
+    required: true
+    value: ''
+  - name: FolderName
+    description: The Name of the Outlook Default Folder.
+    required: true
+    value: Inbox
+  - name: MaxEmails
+    description: Maximum number of emails to grab.
+    required: true
+    value: '100'
+advanced:
+  custom_generate: true

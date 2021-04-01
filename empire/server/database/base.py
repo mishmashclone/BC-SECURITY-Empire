@@ -3,7 +3,7 @@ import subprocess
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from empire.server import arguments
+from empire import arguments
 from empire.server.common.config import empire_config
 from empire.server.database import models
 from empire.server.database.defaults import get_default_user, get_default_config

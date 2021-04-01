@@ -11,6 +11,7 @@ from prompt_toolkit.completion import Completer
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.patch_stdout import patch_stdout
 
+from empire.arguments import args
 from empire.client.src.EmpireCliConfig import empire_config
 from empire.client.src.EmpireCliState import state
 from empire.client.src.MenuState import menu_state
@@ -170,16 +171,18 @@ class EmpireCli(object):
             print(print_util.color(f'[*] Attempting to connect to server: {autoserver}'))
             self.menus['MainMenu'].connect(autoserver, config=True)
 
-        if empire_config.yaml.get('resource-file'):
-            with open(empire_config.yaml.get('resource-file')) as resource_file:
-                print(print_util.color(f"[*] Executing Resource File: {empire_config.yaml.get('resource-file')}"))
+        if args.resource:
+            with open(args.resource) as resource_file:
+                print(print_util.color(f"[*] Executing Resource File: {args.resource}"))
                 for cmd in resource_file:
                     with patch_stdout(raw=True):
                         try:
                             time.sleep(1)
                             text = session.prompt(accept_default=True, default=cmd.strip())
                             cmd_line = list(shlex.split(text))
-                            self.parse_command_line(text, cmd_line)
+                            self.parse_command_line(text, cmd_line, resource_file=True)
+                        except CliExitException:
+                            return
                         except Exception as e:
                             print(print_util.color(f'[*] Error parsing resource command: ', text))
 
@@ -198,7 +201,7 @@ class EmpireCli(object):
             except CliExitException:
                 break
 
-    def parse_command_line(self, text: str, cmd_line: List[str]):
+    def parse_command_line(self, text: str, cmd_line: List[str], resource_file=False):
         if len(cmd_line) == 0:
             return
         if not state.connected and not cmd_line[0] == 'connect':
@@ -276,6 +279,8 @@ class EmpireCli(object):
         elif text == 'back':
             menu_state.pop()
         elif text == 'exit':
+            if resource_file:
+                raise CliExitException
             choice = input(print_util.color("[>] Exit? [y/N] ", "red"))
             if choice.lower() == "y":
                 raise CliExitException

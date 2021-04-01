@@ -1,144 +1,53 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Find-Fruit',
-
-            'Author': ['@424f424f'],
-
-            'Description': ("Searches a network range for potentially vulnerable web services."),
-
-            'Software': '',
-
-            'Techniques': ['T1102', 'T1256'],
-
-            'Background' : True,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
- 
-            'OpsecSafe' : True,
-
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [
-                'Inspired by mattifestation Get-HttpStatus in PowerSploit'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Rhosts' : {
-                'Description'   :   'Specify the CIDR range or host to scan.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Port' : {
-                'Description'   :   'Specify the port to scan.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Path' : {
-                'Description'   :   'Specify the path to a dictionary file.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Timeout' : {
-                'Description'   :   'Set timeout for each connection in milliseconds',
-                'Required'      :   False,
-                'Value'         :   '50'
-            },
-            'UseSSL' : {
-                'Description'   :   'Force SSL useage.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'ShowAll' : {
-                'Description'   :   'Switch. Show all results (default is to only show 200s).',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Threads' : {
-                'Description'   :   'The maximum concurrent threads to execute.',
-                'Required'      :   False,
-                'Value'         :   '10'
-            },
-            'FoundOnly' : {
-                'Description'   :   'Switch. Show only found sites',
-                'Required'      :   False,
-                'Value'         :   'True'
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-        
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):        
         # read in the common module source code
-        moduleSource = self.mainMenu.installPath + "/data/module_source/recon/Find-Fruit.ps1"
+        module_source = main_menu.installPath + "/data/module_source/recon/Find-Fruit.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
 
-        script = moduleCode
+        script = module_code
 
-        scriptEnd = "\nFind-Fruit"
+        script_end = "\nFind-Fruit"
 
-        showAll = self.options['ShowAll']['Value'].lower()
+        show_all = params['ShowAll'].lower()
 
-        for option,values in self.options.items():
+        for option,values in params.items():
             if option.lower() != "agent" and option.lower() != "showall":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
+                if values and values != '':
+                    if values.lower() == "true":
                         # if we're just adding a switch
-                        scriptEnd += " -" + str(option)
+                        script_end += " -" + str(option)
                     else:
-                        scriptEnd += " -" + str(option) + " " + str(values['Value']) 
+                        script_end += " -" + str(option) + " " + str(values)
 
-        if showAll != "true":
-            scriptEnd += " | ?{$_.Status -eq 'OK'}"
+        if show_all != "true":
+            script_end += " | ?{$_.Status -eq 'OK'}"
 
-        scriptEnd += " | Format-Table -AutoSize | Out-String"
+        script_end += " | Format-Table -AutoSize | Out-String"
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         return script

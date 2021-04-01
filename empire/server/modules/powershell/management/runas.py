@@ -1,156 +1,70 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Invoke-RunAs',
-
-            'Author': ['rvrsh3ll (@424f424f)'],
-
-            'Description': ('Runas knockoff. Will bypass GPO path restrictions.'),
-
-            'Software': '',
-
-            'Techniques': ['T1088'],
-
-            'Background' : False,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : True,
-            
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [
-                'https://github.com/rvrsh3ll/Misc-Powershell-Scripts/blob/master/RunAs.ps1'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'CredID' : {
-                'Description'   :   'CredID from the store to use.',
-                'Required'      :   False,
-                'Value'         :   ''                
-            },
-            'Domain' : {
-                'Description'   :   'Optional domain.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'UserName' : {
-                'Description'   :   'Username to run the command as.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Password' : {
-                'Description'   :   'Password for the specified username.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Cmd' : {
-                'Description'   :   'Command to run.',
-                'Required'      :   True,
-                'Value'         :   'notepad.exe'
-            },
-            'Arguments' : {
-                'Description'   :   'Optional arguments for the supplied binary.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'ShowWindow' : {
-                'Description'   :   'Switch. Show the window for the created process instead of hiding it.',
-                'Required'      :   False,
-                'Value'         :   ''
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-        
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-        
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         # read in the common powerup.ps1 module source code
-        moduleSource = self.mainMenu.installPath + "/data/module_source/management/Invoke-RunAs.ps1"
+        module_source = main_menu.installPath + "/data/module_source/management/Invoke-RunAs.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
         script = f.read()
         f.close()
 
-        scriptEnd = "\nInvoke-RunAs "
+        script_end = "\nInvoke-RunAs "
 
         # if a credential ID is specified, try to parse
-        credID = self.options["CredID"]['Value']
-        if credID != "":
+        cred_id = params["CredID"]
+        if cred_id != "":
             
-            if not self.mainMenu.credentials.is_credential_valid(credID):
+            if not main_menu.credentials.is_credential_valid(cred_id):
                 print(helpers.color("[!] CredID is invalid!"))
                 return ""
 
-            (credID, credType, domainName, userName, password, host, os, sid, notes) = self.mainMenu.credentials.get_credentials(credID)[0]
+            (cred_id, cred_type, domain_name, user_name, password, host, os, sid, notes) = main_menu.credentials.get_credentials(cred_id)[0]
 
-            if credType != "plaintext":
+            if cred_type != "plaintext":
                 print(helpers.color("[!] A CredID with a plaintext password must be used!"))
                 return ""
 
-            if domainName != "":
-                self.options["Domain"]['Value'] = domainName
-            if userName != "":
-                self.options["UserName"]['Value'] = userName
+            if domain_name != "":
+                params["Domain"] = domain_name
+            if user_name != "":
+                params["UserName"] = user_name
             if password != "":
-                self.options["Password"]['Value'] = password
+                params["Password"] = password
         
-        if self.options["Domain"]['Value'] == "" or self.options["UserName"]['Value'] == "" or self.options["Password"]['Value'] == "":
+        if params["Domain"] == "" or params["UserName"] == "" or params["Password"] == "":
             print(helpers.color("[!] Domain/UserName/Password or CredID required!"))
             return ""
 
 
-        for option,values in self.options.items():
+        for option,values in params.items():
             if option.lower() != "agent" and option.lower() != "credid":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
+                if values and values != '':
+                    if values.lower() == "true":
                         # if we're just adding a switch
-                        scriptEnd += " -" + str(option)
+                        script_end += " -" + str(option)
                     else:
-                        scriptEnd += " -" + str(option) + " " + str(values['Value']) 
+                        script_end += " -" + str(option) + " " + str(values)
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         return script

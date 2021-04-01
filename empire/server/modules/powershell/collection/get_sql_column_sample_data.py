@@ -1,132 +1,65 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Get-SQLColumnSampleData',
-            'Author': ['@_nullbind', '@0xbadjuju'],
-            'Description': ('Returns column information from target SQL Servers. Supports '
-                            'search by keywords, sampling data, and validating credit card '
-                            'numbers.'),
-            'Software': '',
-            'Techniques': ['T1046'],
-            'Background' : True,
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
-            'OpsecSafe' : True,
-            'Language' : 'powershell',
-            'MinPSVersion' : '2',	
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [
-                'https://github.com/NetSPI/PowerUpSQL/blob/master/PowerUpSQL.ps1'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Username' : {
-                'Description'   :   'SQL Server or domain account to authenticate with.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Password' : {
-                'Description'   :   'SQL Server or domain account password to authenticate with.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Instance' : {
-                'Description'   :   'SQL Server instance to connection to.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'NoDefaults' : {
-                'Description'   :   'Don\'t select tables from default databases.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'CheckAll' : {
-                'Description'   :   'Check all systems retrieved by Get-SQLInstanceDomain.',
-                'Required'      :   False,
-                'Value'         :   ''
-            }
-        }
-
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-
-        username = self.options['Username']['Value']
-        password = self.options['Password']['Value']
-        instance = self.options['Instance']['Value']
-        no_defaults = self.options['NoDefaults']['Value']
-        check_all = self.options['CheckAll']['Value']
-        scriptEnd = ""
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
+        username = params['Username']
+        password = params['Password']
+        instance = params['Instance']
+        no_defaults = params['NoDefaults']
+        check_all = params['CheckAll']
+        script_end = ""
         
         # read in the common module source code
-        moduleSource = self.mainMenu.installPath + "data/module_source/collection/Get-SQLColumnSampleData.ps1"
+        module_source = main_menu.installPath + "data/module_source/collection/Get-SQLColumnSampleData.ps1"
         script = ""
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            script = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            script = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
         if check_all:
-            auxModuleSource = self.mainMenu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
+            aux_module_source = main_menu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
             if obfuscate:
-                helpers.obfuscate_module(moduleSource=auxModuleSource, obfuscationCommand=obfuscationCommand)
-                auxModuleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+                helpers.obfuscate_module(moduleSource=aux_module_source, obfuscationCommand=obfuscation_command)
+                aux_module_source = module_source.replace("module_source", "obfuscated_module_source")
             try:
-                with open(auxModuleSource, 'r') as auxSource:
+                with open(aux_module_source, 'r') as auxSource:
                     auxScript = auxSource.read()
                     script += " " + auxScript
             except:
-                print(helpers.color("[!] Could not read additional module source path at: " + str(auxModuleSource)))
-            scriptEnd = " Get-SQLInstanceDomain "
+                print(helpers.color("[!] Could not read additional module source path at: " + str(aux_module_source)))
+            script_end = " Get-SQLInstanceDomain "
             if username != "":
-                scriptEnd += " -Username "+username
+                script_end += " -Username "+username
             if password != "":
-                scriptEnd += " -Password "+password
-            scriptEnd += " | "
-        scriptEnd += " Get-SQLColumnSampleData"
+                script_end += " -Password "+password
+            script_end += " | "
+        script_end += " Get-SQLColumnSampleData"
         if username != "":
-            scriptEnd += " -Username "+username
+            script_end += " -Username "+username
         if password != "":
-            scriptEnd += " -Password "+password
+            script_end += " -Password "+password
         if instance != "" and not check_all:
-            scriptEnd += " -Instance "+instance
+            script_end += " -Instance "+instance
         if no_defaults:
-            scriptEnd += " -NoDefaults "
+            script_end += " -NoDefaults "
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         return script

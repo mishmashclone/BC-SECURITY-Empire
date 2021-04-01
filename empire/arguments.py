@@ -13,8 +13,7 @@ client_parser = subparsers.add_parser('client', help='Launch Empire CLI')
 
 # Client Args
 client_parser.add_argument('-r', '--resource', type=str,
-                          help='Run the Empire commands in the specified resource file after startup.')
-
+                           help='Run the Empire commands in the specified resource file after startup.')
 
 # Server Args
 general_group = server_parser.add_argument_group('General Options')

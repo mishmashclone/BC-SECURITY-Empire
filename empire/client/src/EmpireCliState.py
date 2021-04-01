@@ -288,6 +288,22 @@ class EmpireCliState(object):
 
         return json.loads(response.content)
 
+    def agent_script_import(self, agent_name, script_location: str):
+        response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/script_import',
+                                 json={'script': script_location},
+                                 verify=False,
+                                 params={'token': self.token})
+
+        return json.loads(response.content)
+
+    def agent_script_command(self, agent_name, script_command: str):
+        response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/script_command',
+                                 json={'script': script_command},
+                                 verify=False,
+                                 params={'token': self.token})
+
+        return json.loads(response.content)
+
     def scrape_directory(self, agent_name):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/directory',
                                  verify=False,

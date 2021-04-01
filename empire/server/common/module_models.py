@@ -22,6 +22,8 @@ class PydanticModuleOption(BaseModel):
     description: str = ''
     required: bool = False
     value: str = ''
+    suggested_values: List[str] = []
+    strict: bool = False
 
 
 class PydanticModule(BaseModel):

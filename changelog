@@ -11,6 +11,7 @@ X/XX/2021
         - Updated PowerDump with AES NTLM hashes (@Cx01N)
         - Removed old Empire CLI and cmdloop from server (@Cx01N)
         - Simplified kill/remove commands and added 'all' and 'stale' options (@Cx01N)
+        - Added support for 'suggested values' on the server and auto completing the suggested values in the CLI (@Vinnybod)
 
 3/22/2021
 ------------

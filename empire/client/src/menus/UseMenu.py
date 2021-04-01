@@ -1,4 +1,5 @@
 import textwrap
+from typing import List
 
 from prompt_toolkit.completion import Completion
 
@@ -41,6 +42,10 @@ class UseMenu(Menu):
             if len(cmd_line) > 1 and cmd_line[1] == 'agent':
                 for listener in filtered_search_list(word_before_cursor, state.agents.keys()):
                     yield Completion(listener, start_position=-len(word_before_cursor))
+            if len(cmd_line) > 1 and len(self.suggested_values_for_option(cmd_line[1])) > 0:
+                for suggested_value in filtered_search_list(word_before_cursor,
+                                                            self.suggested_values_for_option(cmd_line[1])):
+                    yield Completion(suggested_value, start_position=-len(word_before_cursor))
         elif position_util(cmd_line, 1, word_before_cursor):
             yield from super().get_completions(document, complete_event, cmd_line, word_before_cursor)
 
@@ -79,7 +84,8 @@ class UseMenu(Menu):
         """
         record_list = []
         for key, value in self.record_options.items():
-            values = list(map(lambda x: '\n'.join(textwrap.wrap(str(x), width=40)), value.values()))
+            values = filter(lambda x: x[0] != 'SuggestedValues', value.items())
+            values = list(map(lambda x: '\n'.join(textwrap.wrap(str(x[1]), width=35)), values))
             values.reverse()
             temp = [key] + values
             record_list.append(temp)
@@ -106,7 +112,8 @@ class UseMenu(Menu):
                             if key == 'Techniques':
                                 value = 'http://attack.mitre.org/techniques/' + value
                             if i == 0:
-                                record_list.append([print_util.color(key, 'blue'), print_util.text_wrap(value, width=70)])
+                                record_list.append(
+                                    [print_util.color(key, 'blue'), print_util.text_wrap(value, width=70)])
                             else:
                                 record_list.append(['', print_util.text_wrap(value, width=70)])
                 elif values != '':
@@ -116,3 +123,7 @@ class UseMenu(Menu):
                     record_list.append([print_util.color(key, 'blue'), print_util.text_wrap(values, width=70)])
 
         table_util.print_table(record_list, 'Record Info', colored_header=False, no_borders=True)
+
+    def suggested_values_for_option(self, option: str) -> List[str]:
+        lower = {k.lower(): v for k, v in self.record_options.items()}
+        return lower.get(option, {}).get('SuggestedValues', [])

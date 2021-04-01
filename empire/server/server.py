@@ -397,7 +397,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                            'OpsecSafe': mod_dict.get('opsec_safe'),
                            'options': {x['name']: {'Description': x['description'],
                                                    'Required': x['required'],
-                                                   'Value': x['value']} for x in mod_dict.get('options')},
+                                                   'Value': x['value'],
+                                                   'SuggestedValues': x['suggested_values'],
+                                                   'Strict': x['strict']} for x in mod_dict.get('options')},
                            'OutputExtension': mod_dict.get('output_extension'),
                            'Software': mod_dict.get('software'),
                            'Techniques': mod_dict.get('techniques')}
@@ -427,7 +429,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                        'OpsecSafe': mod_dict.get('opsec_safe'),
                        'options': {x['name']: {'Description': x['description'],
                                                'Required': x['required'],
-                                               'Value': x['value']} for x in mod_dict.get('options')},
+                                               'Value': x['value'],
+                                               'SuggestedValues': x['suggested_values'],
+                                               'Strict': x['strict']} for x in mod_dict.get('options')},
                        'OutputExtension': mod_dict.get('output_extension'),
                        'Software': mod_dict.get('software'),
                        'Techniques': mod_dict.get('techniques')}

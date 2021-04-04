@@ -3,7 +3,7 @@ from prompt_toolkit.completion import Completion
 from empire.client.src.EmpireCliConfig import empire_config
 from empire.client.src.EmpireCliState import state
 from empire.client.src.menus.Menu import Menu
-from empire.client.src.utils import print_util
+from empire.client.src.utils import table_util, print_util
 from empire.client.src.utils.autocomplete_util import filtered_search_list, position_util
 from empire.client.src.utils.cli_util import register_cli_commands, command
 
@@ -97,6 +97,38 @@ class MainMenu(Menu):
         host = state.host
         state.disconnect()
         print(print_util.color('[*] Disconnected from ' + host))
+
+    @command
+    def help(self):
+        """
+        Display the help menu for the current menu
+
+        Usage: help
+        """
+        help_list = []
+        for name in self._cmd_registry:
+            try:
+                description = print_util.text_wrap(getattr(self, name).__doc__.split('\n')[1].lstrip(), width=35)
+                usage = print_util.text_wrap(getattr(self, name).__doc__.split('\n')[3].lstrip()[7:], width=35)
+                help_list.append([name, description, usage])
+            except:
+                continue
+
+        # Update help menu with other menus
+        help_list.append(['listeners', 'View all listeners.', 'listeners'])
+        help_list.append(['uselisteners', 'Use an Empire listener.', 'uselisteners <listener_name>'])
+        help_list.append(['usestager', 'Use an Empire stager.', 'usestager <stager_name>'])
+        help_list.append(['useplugin', 'Use an Empire plugin.', 'useplugin <plugin_name>'])
+        help_list.append(['plugins', 'View active plugins menu.', 'plugins'])
+        help_list.append(['agents', 'View all agents.', 'agents'])
+        help_list.append(['usemodule', 'Use an Empire module.', 'usemodule <module_name>'])
+        help_list.append(['credentials', 'Add/display credentials to/from the database.', 'credentials'])
+        help_list.append(['admin', 'View admin menu', 'admin'])
+        help_list.append(['interact', 'Interact with active listeners.', 'interact <agent_name>'])
+
+        help_list.sort()
+        help_list.insert(0, ['Name', 'Description', 'Usage'])
+        table_util.print_table(help_list, 'Help Options')
 
 
 main_menu = MainMenu()

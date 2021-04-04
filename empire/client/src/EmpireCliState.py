@@ -346,10 +346,9 @@ class EmpireCliState(object):
 
         return json.loads(response.content)['creds']
 
-    def generate_report(self, directory_location):
-        response = requests.post(url=f'{self.host}:{self.port}/api/reporting/generate',
+    def generate_report(self):
+        response = requests.get(url=f'{self.host}:{self.port}/api/reporting/generate',
                                  verify=False,
-                                 json={'logo': directory_location},
                                  params={'token': self.token})
 
         return json.loads(response.content)

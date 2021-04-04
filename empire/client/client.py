@@ -271,11 +271,6 @@ class EmpireCli(object):
                 menu_state.push(self.menus['InteractMenu'], selected=menu_state.current_menu.selected)
             else:
                 menu_state.current_menu.shell(menu_state.current_menu.selected, text)
-        elif cmd_line[0] == 'report':
-            if len(cmd_line) > 1:
-                state.generate_report(cmd_line[1])
-            else:
-                state.generate_report('')
         elif text == 'back':
             menu_state.pop()
         elif text == 'exit':

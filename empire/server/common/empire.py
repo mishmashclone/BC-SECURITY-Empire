@@ -331,3 +331,79 @@ class MainMenu(cmd.Cmd):
             .join(models.User, models.User.id == models.Tasking.user_id, isouter=True) \
             .join(models.Agent, models.Agent.session_id == reporting_sub_query.c.agent_name, isouter=True) \
             .all()
+
+    def generate_report(self):
+        """
+        Produce report CSV and log files: sessions.csv, credentials.csv, master.log
+        """
+        rows = Session().query(models.Agent.session_id, models.Agent.hostname, models.Agent.username,
+                               models.Agent.checkin_time).all()
+
+        print(helpers.color(f"[*] Writing { self.installPath }/data/sessions.csv"))
+        try:
+            self.lock.acquire()
+            f = open(self.installPath + '/data/sessions.csv', 'w')
+            f.write("SessionID, Hostname, User Name, First Check-in\n")
+            for row in rows:
+                f.write(row[0] + ',' + row[1] + ',' + row[2] + ',' + str(row[3]) + '\n')
+            f.close()
+        finally:
+            self.lock.release()
+
+        # Credentials CSV
+        rows = Session().query(models.Credential.domain,
+                               models.Credential.username,
+                               models.Credential.host,
+                               models.Credential.credtype,
+                               models.Credential.password) \
+            .order_by(models.Credential.domain, models.Credential.credtype, models.Credential.host) \
+            .all()
+
+        print(helpers.color(f"[*] Writing { self.installPath }/data/credentials.csv"))
+        try:
+            self.lock.acquire()
+            f = open(self.installPath + '/data/credentials.csv', 'w')
+            f.write('Domain, Username, Host, Cred Type, Password\n')
+            for row in rows:
+                # todo vr maybe can replace with
+                #  f.write(f'{row.domain},{row.username},{row.host},{row.credtype},{row.password}\n')
+                row = list(row)
+                for n in range(len(row)):
+                    if isinstance(row[n], bytes):
+                        row[n] = row[n].decode('UTF-8')
+                f.write(row[0] + ',' + row[1] + ',' + row[2] + ',' + row[3] + ',' + row[4] + '\n')
+            f.close()
+        finally:
+            self.lock.release()
+
+        # Empire Log
+        rows = self.run_report_query()
+
+        print(helpers.color(f"[*] Writing { self.installPath }/data/master.log"))
+        try:
+            self.lock.acquire()
+            f = open(self.installPath + '/data/master.log', 'w')
+            f.write('Empire Master Taskings & Results Log by timestamp\n')
+            f.write('=' * 50 + '\n\n')
+            for row in rows:
+                # todo vr maybe can replace with
+                #  f.write(f'\n{xstr(row.timestamp)} - {xstr(row.username)} ({xstr(row.username)})> {xstr(row.hostname)}\n{xstr(row.taskID)}\n{xstr(row.results)}\n')
+                row = list(row)
+                for n in range(len(row)):
+                    if isinstance(row[n], bytes):
+                        row[n] = row[n].decode('UTF-8')
+                f.write('\n' + xstr(row[0]) + ' - ' + xstr(row[3]) + ' (' + xstr(row[2]) + ')> ' + xstr(
+                    row[5]) + '\n' + xstr(row[6]) + '\n' + xstr(row[7]) + '\n')
+            f.close()
+        finally:
+            self.lock.release()
+
+        return f'{ self.installPath }/data'
+
+def xstr(s):
+    """
+    Safely cast to a string with a handler for None
+    """
+    if s is None:
+        return ''
+    return str(s)

@@ -191,5 +191,19 @@ class AdminMenu(Menu):
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 
+    @command
+    def report(self):
+        """
+        Produce report CSV and log files: sessions.csv, credentials.csv, master.log
+
+        Usage: report
+        """
+        response = state.generate_report()
+
+        if 'report' in response.keys():
+            print(print_util.color('[*] Reports saved to ' + response['report']))
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
+
 
 admin_menu = AdminMenu()

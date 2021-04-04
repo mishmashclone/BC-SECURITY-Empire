@@ -168,6 +168,14 @@ class MainMenu(cmd.Cmd):
                 dispatcher.send(signal, sender="empire")
                 plugins.load_plugin(self, plugin_name)
 
+    def send_socketio_message(self, socket_address, msg):
+        """
+        Send socketio message to the socket address
+        """
+        if self.mainMenu.args.debug is not None:
+            print(helpers.color(msg))
+        self.mainMenu.socketio.emit(socket_address, {'message': msg})
+
     def check_root(self):
         """
         Check if Empire has been run as root, and alert user.

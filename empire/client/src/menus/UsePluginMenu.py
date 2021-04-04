@@ -41,6 +41,10 @@ class UsePluginMenu(UseMenu):
             self.record = state.plugins[plugin_name]
             self.record_options = state.plugins[plugin_name]['options']
 
+        if state.sio:
+            state.sio.on(f'plugin/{plugin_name}/notifications',
+                    lambda data: [print(print_util.color(data['message']))])
+
     @command
     def execute(self):
         """

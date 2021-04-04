@@ -55,5 +55,5 @@ def get_staging_key():
         if choice != "" and choice != "RANDOM":
             return hashlib.md5(choice.encode('utf-8')).hexdigest()
 
-    print('Generating random staging key.')
+    print('\x1b[1;34m[*] Generating random staging key\x1b[0m')
     return ''.join(random.sample(string.ascii_letters + string.digits + punctuation, 32))

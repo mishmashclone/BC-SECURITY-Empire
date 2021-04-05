@@ -107,6 +107,19 @@ class Modules(object):
 
         return {'success': True, 'taskID': task_id, 'msg': msg}, None
 
+    @staticmethod
+    def change_module_state(main, module_list: list, module_state: bool):
+
+        for module_name in module_list:
+            try:
+                module = Session().query(models.Module).filter(models.Module.name == module_name).first()
+                module.enabled = module_state
+                main.modules.modules[module_name].enabled = module_state
+            except:
+                # skip if module name is not found
+                pass
+        Session().commit()
+
     def _validate_module_params(self, module: PydanticModule, params: Dict[str, str]) -> Tuple[Optional[Dict[str, str]], Optional[str]]:
         """
         Given a module and execution params, validate the input and return back a clean Dict for execution.

@@ -384,6 +384,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         """
 
         modules = []
+
         for moduleName, module in main.modules.modules.items():
             mod_dict = module.dict()
             module_info = {'Name': moduleName,
@@ -438,6 +439,30 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         modules.append(module_info)
 
         return jsonify({'modules': modules})
+
+    @app.route('/api/modules/disable', methods=['POST'])
+    def disable_modules():
+        """
+        Disable list of modules
+        """
+        if not request.json or not 'module_list' in request.json:
+            abort(400)
+
+        module_list = request.json['module_list']
+        main.modules.change_module_state(main, module_list, False)
+        jsonify({'success': True})
+
+    @app.route('/api/modules/enable', methods=['POST'])
+    def enable_modules():
+        """
+        Enable list of modules
+        """
+        if not request.json or not 'module_list' in request.json:
+            abort(400)
+
+        module_list = request.json['module_list']
+        main.modules.change_module_state(main, module_list, True)
+        jsonify({'success': True})
 
     @app.route('/api/modules/<path:module_name>', methods=['POST'])
     def execute_module(module_name):

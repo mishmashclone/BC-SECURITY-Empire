@@ -164,18 +164,18 @@ class AdminMenu(Menu):
             print(self.user_notes)
 
     @command
-    def add_notes(self, add_user_notes: str):
+    def add_notes(self, notes: str):
         """
         Add user notes (use quotes)
 
-        Usage: add_notes <user_notes>
+        Usage: add_notes <notes>
         """
         self.user_notes = state.get_user_me()['notes']
 
         if self.user_notes is None:
             self.user_notes = ""
 
-        options = {'notes': self.user_notes + '\n' + date_util.get_utc_now() + ' - ' + add_user_notes}
+        options = {'notes': self.user_notes + '\n' + date_util.get_utc_now() + ' - ' + notes}
         response = state.update_user_notes(self.user_id, options)
 
         if 'success' in response.keys():

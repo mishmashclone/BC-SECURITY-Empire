@@ -10,6 +10,7 @@ menu loops.
 from __future__ import absolute_import
 from __future__ import print_function
 
+import fnmatch
 from builtins import input
 from builtins import str
 from typing import Optional
@@ -83,12 +84,17 @@ class MainMenu(cmd.Cmd):
 
         # parse/handle any passed command line arguments
         self.args = args
+
         # instantiate the agents, listeners, and stagers objects
         self.agents = agents.Agents(self, args=args)
         self.credentials = credentials.Credentials(self, args=args)
         self.stagers = stagers.Stagers(self, args=args)
         self.modules = modules.Modules(self, args=args)
         self.listeners = listeners.Listeners(self, args=args)
+
+        # load profiles to database
+        self.load_malleable_profiles()
+
         self.users = users.Users(self)
         self.socketio: Optional[SocketIO] = None
         self.resourceQueue = []
@@ -167,6 +173,50 @@ class MainMenu(cmd.Cmd):
                 })
                 dispatcher.send(signal, sender="empire")
                 plugins.load_plugin(self, plugin_name)
+
+    def load_malleable_profiles(self):
+        """
+        Load Malleable C2 Profiles to the database
+        """
+        malleable_path = self.installPath + "/data/profiles"
+        print(helpers.color("[*] Loading malleable profiles from: {}".format(malleable_path)))
+
+        malleable_directories = os.listdir(malleable_path)
+
+        for malleable_directory in malleable_directories:
+            for root, dirs, files in os.walk(malleable_path + '/' + malleable_directory):
+                for filename in files:
+                    if not filename.lower().endswith('.profile'):
+                        continue
+
+                    file_path = os.path.join(root, filename)
+
+                    # don't load up any of the templates
+                    if fnmatch.fnmatch(filename, '*template.profile'):
+                        continue
+
+                    malleable_split = file_path.split(malleable_path)[-1].split('/')
+                    profile_category = malleable_split[1]
+                    profile_name = malleable_split[2]
+
+                    # Check if module is in database and load new profiles
+                    profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
+                    if not profile:
+                        message = "[*] Loading malleable profile {}".format(profile_name)
+                        signal = json.dumps({
+                            'print': False,
+                            'message': message
+                        })
+                        dispatcher.send(signal, sender="empire")
+
+                        with open(file_path, 'r') as stream:
+                            profile_data = stream.read()
+                            Session().add(models.Profile(file_path=file_path,
+                                                         name=profile_name,
+                                                         category=profile_category,
+                                                         data=profile_data,
+                                                         ))
+        Session().commit()
 
     def send_socketio_message(self, socket_address, msg):
         """
@@ -297,7 +347,7 @@ class MainMenu(cmd.Cmd):
                 cmds.append(line)
 
         return cmds
-      
+
     def substring(self, session, column, delimeter):
         """
         https://stackoverflow.com/a/57763081
@@ -339,7 +389,7 @@ class MainMenu(cmd.Cmd):
         rows = Session().query(models.Agent.session_id, models.Agent.hostname, models.Agent.username,
                                models.Agent.checkin_time).all()
 
-        print(helpers.color(f"[*] Writing { self.installPath }/data/sessions.csv"))
+        print(helpers.color(f"[*] Writing {self.installPath}/data/sessions.csv"))
         try:
             self.lock.acquire()
             f = open(self.installPath + '/data/sessions.csv', 'w')
@@ -359,7 +409,7 @@ class MainMenu(cmd.Cmd):
             .order_by(models.Credential.domain, models.Credential.credtype, models.Credential.host) \
             .all()
 
-        print(helpers.color(f"[*] Writing { self.installPath }/data/credentials.csv"))
+        print(helpers.color(f"[*] Writing {self.installPath}/data/credentials.csv"))
         try:
             self.lock.acquire()
             f = open(self.installPath + '/data/credentials.csv', 'w')
@@ -379,7 +429,7 @@ class MainMenu(cmd.Cmd):
         # Empire Log
         rows = self.run_report_query()
 
-        print(helpers.color(f"[*] Writing { self.installPath }/data/master.log"))
+        print(helpers.color(f"[*] Writing {self.installPath}/data/master.log"))
         try:
             self.lock.acquire()
             f = open(self.installPath + '/data/master.log', 'w')
@@ -398,7 +448,8 @@ class MainMenu(cmd.Cmd):
         finally:
             self.lock.release()
 
-        return f'{ self.installPath }/data'
+        return f'{self.installPath}/data'
+
 
 def xstr(s):
     """

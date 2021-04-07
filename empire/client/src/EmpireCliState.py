@@ -27,6 +27,7 @@ class EmpireCliState(object):
         self.agents = {}
         self.plugins = {}
         self.me = {}
+        self.profiles = {}
         self.empire_version = ''
 
     def register_menu(self, menu: Menu):
@@ -78,6 +79,7 @@ class EmpireCliState(object):
         self.get_agents()
         self.get_active_plugins()
         self.get_user_me()
+        self.get_malleable_profile()
 
     def init_handlers(self):
         if self.sio:
@@ -348,8 +350,8 @@ class EmpireCliState(object):
 
     def generate_report(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/reporting/generate',
-                                 verify=False,
-                                 params={'token': self.token})
+                                verify=False,
+                                params={'token': self.token})
 
         return json.loads(response.content)
 
@@ -445,6 +447,30 @@ class EmpireCliState(object):
                                 params={'token': self.token})
 
         self.me = json.loads(response.content)
+        return json.loads(response.content)
+
+    def get_malleable_profile(self):
+        response = requests.get(url=f'{self.host}:{self.port}/api/malleable-profiles',
+                                verify=False,
+                                params={'token': self.token})
+
+        self.profiles = {x['name']: x for x in json.loads(response.content)['profiles']}
+
+        return self.profiles
+
+    def add_malleable_profile(self, profile_name: str, profile_category: str, profile_data: str):
+        response = requests.post(url=f'{self.host}:{self.port}/api/malleable-profiles',
+                                 json={'profile_name': profile_name, 'profile_category': profile_category,
+                                       'data': profile_data},
+                                 verify=False,
+                                 params={'token': self.token})
+
+        return json.loads(response.content)
+
+    def delete_malleable_profile(self, profile_name: str):
+        response = requests.delete(url=f'{self.host}:{self.port}/api/malleable-profiles/{profile_name}',
+                                   verify=False,
+                                   params={'token': self.token})
 
         return json.loads(response.content)
 

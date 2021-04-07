@@ -1,3 +1,5 @@
+import os
+
 from typing import List
 
 
@@ -29,3 +31,17 @@ def position_util(cmd_line: List[str], word_position: int, word_before_cursor: s
     return len(cmd_line) < word_position + 1\
         and not (len(cmd_line) == word_position and word_before_cursor == '')\
         and not (len(cmd_line) == word_position - 1 and word_before_cursor != '')
+
+
+def complete_path(file_type: str):
+    """
+    Completion of file paths.
+    """
+    filenames = []
+    for filename in os.listdir():
+        if not filename.lower().endswith(file_type):
+            continue
+        else:
+            filenames.append(filename)
+
+    return filenames

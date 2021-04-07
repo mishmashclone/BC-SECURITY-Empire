@@ -1,10 +1,11 @@
+from prompt_toolkit.completion import Completion
+
 from empire.client.src.EmpireCliState import state
 from empire.client.src.menus.Menu import Menu
 from empire.client.src.utils import print_util, date_util
 from empire.client.src.utils import table_util
-from empire.client.src.utils.autocomplete_util import position_util
 from empire.client.src.utils.cli_util import register_cli_commands, command
-
+from empire.client.src.utils.autocomplete_util import filtered_search_list, position_util, complete_path
 
 @register_cli_commands
 class AdminMenu(Menu):
@@ -15,7 +16,13 @@ class AdminMenu(Menu):
         return self._cmd_registry + super().autocomplete()
 
     def get_completions(self, document, complete_event, cmd_line, word_before_cursor):
-        if position_util(cmd_line, 1, word_before_cursor):
+        if cmd_line[0] in ['malleable_profile', 'delete_malleable_profile'] and position_util(cmd_line, 2, word_before_cursor):
+            for profile in filtered_search_list(word_before_cursor, state.profiles.keys()):
+                yield Completion(profile, start_position=-len(word_before_cursor))
+        elif cmd_line[0] == 'load_malleable_profile' and position_util(cmd_line, 2, word_before_cursor):
+            for profile in filtered_search_list(word_before_cursor, complete_path('.profile')):
+                yield Completion(profile, start_position=-len(word_before_cursor))
+        elif position_util(cmd_line, 1, word_before_cursor):
             yield from super().get_completions(document, complete_event, cmd_line, word_before_cursor)
 
     def on_enter(self):
@@ -161,7 +168,7 @@ class AdminMenu(Menu):
         """
         Add user notes (use quotes)
 
-        Usage: notes <add_user_notes>
+        Usage: add_notes <user_notes>
         """
         self.user_notes = state.get_user_me()['notes']
 
@@ -202,6 +209,53 @@ class AdminMenu(Menu):
 
         if 'report' in response.keys():
             print(print_util.color('[*] Reports saved to ' + response['report']))
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
+
+    @command
+    def malleable_profile(self, profile_name: str):
+        """
+        View malleable c2 profile
+
+        Usage: malleable_profile <profile_name>
+        """
+        state.get_malleable_profile()
+
+        if profile_name in state.profiles.keys():
+            record_list = []
+            for key, value in state.profiles[profile_name].items():
+                record_list.append([print_util.color(key, 'blue'), value])
+            table_util.print_table(record_list, 'Malleable Profile', colored_header=False, no_borders=True)
+
+    @command
+    def load_malleable_profile(self, profile_directory: str, profile_category: str = ''):
+        """
+        Load malleable c2 profile to the database
+
+        Usage: load_malleable_profile <profile_directory> [profile_category]
+        """
+        with open(profile_directory, 'r') as stream:
+            profile_data = stream.read()
+
+        response = state.add_malleable_profile(profile_directory, profile_category, profile_data)
+
+        if 'success' in response.keys():
+            print(print_util.color(f'[*] Added { profile_directory } to database'))
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
+
+    @command
+    def delete_malleable_profile(self, profile_name: str,):
+        """
+        Delete malleable c2 profile from the database
+
+        Usage: delete_malleable_profile <profile_name>
+        """
+        state.get_malleable_profile()
+        response = state.delete_malleable_profile(profile_name)
+
+        if 'success' in response.keys():
+            print(print_util.color(f'[*] Deleted { profile_name } from database'))
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 

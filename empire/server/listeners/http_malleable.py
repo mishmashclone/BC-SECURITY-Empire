@@ -31,6 +31,8 @@ from empire.server.common import messages
 from empire.server.common import templating
 from empire.server.common import obfuscation
 from empire.server.common import bypasses
+from empire.server.database.base import Session
+from empire.server.database import models
 
 # Malleable imports
 from empire.server.common import malleable
@@ -268,10 +270,11 @@ class Listener(object):
                 print(helpers.color("[!] Option \"%s\" is required." % (key)))
                 return False
 
-        file = self.options["Profile"]["Value"]
+        profile_name = self.options["Profile"]["Value"]
+        profile_data = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
         try:
             profile = malleable.Profile()
-            profile.ingest(file)
+            profile.ingest(content=profile_data.data)
 
             # since stager negotiation comms are hard-coded, we can't use any stager transforms - overwriting with defaults
             profile.stager.client.verb = "GET"

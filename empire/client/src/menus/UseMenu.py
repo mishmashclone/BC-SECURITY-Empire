@@ -39,9 +39,12 @@ class UseMenu(Menu):
             if len(cmd_line) > 1 and cmd_line[1] == 'listener':
                 for listener in filtered_search_list(word_before_cursor, state.listeners.keys()):
                     yield Completion(listener, start_position=-len(word_before_cursor))
+            if len(cmd_line) > 1 and cmd_line[1] == 'profile':
+                for profile in filtered_search_list(word_before_cursor, state.profiles.keys()):
+                    yield Completion(profile, start_position=-len(word_before_cursor))
             if len(cmd_line) > 1 and cmd_line[1] == 'agent':
-                for listener in filtered_search_list(word_before_cursor, state.agents.keys()):
-                    yield Completion(listener, start_position=-len(word_before_cursor))
+                for agent in filtered_search_list(word_before_cursor, state.agents.keys()):
+                    yield Completion(agent, start_position=-len(word_before_cursor))
             if len(cmd_line) > 1 and len(self.suggested_values_for_option(cmd_line[1])) > 0:
                 for suggested_value in filtered_search_list(word_before_cursor,
                                                             self.suggested_values_for_option(cmd_line[1])):

@@ -210,6 +210,14 @@ class Module(Base):
     enabled = Column(Boolean, nullable=False)
 
 
+class Profile(Base):
+    __tablename__ = "profiles"
+    name = Column(String(255), primary_key=True)
+    file_path = Column(String(255))
+    category = Column(String(255))
+    data = Column(String, nullable=False)
+
+
 def is_stale(lastseen: datetime, delay: int, jitter: float):
     """
     Convenience function for calculating staleness

@@ -54,6 +54,7 @@ cli.show_server_banner = lambda *x: None
 if empire_config.yaml.get('suppress-self-cert-warning', True):
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+
 #####################################################
 #
 # Database interaction methods for the RESTful API
@@ -172,7 +173,8 @@ class MyJsonEncoder(JSONEncoder):
 #
 ####################################################################
 
-def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, username=None, password=None, ip='0.0.0.0', port=1337):
+def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, username=None, password=None, ip='0.0.0.0',
+                      port=1337):
     """
     Kick off the RESTful API with the given parameters.
 
@@ -616,6 +618,86 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({"listeners": listeners})
 
+    @app.route('/api/malleable-profiles', methods=['GET'])
+    def get_malleable_profiles():
+        """
+        Returns JSON with all currently registered profiles.
+        """
+        active_profiles_raw = Session().query(models.Profile).all()
+
+        profiles = []
+        for active_profile in active_profiles_raw:
+            profiles.append(
+                {'name': active_profile.name, 'category': active_profile.category, 'data': active_profile.data,
+                 'file_path': active_profile.file_path})
+
+        return jsonify({"profiles": profiles})
+
+    @app.route('/api/malleable-profiles', methods=['POST'])
+    def add_malleable_profiles():
+        """
+        Add malleable profiles to database
+        """
+        if not request.json or not 'profile_name' and 'profile_category' and 'data':
+            abort(400)
+
+        profile_name = request.json['profile_name']
+        profile_category = request.json['profile_category']
+        profile_data = request.json['data']
+
+        profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
+        if not profile:
+            Session().add(models.Profile(name=profile_name,
+                                         file_path='',
+                                         category=profile_category,
+                                         data=profile_data,
+                                         ))
+            Session().commit()
+            return jsonify({"success": True})
+        else:
+            return jsonify({'error': 'Profile %s already exists' % profile_name})
+
+    @app.route('/api/malleable-profiles/<string:profile_name>', methods=['DELETE'])
+    def remove_malleable_profiles(profile_name):
+        """
+        Delete malleable profiles from database.
+        Note: If a .profile file exists on the server, the profile will repopulate in the database when Empire restarts.
+        """
+        profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
+        if profile:
+            Session().delete(profile)
+            Session().commit()
+            return jsonify({"success": True})
+        else:
+            return jsonify({'error': 'Unable to delete profile %s' % profile_name})
+
+    @app.route('/api/malleable-profiles/<string:profile_name>', methods=['PUT'])
+    def edit_malleable_profiles(profile_name):
+        """
+        Edit malleable profiles in database
+        """
+        if not request.json or 'data':
+            abort(400)
+
+        profile_data = request.json['data']
+
+        profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
+
+        if profile:
+            profile.data = profile_data
+            Session().commit()
+            return jsonify({"success": True})
+        else:
+            return jsonify({'error': 'Failed to edit malleable profile %s' % profile_name})
+
+    @app.route('/api/malleable-profiles/export', methods=['POST'])
+    def export_malleable_profiles():
+        """
+        Export malleable profiles from database to files
+        """
+        # TODO: add option to export profiles from the database to files
+        return jsonify({"success": True})
+
     @app.route('/api/listeners/<string:listener_type>/validate', methods=['POST'])
     def validate_listeners(listener_type):
         """
@@ -1056,7 +1138,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             # add task command to agent taskings
             msg = "tasked agent %s to run command %s" % (agent.session_id, script_data)
             main.agents.save_agent_log(agent.session_id, msg)
-            task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_SCRIPT_IMPORT", script_data, uid=g.user['id'])
+            task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_SCRIPT_IMPORT", script_data,
+                                                    uid=g.user['id'])
 
             return jsonify({'success': True, 'taskID': task_id})
 
@@ -1083,7 +1166,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_SCRIPT_COMMAND", command, uid=g.user['id'])
 
         return jsonify({'success': True, 'taskID': task_id})
-
 
     @app.route('/api/agents/<string:agent_name>/update_comms', methods=['PUT'])
     def agent_update_comms(agent_name):
@@ -1838,6 +1920,7 @@ def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppres
     context = ssl.SSLContext(proto)
     context.load_cert_chain("{}/empire-chain.pem".format(cert_path), "{}/empire-priv.key".format(cert_path))
     socketio.run(app, host=ip, port=port, ssl_context=context)
+
 
 def run(args):
     def thread_websocket(empire_menu, suppress=False):

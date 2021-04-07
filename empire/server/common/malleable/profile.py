@@ -227,20 +227,19 @@ class Profile(MalleableObject):
 
         return True
 
-    def ingest(self, file):
+    def ingest(self, file: str = None, content: str = None):
         """Ingest a profile file into the Profile object.
 
         Args:
             file (str): Filename to be read and parsed.
         """
-        if not file or not os.path.isfile(file):
-            MalleableError.throw(self.__class__, "ingest", "Invalid file: %s" % str(file))
+        #if not file or not os.path.isfile(file):
+        #    MalleableError.throw(self.__class__, "ingest", "Invalid file: %s" % str(file))
 
-        content = None
-        with open(file) as f:
-            content = f.read()
-
-        if not content:
-            MalleableError.throw(self.__class__, "ingest", "Empty file: %s" % str(file))
+        if file:
+            with open(file) as f:
+                content = f.read()
+            if not content:
+                MalleableError.throw(self.__class__, "ingest", "Empty file: %s" % str(file))
 
         self._parse(self._pattern().searchString(content))

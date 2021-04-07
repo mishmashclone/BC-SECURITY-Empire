@@ -200,6 +200,8 @@ class EmpireCli(object):
                 break  # Control-D pressed.
             except CliExitException:
                 break
+            except ValueError as e:
+                print(print_util.color(f'[!] {e}'))
 
     def parse_command_line(self, text: str, cmd_line: List[str], resource_file=False):
         if len(cmd_line) == 0:

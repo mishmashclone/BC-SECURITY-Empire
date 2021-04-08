@@ -27,18 +27,19 @@ class Menu(object):
         :return: list[str]
         """
         return [
-            'main',
+            'admin',
+            'agents',
             'back',
+            'chat',
+            'credentials',
             'interact',
             'listeners',
-            'uselistener',
-            'usestager',
+            'main',
             'plugins',
-            'useplugin',
-            'agents',
+            'uselistener',
             'usemodule',
-            'credentials',
-            'admin',
+            'useplugin',
+            'usestager',
             'exit',
         ]
 

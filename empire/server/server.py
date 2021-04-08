@@ -1958,13 +1958,16 @@ def run(args):
                     print(helpers.color('[+] Empire SocketIO successfully started'))
                 else:
                     print(helpers.color('[!] Empire SocketIO failed to start'))
+                    sys.exit()
             except:
                 print(helpers.color('[!] Empire SocketIO failed to start'))
+                sys.exit()
             finally:
                 sio.disconnect()
 
         else:
             print(helpers.color('[!] Empire RESTful API failed to start'))
+            sys.exit()
 
     database_check_docker()
 

@@ -87,11 +87,11 @@ class UseMenu(Menu):
         """
         record_list = []
         for key, value in self.record_options.items():
-            values = filter(lambda x: x[0] != 'SuggestedValues', value.items())
-            values = list(map(lambda x: '\n'.join(textwrap.wrap(str(x[1]), width=35)), values))
-            values.reverse()
-            temp = [key] + values
-            record_list.append(temp)
+            name = key
+            record_value = print_util.text_wrap(value.get('Value', ''))
+            required = print_util.text_wrap(value.get('Required', ''))
+            description = print_util.text_wrap(value.get('Description', ''))
+            record_list.append([name, record_value, required, description])
 
         record_list.insert(0, ['Name', 'Value', 'Required', 'Description'])
 

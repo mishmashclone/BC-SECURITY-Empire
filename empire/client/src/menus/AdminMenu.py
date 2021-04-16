@@ -219,8 +219,6 @@ class AdminMenu(Menu):
 
         Usage: malleable_profile <profile_name>
         """
-        state.get_malleable_profile()
-
         if profile_name in state.profiles.keys():
             record_list = []
             for key, value in state.profiles[profile_name].items():
@@ -241,6 +239,7 @@ class AdminMenu(Menu):
 
         if 'success' in response.keys():
             print(print_util.color(f'[*] Added { profile_directory } to database'))
+            state.get_malleable_profile()
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 
@@ -251,11 +250,11 @@ class AdminMenu(Menu):
 
         Usage: delete_malleable_profile <profile_name>
         """
-        state.get_malleable_profile()
         response = state.delete_malleable_profile(profile_name)
 
         if 'success' in response.keys():
             print(print_util.color(f'[*] Deleted { profile_name } from database'))
+            state.get_malleable_profile()
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 

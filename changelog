@@ -11,10 +11,12 @@ X/XX/2021
         - Added Invoke-SharpSecDump module (@Cx01N)
         - Added sriptimport and scriptcommand to API (@Cx01N)
         - Added auto generate certificate function to startup script (@Cx01N)
+        - Updated pycrypto to pycryptodome (@Cx01N)
         - Updated PowerDump with AES NTLM hashes (@Cx01N)
         - Updated cert/install/reset script with new directories (@Cx01N)
         - Updated all modules to new YAML format (@Vinnybod, @Cx01N)
         - Removed old Empire CLI and cmdloop from server (@Cx01N)
+        - Removed M2Crypto dependency (@Cx01N)
         - Simplified kill/remove commands and added 'all' and 'stale' options (@Cx01N)
 
 3/28/2021

@@ -69,7 +69,7 @@ def database_check_docker():
     if os.path.exists('/.dockerenv'):
         if not os.path.exists('data/empire.db'):
             print('[*] Fresh start in docker, running reset.sh for you')
-            subprocess.call(['./empire/server/setup/reset.sh'])
+            subprocess.call(['./setup/reset.sh'])
 
 
 class MyJsonEncoder(JSONEncoder):

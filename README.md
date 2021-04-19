@@ -40,9 +40,11 @@ We recommend the use of [Kali](https://www.kali.org/downloads/), [Poetry](https:
 Kali Linux users and [Direct Sponsors](https://github.com/sponsors/BC-SECURITY) will receive 30-day early access to new Empire and Starkiller features.
 
 The following operating systems have been tested for Empire compatibility. We will be unable to provide support for other OSs at this time. Consider using our [Prebuilt Docker containers](#Docker) which can run on any system.
-- Kali Linux
-- Ubuntu
-- Debian
+- Kali Linux Rolling
+- Ubuntu 20.04
+- Debian 10
+
+As of Empire 4.0, Python 3.7 is the minimum Python version required.
 
 ### Kali
 You can install the latest version of Empire by running the following:
@@ -68,6 +70,11 @@ sudo poetry install
 
 ### Docker
 If you want to run Empire using a pre-built docker container:
+**Note**: For size savings on the image, it is not pre-built with the
+libraries needed for jar and dmg stagers or the needed libraries for csharp
+agents and modules.
+To add these to your image, run the `install.sh` script in the container and answer
+`y` to the prompts.
 ```bash
 docker pull bcsecurity/empire:{version}
 docker run -it -p 1337:1337 -p 5000:5000 bcsecurity/empire:{version}
@@ -91,24 +98,24 @@ All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
 To launch Empire as a server:
 #### Kali
 ```sh
-sudo powershell-empire --server
+sudo powershell-empire server
 ```
 
 #### Github
 ```sh
-sudo poetry run python3 empire.py --server
+sudo poetry run python empire.py server
 ```
 
 ### Client
 To launch Empire as a CLI client:
 #### Kali
 ```sh
-sudo powershell-empire --client
+sudo powershell-empire client
 ```
 
 #### Github
 ```sh
-sudo poetry run python3 empire.py --client
+sudo poetry run python empire.py client
 ```
 
 Check out the [Empire wiki](https://github.com/BC-SECURITY/Empire/wiki/Quickstart) for more instructions on getting started with Empire.

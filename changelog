@@ -22,6 +22,9 @@ X/XX/2021
         - Added a socketio event for when tasking results come back (@Vinnybod)
         - Added a 'since' query parameter to the tasks endpoint for more efficient querying (@Vinnybod)
         - Added socketio tasking event handler to CLI for displaying task results in the interact menu (@Vinnybod)
+        - Install script prompts for xar, bomutils, openjdk, and dotnet for a more streamlined install (@Vinnybod)
+        - Install script now includes dotnet (@Vinnybod)
+        - Dockerfile size decreased by ~1GB by only installing the essentials. There is a note in the README (@Vinnybod)
 
 3/28/2021
 ------------

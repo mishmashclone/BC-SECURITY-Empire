@@ -627,17 +627,6 @@ def get_datetime():
     """
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def getutcnow():
-    return datetime.now(timezone.utc)
-
-def utc_to_local(utc):
-    """
-    Converts a datetime object in UTC to local time
-    """
-
-    offset = datetime.now() - datetime.utcnow()
-    return (utc + offset).strftime("%Y-%m-%d %H:%M:%S")
-
 
 def get_file_datetime():
     """
@@ -744,38 +733,6 @@ def color(string, color=None):
             return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
         else:
             return string
-
-
-def is_stale(lastseen: datetime, delay: int, jitter: float):
-    """Convenience function for calculating staleness"""
-    interval_max = (delay + delay * jitter) + 30
-    diff = getutcnow() - lastseen
-    stale = diff.total_seconds() > interval_max
-    return stale
-
-
-def lastseen(stamp: datetime, delay, jitter):
-    """
-    Colorize the Last Seen field based on measured delays
-    """
-    try:
-        stamp_display_local = stamp.strftime('%Y-%m-%d %H:%M:%S')
-        delta = getutcnow() - stamp
-
-        # Set min threshold for delay/jitter
-        if delay < 1:
-            delay = 1
-        if jitter < 1:
-            jitter = 1
-
-        if delta.total_seconds() > delay * (jitter + 1) * 7:
-            return color(stamp_display_local, "red")
-        elif delta.total_seconds() > delay * (jitter + 1) * 3:
-            return color(stamp_display_local, "yellow")
-        else:
-            return color(stamp_display_local, "green")
-    except Exception:
-        return stamp[:19].replace("T", " ")
 
 
 def unique(seq, idfun=None):

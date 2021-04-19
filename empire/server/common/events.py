@@ -44,25 +44,21 @@ def agent_rename(old_name, new_name):
     # TODO rename all events left over using agent's old name?
 
 
-def log_event(name, event_type, message, timestamp, task_id=None):
+def log_event(name, event_type, message, task_id=None):
     """
     Log arbitrary events
 
-    cur        - a database connection object (such as that returned from
-                 `get_db_connection()`)
     name       - the sender string from the dispatched event
     event_type - the category of the event - agent_result, agent_task,
                  agent_rename, etc. Ideally a succinct description of what the
                  event actually is.
     message    - the body of the event, WHICH MUST BE JSON, describing any
                  pertinent details of the event
-    timestamp  - when the event occurred
     task_id    - the ID of the task this event is in relation to. Enables quick
                  queries of an agent's task and its result together.
     """
     Session().add(models.Reporting(name=name,
                                    event_type=event_type,
                                    message=message,
-                                   timestamp=timestamp,
                                    taskID=task_id))
     Session().commit()

@@ -18,6 +18,10 @@ X/XX/2021
         - Removed old Empire CLI and cmdloop from server (@Cx01N)
         - Removed M2Crypto dependency (@Cx01N)
         - Simplified kill/remove commands and added 'all' and 'stale' options (@Cx01N)
+        - Removed the need for manual database timestamp updates, merge taskings and results table to a single table (@Vinnybod)
+        - Added a socketio event for when tasking results come back (@Vinnybod)
+        - Added a 'since' query parameter to the tasks endpoint for more efficient querying (@Vinnybod)
+        - Added socketio tasking event handler to CLI for displaying task results in the interact menu (@Vinnybod)
 
 3/28/2021
 ------------

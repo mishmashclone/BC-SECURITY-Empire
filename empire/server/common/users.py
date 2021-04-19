@@ -30,13 +30,11 @@ class Users(object):
         """
         Add new user to cache
         """
-        last_logon = helpers.getutcnow()
         success = Session().add(models.User(username=user_name,
-                                   password=self.get_hashed_password(password),
-                                   last_logon_time=last_logon,
-                                   enabled=True,
-                                   admin=False,
-                                   ))
+                                            password=self.get_hashed_password(password),
+                                            enabled=True,
+                                            admin=False
+                                            ))
         Session().commit()
 
         if success:
@@ -89,7 +87,6 @@ class Users(object):
             return None
 
         user.api_token = user.api_token or self.refresh_api_token()
-        user.last_logon_time = helpers.getutcnow()
         user.username = user_name
         Session.commit()
 

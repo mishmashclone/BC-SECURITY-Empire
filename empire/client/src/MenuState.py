@@ -1,6 +1,5 @@
 from typing import Optional
 
-from empire.client.src.menus.MainMenu import main_menu
 from empire.client.src.menus.Menu import Menu
 
 
@@ -9,14 +8,15 @@ class MenuState:
     Class for managing the applications menus.
     """
 
-    def __init__(self, starting_menu: Menu):
+    def __init__(self):
         self.current_menu: Optional[Menu] = None
         self.menu_history = []
-        self.push(starting_menu)
 
     @property
     def current_menu_name(self) -> str:
-        return self.current_menu.__class__.__name__
+        if self.current_menu:
+            return self.current_menu.__class__.__name__
+        return ''
 
     def push(self, menu: Menu, **kwargs):
         if menu.on_enter(**kwargs):
@@ -34,4 +34,4 @@ class MenuState:
             self.current_menu = self.menu_history[-1]
 
 
-menu_state = MenuState(starting_menu=main_menu)
+menu_state = MenuState()

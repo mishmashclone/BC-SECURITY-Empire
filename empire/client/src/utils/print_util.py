@@ -7,6 +7,8 @@ def color(string_name, color_name=None):
     """
     Change text color for the Linux terminal.
     """
+    if not string_name:
+        return ''
 
     attr = ['1']
     # bold

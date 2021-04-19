@@ -14,6 +14,7 @@ from empire.client.src.utils.cli_util import register_cli_commands, command
 class UseModuleMenu(UseMenu):
     def __init__(self):
         super().__init__(display_name='usemodule', selected='', record=None, record_options=None)
+        self.stop_threads = False
 
     def autocomplete(self):
         return self._cmd_registry + super().autocomplete()
@@ -25,39 +26,21 @@ class UseModuleMenu(UseMenu):
         else:
             yield from super().get_completions(document, complete_event, cmd_line, word_before_cursor)
 
-    def tasking_id_returns(self, agent_name, task_id: int):
-        """
-        Polls and prints tasking data for taskID
-
-        Usage: tasking_id_returns <agent_name> <task_id>
-        """
-        # todo: there must be a better way to do this with notifications
-        # Set previous results to current results to avoid a lot of old data
-        status_result = False
-
-        while not status_result:
-            try:
-                results = state.get_agent_result(agent_name)['results'][0]['AgentResults'][task_id - 1]
-                if results['results'] is not None:
-                    if 'Job started:' not in results['results']:
-                        print(print_util.color('[*] Task ' + str(results['taskID']) + " results received"))
-                        print(print_util.color(results['results']))
-                        status_result = True
-            except:
-                pass
-            time.sleep(1)
-
     def on_enter(self, **kwargs) -> bool:
         if 'selected' not in kwargs:
             return False
         else:
             self.use(kwargs['selected'])
+            self.stop_threads = False
 
             if 'agent' in kwargs and 'Agent' in self.record_options:
                 self.set('Agent', kwargs['agent'])
             self.info()
             self.options()
             return True
+
+    def on_leave(self):
+        self.stop_threads = True
 
     def use(self, module: str) -> None:
         """
@@ -77,8 +60,6 @@ class UseModuleMenu(UseMenu):
 
         Usage: execute
         """
-        # todo validation and error handling
-        # Hopefully this will force us to provide more info in api errors ;)
         post_body = {}
         for key, value in self.record_options.items():
             post_body[key] = self.record_options[key]['Value']
@@ -87,10 +68,9 @@ class UseModuleMenu(UseMenu):
         if 'success' in response.keys():
             print(print_util.color(
                 '[*] Tasked ' + self.record_options['Agent']['Value'] + ' to run Task ' + str(response['taskID'])))
-            agent_return = threading.Thread(target=self.tasking_id_returns,
-                                            args=[self.record_options['Agent']['Value'], response['taskID']])
-            agent_return.daemon = True
-            agent_return.start()
+            shell_return = threading.Thread(target=self.tasking_id_returns, args=[response['taskID']])
+            shell_return.daemon = True
+            shell_return.start()
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 
@@ -102,6 +82,24 @@ class UseModuleMenu(UseMenu):
         Usage: generate
         """
         self.execute()
+
+    def tasking_id_returns(self, task_id: int):
+        """
+        Polls for the tasks that have been queued.
+        Once found, will remove from the cache and display.
+        """
+        count = 0
+        result = None
+        while result is None and count < 30 and not self.stop_threads:
+            # this may not work 100% of the time since there is a mix of agent session_id and names still.
+            result = state.cached_agent_results.get(self.record_options['Agent']['Value'], {}).get(task_id)
+            count += 1
+            time.sleep(1)
+
+        if result:
+            del state.cached_agent_results.get(self.record_options['Agent']['Value'], {})[task_id]
+
+        print(print_util.color(result))
 
 
 use_module_menu = UseModuleMenu()

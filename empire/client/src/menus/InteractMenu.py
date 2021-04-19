@@ -53,35 +53,25 @@ class InteractMenu(Menu):
             return False
         else:
             self.use(kwargs['selected'])
+
+            self.display_cached_results()
+
             return True
 
     def get_prompt(self) -> str:
         joined = '/'.join([self.display_name, self.selected]).strip('/')
         return f"(Empire: <ansired>{joined}</ansired>) > "
 
-    # todo is this the same exact code in the other menus?
-    def tasking_id_returns(self, agent_name, task_id: int):
+    def display_cached_results(self) -> None:
         """
-        Polls and prints tasking data for taskID
-
-        Usage: tasking_id_returns <agent_name> <task_id>
+        Print the task results for the all the results that have been received for this agent.
         """
-        # todo: there must be a better way to do this with notifications
-        # todo: add a timeout value
-        # Set previous results to current results to avoid a lot of old data
-        status_result = False
+        task_results = state.cached_agent_results.get(self.session_id, {})
+        for key, value in task_results.items():
+            print(print_util.color('[*] Task ' + str(key) + " results received"))
+            print(value)
 
-        while not status_result:
-            try:
-                results = state.get_agent_result(agent_name)['results'][0]['AgentResults'][task_id - 1]
-                if results['results'] is not None:
-                    if 'Job started:' not in results['results']:
-                        print(print_util.color('[*] Task ' + str(results['taskID']) + " results received"))
-                        print(print_util.color(results['results']))
-                        status_result = True
-            except:
-                pass
-            time.sleep(1)
+        state.cached_agent_results.get(self.session_id, {}).clear()
 
     def use(self, agent_name: str) -> None:
         """
@@ -106,11 +96,6 @@ class InteractMenu(Menu):
         response = state.agent_shell(self.session_id, shell_cmd)
         print(print_util.color('[*] Tasked ' + self.session_id + ' to run Task ' + str(response['taskID'])))
 
-        # todo can we use asyncio?
-        agent_return = threading.Thread(target=self.tasking_id_returns, args=[self.session_id, response['taskID']])
-        agent_return.daemon = True
-        agent_return.start()
-
     @command
     def script_import(self, script_location: str) -> None:
         """
@@ -123,10 +108,6 @@ class InteractMenu(Menu):
         if 'success' in response.keys():
             print(print_util.color(
                 '[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
-            agent_return = threading.Thread(target=self.tasking_id_returns,
-                                            args=[self.session_id, response['taskID']])
-            agent_return.daemon = True
-            agent_return.start()
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 
@@ -139,11 +120,6 @@ class InteractMenu(Menu):
         """
         response = state.agent_script_command(self.session_id, script_cmd)
         print(print_util.color('[*] Tasked ' + self.session_id + ' to run Task ' + str(response['taskID'])))
-
-        # todo can we use asyncio?
-        agent_return = threading.Thread(target=self.tasking_id_returns, args=[self.session_id, response['taskID']])
-        agent_return.daemon = True
-        agent_return.start()
 
     @command
     def upload(self, local_file_directory: str, destination_file_name: str) -> None:
@@ -161,9 +137,6 @@ class InteractMenu(Menu):
 
         response = state.agent_upload_file(self.session_id, file_name, file_data.decode('UTF-8'))
         print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
-        agent_return = threading.Thread(target=self.tasking_id_returns, args=[self.session_id, response['taskID']])
-        agent_return.daemon = True
-        agent_return.start()
 
     @command
     def download(self, file_name: str) -> None:
@@ -174,9 +147,6 @@ class InteractMenu(Menu):
         """
         response = state.agent_download_file(self.session_id, file_name)
         print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
-        agent_return = threading.Thread(target=self.tasking_id_returns, args=[self.session_id, response['taskID']])
-        agent_return.daemon = True
-        agent_return.start()
 
     @command
     def info(self) -> None:
@@ -261,10 +231,6 @@ class InteractMenu(Menu):
         if 'success' in response.keys():
             print(print_util.color(
                 '[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
-            agent_return = threading.Thread(target=self.tasking_id_returns,
-                                            args=[self.session_id, response['taskID']])
-            agent_return.daemon = True
-            agent_return.start()
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 

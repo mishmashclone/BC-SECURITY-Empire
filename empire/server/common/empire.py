@@ -139,7 +139,7 @@ class MainMenu(cmd.Cmd):
 
         # get a db cursor, log this event to the DB, then close the cursor
         # TODO instead of "dispatched_event" put something useful in the "event_type" column
-        log_event(sender, event_type, json.dumps(signal_data), helpers.getutcnow(), task_id=task_id)
+        log_event(sender, event_type, json.dumps(signal_data), task_id=task_id)
 
         # if --debug X is passed, log out all dispatcher signals
         if self.args.debug:
@@ -218,13 +218,13 @@ class MainMenu(cmd.Cmd):
                                                          ))
         Session().commit()
 
-    def send_socketio_message(self, socket_address, msg):
+    def plugin_socketio_message(self, plugin_name, socket_address, msg):
         """
         Send socketio message to the socket address
         """
-        if self.mainMenu.args.debug is not None:
+        if self.args.debug is not None:
             print(helpers.color(msg))
-        self.mainMenu.socketio.emit(socket_address, {'message': msg})
+        self.socketio.emit(socket_address, {'message': msg, 'plugin_name': plugin_name})
 
     def check_root(self):
         """
@@ -372,12 +372,10 @@ class MainMenu(cmd.Cmd):
                    reporting_sub_query.c.taskID,
                    models.Agent.hostname,
                    models.User.username,
-                   models.Tasking.data.label('task'),
-                   models.Result.data.label('results')) \
+                   models.Tasking.input.label('task'),
+                   models.Tasking.output.label('results')) \
             .join(models.Tasking, and_(models.Tasking.id == reporting_sub_query.c.taskID,
                                        models.Tasking.agent == reporting_sub_query.c.agent_name), isouter=True) \
-            .join(models.Result, and_(models.Result.id == reporting_sub_query.c.taskID,
-                                      models.Result.agent == reporting_sub_query.c.agent_name), isouter=True) \
             .join(models.User, models.User.id == models.Tasking.user_id, isouter=True) \
             .join(models.Agent, models.Agent.session_id == reporting_sub_query.c.agent_name, isouter=True) \
             .all()

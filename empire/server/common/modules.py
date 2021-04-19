@@ -95,7 +95,7 @@ class Modules(object):
 
         # set the agent's tasking in the cache
         task_id = self.main_menu.agents.add_agent_task_db(session_id, task_command, module_data,
-                                                          moduleName=module.name,
+                                                          module_name=module.name,
                                                           uid=user_id)
 
         # update the agent log

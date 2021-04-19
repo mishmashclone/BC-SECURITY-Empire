@@ -28,7 +28,7 @@ from flask import Flask, request, jsonify, make_response, abort, g
 from flask.json import JSONEncoder
 from flask_socketio import SocketIO, join_room, leave_room
 from sqlalchemy import and_
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased, joinedload
 
 # Empire imports
 from empire.server.common import empire, helpers
@@ -70,23 +70,6 @@ def database_check_docker():
         if not os.path.exists('data/empire.db'):
             print('[*] Fresh start in docker, running reset.sh for you')
             subprocess.call(['./empire/server/setup/reset.sh'])
-
-
-def adapt_datetime(val):
-    """
-    This adapter is available in sqlite3/dbapi2.py, but uses a " " as the seperator
-    This uses the default of "T" which fits ISO-8601
-    """
-    return val.isoformat()
-
-
-def convert_timestamp(val):
-    """
-    The original version of this in sqlite3/dbapi2.py doesn't account for timezone aware datetimes. Using fromisoformat
-    should handle both naive and aware and astimezone will force naive timestamps to utc.
-    datetimes.
-    """
-    return datetime.fromisoformat(val.decode('utf-8')).astimezone(timezone.utc)
 
 
 class MyJsonEncoder(JSONEncoder):
@@ -839,8 +822,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                  "children": active_agent.children, "servers": active_agent.servers, "profile": active_agent.profile,
                  "functions": active_agent.functions, "kill_date": active_agent.kill_date,
                  "working_hours": active_agent.working_hours, "lost_limit": active_agent.lost_limit,
-                 "taskings": active_agent.taskings, "results": active_agent.results, "stale": active_agent.stale,
-                 "notes": active_agent.notes})
+                 "stale": active_agent.stale, "notes": active_agent.notes})
 
         return jsonify({'agents': agents})
 
@@ -865,7 +847,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                      "checkin_time": agent.checkin_time, "lastseen_time": agent.lastseen_time, "parent": agent.parent,
                      "children": agent.children, "servers": agent.servers, "profile": agent.profile,
                      "functions": agent.functions, "kill_date": agent.kill_date, "working_hours": agent.working_hours,
-                     "lost_limit": agent.lost_limit, "taskings": agent.taskings, "results": agent.results})
+                     "lost_limit": agent.lost_limit})
 
         return jsonify({'agents': stale_agents})
 
@@ -921,8 +903,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
              "lastseen_time": agent.lastseen_time, "parent": agent.parent, "children": agent.children,
              "servers": agent.servers, "profile": agent.profile, "functions": agent.functions,
              "kill_date": agent.kill_date, "working_hours": agent.working_hours,
-             "lost_limit": agent.lost_limit,
-             "taskings": agent.taskings, "results": agent.results})
+             "lost_limit": agent.lost_limit})
 
         return jsonify({'agents': active_agent})
 
@@ -978,26 +959,23 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         """
         agent_task_results = []
 
-        agent_results_raw = Session() \
-            .query(models.Result.id.label("task_id"),
-                   models.Tasking.data.label("command"),
-                   models.Result.data.label("result"),
-                   models.User.id.label("user_id"),
-                   models.User.username.label("username")) \
-            .select_from(models.Result) \
-            .join(models.Tasking,
-                  and_(models.Tasking.id == models.Result.id, models.Tasking.agent == models.Result.agent)) \
-            .outerjoin(models.User, models.Tasking.user_id == models.User.id) \
-            .filter(models.Result.agent == agent_name) \
-            .all()
+        query = Session().query(models.Tasking) \
+            .filter(models.Tasking.agent == agent_name) \
+            .options(joinedload(models.Tasking.user))
+
+        if request.args.get('updated_since'):
+            timestamp = datetime.fromisoformat(request.args.get('updated_since')).astimezone(timezone.utc)
+            query = query.filter(models.Tasking.updated_at > timestamp)
+
+        tasks = query.all()
 
         results = []
-        for agent_results in agent_results_raw:
-            if len(agent_results) > 0:
-                results.append(
-                    {'taskID': agent_results.task_id, 'command': agent_results.command, 'results': agent_results.result,
-                     'user_id': agent_results.user_id,
-                     'username': agent_results.username})
+        for task in tasks:
+            results.append(
+                {'taskID': task.id, 'command': task.input,
+                 'results': task.output, 'user_id': task.user_id,
+                 'created_at': task.created_at, 'updated_at': task.updated_at,
+                 'username': task.user.username, 'agent': task.agent})
 
         agent_task_results.append({"AgentName": agent_name, "AgentResults": results})
 
@@ -1005,23 +983,16 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
     @app.route('/api/agents/<string:agent_name>/task/<int:task_id>', methods=['GET'])
     def get_task(agent_name, task_id):
-        agent_results = Session() \
-            .query(models.Result.id.label("task_id"),
-                   models.Tasking.data.label("command"),
-                   models.Result.data.label("result"),
-                   models.User.id.label("user_id"),
-                   models.User.username.label("username")) \
-            .select_from(models.Result) \
-            .join(models.Tasking,
-                  and_(task_id == models.Result.id, agent_name == models.Result.agent)) \
-            .outerjoin(models.User, models.Tasking.user_id == models.User.id) \
-            .filter(models.Result.agent == agent_name) \
+        task = Session().query(models.Tasking) \
+            .filter(models.Tasking.agent == agent_name) \
+            .filter(models.Tasking.id == task_id) \
+            .options(joinedload(models.Tasking.user)) \
             .first()
 
-        if agent_results:
+        if task:
             return make_response(jsonify(
-                {'taskID': agent_results.task_id, 'command': agent_results.command, 'results': agent_results.result,
-                 'user_id': agent_results.user_id, 'username': agent_results.username}))
+                {'taskID': task.id, 'command': task.input, 'results': task.output,
+                 'user_id': task.user_id, 'username': task.user.username, 'agent': task.agent}))
 
         return make_response(jsonify({'error': 'task not found.'}), 404)
 

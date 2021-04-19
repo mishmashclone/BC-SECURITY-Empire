@@ -31,7 +31,6 @@ The Agents() class in instantiated in ./server.py by the main menu and includes:
     get_agents_for_listener()   - returns all agent objects linked to a given listener name
     get_agent_names_listener_db()-returns all agent names linked to a given listener name
     get_autoruns_db()           - returns any global script autoruns
-    update_agent_results_db()   - updates agent results in the database
     update_agent_sysinfo_db()   - updates agent system information in the database
     update_agent_lastseen_db()  - updates the agent's last seen timestamp in the database
     update_agent_listener_db()  - updates the agent's listener name in the database
@@ -72,6 +71,7 @@ from pydispatch import dispatcher
 from zlib_wrapper import decompress
 
 # Empire imports
+from empire.server.database.models import TaskingStatus
 from . import encryption
 from . import events
 from . import helpers
@@ -79,7 +79,7 @@ from . import messages
 from . import packets
 from empire.server.database.base import Session
 from empire.server.database import models
-from sqlalchemy import or_, func, and_
+from sqlalchemy import or_, func, and_, update
 
 
 class Agents(object):
@@ -144,11 +144,6 @@ class Agents(object):
         """
         Add an agent to the internal cache and database.
         """
-
-        currentTime = helpers.getutcnow()
-        checkinTime = currentTime
-        lastSeenTime = currentTime
-
         # generate a new key for this agent if one wasn't supplied
         if not sessionKey:
             sessionKey = encryption.generate_aes_key()
@@ -164,8 +159,6 @@ class Agents(object):
                                    external_ip=externalIP,
                                    session_key=sessionKey,
                                    nonce=nonce,
-                                   checkin_time=checkinTime,
-                                   lastseen_time=lastSeenTime,
                                    profile=profile,
                                    kill_date=killDate,
                                    working_hours=workingHours,
@@ -181,7 +174,7 @@ class Agents(object):
         signal = json.dumps({
             'print': True,
             'message': message,
-            'timestamp': checkinTime.isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'event_type': 'checkin'
         })
         dispatcher.send(signal, sender="agents/{}".format(sessionID))
@@ -203,8 +196,7 @@ class Agents(object):
                 "lastseen_time": agent.lastseen_time, "parent": agent.parent, "children": agent.children,
                 "servers": agent.servers, "profile": agent.profile, "functions": agent.functions,
                 "kill_date": agent.kill_date, "working_hours": agent.working_hours,
-                "lost_limit": agent.lost_limit,
-                "taskings": agent.taskings, "results": agent.results}
+                "lost_limit": agent.lost_limit}
 
     def remove_agent_db(self, session_id):
         """
@@ -529,32 +521,6 @@ class Agents(object):
         if agent is not None:
             return agent.session_key
 
-    def get_agent_results_db(self, session_id):
-        """
-        Return agent results from the backend database.
-        """
-        agent_name = session_id
-
-        # see if we were passed a name instead of an ID
-        name_id = self.get_agent_id_db(session_id)
-        if name_id:
-            session_id = name_id
-
-        if session_id not in self.agents:
-            print(helpers.color("[!] Agent %s not active." % (agent_name)))
-        else:
-            agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
-            results = agent.results
-            agent.results = ''
-            Session().commit()
-
-            if results and results != '':
-                out = json.loads(results)
-                if out:
-                    return "\n".join(out)
-            else:
-                return ''
-
     def get_agent_id_db(self, name):
         """
         Get an agent sessionID based on the name.
@@ -724,42 +690,6 @@ class Agents(object):
 
             Session().commit()
 
-    def update_agent_results_db(self, session_id, results):
-        """
-        Update agent results in the database.
-        """
-
-        # see if we were passed a name instead of an ID
-        if isinstance(results, bytes):
-            results = results.decode('UTF-8')
-
-        name_id = self.get_agent_id_db(session_id)
-        if name_id:
-            session_id = name_id
-
-        if session_id in self.agents:
-            agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
-
-           # todo: caching the results in a single column on the agent is the source of a lot of slowness. Remove this in the next major release.
-            if agent.results:
-                agent_results = json.loads(agent.results)
-            else:
-                agent_results = []
-            if len(agent_results) > 4:
-                del agent_results[0]
-
-            agent_results.append(results)
-            agent.results = json.dumps(agent_results)
-            Session().commit()
-
-        else:
-            message = "[!] Non-existent agent %s returned results".format(session_id)
-            signal = json.dumps({
-                'print': True,
-                'message': message
-            })
-            dispatcher.send(signal, sender="agents/{}".format(session_id))
-
     def update_agent_sysinfo_db(self, session_id, listener='', external_ip='', internal_ip='', username='', hostname='',
                                 os_details='', high_integrity=0, process_name='', process_id='', language_version='',
                                 language=''):
@@ -790,13 +720,8 @@ class Agents(object):
         """
         Update the agent's last seen timestamp in the database.
         """
-
-        if not current_time:
-            current_time = helpers.getutcnow()
-
-        agent = Session().query(models.Agent).filter(
-            or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
-        agent.lastseen_time = current_time
+        Session().execute(update(models.Agent) \
+                          .where(or_(models.Agent.session_id == session_id, models.Agent.name == session_id)))
         Session.commit()
 
     def update_agent_listener_db(self, session_id, listener_name):
@@ -917,14 +842,13 @@ class Agents(object):
     #
     ###############################################################
 
-    def add_agent_task_db(self, session_id, task_name, task='', moduleName=None, uid=1):
+    def add_agent_task_db(self, session_id, task_name, task='', module_name=None, uid=1):
         """
         Add a task to the specified agent's buffer in the database.
         """
         agent_name = session_id
         # see if we were passed a name instead of an ID
         name_id = self.get_agent_id_db(session_id)
-        timestamp = helpers.getutcnow()
 
         if name_id:
             session_id = name_id
@@ -940,13 +864,6 @@ class Agents(object):
                 })
                 dispatcher.send(signal, sender="agents/{}".format(session_id))
 
-                # get existing agent taskings
-                agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
-                agent_tasks = []
-
-                if agent.taskings:
-                    agent_tasks = json.loads(agent.taskings)
-
                 pk = Session().query(func.max(models.Tasking.id)).filter(models.Tasking.agent == session_id).first()[0]
 
                 if pk is None:
@@ -955,23 +872,15 @@ class Agents(object):
 
                 Session().add(models.Tasking(id=pk,
                                              agent=session_id,
-                                             data=task[:100],
+                                             input=task[:100],
+                                             input_full=task,
                                              user_id=uid,
-                                             timestamp=timestamp,
-                                             module_name=moduleName))
-
-                # Create result for data when it arrives
-                Session().add(models.Result(id=pk,
-                                            agent=session_id,
-                                            user_id=uid))
-
-                # append our new json-ified task and update the backend
-                agent_tasks.append([task_name, task, pk])
-                agent.taskings = json.dumps(agent_tasks)
+                                             module_name=module_name,
+                                             task_name=task_name,
+                                             status=TaskingStatus.queued))
 
                 # update last seen time for user
-                user = Session().query(models.User).filter(models.User.id == uid).first()
-                user.last_logon_time = timestamp
+                Session().execute(update(models.User).where(models.User.id == uid))
                 Session.commit()
 
                 try:
@@ -1001,7 +910,7 @@ class Agents(object):
 
     def get_agent_tasks_db(self, session_id):
         """
-        Retrieve tasks for our agent from the database.
+        Retrieve tasks that have been queued for our agent from the database.
         """
 
         agent_name = session_id
@@ -1015,51 +924,19 @@ class Agents(object):
             print(helpers.color("[!] Agent %s not active." % agent_name))
             return []
         else:
-            agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
-            if agent.taskings:
-                tasks = json.loads(agent.taskings)
+            tasks = Session().query(models.Tasking).filter(and_(models.Tasking.agent == session_id,
+                                                                models.Tasking.status == TaskingStatus.queued)).all()
+            for task in tasks:
+                task.status = TaskingStatus.pulled
 
-                # clear the taskings out
-                agent.taskings = ''
-                Session().commit()
-            else:
-                tasks = []
-
+            Session().commit()
             return tasks
-
-    def get_agent_tasks_listener_db(self, listener_name):
-        """
-        Retrieve tasks for our agent from the database keyed by the
-        supplied listner name.
-
-        returns a list of (sessionID, taskings) tuples
-        """
-        agents = Session().query(models.Agent).filter(
-            and_(models.Agent.listener == listener_name, models.Agent.taskings != None)).all()
-        results = []
-
-        for agent in agents:
-            # print agent
-            if agent['taskings']:
-                tasks = json.loads(agent['taskings'])
-
-                # clear the taskings out
-                agent.taskings = ''
-                results.append((agent.session_id, tasks))
-
-        Session().commit()
-
-        return results
 
     def clear_agent_tasks_db(self, session_id):
         """
-        Clear out agent tasks in the database.
+        Clear out queued agent tasks in the database.
         """
-
-        agent = Session().query(models.Agent).filter(
-            or_(models.Agent.session_id == session_id, models.Agent.name == session_id)).first()
-        agent.taskings = ''
-        Session.commit()
+        self.get_agent_tasks_db(session_id)
 
         message = "[*] Tasked {} to clear tasks".format(session_id)
         signal = json.dumps({
@@ -1474,9 +1351,7 @@ class Agents(object):
 
             # build tasking packets for everything we have
             for tasking in taskings:
-                task_name, task_data, res_id = tasking
-
-                all_task_packets += packets.build_task_packet(task_name, task_data, res_id)
+                all_task_packets += packets.build_task_packet(tasking.task_name, tasking.input_full, tasking.id)
 
             # get the session key for the agent
             session_key = self.agents[sessionID]['sessionKey']
@@ -1574,27 +1449,29 @@ class Agents(object):
 
         # insert task results into the database, if it's not a file
         if task_id != 0 and response_name not in ["TASK_DOWNLOAD", "TASK_CMD_JOB_SAVE",
-                                                  "TASK_CMD_WAIT_SAVE"] and data != None:
+                                                  "TASK_CMD_WAIT_SAVE"] and data is not None:
             # Update result with data
-            results = Session().query(models.Result).filter(and_(models.Result.id == task_id,
-                                                                 models.Result.agent == session_id)).first()
-            results.data = data
+            tasking = Session().query(models.Tasking).filter(and_(models.Tasking.id == task_id,
+                                                                  models.Tasking.agent == session_id)).first()
 
-            try:
-                results = Session().query(models.Tasking).filter(and_(models.Tasking.agent == session_id,
-                                                                      models.Tasking.id == task_id,
-                                                                      models.Tasking.data.like(
-                                                                          "function Get-Keystrokes%"))).first()
-                key_log_task_id = results.id
-
-            except Exception as e:
-                pass
+            if 'function Get-Keystrokes' in tasking.input:
+                key_log_task_id = tasking.id
+                tasking.output += data
             else:
-                results = Session().query(models.Result).filter(and_(models.Result.id == task_id,
-                                                                     models.Result.agent == session_id)).first()
-                results.data += data
+                tasking.output = data
 
             Session.commit()
+
+            if self.mainMenu.socketio and 'function Get-Keystrokes' not in tasking.input:
+                result_string = tasking.output
+                if isinstance(result_string, bytes):
+                    result_string = tasking.output.decode('UTF-8')
+
+                self.mainMenu.socketio.emit(f'agents/{session_id}/task', {
+                    'taskID': tasking.id, 'command': tasking.input,
+                    'results': result_string, 'user_id': tasking.user_id,
+                    'created_at': tasking.created_at, 'updated_at': tasking.updated_at,
+                    'username': tasking.user.username, 'agent': tasking.agent}, broadcast=True)
 
         # TODO: for heavy traffic packets, check these first (i.e. SOCKS?)
         #       so this logic is skipped
@@ -1607,7 +1484,6 @@ class Agents(object):
                 'message': message
             })
             dispatcher.send(signal, sender="agents/{}".format(session_id))
-            self.update_agent_results_db(session_id, data)
 
             if isinstance(data, bytes):
                 data = data.decode('UTF-8')
@@ -1665,7 +1541,6 @@ class Agents(object):
                 sysinfo += '{0: <18}'.format("Language:") + language + "\n"
                 sysinfo += '{0: <18}'.format("Language Version:") + language_version + "\n"
 
-                self.update_agent_results_db(session_id, sysinfo)
                 # update the agent log
                 self.save_agent_log(session_id, sysinfo)
 
@@ -1690,7 +1565,6 @@ class Agents(object):
 
         elif response_name == "TASK_SHELL":
             # shell command response
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
 
@@ -1728,20 +1602,17 @@ class Agents(object):
             except ValueError as e:
                 pass
 
-            self.update_agent_results_db(session_id, data)
             self.save_agent_log(session_id, data)
 
         elif response_name == "TASK_GETDOWNLOADS":
             if not data or data.strip().strip() == "":
                 data = "[*] No active downloads"
 
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
 
         elif response_name == "TASK_STOPDOWNLOAD":
             # download kill response
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
 
@@ -1755,14 +1626,12 @@ class Agents(object):
                 data = "[*] No active jobs"
 
             # running jobs
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
 
 
         elif response_name == "TASK_STOPJOB":
             # job kill response
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
 
@@ -1770,7 +1639,6 @@ class Agents(object):
         elif response_name == "TASK_CMD_WAIT":
 
             # dynamic script output -> blocking
-            self.update_agent_results_db(session_id, data)
 
             # see if there are any credentials to parse
             time = helpers.get_datetime()
@@ -1810,7 +1678,6 @@ class Agents(object):
 
             # update the agent log
             msg = "Output saved to .%s" % (final_save_path)
-            self.update_agent_results_db(session_id, msg)
             self.save_agent_log(session_id, msg)
 
 
@@ -1836,8 +1703,6 @@ class Agents(object):
                     f.write(new_results)
             else:
                 # dynamic script output -> non-blocking
-                self.update_agent_results_db(session_id, data)
-
                 # see if there are any credentials to parse
                 time = helpers.get_datetime()
                 creds = helpers.parse_credentials(data)
@@ -1899,33 +1764,26 @@ class Agents(object):
 
             # update the agent log
             msg = "Output saved to .%s" % (final_save_path)
-            self.update_agent_results_db(session_id, msg)
             self.save_agent_log(session_id, msg)
 
 
         elif response_name == "TASK_SCRIPT_IMPORT":
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
 
         elif response_name == "TASK_IMPORT_MODULE":
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
 
         elif response_name == "TASK_VIEW_MODULE":
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
 
         elif response_name == "TASK_REMOVE_MODULE":
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
 
         elif response_name == "TASK_SCRIPT_COMMAND":
-
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
 
@@ -1937,7 +1795,6 @@ class Agents(object):
             listener_name = data[38:]
 
             self.update_agent_listener_db(session_id, listener_name)
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
             message = "[+] Updated comms for {} to {}".format(session_id, listener_name)
@@ -1949,7 +1806,6 @@ class Agents(object):
 
         elif response_name == "TASK_UPDATE_LISTENERNAME":
             # The agent listener name variable has been updated agent side
-            self.update_agent_results_db(session_id, data)
             # update the agent log
             self.save_agent_log(session_id, data)
             message = "[+] Listener for '{}' updated to '{}'".format(session_id, data)

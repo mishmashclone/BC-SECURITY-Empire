@@ -1,9 +1,12 @@
-from datetime import datetime, timezone
+import enum
 
-from sqlalchemy import Column, Integer, Sequence, String, Boolean, ForeignKey, PickleType, Float, Text
+from sqlalchemy import Column, Integer, Sequence, String, Boolean, ForeignKey, PickleType, Float, Text, Enum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship, deferred
 from sqlalchemy_utc import UtcDateTime
+
+from empire.server.utils.datetime_util import getutcnow, is_stale
 
 Base = declarative_base()
 
@@ -14,7 +17,7 @@ class User(Base):
     username = Column(String(255), nullable=False)
     password = Column(String(255), nullable=False)
     api_token = Column(String(50))
-    last_logon_time = Column(UtcDateTime)
+    last_logon_time = Column(UtcDateTime, default=getutcnow, onupdate=getutcnow)
     enabled = Column(Boolean, nullable=False)
     admin = Column(Boolean, nullable=False)
     notes = Column(Text)
@@ -33,7 +36,7 @@ class Listener(Base):
     listener_category = Column(String(255), nullable=False)
     enabled = Column(Boolean, nullable=False)
     options = Column(PickleType)  # Todo Json?
-    created_at = Column(UtcDateTime, nullable=False)
+    created_at = Column(UtcDateTime, nullable=False, default=getutcnow)
 
     def __repr__(self):
         return "<Listener(name='%s')>" % (
@@ -44,6 +47,7 @@ class Listener(Base):
 
     def __setitem__(self, key, value):
         self.__dict__[key] = value
+
 
 class Agent(Base):
     __tablename__ = 'agents'
@@ -65,8 +69,8 @@ class Agent(Base):
     os_details = Column(String(255))
     session_key = Column(String(255))
     nonce = Column(String(255))
-    checkin_time = Column(UtcDateTime)
-    lastseen_time = Column(UtcDateTime)
+    checkin_time = Column(UtcDateTime, default=getutcnow)
+    lastseen_time = Column(UtcDateTime, default=getutcnow, onupdate=getutcnow)
     parent = Column(String(255))
     children = Column(String(255))
     servers = Column(String(255))
@@ -75,8 +79,6 @@ class Agent(Base):
     kill_date = Column(String(255))
     working_hours = Column(String(255))
     lost_limit = Column(Integer)
-    taskings = Column(String(255))  # Queue of tasks. Should refactor to manage queued tasks from the taskings table itself.
-    results = Column(String(255))
     notes = Column(Text)
     killed = Column(Boolean, nullable=False)
 
@@ -151,32 +153,28 @@ class Credential(Base):
         self.__dict__[key] = value
 
 
-# TODO vr I'd like to merge taskings and results to a single table
-#  and get rid of the json queue array on Agent.
+class TaskingStatus(enum.Enum):
+    queued = 1
+    pulled = 2
+
+
 class Tasking(Base):
     __tablename__ = 'taskings'
     id = Column(Integer, primary_key=True)
     agent = Column(String(255), ForeignKey('agents.session_id'), primary_key=True)
-    data = Column(Text)
+    input = Column(Text)
+    input_full = deferred(Column(Text))
+    output = Column(Text, nullable=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    timestamp = Column(UtcDateTime, nullable=False)
+    user = relationship(User)
+    created_at = Column(UtcDateTime, default=getutcnow, nullable=False)
+    updated_at = Column(UtcDateTime, default=getutcnow, onupdate=getutcnow, nullable=False)
     module_name = Column(Text)
-
+    task_name = Column(Text)
+    status = Column(Enum(TaskingStatus))
 
     def __repr__(self):
         return "<Tasking(id='%s')>" % (
-            self.id)
-
-
-class Result(Base):
-    __tablename__ = 'results'
-    id = Column(Integer, primary_key=True)  # Current implementation requires this to match Tasking's id
-    agent = Column(String(255), ForeignKey('agents.session_id'), primary_key=True)
-    data = Column(Text, nullable=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-
-    def __repr__(self):
-        return "<Result(id='%s')>" % (
             self.id)
 
 
@@ -186,8 +184,8 @@ class Reporting(Base):
     name = Column(String(255), nullable=False)
     event_type = Column(String(255))
     message = Column(Text)
-    timestamp = Column(UtcDateTime, nullable=False)
-    taskID = Column(Integer, ForeignKey('results.id'))
+    timestamp = Column(UtcDateTime, default=getutcnow, nullable=False)
+    taskID = Column(Integer, ForeignKey('taskings.id'))
 
     def __repr__(self):
         return "<Reporting(id='%s')>" % (
@@ -216,17 +214,3 @@ class Profile(Base):
     file_path = Column(String(255))
     category = Column(String(255))
     data = Column(String, nullable=False)
-
-
-def is_stale(lastseen: datetime, delay: int, jitter: float):
-    """
-    Convenience function for calculating staleness
-    """
-    interval_max = (delay + delay * jitter) + 30
-    diff = getutcnow() - lastseen
-    stale = diff.total_seconds() > interval_max
-    return stale
-
-
-def getutcnow():
-    return datetime.now(timezone.utc)

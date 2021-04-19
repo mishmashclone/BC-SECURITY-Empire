@@ -166,6 +166,8 @@ class EmpireCli(object):
         t.daemon = True
         t.start()
 
+        menu_state.push(main_menu)
+
         autoserver = self.get_autoconnect_server()
         if autoserver:
             print(print_util.color(f'[*] Attempting to connect to server: {autoserver}'))
@@ -196,12 +198,12 @@ class EmpireCli(object):
                     self.parse_command_line(text, cmd_line)
             except KeyboardInterrupt:
                 print(print_util.color("[!] Type exit to quit"))
+            except ValueError as e:
+                print(print_util.color(f'[!] Error processing command: {e}'))
             except EOFError:
                 break  # Control-D pressed.
             except CliExitException:
                 break
-            except ValueError as e:
-                print(print_util.color(f'[!] {e}'))
 
     def parse_command_line(self, text: str, cmd_line: List[str], resource_file=False):
         if len(cmd_line) == 0:

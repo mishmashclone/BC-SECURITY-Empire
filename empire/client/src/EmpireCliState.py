@@ -4,6 +4,7 @@ from typing import Dict, Optional
 import requests
 import socketio
 
+from empire.client.src.MenuState import menu_state
 from empire.client.src.menus import Menu
 from empire.client.src.utils import print_util
 
@@ -29,6 +30,11 @@ class EmpireCliState(object):
         self.me = {}
         self.profiles = {}
         self.empire_version = ''
+        self.cached_plugin_results = {}
+
+        # { session_id: { task_id: 'output' }}
+        self.cached_agent_results = {}
+
 
     def register_menu(self, menu: Menu):
         self.menus.append(menu)
@@ -109,6 +115,44 @@ class EmpireCliState(object):
 
     def shutdown(self):
         self.disconnect()
+
+    def add_to_cached_results(self, data) -> None:
+        """
+        When tasking results come back, we will display them if the current menu is the InteractMenu.
+        Otherwise, we will ad them to the agent result dictionary and display them when the InteractMenu
+        is loaded.
+        :param data: the tasking object
+        :return:
+        """
+        session_id = data['agent']
+        if not self.cached_agent_results.get(session_id):
+            self.cached_agent_results[session_id] = {}
+
+        if menu_state.current_menu_name == 'InteractMenu' and menu_state.current_menu.selected == session_id:
+            if data['results'] is not None:
+                if 'Job started:' not in data['results']:
+                    print(print_util.color('[*] Task ' + str(data['taskID']) + " results received"))
+                    print(print_util.color(data['results']))
+        else:
+            self.cached_agent_results[session_id][data['taskID']] = data['results']
+
+    def add_plugin_cache(self, data) -> None:
+        """
+        When plugin results come back, we will display them if the current menu is for the plugin.
+        Otherwise, we will ad them to the plugin result dictionary and display them when the plugin menu
+        is loaded.
+        :param data: the plugin object
+        :return:
+        """
+        plugin_name = data['plugin_name']
+        if not self.cached_plugin_results.get(plugin_name):
+            self.cached_plugin_results[plugin_name] = {}
+
+        if menu_state.current_menu_name == 'UsePluginMenu' and menu_state.current_menu.selected == plugin_name:
+            if data['message'] is not None:
+                print(print_util.color(data['message']))
+        else:
+            self.cached_plugin_results[plugin_name][data['message']] = data['message']
 
     # I think we we will break out the socketio handler and http requests to new classes that the state imports.
     # This will do for this iteration.
@@ -202,6 +246,11 @@ class EmpireCliState(object):
                                 params={'token': self.token})
 
         self.agents = {x['name']: x for x in json.loads(response.content)['agents']}
+
+        # Whenever agents are refreshed, add socketio listeners for taskings.
+        for name, agent in self.agents.items():
+            session_id = agent['session_id']
+            self.sio.on(f'agents/{session_id}/task', self.add_to_cached_results)
 
         return self.agents
 
@@ -361,6 +410,9 @@ class EmpireCliState(object):
                                 params={'token': self.token})
 
         self.plugins = {x['Name']: x for x in json.loads(response.content)['plugins']}
+        for name, plugin in self.plugins.items():
+            plugin_name = plugin['Name']
+            self.sio.on(f'plugin/{plugin_name}/notifications', self.add_plugin_cache)
 
         return self.plugins
 

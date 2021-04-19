@@ -28,7 +28,18 @@ class UsePluginMenu(UseMenu):
         else:
             self.use(kwargs['selected'])
             self.options()
+            self.display_cached_results()
             return True
+
+    def display_cached_results(self) -> None:
+        """
+        Print the plugin results for all the results that have been received for this plugin.
+        """
+        plugin_results = state.cached_plugin_results.get(self.selected, {})
+        for key, value in plugin_results.items():
+            print(print_util.color(value))
+
+        state.cached_plugin_results.get(self.selected, {}).clear()
 
     def use(self, plugin_name: str) -> None:
         """
@@ -36,14 +47,11 @@ class UsePluginMenu(UseMenu):
 
         Usage: use <plugin_name>
         """
+        state.get_active_plugins()
         if plugin_name in state.plugins:
             self.selected = plugin_name
             self.record = state.plugins[plugin_name]
             self.record_options = state.plugins[plugin_name]['options']
-
-        if state.sio:
-            state.sio.on(f'plugin/{plugin_name}/notifications',
-                    lambda data: [print(print_util.color(data['message']))])
 
     @command
     def execute(self):
@@ -59,7 +67,7 @@ class UsePluginMenu(UseMenu):
             post_body[key] = self.record_options[key]['Value']
 
         response = state.execute_plugin(self.selected, post_body)
-        #print(response)
+        # print(response)
 
     @command
     def generate(self):

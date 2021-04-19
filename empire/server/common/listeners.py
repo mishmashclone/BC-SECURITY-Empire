@@ -251,8 +251,7 @@ class Listeners(object):
                                               module=module_name,
                                               listener_category=category,
                                               enabled=True,
-                                              options=listener_options,
-                                              created_at=helpers.getutcnow()
+                                              options=listener_options
                                               ))
                 Session().commit()
 

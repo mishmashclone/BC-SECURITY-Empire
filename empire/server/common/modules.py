@@ -11,10 +11,12 @@ from builtins import object
 from os import path
 from typing import Dict, Optional, Tuple
 
+import base64
 import yaml
 
 from empire.server.common import obfuscation
 from empire.server.common.config import empire_config
+from empire.server.common.converter.load_covenant import _convert_covenant_to_empire
 from empire.server.common.module_models import PydanticModule, LanguageEnum
 from empire.server.database import models
 from empire.server.database.base import Session
@@ -68,8 +70,10 @@ class Modules(object):
 
         session_id = params['Agent']
         task_command = ""
+        if module.language == LanguageEnum.csharp:
+            task_command = "TASK_CSHARP"
         # build the appropriate task command and module data blob
-        if module.background:
+        elif module.background:
             # if this module should be run in the background
             extension = module.output_extension
             if extension and extension != "":
@@ -109,7 +113,6 @@ class Modules(object):
 
     @staticmethod
     def change_module_state(main, module_list: list, module_state: bool):
-
         for module_name in module_list:
             try:
                 module = Session().query(models.Module).filter(models.Module.name == module_name).first()
@@ -141,19 +144,23 @@ class Modules(object):
                 return None, f'required module option missing: {option.name}'
 
         session_id = params['Agent']
+        agent = self.main_menu.agents.get_agent_db(session_id)
 
         if not self.main_menu.agents.is_agent_present(session_id):
             return None, 'invalid agent name'
 
-        module_version = float(module.min_language_version)
-        agent_version = float(self.main_menu.agents.get_language_version_db(session_id))
+        if not agent:
+            return None, 'invalid agent name'
+
+        module_version = float(module.min_language_version or 0)
+        agent_version = float(agent.language_version or 0)
         # check if the agent/module PowerShell versions are compatible
         if module_version > agent_version:
             return None, f"module requires PS version {module_version} but agent running PS version {agent_version}"
 
         if module.needs_admin:
             # if we're running this module for all agents, skip this validation
-            if not self.main_menu.agents.is_agent_elevated(session_id):
+            if not agent.high_integrity:
                 return None, 'module needs to run in an elevated context'
 
         return options, None
@@ -186,6 +193,8 @@ class Modules(object):
             return self._generate_script_powershell(module, params, obfuscate, obfuscate_command)
         elif module.language == LanguageEnum.python:
             return self._generate_script_python(module, params)
+        elif module.language == LanguageEnum.csharp:
+            return self._generate_script_csharp(module, params)
 
     @staticmethod
     def _generate_script_python(module: PydanticModule, params: Dict):
@@ -248,6 +257,24 @@ class Modules(object):
 
         return script
 
+    def _generate_script_csharp(self, module: PydanticModule, params: Dict):
+        try:
+            compiler = self.main_menu.loadedPlugins["csharpserver"]
+            compiler.do_send_message(module.compiler_yaml, module.name)
+            dll_payload = open(self.main_menu.installPath + "/csharp/Covenant/Data/Tasks/CSharp/Compiled/net40/" + module.name + ".compiled" , "rb").read()
+            dll_encoded = base64.b64encode(dll_payload).decode("UTF-8")
+            script = dll_encoded
+            for key, value in params.items():
+                if key.lower() != "agent" and key.lower() != "computername":
+                    if value and value != '':
+                        script += "," + value
+
+            return script
+
+        except Exception as e:
+            print(e)
+            print(helpers.color(f"[!] Compile Error"))
+
     def _load_modules(self, root_path=''):
         """
         Load Empire modules from a specified path, default to
@@ -271,45 +298,55 @@ class Modules(object):
 
                 # instantiate the module and save it to the internal cache
                 try:
-                    self._load_module(root_path, file_path)
+                    with open(file_path, 'r') as stream:
+                        if file_path.lower().endswith('.covenant.yaml'):
+                            yaml2 = yaml.safe_load(stream)
+                            for covenant_module in yaml2:
+                                # remove None values so pydantic can apply defaults
+                                yaml_module = {k: v for k, v in covenant_module.items() if v is not None}
+                                self._load_module(yaml_module, root_path, file_path)
+                        else:
+                            yaml2 = yaml.safe_load(stream)
+                            yaml_module = {k: v for k, v in yaml2.items() if v is not None}
+                            self._load_module(yaml_module, root_path, file_path)
                 except Exception as e:
                     print(e)
 
         Session().commit()
 
-    def _load_module(self, root_path, file_path: str):
+    def _load_module(self, yaml_module, root_path, file_path: str):
         # extract just the module name from the full path
         module_name = file_path.split(root_path)[-1][0:-5]
 
         if root_path != f"{self.main_menu.installPath}/modules/":
             module_name = f"external/{module_name}"
 
-        with open(file_path, 'r') as stream:
-            yaml2 = yaml.safe_load(stream)
-            # remove None values so pydantic can apply defaults
-            yaml3 = {k: v for k, v in yaml2.items() if v is not None}
-            my_model = PydanticModule(**yaml3)
+        if file_path.lower().endswith('.covenant.yaml'):
+            my_model = PydanticModule(**_convert_covenant_to_empire(yaml_module, file_path))
+            module_name = f"{module_name[:-9]}/{my_model.name}"
+        else:
+            my_model = PydanticModule(**yaml_module)
 
-            if my_model.advanced.custom_generate:
-                if not path.exists(file_path[:-4] + "py"):
-                    raise Exception("No File to use for custom generate.")
-                spec = importlib.util.spec_from_file_location(module_name + ".py", file_path[:-5] + ".py")
-                imp_mod = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(imp_mod)
-                my_model.advanced.generate_class = imp_mod.Module()
-            elif my_model.script_path:
-                if not path.exists(my_model.script_path):
-                    raise Exception("File provided in script_path does not exist.")
-            elif my_model.script:
-                pass
-            else:
-                raise Exception("Must provide a valid script, script_path, or custom generate function")
+        if my_model.advanced.custom_generate:
+            if not path.exists(file_path[:-4] + "py"):
+                raise Exception("No File to use for custom generate.")
+            spec = importlib.util.spec_from_file_location(module_name + ".py", file_path[:-5] + ".py")
+            imp_mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(imp_mod)
+            my_model.advanced.generate_class = imp_mod.Module()
+        elif my_model.script_path:
+            if not path.exists(my_model.script_path):
+                raise Exception("File provided in script_path does not exist.")
+        elif my_model.script:
+            pass
+        else:
+            raise Exception("Must provide a valid script, script_path, or custom generate function")
 
-            mod = Session().query(models.Module).filter(models.Module.name == module_name).first()
+        mod = Session().query(models.Module).filter(models.Module.name == module_name).first()
 
-            if not mod:
-                mod = models.Module(name=module_name, enabled=True)
-                Session().add(mod)
+        if not mod:
+            mod = models.Module(name=module_name, enabled=True)
+            Session().add(mod)
 
-            self.modules[module_name] = my_model
-            self.modules[module_name].enabled = mod.enabled
+        self.modules[module_name] = my_model
+        self.modules[module_name].enabled = mod.enabled

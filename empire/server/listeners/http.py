@@ -557,7 +557,18 @@ class Listener(object):
                     return launcher
                 else:
                     return launcherBase
-            
+                #very basic csharp implementation
+            if language.startswith("csh"):
+                stager_yaml = open(self.mainMenu.installPath + "/stagers/Sharpire.yaml", "rb").read()
+                stager_yaml = stager_yaml.decode("UTF-8")
+                stager_yaml = stager_yaml \
+                    .replace("{{ REPLACE_ADDRESS }}", host) \
+                    .replace("{{ REPLACE_SESSIONKEY }}", stagingKey)
+
+                compiler = self.mainMenu.loadedPlugins["csharpserver"]
+                compiler.do_send_stager(stager_yaml, "Sharpire")
+                return "success"
+
             else:
                 print(helpers.color(
                     "[!] listeners/http generate_launcher(): invalid language specification: only 'powershell' and 'python' are currently supported for this module."))
@@ -773,9 +784,13 @@ class Listener(object):
                 code = code.replace('workingHours = ""', 'workingHours = "%s"' % (killDate))
             
             return code
+        elif language == "csharp":
+            #currently the agent is stagless so do nothing
+            code = ""
+            return code
         else:
             print(helpers.color(
-                "[!] listeners/http generate_agent(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
+                "[!] listeners/http generate_agent(): invalid language specification, only 'powershell', 'python', & 'csharp' are currently supported for this module."))
     
     def generate_comms(self, listenerOptions, language=None):
         """

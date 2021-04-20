@@ -25,3 +25,8 @@ addons/
 __pycache__/
 workspace.xml
 empire/client/generated-stagers
+**/bin/Debug/
+**/obj/Debug/
+**/Covenant/obj/
+**/Sharpire/bin/
+**/Sharpire/obj/

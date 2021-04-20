@@ -7,6 +7,7 @@ from pydantic import BaseModel, validator
 class LanguageEnum(str, Enum):
     python = 'python'
     powershell = 'powershell'
+    csharp = 'csharp'
 
 
 class PydanticModuleAdvanced(BaseModel):
@@ -37,7 +38,7 @@ class PydanticModule(BaseModel):
     needs_admin: bool = False
     opsec_safe: bool = False
     language: LanguageEnum
-    min_language_version: str
+    min_language_version: Optional[str]
     comments: List[str] = []
     options: List[PydanticModuleOption] = []
     script: Optional[str] = None
@@ -45,3 +46,4 @@ class PydanticModule(BaseModel):
     script_end: str = ' {{ PARAMS }}'
     enabled: bool = True
     advanced: PydanticModuleAdvanced = PydanticModuleAdvanced()
+    compiler_yaml: Optional[str]

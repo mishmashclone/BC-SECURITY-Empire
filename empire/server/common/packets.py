@@ -96,6 +96,7 @@ PACKET_NAMES = {
     "TASK_DOWNLOAD": 41,
     "TASK_UPLOAD": 42,
     "TASK_DIR_LIST": 43,
+    "TASK_CSHARP": 44,
 
     "TASK_GETJOBS": 50,
     "TASK_STOPJOB": 51,
@@ -122,7 +123,8 @@ for name, ID in list(PACKET_NAMES.items()): PACKET_IDS[ID] = name
 LANGUAGE = {
     'NONE': 0,
     'POWERSHELL': 1,
-    'PYTHON': 2
+    'PYTHON': 2,
+    'CSHARP': 3,
 }
 LANGUAGE_IDS = {}
 for name, ID in list(LANGUAGE.items()): LANGUAGE_IDS[ID] = name
@@ -202,7 +204,17 @@ def parse_result_packet(packet, offset=0):
         else:
             data = None
         remainingData = packet[12 + offset + length:]
+
+        # todo: agent returns resultpacket in big endian instead of little for type 44 with outpipe in powershell.
+        # This should be fixed and removed at some point.
+        if responseID == 10240:
+            responseID = int.from_bytes(packet[0 + offset:2 + offset], byteorder='big')
+            totalPacket = int.from_bytes(packet[2 + offset:4 + offset], byteorder='big')
+            packetNum = int.from_bytes(packet[4 + offset:6 + offset], byteorder='big')
+            taskID = int.from_bytes(packet[6 + offset:8 + offset], byteorder='big')
+            length = int.from_bytes(packet[8 + offset:12 + offset], byteorder='big')
         return (PACKET_IDS[responseID], totalPacket, packetNum, taskID, length, data, remainingData)
+
     except Exception as e:
         message = "[!] parse_result_packet(): exception: {}".format(e)
         signal = json.dumps({

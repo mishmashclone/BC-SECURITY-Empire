@@ -1,12 +1,12 @@
 import base64
-import string
+import os
 import textwrap
 
 from prompt_toolkit.completion import Completion
 
-from empire.client.src.utils import print_util
 from empire.client.src.EmpireCliState import state
 from empire.client.src.menus.UseMenu import UseMenu
+from empire.client.src.utils import print_util
 from empire.client.src.utils.autocomplete_util import filtered_search_list, position_util
 from empire.client.src.utils.cli_util import register_cli_commands, command
 
@@ -74,9 +74,9 @@ class UseStagerMenu(UseMenu):
             file = open(f'empire/client/generated-stagers/{file_name}', 'wb')
             file.write(output_bytes)
             file.close()
-            print(print_util.color(f'[*] {file_name} written to generated_stagers directory'))
+            print(print_util.color(f'[*] {file_name} written to {os.path.abspath(file.name)}'))
         else:
-            print(response[self.selected]['Output'])
+            print(print_util.color(response[self.selected]['Output']))
 
     @command
     def generate(self):

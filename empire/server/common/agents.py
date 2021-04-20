@@ -987,7 +987,7 @@ class Agents(object):
                 dispatcher.send(signal, sender="agents/{}".format(sessionID))
                 return 'ERROR: HMAC verification failed'
 
-            if language.lower() == 'powershell':
+            if language.lower() == 'powershell' or language.lower() == "csharp":
                 # strip non-printable characters
                 message = ''.join([x for x in message.decode('UTF-8') if x in string.printable])
 
@@ -1564,6 +1564,11 @@ class Agents(object):
             Session().commit()
 
         elif response_name == "TASK_SHELL":
+            # shell command response
+            # update the agent log
+            self.save_agent_log(session_id, data)
+
+        elif response_name == "TASK_CSHARP":
             # shell command response
             # update the agent log
             self.save_agent_log(session_id, data)

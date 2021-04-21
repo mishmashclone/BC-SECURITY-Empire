@@ -1,14 +1,15 @@
 [tool.poetry]
 name = "empire-bc-security-fork"
-version = "4.0.0"
+version = "4.0.0-alpha.1"
 description = ""
 authors = ["BC Security <info@bc-security.org>"]
 readme = "README.md"
 homepage = "https://github.com/BC-SECURITY/Empire"
 repository = "https://github.com/BC-SECURITY/Empire.git"
 packages = [
-    { include = "empire" },
+    { include = "empire.py" },
     { include = "empire/server/**/*.py" },
+    { include = "empire/client/**/*.py" },
 ]
 
 [tool.poetry.dependencies]
@@ -26,7 +27,6 @@ pyinstaller = "*"
 zlib_wrapper = "*"
 netifaces = "*"
 jinja2 = "*"
-cryptography = "==3.1.1"
 pyminifier = "*"
 xlutils = "*"
 pefile = "*"
@@ -35,7 +35,6 @@ pyparsing = "*"
 PyMySQL = "^0.10.1"
 SQLAlchemy = "^1.3.20"
 PyYAML = "^5.3.1"
-cffi = "1.14.4"
 Flask-SocketIO = "^4.3.2"
 SQLAlchemy-Utc = "^0.11.0"
 prompt-toolkit = "^3.0.9"
@@ -45,6 +44,7 @@ python-socketio = {extras = ["client"], version = "^4.6.0"}
 humanize = "^3.2.0"
 pydantic = "^1.8.1"
 pycryptodome = "^3.10.1"
+cryptography = "^3.4.7"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

@@ -15,9 +15,9 @@ empire/server/downloads/*
 .idea/*
 *.txt
 LastTask*
-*setup/xar*
-*setup/bomutils/
-setup/packages-microsoft-prod.deb*
+xar**
+bomutils**
+packages-microsoft-prod.deb*
 .venv
 .DS_Store
 venv/

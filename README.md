@@ -12,28 +12,120 @@
 
 Keep up-to-date on our blog at [https://www.bc-security.org/blog][1]
 
-[Starkiller](https://github.com/BC-SECURITY/Starkiller) | [Empire CLI](https://github.com/BC-SECURITY/Empire-Cli)
-
 # Empire
-Empire 3 is a post-exploitation framework that includes a pure-PowerShell Windows agent, and compatibility with Python 3.x Linux/OS X agents. It is the merger of the previous PowerShell Empire and Python EmPyre projects. The framework offers cryptologically-secure communications and flexible architecture.
+Empire 4 is a post-exploitation framework that includes a pure-PowerShell Windows agents, Python 3.x Linux/OS X agents, 
+and C# agents. It is the merger of the previous PowerShell Empire and Python EmPyre projects. The framework offers 
+cryptologically-secure communications and flexible architecture.
 
-On the PowerShell side, Empire implements the ability to run PowerShell agents without needing powershell.exe, rapidly deployable post-exploitation modules ranging from key loggers to Mimikatz, and adaptable communications to evade network detection, all wrapped up in a usability-focused framework. PowerShell Empire premiered at [BSidesLV in 2015](https://www.youtube.com/watch?v=Pq9t59w0mUI) and Python EmPyre premiered at HackMiami 2016. BC Security presented updates to further evade Microsoft Antimalware Scan Interface (AMSI) and JA3/S signatures at [DEF CON 27](https://github.com/BC-SECURITY/DEFCON27).
+On the PowerShell side, Empire implements the ability to run PowerShell agents without needing powershell.exe, rapidly 
+deployable post-exploitation modules ranging from key loggers to Mimikatz, and adaptable communications to evade 
+network detection, all wrapped up in a usability-focused framework. PowerShell Empire premiered at 
+[BSidesLV in 2015](https://www.youtube.com/watch?v=Pq9t59w0mUI) and Python EmPyre premiered at HackMiami 2016. 
+BC Security presented updates to further evade Microsoft Antimalware Scan Interface (AMSI) and JA3/S signatures at 
+[DEF CON 27](https://github.com/BC-SECURITY/DEFCON27).
 
-Empire relies heavily on the work from several other projects for its underlying functionality. We have tried to call out a few of those people we've interacted with [heavily here](http://www.powershellempire.com/?page_id=2) and have included author/reference link information in the source of each Empire module as appropriate. If we have failed to properly cite existing or prior work, please let us know at Empire@BC-Security.org.
+Empire relies heavily on the work from several other projects for its underlying functionality. We have tried to call 
+out a few of those people we've interacted with [heavily here](http://www.powershellempire.com/?page_id=2) and have 
+included author/reference link information in the source of each Empire module as appropriate. If we have failed to 
+properly cite existing or prior work, please let us know at Empire@BC-Security.org.
 
-Empire is currently being developed and maintained by [@Cx01N](https://twitter.com/Cx01N_), [@Hubbl3](https://twitter.com/_Hubbl3), & [@Vinnybod](https://twitter.com/AZHalcyon). While the main Empire project is no longer maintained, this fork is maintained by [@bcsecurity1](https://twitter.com/BCSecurity1). 
-Please reach out to us on our [Discord](https://discord.gg/P8PZPyf) if you have any questions or talk about offensive security.
+Empire is currently being developed and maintained by [@Cx01N](https://twitter.com/Cx01N_), 
+[@Hubbl3](https://twitter.com/_Hubbl3), & [@Vinnybod](https://twitter.com/_vinnybod). While the main Empire project is 
+no longer maintained, this fork is maintained by [@bcsecurity1](https://twitter.com/BCSecurity1). Please reach out to 
+us on our [Discord](https://discord.gg/P8PZPyf) if you have any questions or want talk about offensive security.
 
-Thank you to the original team of developers: [@harmj0y](https://twitter.com/harmj0y), [@sixdub](https://twitter.com/sixdub), [@enigma0x3](https://twitter.com/enigma0x3), [@rvrsh3ll](https://twitter.com/424f424f), [@killswitch_gui](https://twitter.com/killswitch_gui), & [@xorrior](https://twitter.com/xorrior)
+Thank you to the original team of developers: [@harmj0y](https://twitter.com/harmj0y), 
+[@sixdub](https://twitter.com/sixdub), [@enigma0x3](https://twitter.com/enigma0x3), 
+[@rvrsh3ll](https://twitter.com/424f424f), [@killswitch_gui](https://twitter.com/killswitch_gui), & 
+[@xorrior](https://twitter.com/xorrior)
 
 ## Sponsors
 [<img src="https://user-images.githubusercontent.com/20302208/104083160-41552780-51f1-11eb-8428-3b8cfaf76861.png" width="300"/>](https://www.kali.org/)
 [<img src="https://user-images.githubusercontent.com/20302208/113086242-219d2200-9196-11eb-8c91-84f19c646873.png" width="100"/>](https://kovert.no/)
 
 ## Release Notes
-As of Empire 3.1, we will no longer be actively supporting the Python 2.7 base code. If you wish to continue to leverage Python 2.7 then please use the [3.0.x Releases](https://github.com/BC-SECURITY/Empire/releases), since they were built to ensure backward compatibility.
-
 Please see our [Releases](https://github.com/BC-SECURITY/Empire/releases) or [Changelog](/changelog) page for detailed release notes.
+
+## Empire 4.0 Alpha Documentation
+**Note**: Some things are subject to change before the GA release, and this documentation will (hopefully ;) ) be built 
+out to the wiki before then.
+
+Empire 4 made some changes to the crypto libraries. Run these commands to refresh your virtual environment,  
+if you already have one.
+```sh
+poetry run python -m pip uninstall PyCrypto
+poetry run python -m pip uninstall pycryptodome
+poetry install
+```
+
+You will want to run the install script to get the latest OS dependencies. It has been tested and runs properly on
+Ubuntu 20.04, Debian 10, and Kali Rolling release. When prompted for dotnet, type `y` to get the required dependencies for 
+C# agents.
+```sh
+cd setup
+./install.sh
+```
+
+###  Quickstart
+Empire 4 introduces a new run command for the server and client. The API and SocketIO servers run by default and are 
+no longer needed to be provided as parameters.
+```sh
+# Old
+poetry run python empire --server --rest --notifications
+
+# New
+poetry run python empire.py server
+
+# Or a shortcut
+./ps-empire server
+
+# Help menus
+./ps-empire server -h
+```
+
+The old embedded client has been removed. To run the new command line client.
+```sh
+poetry run python empire.py client
+
+# Or a shortcut
+./ps-empire client
+
+# Help menus
+./ps-empire client -h
+```
+
+Check out the [Empire wiki](https://github.com/BC-SECURITY/Empire/wiki/Quickstart) for more instructions on getting started with Empire.
+
+### C# agents
+Empire 4 combines the power of Covenant and Sharpire to give us C# agents.
+
+Currently, the C# functionality is contained in a plugin. The plugin **MUST** be running
+to generate the stager and execute C# tasks.
+To start the server:
+```
+# from the client
+useplugin csharpserver
+set status start
+execute
+```
+
+To get a stager for a C# agent
+```
+usestager windows/csharp_exe
+set Listener <listener_name>
+generate
+```
+
+Drop the stager on your windows box and execute it. You should see a callback just like
+any other Empire stager. Covenant modules have also been loaded into Empire. They can be 
+executed both against the C# agent and the PowerShell agent. You can find them prefixed 
+with `csharp/`.
+
+![](https://user-images.githubusercontent.com/9831420/115481326-3d2da280-a201-11eb-90d3-e00595d76c0a.png)
+
+For a complete list of the 4.0 changes, see the [changelog](./changelog).
+
+Join us in [our Discord](https://discord.gg/P8PZPyf) to with any comments, questions, concerns, or problems!
 
 ## Install
 We recommend the use of [Kali](https://www.kali.org/downloads/), [Poetry](https://python-poetry.org/docs/), or our [Docker images](https://hub.docker.com/r/bcsecurity/empire) to run Empire.
@@ -67,7 +159,6 @@ sudo ./setup/install.sh
 sudo poetry install
 ```
 
-
 ### Docker
 If you want to run Empire using a pre-built docker container:
 **Note**: For size savings on the image, it is not pre-built with the
@@ -93,37 +184,15 @@ All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
 * The last commit from the dev branch will be deployed to the `dev` tag
 * All github tagged releases will be deployed using their version numbers (v3.0.0, v3.1.0, etc)
 
-## Quickstart
-### Teamserver
-To launch Empire as a server:
-#### Kali
-```sh
-sudo powershell-empire server
-```
-
-#### Github
-```sh
-sudo poetry run python empire.py server
-```
-
-### Client
-To launch Empire as a CLI client:
-#### Kali
-```sh
-sudo powershell-empire client
-```
-
-#### Github
-```sh
-sudo poetry run python empire.py client
-```
-
-Check out the [Empire wiki](https://github.com/BC-SECURITY/Empire/wiki/Quickstart) for more instructions on getting started with Empire.
-
 ## Plugins
 Plugins are an extension of Empire that allow for custom scripts to be loaded. This allows anyone to easily build or add
 community projects to extend Empire functionality. Plugins can be accessed from the Empire CLI or the API as long as the 
 plugin follows the [template example](empire/teamserver/plugins/example.py). A list of Empire Plugins is located [here](empire/teamserver/plugins/PLUGINS.md).
+
+## Starkiller
+<div align="center"><img width="125" src="https://github.com/BC-SECURITY/Starkiller/blob/master/src/assets/icon.png"></div>
+
+[Starkiller](https://github.com/BC-SECURITY/Starkiller) is a GUI for PowerShell Empire that interfaces remotely with Empire via its API. Starkiller can be ran as a replacement for the Empire client or in a mixed environment with Starkiller and Empire clients.
 
 ## Contribution Rules
 Contributions are more than welcome! The more people who contribute to the project the better Empire will be for everyone. Below are a few guidelines for submitting contributions.

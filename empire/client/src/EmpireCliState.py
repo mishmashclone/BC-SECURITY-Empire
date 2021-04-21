@@ -134,7 +134,8 @@ class EmpireCliState(object):
                     print(print_util.color('[*] Task ' + str(data['taskID']) + " results received"))
                     print(print_util.color(data['results']))
         else:
-            self.cached_agent_results[session_id][data['taskID']] = data['results']
+            if 'Job started:' not in data['results']:
+                self.cached_agent_results[session_id][data['taskID']] = data['results']
 
     def add_plugin_cache(self, data) -> None:
         """

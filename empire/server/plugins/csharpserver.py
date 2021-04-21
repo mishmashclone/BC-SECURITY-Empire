@@ -111,7 +111,9 @@ class Plugin(Plugin):
                               self.installPath + "/csharp/Covenant/bin/Debug/netcoreapp3.1/EmpireCompiler.dll"]
                 self.csharpserver_proc = subprocess.Popen(csharp_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                print(helpers.color("[!] Empire C# server is already started"))
+                self.main_menu.plugin_socketio_message(self.info[0]['Name'],
+                                                       f'plugin/{self.info[0]["Name"]}/notifications',
+                                                       "[!] Empire C# server is already started")
 
             thread = helpers.KThread(target=self.thread_csharp_responses, args=())
             thread.daemon = True

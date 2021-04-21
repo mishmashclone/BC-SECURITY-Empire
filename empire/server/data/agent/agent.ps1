@@ -999,9 +999,7 @@ function Invoke-Empire {
 '@).AddParameters($dict).BeginInvoke();
                     $pipeOutput = [Text.StringBuilder]::new()
                     $buffer = [char[]]::new($pipeServerStream.InBufferSize)
-                    Write-Host("starting -read")
                     while ($read = $streamReader.Read($buffer, 0, $buffer.Length)) {
-                        Write-Host("reading")
                         [void]$pipeOutput.Append($buffer, 0, $read)
                     }
                     $ps.EndInvoke($task);

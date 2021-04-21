@@ -97,19 +97,8 @@ poetry run python empire.py client
 Check out the [Empire wiki](https://github.com/BC-SECURITY/Empire/wiki/Quickstart) for more instructions on getting started with Empire.
 
 ### C# agents
-Empire 4 combines the power of Covenant and Sharpire to give us C# agents. In order to be able to run the C# plugin and covenant compiler you need to have the dotnet 3.1 SDK installed on your computer. The recommended install instructions are below are taken from the [Microsoft Documentation](https://docs.microsoft.com/en-us/dotnet/core/install/linux-debian) for installing on Debian 
-```
-# Add the Microsoft repos
-wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb
-```
-```
-# Install the 3.1 SDK
-sudo apt-get update; \
-  sudo apt-get install -y apt-transport-https && \
-  sudo apt-get update && \
-  sudo apt-get install -y dotnet-sdk-5.0
-```
+Empire 4 combines the power of Covenant and Sharpire to give us C# agents. In order to be able to run the C# plugin and covenant compiler you need to have the dotnet 3.1 SDK installed on your computer. You can follow the [Microsoft Documentation](https://docs.microsoft.com/en-us/dotnet/core/install/linux-debian#supported-distributions) or run the install script mentioned above. When prompted for dotnet, type `y`.
+
 Currently, the C# functionality is contained in a plugin. The plugin **MUST** be running
 to generate the stager and execute C# tasks.
 To start the server:

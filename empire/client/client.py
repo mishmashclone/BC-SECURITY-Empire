@@ -153,14 +153,9 @@ class EmpireCli(object):
         session = PromptSession(
             key_bindings=bindings,
             history=history,
-            # auto_suggest=AutoSuggestFromHistory(),
-            # enable_history_search=True,
             completer=self.completer,
             complete_in_thread=True,
-            # complete_while_typing=True,
             bottom_toolbar=self.bottom_toolbar,
-            # swap_light_and_dark_colors=True,
-            # mouse_support=True
         )
         t = threading.Thread(target=self.update_in_bg, args=[session])
         t.daemon = True
@@ -295,6 +290,13 @@ class EmpireCli(object):
 
             if func:
                 try:
+                    # If the command is set, wrap the value in quotes so docopt
+                    # doesn't interpret it as a parameter. Also concatenate all the words
+                    # after the 3rd word for easier autofilling with suggested values that have spaces
+                    # There may be a better way to do this.
+                    if cmd_line[0] == 'set':
+                        cmd_line[2] = f'"{" ".join(cmd_line[2:])}"'
+                        del cmd_line[3:]
                     args = self.strip(docopt(
                         func.__doc__,
                         argv=cmd_line[1:]

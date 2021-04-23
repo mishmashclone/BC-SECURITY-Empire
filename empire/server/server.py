@@ -302,12 +302,11 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                     stager_name)}), 404)
 
         stagers = []
-        for stager_name, stager in main.stagers.stagers.items():
-            if stager_name == stager_name:
-                info = copy.deepcopy(stager.info)
-                info['options'] = stager.options
-                info['Name'] = stager_name
-                stagers.append(info)
+        stager = main.stagers.stagers[stager_name]
+        info = copy.deepcopy(stager.info)
+        info['options'] = stager.options
+        info['Name'] = stager_name
+        stagers.append(info)
 
         return jsonify({'stagers': stagers})
 

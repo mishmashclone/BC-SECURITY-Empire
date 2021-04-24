@@ -62,7 +62,8 @@ class UseMenu(Menu):
         # The value is always sent with additional wrapping quotes due to parsing crap,
         # So we strip the first set of quotes (because there may be another set of quotes that are
         # meant to be sent to the api).
-        value = value[1:-1]
+        if value.startswith("\"") and value.endswith("\""):
+            value = value[1:-1]
         if key in self.record_options:
             self.record_options[key]['Value'] = value
             print(print_util.color('[*] Set %s to %s' % (key, value)))

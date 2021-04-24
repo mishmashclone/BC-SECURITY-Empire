@@ -58,14 +58,18 @@ class Stager(object):
 				'Value'         :   '/tmp/empire'
 			},
 			'SafeChecks' : {
-				'Description'   :   'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-				'Required'      :   True,
-				'Value'         :   'True'
+				'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
+				'Required'       :  True,
+				'Value'          :  'True',
+				'SuggestedValues':  ['True', 'False'],
+				'Strict'         :  True
 			},
 			'Base64' : {
-				'Description'   :   'Switch. Base64 encode the output. Defaults to False.',
-				'Required'      :   True,
-				'Value'         :   'False'
+				'Description'    :  'Switch. Base64 encode the output. Defaults to False.',
+				'Required'       :  True,
+				'Value'          :  'False',
+				'SuggestedValues':  ['True', 'False'],
+				'Strict'         :  True
 			},            
 			'UserAgent' : {
 				'Description'   :   'User-agent string to use for the staging request (default, none, or other).',

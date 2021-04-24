@@ -38,14 +38,18 @@ class Stager(object):
                 'Value'         :   'x86'
             },
             'SafeChecks' : {
-                'Description'   :   'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required'      :   True,
-                'Value'         :   'True'
+                'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
+                'Required'       :  True,
+                'Value'          :  'True',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'Hijacker' : {
-                'Description'   :   'Generate dylib to be used in a Dylib Hijack. This provides a dylib with the LC_REEXPORT_DYLIB load command. The path will serve as a placeholder.',
-                'Required'      :   True,
-                'Value'         :   'False'
+                'Description'    :  'Generate dylib to be used in a Dylib Hijack. This provides a dylib with the LC_REEXPORT_DYLIB load command. The path will serve as a placeholder.',
+                'Required'       :  True,
+                'Value'          :  'False',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },          
             'OutFile' : {
                 'Description'   :   'File to write the dylib.',

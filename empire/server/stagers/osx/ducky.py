@@ -33,9 +33,11 @@ class Stager(object):
                 'Value'         :   'python'
             },
             'SafeChecks' : {
-                'Description'   :   'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required'      :   True,
-                'Value'         :   'True'
+                'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
+                'Required'       :  True,
+                'Value'          :  'True',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'OutFile' : {
                 'Description'   :   'File to output duckyscript to, otherwise displayed on the screen.',

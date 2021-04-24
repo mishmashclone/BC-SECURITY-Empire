@@ -12,6 +12,13 @@ def load_plugin(mainMenu, pluginName):
     fullPluginName = "empire.server.plugins." + pluginName
     module = importlib.import_module(fullPluginName)
     pluginObj = module.Plugin(mainMenu)
+
+    for key, value in pluginObj.options.items():
+        if value.get('SuggestedValues') is None:
+            value['SuggestedValues'] = []
+        if value.get('Strict') is None:
+            value['Strict'] = False
+
     mainMenu.loadedPlugins[pluginName] = pluginObj
 
 class Plugin(object):

@@ -28,9 +28,11 @@ class Stager(object):
                 'Value'         :   ''
             },
             'Language' : {
-                'Description'   :   'Language of the stager to generate.',
-                'Required'      :   True,
-                'Value'         :   'powershell'
+                'Description'    :  'Language of the stager to generate.',
+                'Required'       :  True,
+                'Value'          :  'powershell',
+                'SuggestedValues':  ['powershell'],
+                'Strict'         :  False
             },
             'StagerRetries' : {
                 'Description'   :   'Times for the stager to retry connecting.',
@@ -43,9 +45,11 @@ class Stager(object):
                 'Value'         :   ''
             },
             'Base64' : {
-                'Description'   :   'Switch. Base64 encode the output.',
-                'Required'      :   True,
-                'Value'         :   'True'
+                'Description'    :  'Switch. Base64 encode the output.',
+                'Required'       :  True,
+                'Value'          :  'True',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'Obfuscate' : {
                 'Description'   :   'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',

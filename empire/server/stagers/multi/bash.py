@@ -39,9 +39,11 @@ class Stager(object):
                 'Value'         :   ''
             },
             'SafeChecks' : {
-                'Description'   :   'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required'      :   True,
-                'Value'         :   'True'
+                'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
+                'Required'       :  True,
+                'Value'          :  'True',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'UserAgent' : {
                 'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
@@ -49,19 +51,25 @@ class Stager(object):
                 'Value'         :   'default'
             },
             'ScriptLogBypass' : {
-                'Description'   :   'Include cobbr\'s Script Block Log Bypass in the stager code.',
-                'Required'      :   False,
-                'Value'         :   'True'
+                'Description'    :  'Include cobbr\'s Script Block Log Bypass in the stager code.',
+                'Required'       :  False,
+                'Value'          :  'True',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'AMSIBypass' : {
-                'Description'   :   'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required'      :   False,
-                'Value'         :   'True'
+                'Description'    :  'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required'       :  False,
+                'Value'          :  'True',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'AMSIBypass2' : {
-                'Description'   :   'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required'      :   False,
-                'Value'         :   'False'
+                'Description'    :  'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required'       :  False,
+                'Value'          :  'False',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             }
         }
 

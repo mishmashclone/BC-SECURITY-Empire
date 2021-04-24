@@ -77,7 +77,15 @@ class Stagers(object):
                 spec = importlib.util.spec_from_file_location(stagerName, filePath)
                 mod = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(mod)
-                self.stagers[stagerName] = mod.Stager(self.mainMenu, [])
+
+                stager = mod.Stager(self.mainMenu, [])
+                for key, value in stager.options.items():
+                    if value.get('SuggestedValues') is None:
+                        value['SuggestedValues'] = []
+                    if value.get('Strict') is None:
+                        value['Strict'] = False
+
+                self.stagers[stagerName] = stager
 
 
     def set_stager_option(self, option, value):

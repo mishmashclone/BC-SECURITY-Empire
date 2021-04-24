@@ -345,6 +345,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         for option, values in stager.options.items():
             if values['Required'] and ((not values['Value']) or (values['Value'] == '')):
                 return make_response(jsonify({'error': 'required stager options missing'}), 400)
+            if values['Strict'] and values['Value'] not in values['SuggestedValues']:
+                return make_response(jsonify({'error': f'{option} must be set to one of the suggested values.'}))
 
         stager_out = copy.deepcopy(stager.options)
 
@@ -1706,11 +1708,13 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         for option, values in use_plugin.options.items():
             if values['Required'] and ((not values['Value']) or (values['Value'] == '')):
                 return make_response(jsonify({'error': 'required module option missing'}), 400)
+            if values['Strict'] and values['Value'] not in values['SuggestedValues']:
+                return make_response(jsonify({'error': f'{option} must be set to one of suggested values.'}), 400)
 
         results = use_plugin.execute(request.json)
-        if results == False:
+        if results is False:
             return make_response(jsonify({'error': 'internal plugin error'}), 400)
-        return jsonify(results)
+        return jsonify({} if results is None else results)
 
     def shutdown_server():
         """

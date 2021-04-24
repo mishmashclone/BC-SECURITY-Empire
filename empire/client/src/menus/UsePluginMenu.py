@@ -60,14 +60,13 @@ class UsePluginMenu(UseMenu):
 
         Usage: execute
         """
-        # todo validation and error handling
-        # Hopefully this will force us to provide more info in api errors ;)
         post_body = {}
         for key, value in self.record_options.items():
             post_body[key] = self.record_options[key]['Value']
 
         response = state.execute_plugin(self.selected, post_body)
-        # print(response)
+        if 'error' in response:
+            print(print_util.color(response['error']))
 
     @command
     def generate(self):

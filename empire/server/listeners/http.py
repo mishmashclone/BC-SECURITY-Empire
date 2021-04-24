@@ -61,12 +61,15 @@ class Listener(object):
             'BindIP': {
                 'Description': 'The IP to bind to on the control server.',
                 'Required': True,
-                'Value': '0.0.0.0'
+                'Value': '0.0.0.0',
+                'SuggestedValues': ['0.0.0.0'],
+                'Strict': False
             },
             'Port': {
                 'Description': 'Port for the listener.',
                 'Required': True,
-                'Value': ''
+                'Value': '',
+                'SuggestedValues': ['1335', '1336']
             },
             'Launcher': {
                 'Description': 'Launcher string.',
@@ -296,6 +299,7 @@ class Listener(object):
             if self.options[key]['Required'] and (str(self.options[key]['Value']).strip() == ''):
                 print(helpers.color("[!] Option \"%s\" is required." % (key)))
                 return False
+
         # If we've selected an HTTPS listener without specifying CertPath, let us know.
         if self.options['Host']['Value'].startswith('https') and self.options['CertPath']['Value'] == '':
             print(helpers.color("[!] HTTPS selected but no CertPath specified."))

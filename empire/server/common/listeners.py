@@ -69,7 +69,15 @@ class Listeners(object):
                 spec = importlib.util.spec_from_file_location(listenerName, filePath)
                 mod = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(mod)
-                self.loadedListeners[listenerName] = mod.Listener(self.mainMenu, [])
+                listener = mod.Listener(self.mainMenu, [])
+
+                for key, value in listener.options.items():
+                    if value.get('SuggestedValues') is None:
+                        value['SuggestedValues'] = []
+                    if value.get('Strict') is None:
+                        value['Strict'] = False
+
+                self.loadedListeners[listenerName] = listener
 
     def default_listener_options(self, listener_name):
         """
@@ -91,16 +99,8 @@ class Listeners(object):
         """
         Sets an option for the given listener module or all listener module.
         """
-
-        # for name, listener in self.listeners.items():
-        #     for listenerOption, optionValue in listener.options.items():
-        #         if listenerOption == option:
-        #             listener.options[option]['Value'] = str(value)
-
         for name, listenerObject in self.loadedListeners.items():
-
             if (listenerName.lower() == 'all' or listenerName == name) and (option in listenerObject.options):
-
                 # parse and auto-set some host parameters
                 if option == 'Host':
 
@@ -188,8 +188,10 @@ class Listeners(object):
                     return True
 
                 elif option in listenerObject.options:
-
+                    if listenerObject.options[option]['Strict'] and option not in listenerObject.options[option]['SuggestedValues']:
+                        return False
                     listenerObject.options[option]['Value'] = value
+                    return True
 
                     # if option.lower() == 'type':
                     #     if value.lower() == "hop":
@@ -197,7 +199,6 @@ class Listeners(object):
                     #         parts = self.options['DefaultProfile']['Value'].split("|")
                     #         self.options['DefaultProfile']['Value'] = "/hop.php|" + "|".join(parts[1:])
 
-                    return True
 
                 # if parts[0].lower() == 'defaultprofile' and os.path.exists(parts[1]):
                 #     try:
@@ -307,7 +308,7 @@ class Listeners(object):
                 listener_module = self.loadedListeners[module_name]
 
                 for option, value in options.items():
-                    listener_module.options[option] = value
+                    listener_module.options[option]['Value'] = value['Value']
 
                 print(helpers.color("[*] Starting listener '%s'" % listener_name))
                 if module_name == 'redirector':
@@ -354,7 +355,7 @@ class Listeners(object):
             listener_module = self.loadedListeners[module_name]
 
             for option, value in options.items():
-                listener_module.options[option] = value
+                listener_module.options[option]['Value'] = value['Value']
 
             print(helpers.color("[*] Starting listener '%s'" % listener_name))
             if module_name == 'redirector':

@@ -135,7 +135,7 @@ class Modules(object):
         for option in module.options:
             if option.name in params:
                 if option.strict and params[option.name] not in option.suggested_values:
-                    return None, f'{option.name} must be one of the suggested values.'
+                    return None, f'{option.name} must be set to one of the suggested values.'
                 if option.name_in_code:
                     options[option.name_in_code] = params[option.name]
                 else:

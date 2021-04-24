@@ -66,9 +66,11 @@ class Stager(object):
                 'Value'         :   ''
             },
             'Base64' : {
-                'Description'   :   'Switch. Base64 encode the output.',
-                'Required'      :   True,
-                'Value'         :   'True'
+                'Description'    :  'Switch. Base64 encode the output.',
+                'Required'       :  True,
+                'Value'          :  'True',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'UserAgent' : {
                 'Description'   :   'User-agent string to use for the staging request (default, none, or other).',

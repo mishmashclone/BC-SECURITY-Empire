@@ -36,7 +36,9 @@ class Plugin(Plugin):
             'status': {
                 'Description': 'Start/stop the Empire C# server.',
                 'Required': True,
-                'Value': 'start'
+                'Value': 'start',
+                'SuggestedValues': ['start', 'stop'],
+                'Strict': True
             }
         }
         self.tcp_ip = '127.0.0.1'

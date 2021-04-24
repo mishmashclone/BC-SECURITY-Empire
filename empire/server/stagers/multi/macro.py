@@ -49,9 +49,11 @@ class Stager(object):
                 'Value'         :   '/tmp/macro'
             },
             'SafeChecks' : {
-                'Description'   :   'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required'      :   True,
-                'Value'         :   'True'
+                'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
+                'Required'       :  True,
+                'Value'          :  'True',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'PixelTrackURL' : {
                 'Description'   :   'URL to add in pixel tracking which OS attempted macro opening, useful for shell debugging and confirmation.',
@@ -74,14 +76,18 @@ class Stager(object):
                 'Value'         :   'default'
             },
             'ScriptLogBypass' : {
-                'Description'   :   'Include cobbr\'s Script Block Log Bypass in the stager code.',
-                'Required'      :   False,
-                'Value'         :   'True'
+                'Description'    :  'Include cobbr\'s Script Block Log Bypass in the stager code.',
+                'Required'       :  False,
+                'Value'          :  'True',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'Obfuscate': {
                 'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
                 'Required': False,
-                'Value': 'False'
+                'Value': 'False',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             },
             'ObfuscateCommand': {
                 'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
@@ -89,19 +95,25 @@ class Stager(object):
                 'Value': r'Token\All\1'
             },
             'AMSIBypass' : {
-                'Description'   :   'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required'      :   False,
-                'Value'         :   'True'
+                'Description'    :  'Include mattifestation\'s AMSI Bypass in the stager code.',
+                'Required'       :  False,
+                'Value'          :  'True',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'AMSIBypass2' : {
-                'Description'   :   'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required'      :   False,
-                'Value'         :   'False'
+                'Description'    :  'Include Tal Liberman\'s AMSI Bypass in the stager code.',
+                'Required'       :  False,
+                'Value'          :  'False',
+                'SuggestedValues':  ['True', 'False'],
+                'Strict'         :  True
             },
             'ETWBypass': {
                 'Description': 'Include tandasat\'s ETW bypass in the stager code.',
                 'Required': False,
-                'Value': 'False'
+                'Value': 'False',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             }
         }
 

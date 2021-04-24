@@ -62,7 +62,9 @@ class Stager(object):
             'Obfuscate': {
                 'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
                 'Required': False,
-                'Value': 'False'
+                'Value': 'False',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             },
             'ObfuscateCommand': {
                 'Description': 'The Invoke-Obfuscation command to use. Only used if Obfuscate switch is True. For powershell only.',
@@ -72,17 +74,23 @@ class Stager(object):
             'AMSIBypass': {
                 'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
                 'Required': False,
-                'Value': 'True'
+                'Value': 'True',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             },
             'AMSIBypass2': {
                 'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
                 'Required': False,
-                'Value': 'False'
+                'Value': 'False',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             },
             'ETWBypass': {
                 'Description': 'Include tandasat\'s ETW bypass in the stager code.',
                 'Required': False,
-                'Value': 'False'
+                'Value': 'False',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             }
 
         }

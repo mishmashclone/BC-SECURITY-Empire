@@ -219,7 +219,7 @@ namespace Sharpire
         ////////////////////////////////////////////////////////////////////////////////
         internal static string InvokeShellCommand(string command, string arguments)
         {
-            if (arguments.Contains("*\"\\\\*")) 
+            if (arguments.Contains("*\"\\\\*"))
             {
                 arguments = arguments.Replace("\"\\\\","FileSystem::\"\\\\");
             }
@@ -228,6 +228,7 @@ namespace Sharpire
                 arguments = arguments.Replace("\\\\", "FileSystem::\\");
             }
             string output = "";
+            //This is mostly dead code consider removing in the future
             if (command.ToLower() == "shell")
             {
                 if (command.Length > 0)
@@ -302,8 +303,7 @@ namespace Sharpire
                 }
                 else
                 {
-                    RunPowerShell(arguments);
-                    output = "executed " + command + " " + arguments + "\n\r";
+                    output = RunPowerShell(command + " " + arguments);
                 }
             }
             return output;

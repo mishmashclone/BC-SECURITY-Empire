@@ -216,10 +216,10 @@ namespace Covenant.Models.Grunts
                     {
                         this.CompileDotNet40();
                     }
-                    /*else if (version == Common.DotNetVersion.NetCore31)
+                    else if (version == Common.DotNetVersion.NetCore31)
                     {
-                        this.CompileDotNetCore(template, runtimeIdentifier);
-                    }*/
+                        this.CompileDotNetCore(runtimeIdentifier);
+                    }
                 }
             }
         }

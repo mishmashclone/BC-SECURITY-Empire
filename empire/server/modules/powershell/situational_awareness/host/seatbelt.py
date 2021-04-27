@@ -4,6 +4,7 @@ from builtins import object
 from builtins import str
 from typing import Dict
 
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
 
@@ -14,7 +15,7 @@ class Module(object):
         # First method: Read in the source script from module_source
         moduleSource = main_menu.installPath + "/data/module_source/situational_awareness/host/Invoke-Seatbelt.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscation_command)
+            data_util.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscation_command)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')
@@ -50,7 +51,7 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=main_menu.installPath, obfuscationCommand=obfuscation_command)
         script += scriptEnd
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script
 

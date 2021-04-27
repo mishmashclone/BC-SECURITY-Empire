@@ -3,6 +3,7 @@ from __future__ import print_function
 from builtins import object
 from builtins import str
 
+from empire.server.utils import data_util
 from empire.server.common import helpers
 
 
@@ -130,7 +131,7 @@ class Module(object):
         # read in the common module source code
         moduleSource = self.mainMenu.installPath + "/data/module_source/exfil/Invoke-ExfilDataToGitHub.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
+            data_util.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscationCommand)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')
@@ -160,6 +161,6 @@ class Module(object):
         script += scriptEnd
 
         # Get the random function name generated at install and patch the stager with the proper function name
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script

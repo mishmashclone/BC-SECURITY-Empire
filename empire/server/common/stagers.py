@@ -34,6 +34,8 @@ from itertools import cycle
 import macholib.MachO
 from past.utils import old_div
 
+from empire.server.database import models
+from empire.server.database.base import Session
 from . import helpers
 from .ShellcodeRDI import *
 
@@ -107,18 +109,29 @@ class Stagers(object):
             return stager
 
 
-    def generate_launcher(self, listenerName, language=None, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', safeChecks='true', scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass= False):
+    def generate_launcher(self, listenerName, language=None, encode=True, obfuscate=False, obfuscationCommand="",
+                          userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0',
+                          safeChecks='true', bypasses: str = ''):
         """
         Abstracted functionality that invokes the generate_launcher() method for a given listener,
         if it exists.
         """
+        bypasses_parsed = []
+        for bypass in bypasses.split(' '):
+            b = Session().query(models.Bypass).filter(models.Bypass.name == bypass).first()
+            if b:
+                bypasses_parsed.append(b.code)
 
         if not listenerName in self.mainMenu.listeners.activeListeners:
             print(helpers.color("[!] Invalid listener: %s" % (listenerName)))
             return ''
 
         activeListener = self.mainMenu.listeners.activeListeners[listenerName]
-        launcherCode = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']].generate_launcher(encode=encode, obfuscate=obfuscate, obfuscationCommand=obfuscationCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, language=language, listenerName=listenerName, safeChecks=safeChecks, scriptLogBypass=scriptLogBypass, AMSIBypass=AMSIBypass, AMSIBypass2=AMSIBypass2, ETWBypass=ETWBypass)
+        launcherCode = self.mainMenu.listeners.loadedListeners[activeListener['moduleName']]\
+            .generate_launcher(encode=encode, obfuscate=obfuscate, obfuscationCommand=obfuscationCommand,
+                               userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries,
+                               language=language, listenerName=listenerName, safeChecks=safeChecks,
+                               bypasses=bypasses_parsed)
         if launcherCode:
             return launcherCode
 

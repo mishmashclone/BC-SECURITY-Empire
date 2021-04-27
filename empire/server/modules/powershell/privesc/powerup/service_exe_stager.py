@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -14,7 +16,7 @@ class Module(object):
         # read in the common powerup.ps1 module source code
         module_source = main_menu.installPath + "/data/module_source/privesc/PowerUp.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
             module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
             f = open(module_source, 'r')
@@ -39,8 +41,7 @@ class Module(object):
         launcher.options['ProxyCreds'] = params['ProxyCreds']
         launcher.options['ObfuscateCommand'] = params['ObfuscateCommand']
         launcher.options['Obfuscate'] = params['Obfuscate']
-        launcher.options['AMSIBypass'] = params['AMSIBypass']
-        launcher.options['AMSIBypass2'] = params['AMSIBypass2']
+        launcher.options['Bypasses'] = params['Bypasses']
         if params['Delete'].lower() == "true":
             launcher.options['Delete'] = "True"
         else:
@@ -63,6 +64,6 @@ class Module(object):
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
         script += script_end
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script

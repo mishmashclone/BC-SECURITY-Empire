@@ -5,6 +5,9 @@ import base64
 import random
 
 # Empire imports
+from typing import List
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from empire.server.common import agents
 from empire.server.common import encryption
@@ -139,7 +142,7 @@ class Listener(object):
 
 
         # set the default staging key to the controller db default
-        self.options['StagingKey']['Value'] = str(helpers.get_config('staging_key')[0])
+        self.options['StagingKey']['Value'] = str(data_util.get_config('staging_key')[0])
 
 
     def default_response(self):
@@ -164,10 +167,13 @@ class Listener(object):
         return True
 
 
-    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None):
+    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default',
+                          proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='',
+                          listenerName=None, bypasses: List[str]=None):
         """
         Generate a basic launcher for the specified listener.
         """
+        bypasses = [] if bypasses is None else bypasses
 
         if not language:
             print(helpers.color('[!] listeners/template generate_launcher(): no language specified!'))

@@ -5,6 +5,8 @@ import string
 
 # Empire imports
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 
 
@@ -115,7 +117,7 @@ class Module(object):
             return ''
 
             # Get the random function name generated at install and patch the stager with the proper function name
-        agent_code = helpers.keyword_obfuscation(agent_code)
+        agent_code = data_util.keyword_obfuscation(agent_code)
 
         # TODO: python agent generation - need to patch in crypto functions from the stager...
 

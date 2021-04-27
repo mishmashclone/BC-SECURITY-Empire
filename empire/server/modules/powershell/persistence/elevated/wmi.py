@@ -4,6 +4,8 @@ import os
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -39,7 +41,7 @@ class Module(object):
             script += "Get-WmiObject CommandLineEventConsumer -Namespace root\subscription -filter \"name='" + sub_name + "'\" | Remove-WmiObject;"
             script += "Get-WmiObject __FilterToConsumerBinding -Namespace root\subscription | Where-Object { $_.filter -match '" + sub_name + "'} | Remove-WmiObject;"
             script += "'WMI persistence removed.'"
-            script = helpers.keyword_obfuscation(script)
+            script = data_util.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
             return script
@@ -133,6 +135,6 @@ class Module(object):
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script,
                                        obfuscationCommand=obfuscation_command)
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script

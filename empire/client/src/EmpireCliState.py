@@ -29,6 +29,7 @@ class EmpireCliState(object):
         self.plugins = {}
         self.me = {}
         self.profiles = {}
+        self.bypasses = {}
         self.empire_version = ''
         self.cached_plugin_results = {}
 
@@ -86,6 +87,7 @@ class EmpireCliState(object):
         self.get_active_plugins()
         self.get_user_me()
         self.get_malleable_profile()
+        self.get_bypasses()
 
     def init_handlers(self):
         if self.sio:
@@ -510,6 +512,15 @@ class EmpireCliState(object):
         self.profiles = {x['name']: x for x in json.loads(response.content)['profiles']}
 
         return self.profiles
+
+    def get_bypasses(self):
+        response = requests.get(url=f'{self.host}:{self.port}/api/bypasses',
+                                verify=False,
+                                params={'token': self.token})
+
+        self.bypasses = {x['name']: x for x in json.loads(response.content)['bypasses']}
+
+        return self.bypasses
 
     def add_malleable_profile(self, profile_name: str, profile_category: str, profile_data: str):
         response = requests.post(url=f'{self.host}:{self.port}/api/malleable-profiles',

@@ -5,6 +5,7 @@ import string
 
 import bcrypt
 
+from empire.server.common import bypasses
 from empire.server.common.config import empire_config
 from empire.server.database import models
 
@@ -40,9 +41,21 @@ def get_default_config():
 
 
 def get_default_functions():
-    return models.Function(
-        Invoke_Empire=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5)),
-        Invoke_Mimikatz=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5)))
+    return [
+        models.Function(keyword='Invoke_Empire',
+                        replacement=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))),
+        models.Function(keyword='Invoke_Mimikatz',
+                        replacement=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5)))
+    ]
+
+
+def get_default_bypasses():
+    return [
+        models.Bypass(name="mattifestation", code=bypasses.AMSIBypass()),
+        models.Bypass(name="liberman", code=bypasses.AMSIBypass2()),
+        models.Bypass(name="scriptblocklog", code=bypasses.scriptBlockLogBypass()),
+        models.Bypass(name="etw", code=bypasses.ETWBypass())
+    ]
 
 
 def get_staging_key():
@@ -57,3 +70,4 @@ def get_staging_key():
 
     print('\x1b[1;34m[*] Generating random staging key\x1b[0m')
     return ''.join(random.sample(string.ascii_letters + string.digits + punctuation, 32))
+

@@ -30,6 +30,7 @@ class UseModuleMenu(UseMenu):
         if 'selected' not in kwargs:
             return False
         else:
+            state.get_bypasses()
             self.use(kwargs['selected'])
             self.stop_threads = False
 

@@ -14,6 +14,7 @@ from typing import Dict, Optional, Tuple
 import base64
 import yaml
 
+from empire.server.utils import data_util
 from empire.server.common import obfuscation
 from empire.server.common.config import empire_config
 from empire.server.common.converter.load_covenant import _convert_covenant_to_empire
@@ -214,7 +215,7 @@ class Modules(object):
         if module.script_path:
             # Get preobfuscated module code
             if obfuscate:
-                helpers.obfuscate_module(moduleSource=module.script_path, obfuscationCommand=obfuscate_command)
+                data_util.obfuscate_module(moduleSource=module.script_path, obfuscationCommand=obfuscate_command)
                 module_source = module.script_path.replace("module_source", "obfuscated_module_source")
                 with open(module_source, 'r') as stream:
                     script = stream.read()
@@ -253,7 +254,7 @@ class Modules(object):
 
         if obfuscate:
             script = helpers.obfuscate(self.main_menu.installPath, psScript=script, obfuscationCommand=obfuscate_command)
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script
 

@@ -25,6 +25,8 @@ X/XX/2021
         - Install script prompts for xar, bomutils, openjdk, and dotnet for a more streamlined install (@Vinnybod)
         - Install script now includes dotnet (@Vinnybod)
         - Dockerfile size decreased by ~1GB by only installing the essentials. There is a note in the README (@Vinnybod)
+        - Made powershell bypasses dynamic. Now set with a single field `Bypasses` and they will be applied in the order provided (@Vinnybod)
+        - Added API endpoints for managing bypasses (@Vinnybod)
 
 3/28/2021
 ------------

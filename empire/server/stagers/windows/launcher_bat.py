@@ -77,19 +77,10 @@ class Stager(object):
                 'Required': False,
                 'Value': 'default'
             },
-            'AMSIBypass': {
-                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+            'Bypasses': {
+                'Description': 'Bypasses as a space separated list to be prepended to the launcher',
                 'Required': False,
-                'Value': 'True',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
-            },
-            'AMSIBypass2': {
-                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'False',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
+                'Value': 'mattifestation etw'
             }
         }
 
@@ -115,28 +106,18 @@ class Stager(object):
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
         stagerRetries = self.options['StagerRetries']['Value']
-        AMSIBypass = self.options['AMSIBypass']['Value']
-        AMSIBypass2 = self.options['AMSIBypass2']['Value']
+        bypasses = self.options['Bypasses']['Value']
 
         obfuscateScript = False
         if obfuscate.lower() == "true":
             obfuscateScript = True
-
-        AMSIBypassBool = False
-        if AMSIBypass.lower() == "true":
-            AMSIBypassBool = True
-
-        AMSIBypass2Bool = False
-        if AMSIBypass2.lower() == "true":
-            AMSIBypass2Bool = True
 
         # generate the launcher code including escapes for % characters needed for .bat files
         launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True,
                                                            obfuscate=obfuscateScript,
                                                            obfuscationCommand=obfuscateCommand, userAgent=userAgent,
                                                            proxy=proxy, proxyCreds=proxyCreds,
-                                                           stagerRetries=stagerRetries, AMSIBypass=AMSIBypassBool,
-                                                           AMSIBypass2=AMSIBypass2Bool).replace("%", "%%")
+                                                           stagerRetries=stagerRetries, bypasses=bypasses).replace("%", "%%")
 
         if launcher == "":
             print(helpers.color("[!] Error in launcher command generation."))

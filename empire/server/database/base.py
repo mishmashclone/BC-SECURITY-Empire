@@ -6,7 +6,8 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from empire import arguments
 from empire.server.common.config import empire_config
 from empire.server.database import models
-from empire.server.database.defaults import get_default_user, get_default_config
+from empire.server.database.defaults import get_default_user, get_default_config, get_default_bypasses, \
+    get_default_functions
 from empire.server.database.models import Base
 
 database_config = empire_config.yaml.get('database', {})
@@ -82,10 +83,27 @@ if len(Session().query(models.User).all()) == 0:
     Session().commit()
     Session.remove()
 
-
-
 if len(Session().query(models.Config).all()) == 0:
     print(color('[*] Adding database config.'))
     Session().add(get_default_config())
     Session().commit()
     Session.remove()
+
+if len(Session().query(models.Bypass).all()) == 0:
+    print(color('[*] Adding default bypasses.'))
+    bypasses = get_default_bypasses()
+
+    for bypass in bypasses:
+        Session().add(bypass)
+    Session().commit()
+    Session.remove()
+
+if len(Session().query(models.Function).all()) == 0:
+    print(color('[*] Adding default keyword obfuscation functions.'))
+    functions = get_default_functions()
+
+    for function in functions:
+        Session().add(function)
+    Session().commit()
+    Session.remove()
+

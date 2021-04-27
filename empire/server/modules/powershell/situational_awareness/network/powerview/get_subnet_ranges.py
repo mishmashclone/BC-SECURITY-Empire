@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -46,7 +48,7 @@ class Module(object):
 
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script
 

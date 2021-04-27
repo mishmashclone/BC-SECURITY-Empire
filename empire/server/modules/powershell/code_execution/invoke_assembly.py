@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 import base64
 from typing import Dict
@@ -46,7 +48,7 @@ class Module(object):
         script_end = "\nInvoke-Assembly"
 
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
             module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
             f = open(module_source, 'r')
@@ -79,6 +81,6 @@ class Module(object):
             script_end = helpers.obfuscate(psScript=script_end, installPath=main_menu.installPath,
                                            obfuscationCommand=obfuscation_command)
         script += script_end
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script

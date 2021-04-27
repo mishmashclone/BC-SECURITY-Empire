@@ -55,20 +55,6 @@ class Stager(object):
                 'Required': False,
                 'Value': r'Token\All\1'
             },
-            'AMSIBypass': {
-                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'True',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
-            },
-            'AMSIBypass2': {
-                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'False',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
-            },
             'Language': {
                 'Description': 'Language of the launcher to generate.',
                 'Required': True,
@@ -124,14 +110,11 @@ class Stager(object):
                 'Required': False,
                 'Value': 'default'
             },
-            'ETWBypass': {
-                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+            'Bypasses': {
+                'Description': 'Bypasses as a space separated list to be prepended to the launcher',
                 'Required': False,
-                'Value': 'False',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
-            }
-            
+                'Value': 'mattifestation etw'
+            },
         }
         
         # save off a copy of the mainMenu object to access external functionality
@@ -160,8 +143,6 @@ class Stager(object):
     def generate(self):
         #default booleans to false
         obfuscateScript = False
-        AMSIBypassBool = False
-        AMSIBypass2Bool = False
 
         # extract all of our options
         language = self.options['Language']['Value']
@@ -174,17 +155,10 @@ class Stager(object):
         xlsOut = self.options['XlsOutFile']['Value']
         XmlPath = self.options['XmlUrl']['Value']
         XmlOut = self.options['XmlOutFile']['Value']
-        ETWBypass = self.options['ETWBypass']['Value']
+        bypasses = self.options['Bypasses']['Value']
 
-        if self.options['AMSIBypass']['Value'].lower() == "true":
-            AMSIBypassBool = True
-        if self.options['AMSIBypass2']['Value'].lower() == "true":
-            AMSIBypass2Bool = True
         if self.options['Obfuscate']['Value'].lower == "true":
             obfuscateScript = True
-        ETWBypassBool = False
-        if ETWBypass.lower() == 'true':
-            ETWBypassBool =True
 
         obfuscateCommand = self.options['ObfuscateCommand']['Value']
 
@@ -221,8 +195,7 @@ class Stager(object):
                                                                obfuscate=obfuscateScript,
                                                                obfuscationCommand=obfuscateCommand, userAgent=userAgent,
                                                                proxy=proxy, proxyCreds=proxyCreds,
-                                                               stagerRetries=stagerRetries, AMSIBypass=AMSIBypassBool,
-                                                               AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
+                                                               stagerRetries=stagerRetries, bypasses=bypasses)
 
         launcher = launcher.replace("\"", "'")
         

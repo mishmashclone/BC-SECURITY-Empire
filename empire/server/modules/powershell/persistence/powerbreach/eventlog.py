@@ -4,6 +4,8 @@ import os
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -93,7 +95,7 @@ Invoke-EventLogBackdoor"""
             print(helpers.color("[+] PowerBreach deaduser backdoor written to " + outFile))
             return ""
 
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
 
@@ -109,6 +111,6 @@ Invoke-EventLogBackdoor"""
 
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script

@@ -75,13 +75,6 @@ class Stager(object):
                 'Required'      :   False,
                 'Value'         :   'default'
             },
-            'ScriptLogBypass' : {
-                'Description'    :  'Include cobbr\'s Script Block Log Bypass in the stager code.',
-                'Required'       :  False,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
-            },
             'Obfuscate': {
                 'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
                 'Required': False,
@@ -94,26 +87,10 @@ class Stager(object):
                 'Required': False,
                 'Value': r'Token\All\1'
             },
-            'AMSIBypass' : {
-                'Description'    :  'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required'       :  False,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
-            },
-            'AMSIBypass2' : {
-                'Description'    :  'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required'       :  False,
-                'Value'          :  'False',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
-            },
-            'ETWBypass': {
-                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+            'Bypasses': {
+                'Description': 'Bypasses as a space separated list to be prepended to the launcher',
                 'Required': False,
-                'Value': 'False',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
+                'Value': 'mattifestation etw'
             }
         }
 
@@ -152,30 +129,11 @@ class Stager(object):
         stagerRetries = self.options['StagerRetries']['Value']
         safeChecks = self.options['SafeChecks']['Value']
         pixelTrackURL = self.options['PixelTrackURL']['Value']
-        scriptLogBypass = self.options['ScriptLogBypass']['Value']
-        AMSIBypass = self.options['AMSIBypass']['Value']
-        AMSIBypass2 = self.options['AMSIBypass2']['Value']
-        ETWBypass = self.options['ETWBypass']['Value']
+        bypasses = self.options['Bypasses']['Value']
 
         invokeObfuscation = False
         if obfuscate.lower() == "true":
             invokeObfuscation = True
-
-        scriptLogBypassBool = False
-        if scriptLogBypass.lower() == "true":
-            scriptLogBypassBool = True
-
-        AMSIBypassBool = False
-        if AMSIBypass.lower() == "true":
-            AMSIBypassBool = True
-
-        AMSIBypass2Bool = False
-        if AMSIBypass2.lower() == "true":
-            AMSIBypass2Bool = True
-
-        ETWBypassBool = False
-        if ETWBypass.lower() == 'true':
-            ETWBypassBool =True
 
         # generate the python launcher code
         pylauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="python", encode=True, userAgent=userAgent, safeChecks=safeChecks)
@@ -190,7 +148,11 @@ class Stager(object):
             pypayload = formStr("str", match)
 
         # generate the powershell launcher code
-        poshlauncher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, safeChecks=safeChecks, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
+        poshlauncher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True,
+                                                               obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand,
+                                                               userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds,
+                                                               stagerRetries=stagerRetries, safeChecks=safeChecks,
+                                                               bypasses=bypasses)
 
         if poshlauncher == "":
             print(helpers.color("[!] Error in powershell launcher command generation."))

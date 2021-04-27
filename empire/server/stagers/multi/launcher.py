@@ -83,33 +83,10 @@ class Stager(object):
                 'Required'      :   False,
                 'Value'         :   'default'
             },
-            'ScriptLogBypass' : {
-                'Description'    :  'Include cobbr\'s Script Block Log Bypass in the stager code.',
-                'Required'       :  False,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
-            },
-            'ETWBypass': {
-                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
+            'Bypasses': {
+                'Description': 'Bypasses as a space separated list to be prepended to the launcher',
                 'Required': False,
-                'Value': 'False',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
-            },
-            'AMSIBypass' : {
-                'Description'    :  'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required'       :  False,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
-            },
-            'AMSIBypass2' : {
-                'Description'    :  'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required'       :  False,
-                'Value'          :  'False',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
+                'Value': 'mattifestation etw'
             }
         }
 
@@ -125,7 +102,6 @@ class Stager(object):
 
 
     def generate(self):
-
         # extract all of our options
         language = self.options['Language']['Value']
         listenerName = self.options['Listener']['Value']
@@ -137,10 +113,6 @@ class Stager(object):
         proxyCreds = self.options['ProxyCreds']['Value']
         stagerRetries = self.options['StagerRetries']['Value']
         safeChecks = self.options['SafeChecks']['Value']
-        scriptLogBypass = self.options['ScriptLogBypass']['Value']
-        AMSIBypass = self.options['AMSIBypass']['Value']
-        AMSIBypass2 = self.options['AMSIBypass2']['Value']
-        ETWBypass = self.options['ETWBypass']['Value']
 
         encode = False
         if base64.lower() == "true":
@@ -150,24 +122,12 @@ class Stager(object):
         if obfuscate.lower() == "true":
             invokeObfuscation = True
 
-        scriptLogBypassBool = False
-        if scriptLogBypass.lower() == "true":
-            scriptLogBypassBool = True
-
-        AMSIBypassBool = False
-        if AMSIBypass.lower() == "true":
-            AMSIBypassBool = True
-
-        AMSIBypass2Bool = False
-        if AMSIBypass2.lower() == "true":
-            AMSIBypass2Bool = True
-
-        ETWBypassBool = False
-        if ETWBypass.lower() == 'true':
-            ETWBypassBool =True
-
         # generate the launcher code
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=encode, obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand, userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds, stagerRetries=stagerRetries, safeChecks=safeChecks, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
+        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=encode,
+                                                           obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand,
+                                                           userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds,
+                                                           stagerRetries=stagerRetries, safeChecks=safeChecks,
+                                                           bypasses=self.options['Bypasses']['Value'])
 
         if launcher == "":
             print(helpers.color("[!] Error in launcher command generation."))

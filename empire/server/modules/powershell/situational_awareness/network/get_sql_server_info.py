@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -20,7 +22,7 @@ class Module(object):
         sql_info_source = main_menu.installPath + "/data/module_source/situational_awareness/network/Get-SQLServerInfo.ps1"
         script = ""
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=sql_info_source, obfuscationCommand=obfuscation_command)
+            data_util.obfuscate_module(moduleSource=sql_info_source, obfuscationCommand=obfuscation_command)
             sql_info_source = sql_info_source.replace("module_source", "obfuscated_module_source")
         try:
             with open(sql_info_source, 'r') as source:
@@ -33,7 +35,7 @@ class Module(object):
         if check_all:
             sql_instance_source = main_menu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
             if obfuscate:
-                helpers.obfuscate_module(moduleSource=sql_info_source, obfuscationCommand=obfuscation_command)
+                data_util.obfuscate_module(moduleSource=sql_info_source, obfuscationCommand=obfuscation_command)
                 sql_instance_source = sql_info_source.replace("module_source", "obfuscated_module_source")
             try:
                 with open(sql_instance_source, 'r') as auxSource:
@@ -59,7 +61,7 @@ class Module(object):
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
         script += script_end
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script
 

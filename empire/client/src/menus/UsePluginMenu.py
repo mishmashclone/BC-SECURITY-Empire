@@ -1,3 +1,5 @@
+from typing import Dict
+
 from prompt_toolkit.completion import Completion
 
 from empire.client.src.EmpireCliState import state
@@ -65,7 +67,7 @@ class UsePluginMenu(UseMenu):
             post_body[key] = self.record_options[key]['Value']
 
         response = state.execute_plugin(self.selected, post_body)
-        if 'error' in response:
+        if isinstance(response, Dict) and 'error' in response:
             print(print_util.color(response['error']))
 
     @command

@@ -602,86 +602,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({"listeners": listeners})
 
-    @app.route('/api/malleable-profiles', methods=['GET'])
-    def get_malleable_profiles():
-        """
-        Returns JSON with all currently registered profiles.
-        """
-        active_profiles_raw = Session().query(models.Profile).all()
-
-        profiles = []
-        for active_profile in active_profiles_raw:
-            profiles.append(
-                {'name': active_profile.name, 'category': active_profile.category, 'data': active_profile.data,
-                 'file_path': active_profile.file_path})
-
-        return jsonify({"profiles": profiles})
-
-    @app.route('/api/malleable-profiles', methods=['POST'])
-    def add_malleable_profiles():
-        """
-        Add malleable profiles to database
-        """
-        if not request.json or not 'profile_name' and 'profile_category' and 'data':
-            abort(400)
-
-        profile_name = request.json['profile_name']
-        profile_category = request.json['profile_category']
-        profile_data = request.json['data']
-
-        profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
-        if not profile:
-            Session().add(models.Profile(name=profile_name,
-                                         file_path='',
-                                         category=profile_category,
-                                         data=profile_data,
-                                         ))
-            Session().commit()
-            return jsonify({"success": True})
-        else:
-            return jsonify({'error': 'Profile %s already exists' % profile_name})
-
-    @app.route('/api/malleable-profiles/<string:profile_name>', methods=['DELETE'])
-    def remove_malleable_profiles(profile_name):
-        """
-        Delete malleable profiles from database.
-        Note: If a .profile file exists on the server, the profile will repopulate in the database when Empire restarts.
-        """
-        profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
-        if profile:
-            Session().delete(profile)
-            Session().commit()
-            return jsonify({"success": True})
-        else:
-            return jsonify({'error': 'Unable to delete profile %s' % profile_name})
-
-    @app.route('/api/malleable-profiles/<string:profile_name>', methods=['PUT'])
-    def edit_malleable_profiles(profile_name):
-        """
-        Edit malleable profiles in database
-        """
-        if not request.json or 'data':
-            abort(400)
-
-        profile_data = request.json['data']
-
-        profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
-
-        if profile:
-            profile.data = profile_data
-            Session().commit()
-            return jsonify({"success": True})
-        else:
-            return jsonify({'error': 'Failed to edit malleable profile %s' % profile_name})
-
-    @app.route('/api/malleable-profiles/export', methods=['POST'])
-    def export_malleable_profiles():
-        """
-        Export malleable profiles from database to files
-        """
-        # TODO: add option to export profiles from the database to files
-        return jsonify({"success": True})
-
     @app.route('/api/listeners/<string:listener_type>/validate', methods=['POST'])
     def validate_listeners(listener_type):
         """
@@ -1478,6 +1398,153 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                  "taskID": reporting_event.taskID})
 
         return jsonify({'reporting': reporting_events})
+
+    @app.route('/api/malleable-profiles', methods=['GET'])
+    def get_malleable_profiles():
+        """
+        Returns JSON with all currently registered profiles.
+        """
+        active_profiles_raw = Session().query(models.Profile).all()
+
+        profiles = []
+        for active_profile in active_profiles_raw:
+            profiles.append(
+                {'name': active_profile.name, 'category': active_profile.category, 'data': active_profile.data,
+                 'file_path': active_profile.file_path})
+
+        return jsonify({"profiles": profiles})
+
+    @app.route('/api/malleable-profiles', methods=['POST'])
+    def add_malleable_profiles():
+        """
+        Add malleable profiles to database
+        """
+        if not request.json or not 'profile_name' and 'profile_category' and 'data':
+            abort(400)
+
+        profile_name = request.json['profile_name']
+        profile_category = request.json['profile_category']
+        profile_data = request.json['data']
+
+        profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
+        if not profile:
+            Session().add(models.Profile(name=profile_name,
+                                         file_path='',
+                                         category=profile_category,
+                                         data=profile_data,
+                                         ))
+            Session().commit()
+            return jsonify({"success": True})
+        else:
+            return jsonify({'error': 'Profile %s already exists' % profile_name})
+
+    @app.route('/api/malleable-profiles/<string:profile_name>', methods=['DELETE'])
+    def remove_malleable_profiles(profile_name):
+        """
+        Delete malleable profiles from database.
+        Note: If a .profile file exists on the server, the profile will repopulate in the database when Empire restarts.
+        """
+        profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
+        if profile:
+            Session().delete(profile)
+            Session().commit()
+            return jsonify({"success": True})
+        else:
+            return jsonify({'error': 'Unable to delete profile %s' % profile_name})
+
+    @app.route('/api/malleable-profiles/<string:profile_name>', methods=['PUT'])
+    def edit_malleable_profiles(profile_name):
+        """
+        Edit malleable profiles in database
+        """
+        if not request.json or 'data':
+            abort(400)
+
+        profile_data = request.json['data']
+
+        profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
+
+        if profile:
+            profile.data = profile_data
+            Session().commit()
+            return jsonify({"success": True})
+        else:
+            return jsonify({'error': 'Failed to edit malleable profile %s' % profile_name})
+
+    @app.route('/api/malleable-profiles/export', methods=['POST'])
+    def export_malleable_profiles():
+        """
+        Export malleable profiles from database to files
+        """
+        # TODO: add option to export profiles from the database to files
+        return jsonify({"success": True})
+
+    @app.route('/api/bypasses', methods=['GET'])
+    def get_bypasses():
+        """
+        Returns JSON with all currently registered profiles.
+        """
+        bypasses_raw = Session().query(models.Bypass).all()
+
+        bypasses = []
+        for bypass in bypasses_raw:
+            bypasses.append( {'id': bypass.id, 'name': bypass.name, 'code': bypass.code})
+
+        return jsonify({"bypasses": bypasses})
+
+    @app.route('/api/bypasses', methods=['POST'])
+    def create_bypass():
+        """
+        Returns JSON with all currently registered profiles.
+        """
+        # todo no spaces in name
+        if not request.json or 'name' not in request.json or 'code' not in request.json:
+            abort(400)
+
+        code = request.json['code']
+        if request.args.get('randomize_capitalization', '').lower() == 'true':
+            code = helpers.randomize_capitalization(code)
+        bypass = models.Bypass(name=request.json['name'].lower(), code=code)
+        Session().add(bypass)
+        Session().commit()
+
+        return jsonify({'id': bypass.id, 'name': bypass.name, 'code': bypass.code})
+
+    @app.route('/api/bypasses/<int:uid>', methods=['PUT'])
+    def edit_bypass(uid: int):
+        """
+        Returns JSON with all currently registered profiles.
+        """
+        if not request.json or 'name' not in request.json or 'code' not in request.json:
+            abort(400)
+
+        bypass = Session().query(models.Bypass).filter(models.Bypass.id == uid).first()
+
+        if not bypass:
+            abort(404)
+
+        code = request.json['code']
+        if request.args.get('randomize_capitalization', '').lower() == 'true':
+            code = helpers.randomize_capitalization(code)
+
+        bypass.code = code
+        bypass.name = request.json['name']
+        Session().commit()
+
+        return jsonify({'id': bypass.id, 'name': bypass.name, 'code': bypass.code})
+
+    @app.route('/api/bypasses/<int:uid>', methods=['DELETE'])
+    def delete_bypass(uid: int):
+        """
+        Returns JSON with all currently registered profiles.
+        """
+        bypass = Session().query(models.Bypass).filter(models.Bypass.id == uid).first()
+
+        if not bypass:
+            abort(404)
+
+        Session().delete(bypass)
+        Session().commit()
 
     @app.route('/api/admin/login', methods=['POST'])
     def server_login():

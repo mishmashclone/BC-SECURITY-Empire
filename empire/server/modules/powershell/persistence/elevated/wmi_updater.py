@@ -4,6 +4,8 @@ import os
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -16,8 +18,6 @@ class Module(object):
 
         # Set booleans to false by default
         obfuscate = False
-        amsi_bypass = False
-        amsi_bypass2 = False
 
         launcher_prefix = params['Launcher']
         
@@ -30,13 +30,10 @@ class Module(object):
         ext_file = params['ExtFile']
         cleanup = params['Cleanup']
         web_file = params['WebFile']
+        s_bypasses = params['Bypasses']
         if (params['Obfuscate']).lower() == 'true':
             obfuscate = True
         obfuscate_command = params['ObfuscateCommand']
-        if (params['AMSIBypass']).lower() == 'true':
-            amsi_bypass = True
-        if (params['AMSIBypass2']).lower() == 'true':
-            amsi_bypass2 = True
 
         status_msg = ""
         location_string = ""
@@ -110,5 +107,5 @@ class Module(object):
 
 
         script += "'WMI persistence established "+status_msg+"'"
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
         return script

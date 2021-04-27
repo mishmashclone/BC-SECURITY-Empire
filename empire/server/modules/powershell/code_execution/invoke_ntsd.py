@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -34,7 +36,7 @@ class Module(object):
         # read in the common module source code
         module_source = main_menu.installPath + "data/module_source/code_execution/Invoke-Ntsd.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
             module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
             f = open(module_source, 'r')
@@ -60,8 +62,7 @@ class Module(object):
             l.options['ProxyCreds'] = params['ProxyCreds']
             l.options['Obfuscate'] = params['Obfuscate']
             l.options['ObfuscateCommand'] = params['ObfuscateCommand']
-            l.options['AMSIBypass'] = params['AMSIBypass']
-            l.options['AMSIBypass2'] = params['AMSIBypass2']
+            l.options['Bypasses'] = params['Bypasses']
             launcher = l.generate()
             
             if launcher == '':
@@ -93,6 +94,6 @@ class Module(object):
                 script += code_exec
 
                 # Get the random function name generated at install and patch the stager with the proper function name
-                script = helpers.keyword_obfuscation(script)
+                script = data_util.keyword_obfuscation(script)
 
                 return script

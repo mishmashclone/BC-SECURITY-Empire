@@ -40,19 +40,10 @@ class Stager(object):
                 'Required': False,
                 'Value': r'Token\All\1'
             },
-            'AMSIBypass': {
-                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+            'Bypasses': {
+                'Description': 'Bypasses as a space separated list to be prepended to the launcher',
                 'Required': False,
-                'Value': 'True',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
-            },
-            'AMSIBypass2': {
-                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'False',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
+                'Value': 'mattifestation etw'
             },
             'Language' : {
                 'Description'   :   'Language of the stager to generate.',
@@ -93,13 +84,6 @@ class Stager(object):
                 'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
                 'Required'      :   False,
                 'Value'         :   'default'
-            },
-            'ETWBypass': {
-                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
-                'Required': False,
-                'Value': 'False',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
             }
         }
 
@@ -117,9 +101,6 @@ class Stager(object):
     def generate(self):
         # default booleans to false
         obfuscateScript = False
-        AMSIBypassBool = False
-        AMSIBypass2Bool = False
-        ETWBypassBool = False
 
         # extract all of our options
         language = self.options['Language']['Value']
@@ -130,12 +111,7 @@ class Stager(object):
         proxy = self.options['Proxy']['Value']
         proxyCreds = self.options['ProxyCreds']['Value']
         stagerRetries = self.options['StagerRetries']['Value']
-        if self.options['ETWBypass']['Value'].lower() == "true":
-            ETWBypassBool = True
-        if self.options['AMSIBypass']['Value'].lower() == "true":
-            AMSIBypassBool = True
-        if self.options['AMSIBypass2']['Value'].lower() == "true":
-            AMSIBypass2Bool = True
+        bypasses = self.options['Bypasses']['Value']
         if self.options['Obfuscate']['Value'].lower == "true":
             obfuscateScript = True
         obfuscateCommand = self.options['ObfuscateCommand']['Value']
@@ -145,8 +121,7 @@ class Stager(object):
                                                            obfuscate=obfuscateScript,
                                                            obfuscationCommand=obfuscateCommand, userAgent=userAgent,
                                                            proxy=proxy, proxyCreds=proxyCreds,
-                                                           stagerRetries=stagerRetries, AMSIBypass=AMSIBypassBool,
-                                                           AMSIBypass2=AMSIBypass2Bool, ETWBypass=ETWBypassBool)
+                                                           stagerRetries=stagerRetries, bypasses=bypasses)
         
 
         if launcher == "":

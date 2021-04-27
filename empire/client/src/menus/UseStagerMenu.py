@@ -30,6 +30,7 @@ class UseStagerMenu(UseMenu):
         if 'selected' not in kwargs:
             return False
         else:
+            state.get_bypasses()
             self.use(kwargs['selected'])
             self.info()
             self.options()

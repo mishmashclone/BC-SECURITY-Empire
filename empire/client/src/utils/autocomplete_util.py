@@ -13,6 +13,22 @@ def filtered_search_list(search: str, keys) -> List[str]:
     return list(filter(lambda x: (search.lower()) in x.lower(), keys))
 
 
+def where_am_i(cmd_line, word_before_cursor):
+    """
+    Tells the autocomplete which word it is completing. It requires a little extra care
+    because we want to differentiate when a space is pressed.
+    :param cmd_line: the list of command line words
+    :param word_before_cursor: word_before_cursor parsed from the document
+    :return: the position of the word we are on.
+    """
+    if len(cmd_line) == 1 and cmd_line[0] == '':
+        return 0
+    elif word_before_cursor == '':
+        return len(cmd_line) + 1
+    else:
+        return len(cmd_line)
+
+
 def position_util(cmd_line: List[str], word_position: int, word_before_cursor: str) -> bool:
     """
     Util method for autocompletion conditions. Makes autocomplete work well.

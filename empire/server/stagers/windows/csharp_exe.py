@@ -27,7 +27,9 @@ class Stager(object):
             'Language': {
                 'Description': 'Language of the stager to generate (powershell, csharp).',
                 'Required': True,
-                'Value': 'csharp'
+                'Value': 'csharp',
+                'SuggestedValues': ['powershell, csharp'],
+                'Strict': True
             },
             'Listener': {
                 'Description': 'Listener to use.',
@@ -71,28 +73,11 @@ class Stager(object):
                 'Required': False,
                 'Value': r'Token\All\1'
             },
-            'AMSIBypass': {
-                'Description': 'Include mattifestation\'s AMSI Bypass in the stager code.',
+            'Bypasses': {
+                'Description': 'Bypasses as a space separated list to be prepended to the launcher',
                 'Required': False,
-                'Value': 'True',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
-            },
-            'AMSIBypass2': {
-                'Description': 'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required': False,
-                'Value': 'False',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
-            },
-            'ETWBypass': {
-                'Description': 'Include tandasat\'s ETW bypass in the stager code.',
-                'Required': False,
-                'Value': 'False',
-                'SuggestedValues': ['True', 'False'],
-                'Strict': True
+                'Value': 'mattifestation etw'
             }
-
         }
 
         # save off a copy of the mainMenu object to access external functionality
@@ -116,18 +101,9 @@ class Stager(object):
         listener_name = self.options['Listener']['Value']
         stager_retries = self.options['StagerRetries']['Value']
 
-        # set defaults
-        amsi_bypass_bool = False
-        amsi_bypass2_bool = False
-        etw_bypass_bool = False
-
+        bypasses = ''
         if language.lower() == 'powershell':
-            if self.options['AMSIBypass']['Value'].lower() == "true":
-                amsi_bypass_bool = True
-            if self.options['AMSIBypass2']['Value'].lower() == "true":
-                amsi_bypass2_bool = True
-            if self.options['ETWBypass']['Value'].lower() == "true":
-                etw_bypass_bool = True
+            bypasses = self.options['Bypasses']['Value']
             obfuscate = self.options['Obfuscate']['Value']
             obfuscate_command = self.options['ObfuscateCommand']['Value']
             outfile = self.options['OutFile']['Value']
@@ -152,9 +128,7 @@ class Stager(object):
                                                                    obfuscationCommand=obfuscate_command,
                                                                    userAgent=user_agent, proxy=proxy,
                                                                    proxyCreds=proxy_creds, stagerRetries=stager_retries,
-                                                                   AMSIBypass=amsi_bypass_bool,
-                                                                   AMSIBypass2=amsi_bypass2_bool,
-                                                                   ETWBypass=etw_bypass_bool)
+                                                                   bypasses=bypasses)
 
                 if launcher == "":
                     print(helpers.color("[!] Error in launcher generation."))
@@ -179,8 +153,8 @@ class Stager(object):
             launcher = self.mainMenu.stagers.generate_launcher(listener_name, language=language, encode=False,
                                                                userAgent=user_agent, proxy=proxy,
                                                                proxyCreds=proxy_creds,
-                                                               stagerRetries=stager_retries, AMSIBypass=False,
-                                                               ETWBypass=False)
+                                                               stagerRetries=stager_retries,
+                                                               bypasses=bypasses)
 
             if launcher == "":
                 print(helpers.color("[!] Error in launcher command generation."))

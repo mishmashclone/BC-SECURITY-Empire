@@ -50,27 +50,11 @@ class Stager(object):
                 'Required'      :   False,
                 'Value'         :   'default'
             },
-            'ScriptLogBypass' : {
-                'Description'    :  'Include cobbr\'s Script Block Log Bypass in the stager code.',
-                'Required'       :  False,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
+            'Bypasses': {
+                'Description': 'Bypasses as a space separated list to be prepended to the launcher',
+                'Required': False,
+                'Value': 'mattifestation etw'
             },
-            'AMSIBypass' : {
-                'Description'    :  'Include mattifestation\'s AMSI Bypass in the stager code.',
-                'Required'       :  False,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
-            },
-            'AMSIBypass2' : {
-                'Description'    :  'Include Tal Liberman\'s AMSI Bypass in the stager code.',
-                'Required'       :  False,
-                'Value'          :  'False',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
-            }
         }
 
         # save off a copy of the mainMenu object to access external functionality
@@ -90,24 +74,12 @@ class Stager(object):
         listenerName = self.options['Listener']['Value']
         userAgent = self.options['UserAgent']['Value']
         safeChecks = self.options['SafeChecks']['Value']
-        scriptLogBypass = self.options['ScriptLogBypass']['Value']
-        AMSIBypass = self.options['AMSIBypass']['Value']
-        AMSIBypass2 = self.options['AMSIBypass2']['Value']
-
-        scriptLogBypassBool = False
-        if scriptLogBypass.lower() == "true":
-            scriptLogBypassBool = True
-
-        AMSIBypassBool = False
-        if AMSIBypass.lower() == "true":
-            AMSIBypassBool = True
-
-        AMSIBypass2Bool = False
-        if AMSIBypass2.lower() == "true":
-            AMSIBypass2Bool = True
+        bypasses = self.options['Bypasses']['Value']
 
         # generate the launcher code
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, userAgent=userAgent, safeChecks=safeChecks, scriptLogBypass=scriptLogBypassBool, AMSIBypass=AMSIBypassBool, AMSIBypass2=AMSIBypass2Bool)
+        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True,
+                                                           userAgent=userAgent, safeChecks=safeChecks,
+                                                           bypasses=bypasses)
 
         if launcher == "":
             print(helpers.color("[!] Error in launcher command generation."))

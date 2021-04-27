@@ -6,12 +6,12 @@ import os
 import random
 from builtins import object
 from builtins import str
+from typing import List
 
-# Empire imports
+from empire.server.common import encryption
 from empire.server.common import helpers
 from empire.server.common import packets
-from empire.server.common import bypasses
-from empire.server.common import encryption
+from empire.server.utils import data_util
 
 
 class Listener(object):
@@ -90,10 +90,11 @@ class Listener(object):
 
     def generate_launcher(self, encode=True, obfuscate=False, obfuscationCommand="", userAgent='default',
                           proxy='default', proxyCreds='default', stagerRetries='0', language=None, safeChecks='',
-                          listenerName=None, scriptLogBypass=True, AMSIBypass=True, AMSIBypass2=False, ETWBypass=False):
+                          listenerName=None, bypasses: List[str]=None):
         """
         Generate a basic launcher for the specified listener.
         """
+        bypasses = [] if bypasses is None else bypasses
 
         if not language:
             print(helpers.color('[!] listeners/template generate_launcher(): no language specified!'))
@@ -117,17 +118,8 @@ class Listener(object):
                 stager = '$ErrorActionPreference = \"SilentlyContinue\";'
                 if safeChecks.lower() == 'true':
                     stager = helpers.randomize_capitalization("If($PSVersionTable.PSVersion.Major -ge 3){")
-                    # ScriptBlock Logging bypass
-                    if scriptLogBypass:
-                        stager += bypasses.scriptBlockLogBypass()
-                    if ETWBypass:
-                        stager += bypasses.ETWBypass()
-                    # @mattifestation's AMSI bypass
-                    if AMSIBypass:
-                        stager += bypasses.AMSIBypass()
-                    # rastamouse AMSI bypass
-                    if AMSIBypass2:
-                        stager += bypasses.AMSIBypass2()
+                    for bypass in bypasses:
+                        stager += bypass
                     stager += "};"
                     stager += helpers.randomize_capitalization("[System.Net.ServicePointManager]::Expect100Continue=0;")
 
@@ -382,7 +374,7 @@ class Listener(object):
             stager = f.read()
             f.close()
             # Get the random function name generated at install and patch the stager with the proper function name
-            stager = helpers.keyword_obfuscation(stager)
+            stager = data_util.keyword_obfuscation(stager)
             # make sure the server ends with "/"
             if not host.endswith("/"):
                 host += "/"
@@ -493,7 +485,7 @@ class Listener(object):
             code = f.read()
             f.close()
             # Get the random function name generated at install and patch the stager with the proper function name
-            code = helpers.keyword_obfuscation(code)
+            code = data_util.keyword_obfuscation(code)
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
             code = code.replace('REPLACE_COMMS', commsCode)

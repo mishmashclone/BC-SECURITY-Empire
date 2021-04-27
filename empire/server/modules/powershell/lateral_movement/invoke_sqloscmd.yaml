@@ -56,5 +56,9 @@ options:
       none, or other).
     required: false
     value: default
+  - name: Bypasses
+    description: Bypasses as a space separated list to be prepended to the launcher.
+    required: false
+    value: 'mattifestation etw'
 advanced:
   custom_generate: true

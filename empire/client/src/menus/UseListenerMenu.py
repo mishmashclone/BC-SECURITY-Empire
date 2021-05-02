@@ -17,7 +17,7 @@ class UseListenerMenu(UseMenu):
 
     def get_completions(self, document, complete_event, cmd_line, word_before_cursor):
         if cmd_line[0] == 'uselistener' and position_util(cmd_line, 2, word_before_cursor):
-            for listener in filtered_search_list(word_before_cursor, state.listener_types):
+            for listener in filtered_search_list(word_before_cursor, sorted(state.listener_types)):
                 yield Completion(listener, start_position=-len(word_before_cursor))
         else:
             yield from super().get_completions(document, complete_event, cmd_line, word_before_cursor)

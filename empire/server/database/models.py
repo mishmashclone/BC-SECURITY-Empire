@@ -80,6 +80,7 @@ class Agent(Base):
     working_hours = Column(String(255))
     lost_limit = Column(Integer)
     notes = Column(Text)
+    architecture = Column(String(255))
     killed = Column(Boolean, nullable=False)
 
     @hybrid_property # todo @stale.expression

@@ -1,6 +1,6 @@
-import textwrap
 from typing import List
 
+from prompt_toolkit import HTML
 from prompt_toolkit.completion import Completion
 
 from empire.client.src.EmpireCliState import state
@@ -52,6 +52,13 @@ class UseMenu(Menu):
             if len(cmd_line) > 1 and cmd_line[1] == 'agent':
                 for agent in filtered_search_list(word_before_cursor, state.agents.keys()):
                     yield Completion(agent, start_position=-len(word_before_cursor))
+            if len(cmd_line) > 1 and cmd_line[1] == 'credid':
+                for cred in filtered_search_list(word_before_cursor, state.credentials.keys()):
+                    full = state.credentials[cred]
+                    help_text = print_util.truncate(f"{full.get('username', '')}, {full.get('domain', '')}, {full.get('password', '')}", width=75)
+                    yield Completion(cred,
+                                     display=HTML(f"{full['ID']} <purple>({help_text})</purple>"),
+                                     start_position=-len(word_before_cursor))
             if len(cmd_line) > 1 and len(self.suggested_values_for_option(cmd_line[1])) > 0:
                 for suggested_value in filtered_search_list(word_before_cursor,
                                                             self.suggested_values_for_option(cmd_line[1])):

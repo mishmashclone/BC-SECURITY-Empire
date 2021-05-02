@@ -743,7 +743,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                  "children": active_agent.children, "servers": active_agent.servers, "profile": active_agent.profile,
                  "functions": active_agent.functions, "kill_date": active_agent.kill_date,
                  "working_hours": active_agent.working_hours, "lost_limit": active_agent.lost_limit,
-                 "stale": active_agent.stale, "notes": active_agent.notes})
+                 "stale": active_agent.stale, "notes": active_agent.notes, "architecture": active_agent.architecture})
 
         return jsonify({'agents': agents})
 
@@ -768,7 +768,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                      "checkin_time": agent.checkin_time, "lastseen_time": agent.lastseen_time, "parent": agent.parent,
                      "children": agent.children, "servers": agent.servers, "profile": agent.profile,
                      "functions": agent.functions, "kill_date": agent.kill_date, "working_hours": agent.working_hours,
-                     "lost_limit": agent.lost_limit})
+                     "lost_limit": agent.lost_limit, "architecture": agent.architecture})
 
         return jsonify({'agents': stale_agents})
 
@@ -824,7 +824,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
              "lastseen_time": agent.lastseen_time, "parent": agent.parent, "children": agent.children,
              "servers": agent.servers, "profile": agent.profile, "functions": agent.functions,
              "kill_date": agent.kill_date, "working_hours": agent.working_hours,
-             "lost_limit": agent.lost_limit})
+             "lost_limit": agent.lost_limit, "architecture": agent.architecture})
 
         return jsonify({'agents': active_agent})
 

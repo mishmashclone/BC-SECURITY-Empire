@@ -38,6 +38,7 @@ class UseModuleMenu(UseMenu):
                 self.set('Agent', kwargs['agent'])
             self.info()
             self.options()
+            state.get_credentials()
             return True
 
     def on_leave(self):

@@ -30,7 +30,7 @@ options:
     required: false
     value: ''
   - name: Command
-    description: Listener to use.
+    description: Custom command to execute on remote hosts.
     required: false
     value: ''
   - name: Obfuscate

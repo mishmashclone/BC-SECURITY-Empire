@@ -36,6 +36,9 @@ class InteractMenu(Menu):
                 yield Completion(agent, start_position=-len(word_before_cursor))
         elif position_util(cmd_line, 1, word_before_cursor):
             yield from super().get_completions(document, complete_event, cmd_line, word_before_cursor)
+        elif cmd_line[0] in ['display'] and position_util(cmd_line, 2, word_before_cursor):
+            for property_name in filtered_search_list(word_before_cursor, self.agent_options):
+                yield Completion(property_name, start_position=-len(word_before_cursor))
         elif cmd_line[0] in shortcut_handler.get_names(self.agent_language):
             position = len(cmd_line)
             shortcut = shortcut_handler.get(self.agent_language, cmd_line[0])
@@ -193,47 +196,7 @@ class InteractMenu(Menu):
         help_list.insert(0, ['Name', 'Description', 'Usage'])
         table_util.print_table(help_list, 'Help Options')
 
-    def execute_shortcut(self, command_name: str, params: List[str]):
-        shortcut: Shortcut = shortcut_handler.get(self.agent_language, command_name)
-
-        if not shortcut:
-            return None
-
-        if shortcut.shell:
-            self.shell(shortcut.shell)
-            return
-
-        if not len(params) == len(shortcut.get_dynamic_param_names()):
-            return None  # todo log message
-
-        if shortcut.module not in state.modules:
-            print(print_util.color(f'No module named {shortcut.name} found on the server.'))
-            return None
-
-        module_options = dict.copy(state.modules[shortcut.module]['options'])
-        post_body = {}
-
-        for i, shortcut_param in enumerate(shortcut.get_dynamic_params()):
-            if shortcut_param.name in module_options:
-                post_body[shortcut_param.name] = params[i]
-
-        # TODO Still haven't figured out other data types. Right now everything is a string.
-        #  Which I think is how it is in the old cli
-        for key, value in module_options.items():
-            if key in shortcut.get_dynamic_param_names():
-                continue
-            elif key in shortcut.get_static_param_names():
-                post_body[key] = str(shortcut.get_param(key).value)
-            else:
-                post_body[key] = str(module_options[key]['Value'])
-        post_body['Agent'] = self.session_id
-        response = state.execute_module(shortcut.module, post_body)
-        if 'success' in response.keys():
-            print(print_util.color(
-                '[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
-        elif 'error' in response.keys():
-            print(print_util.color('[!] Error: ' + response['error']))
-
+    @command
     def update_comms(self, listener_name: str) -> None:
         """
         Update the listener for an agent.
@@ -272,6 +235,57 @@ class InteractMenu(Menu):
 
         if 'success' in response.keys():
             print(print_util.color('[*] Updated agent ' + self.selected + ' workinghours to ' + working_hours))
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
+
+    @command
+    def display(self, property_name: str):
+        """
+        Display an agent property
+
+        Usage: display <property_name>
+        """
+        if property_name in self.agent_options:
+            print(f'{property_name} is {self.agent_options[property_name]}')
+
+    def execute_shortcut(self, command_name: str, params: List[str]):
+        shortcut: Shortcut = shortcut_handler.get(self.agent_language, command_name)
+
+        if not shortcut:
+            return None
+
+        if shortcut.shell:
+            self.shell(shortcut.shell)
+            return
+
+        if not len(params) == len(shortcut.get_dynamic_param_names()):
+            return None  # todo log message
+
+        if shortcut.module not in state.modules:
+            print(print_util.color(f'No module named {shortcut.name} found on the server.'))
+            return None
+
+        module_options = dict.copy(state.modules[shortcut.module]['options'])
+        post_body = {}
+
+        for i, shortcut_param in enumerate(shortcut.get_dynamic_params()):
+            if shortcut_param.name in module_options:
+                post_body[shortcut_param.name] = params[i]
+
+        # TODO Still haven't figured out other data types. Right now everything is a string.
+        #  Which I think is how it is in the old cli
+        for key, value in module_options.items():
+            if key in shortcut.get_dynamic_param_names():
+                continue
+            elif key in shortcut.get_static_param_names():
+                post_body[key] = str(shortcut.get_param(key).value)
+            else:
+                post_body[key] = str(module_options[key]['Value'])
+        post_body['Agent'] = self.session_id
+        response = state.execute_module(shortcut.module, post_body)
+        if 'success' in response.keys():
+            print(print_util.color(
+                '[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 

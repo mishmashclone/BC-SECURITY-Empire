@@ -28,7 +28,7 @@ class Stager(object):
                 'Description': 'Language of the stager to generate (powershell, csharp).',
                 'Required': True,
                 'Value': 'csharp',
-                'SuggestedValues': ['powershell, csharp'],
+                'SuggestedValues': ['powershell', 'csharp'],
                 'Strict': True
             },
             'Listener': {

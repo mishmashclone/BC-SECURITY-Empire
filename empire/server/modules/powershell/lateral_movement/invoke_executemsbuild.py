@@ -3,6 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import object
 
+from empire.server.database.models import Credential
 from empire.server.utils import data_util
 from empire.server.common import helpers
 from typing import Dict
@@ -48,14 +49,14 @@ class Module(object):
                 print(helpers.color("[!] CredID is invalid!"))
                 return ""
 
-            (cred_id, credType, domainName, userName, password, host, os, sid, notes) = main_menu.credentials.get_credentials(cred_id)[0]
+            cred: Credential = main_menu.credentials.get_credentials(cred_id)
 
-            if domainName != "":
-                params["UserName"] = str(domainName) + "\\" + str(userName)
+            if cred.domain != "":
+                params["UserName"] = str(cred.domain) + "\\" + str(cred.username)
             else:
-                params["UserName"] = str(userName)
-            if password != "":
-                params["Password"] = password
+                params["UserName"] = str(cred.username)
+            if cred.password != "":
+                params["Password"] = cred.password
 
         # Only "Command" or "Listener" but not both
         if (listener_name == "" and command  == ""):

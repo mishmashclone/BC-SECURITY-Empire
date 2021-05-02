@@ -27,6 +27,8 @@ X/XX/2021
         - Dockerfile size decreased by ~1GB by only installing the essentials. There is a note in the README (@Vinnybod)
         - Made powershell bypasses dynamic. Now set with a single field `Bypasses` and they will be applied in the order provided (@Vinnybod)
         - Added API endpoints for managing bypasses (@Vinnybod)
+        - Add processor architecture to powershell, csharp, and python agents (@Vinnybod)
+        - Add a display command to interact menu (@Vinnybod)
 
 3/28/2021
 ------------

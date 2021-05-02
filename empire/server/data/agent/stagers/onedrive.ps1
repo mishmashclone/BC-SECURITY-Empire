@@ -160,6 +160,7 @@ function Start-Negotiate {
     $i+='|'+$n.ProcessName+'|'+$n.Id;
     # get the powershell.exe version
     $i += "|powershell|" + $PSVersionTable.PSVersion.Major;
+    $i += "|" + $env:PROCESSOR_ARCHITECTURE;
 
     # send back the initial system information
     $ib2=$e.getbytes($i);

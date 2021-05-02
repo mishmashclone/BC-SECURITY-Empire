@@ -30,6 +30,7 @@ class EmpireCliState(object):
         self.me = {}
         self.profiles = {}
         self.bypasses = {}
+        self.credentials = {}
         self.empire_version = ''
         self.cached_plugin_results = {}
 
@@ -88,6 +89,7 @@ class EmpireCliState(object):
         self.get_user_me()
         self.get_malleable_profile()
         self.get_bypasses()
+        self.get_credentials()
 
     def init_handlers(self):
         if self.sio:
@@ -397,6 +399,8 @@ class EmpireCliState(object):
         response = requests.get(url=f'{self.host}:{self.port}/api/creds',
                                 verify=False,
                                 params={'token': self.token})
+
+        self.credentials = {str(x['ID']): x for x in json.loads(response.content)['creds']}
 
         return json.loads(response.content)['creds']
 

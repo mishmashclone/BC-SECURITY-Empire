@@ -43,11 +43,16 @@ class AgentMenu(Menu):
         agent_list = []
         agent_formatting = []
         for agent in state.get_agents().values():
-            agent_list.append([str(agent['ID']), agent['name'],
-                               agent['language'], agent['internal_ip'], print_util.text_wrap(agent['username']),
-                               print_util.text_wrap(agent['process_name'],width=20), agent['process_id'],
+            agent_list.append([str(agent['ID']),
+                               agent['name'],
+                               agent['language'],
+                               agent['internal_ip'],
+                               print_util.text_wrap(agent['username']),
+                               print_util.text_wrap(agent['process_name'], width=20),
+                               agent['process_id'],
                                str(agent['delay']) + '/' + str(agent['jitter']),
-                               date_util.humanize_datetime(agent['lastseen_time']), agent['listener']])
+                               print_util.text_wrap(date_util.humanize_datetime(agent['lastseen_time']), width=25),
+                               agent['listener']])
             agent_formatting.append([agent['stale'], agent['high_integrity']])
 
         agent_formatting.insert(0, ['Stale', 'High Integrity'])

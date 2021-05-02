@@ -692,7 +692,7 @@ class Agents(object):
 
     def update_agent_sysinfo_db(self, session_id, listener='', external_ip='', internal_ip='', username='', hostname='',
                                 os_details='', high_integrity=0, process_name='', process_id='', language_version='',
-                                language=''):
+                                language='', architecture=''):
         """
         Update an agent's system information.
         """
@@ -713,6 +713,7 @@ class Agents(object):
         agent.process_id = process_id
         agent.language_version = language_version
         agent.language = language
+        agent.architecture = architecture
 
         Session().commit()
 
@@ -1170,6 +1171,7 @@ class Agents(object):
                 process_id = str(parts[9], 'utf-8')
                 language = str(parts[10], 'utf-8')
                 language_version = str(parts[11], 'utf-8')
+                architecture = str(parts[12], 'utf-8')
                 if high_integrity == "True":
                     high_integrity = 1
                 else:
@@ -1194,7 +1196,7 @@ class Agents(object):
                                                          username=username, hostname=hostname, os_details=os_details,
                                                          high_integrity=high_integrity, process_name=process_name,
                                                          process_id=process_id, language_version=language_version,
-                                                         language=language)
+                                                         language=language, architecture=architecture)
 
             # signal to Slack that this agent is now active
 
@@ -1515,6 +1517,7 @@ class Agents(object):
                 process_id = parts[9]
                 language = parts[10]
                 language_version = parts[11]
+                architecture = parts[12]
                 if high_integrity == 'True':
                     high_integrity = 1
                 else:
@@ -1528,7 +1531,8 @@ class Agents(object):
                                                              username=username, hostname=hostname,
                                                              os_details=os_details, high_integrity=high_integrity,
                                                              process_name=process_name, process_id=process_id,
-                                                             language_version=language_version, language=language)
+                                                             language_version=language_version, language=language,
+                                                             architecture=architecture)
 
                 sysinfo = '{0: <18}'.format("Listener:") + listener + "\n"
                 sysinfo += '{0: <18}'.format("Internal IP:") + internal_ip + "\n"
@@ -1540,6 +1544,7 @@ class Agents(object):
                 sysinfo += '{0: <18}'.format("Process ID:") + process_id + "\n"
                 sysinfo += '{0: <18}'.format("Language:") + language + "\n"
                 sysinfo += '{0: <18}'.format("Language Version:") + language_version + "\n"
+                sysinfo += '{0: <18}'.format("Architecture:") + architecture + "\n"
 
                 # update the agent log
                 self.save_agent_log(session_id, sysinfo)

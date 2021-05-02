@@ -349,6 +349,7 @@ namespace Sharpire
             information += process.Id + "|";
             //TODO fix this from being hard coded  
             information += "csharp|5";
+            information += "|" + System.Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
 
             return Encoding.ASCII.GetBytes(information);
         }

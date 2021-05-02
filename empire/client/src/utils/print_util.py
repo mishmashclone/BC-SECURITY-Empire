@@ -9,6 +9,7 @@ def color(string_name, color_name=None):
     """
     if not string_name:
         return ''
+    string_name = str(string_name)
 
     attr = ['1']
     # bold
@@ -22,7 +23,15 @@ def color(string_name, color_name=None):
             attr.append('33')
         elif color_name.lower() == "blue":
             attr.append('34')
-        return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string_name)
+
+        if '\n' in string_name:
+            str_list = string_name.split('\n')
+            str_list_modified = []
+            for s in str_list:
+                str_list_modified.append('\x1b[%sm%s\x1b[0m' % (';'.join(attr), s))
+            return '\n'.join(str_list_modified)
+        else:
+            return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string_name)
 
     else:
         if string_name.strip().startswith("[!]"):
@@ -128,3 +137,12 @@ def text_wrap(text, width=35):
     """
     return '\n'.join(textwrap.wrap(str(text), width=width))
 
+
+def truncate(text, width=50):
+    """
+    Truncates text to the provided width. Adds a '..' at the end if truncated.
+    :param text:
+    :param width:
+    :return: truncated text if necessary else the same text
+    """
+    return (text[:width] + '..') if len(text) > width else text

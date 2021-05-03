@@ -1,15 +1,14 @@
 from __future__ import print_function
 
 import os
-
-from builtins import str
 from builtins import object
-
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -60,8 +59,7 @@ class Module(object):
                 status_msg += "using external file " + ext_file
 
             else:
-                print(helpers.color("[!] File does not exist: " + ext_file))
-                return ""
+                return handle_error_message("[!] File does not exist: " + ext_file)
 
         else:
             # generate the PowerShell one-liner with all of the proper options set
@@ -72,8 +70,7 @@ class Module(object):
 
         # sanity check to make sure we haven't exceeded the powershell -enc 8190 char max
         if len(enc_script) > 8190:
-            print(helpers.color("[!] Warning: -enc command exceeds the maximum of 8190 characters."))
-            return ""
+            return handle_error_message("[!] Warning: -enc command exceeds the maximum of 8190 characters.")
 
         # built the command that will be triggered
         trigger_cmd = "$($Env:SystemRoot)\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NonI -W hidden -enc " + enc_script
@@ -83,8 +80,7 @@ class Module(object):
             parts = daily_time.split(":")
             
             if len(parts) < 2:
-                print(helpers.color("[!] Please use HH:mm format for DailyTime"))
-                return ""
+                return handle_error_message("[!] Please use HH:mm format for DailyTime")
 
             hour = parts[0]
             minutes = parts[1]

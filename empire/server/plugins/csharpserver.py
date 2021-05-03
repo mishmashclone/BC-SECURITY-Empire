@@ -43,6 +43,7 @@ class Plugin(Plugin):
         }
         self.tcp_ip = '127.0.0.1'
         self.tcp_port = 2012
+        self.status = 'OFF'
 
     def execute(self, command):
         # This is for parsing commands through the api

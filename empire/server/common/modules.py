@@ -59,8 +59,14 @@ class Modules(object):
             return None, err
 
         module_data = self._generate_script(module, cleaned_options, self.main_menu.obfuscate, self.main_menu.obfuscateCommand)
+        if isinstance(module_data, tuple):
+            (module_data, err) = module_data
+        else:
+            # Not all modules return a tuple. If they just return a single value,
+            # we don't want to throw an unpacking error.
+            err = None
         if not module_data or module_data == "":
-            return None, 'module produced an empty script'
+            return None, err or 'module produced an empty script'
         if not module_data.isascii():
             return None, 'module source contains non-ascii characters'
 
@@ -179,14 +185,15 @@ class Modules(object):
             if params.get(option.name):
                 option.value = params[option.name]
 
-    def _generate_script(self, module: PydanticModule, params: Dict, obfuscate=False, obfuscate_command='') -> str:
+    def _generate_script(self, module: PydanticModule, params: Dict, obfuscate=False, obfuscate_command='') -> \
+            Tuple[Optional[str], Optional[str]]:
         """
         Generate the script to execute
         :param module: the execution parameters (already validated)
         :param params: the execution parameters
         :param obfuscate:
         :param obfuscate_command:
-        :return: the generated script
+        :return: tuple containing the generated script and an error if it exists
         """
         if module.advanced.custom_generate:
             return module.advanced.generate_class.generate(self.main_menu, module, params, obfuscate, obfuscate_command)
@@ -198,7 +205,7 @@ class Modules(object):
             return self._generate_script_csharp(module, params)
 
     @staticmethod
-    def _generate_script_python(module: PydanticModule, params: Dict):
+    def _generate_script_python(module: PydanticModule, params: Dict) -> Tuple[Optional[str], Optional[str]]:
         if module.script_path:
             with open(module.script_path, 'r') as stream:
                 script = stream.read()
@@ -209,9 +216,10 @@ class Modules(object):
             if key.lower() != "agent" and key.lower() != "computername":
                 script = script.replace('{{ ' + key + ' }}', value).replace('{{' + key + '}}', value)
 
-        return script
+        return script, None
 
-    def _generate_script_powershell(self, module: PydanticModule, params: Dict, obfuscate=False, obfuscate_command=''):
+    def _generate_script_powershell(self, module: PydanticModule, params: Dict, obfuscate=False, obfuscate_command='') \
+            -> Tuple[Optional[str], Optional[str]]:
         if module.script_path:
             # Get preobfuscated module code
             if obfuscate:
@@ -256,11 +264,13 @@ class Modules(object):
             script = helpers.obfuscate(self.main_menu.installPath, psScript=script, obfuscationCommand=obfuscate_command)
         script = data_util.keyword_obfuscation(script)
 
-        return script
+        return script, None
 
-    def _generate_script_csharp(self, module: PydanticModule, params: Dict):
+    def _generate_script_csharp(self, module: PydanticModule, params: Dict) -> Tuple[Optional[str], Optional[str]]:
         try:
-            compiler = self.main_menu.loadedPlugins["csharpserver"]
+            compiler = self.main_menu.loadedPlugins.get("csharpserver")
+            if not compiler.status == 'ON':
+                return None, 'csharpserver plugin not running'
             compiler.do_send_message(module.compiler_yaml, module.name)
             dll_payload = open(self.main_menu.installPath + "/csharp/Covenant/Data/Tasks/CSharp/Compiled/net40/" + module.name + ".compiled" , "rb").read()
             dll_encoded = base64.b64encode(dll_payload).decode("UTF-8")
@@ -270,11 +280,13 @@ class Modules(object):
                     if value and value != '':
                         script += "," + value
 
-            return script
+            return script, None
 
         except Exception as e:
             print(e)
-            print(helpers.color(f"[!] Compile Error"))
+            msg = f"[!] Compile Error"
+            print(helpers.color(msg))
+            return None, msg
 
     def _load_modules(self, root_path=''):
         """

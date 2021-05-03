@@ -1,12 +1,12 @@
 import base64
-from typing import Dict
+from typing import Dict, Tuple, Optional
 
 from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
     @staticmethod
-    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = "") -> str:
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = "") -> Tuple[Optional[str], Optional[str]]:
 
         daemon_name = params['DaemonName']
         program_name = daemon_name.split('.')[-1]

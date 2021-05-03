@@ -67,7 +67,7 @@ The generate function **should** treat these parameters as read only, to not cau
 ```python
 class Module(object):
     @staticmethod
-    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = "") -> str:
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = "") -> Tuple[Optiona[str], Optional[str]]:
         pass
 ```
 Examples of modules that use this custom generate function:
@@ -75,6 +75,8 @@ Examples of modules that use this custom generate function:
 - [invoke_assembly](../empire/server/modules/powershell/code_execution/invoke_assembly.py)
 - [seatbelt](../empire/server/modules/powershell/situational_awareness/host/seatbelt.py)
 
+If an error occurs during the execution of the generate function, return the error message using `handle_error_message`, which will ensure that
+the client receives the error message in the REST response.
 
 **option_format_string:** This tells Empire how to format all of the options before injecting them into the `script_end`.
 In most cases, the default option format string will be fine: `-{{ KEY }} "{{ VALUE }}"`.

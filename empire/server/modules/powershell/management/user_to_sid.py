@@ -1,13 +1,12 @@
 from __future__ import print_function
 
-from builtins import str
 from builtins import object
-
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
 
 
 class Module(object):

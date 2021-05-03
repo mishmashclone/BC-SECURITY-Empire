@@ -1,15 +1,14 @@
 from __future__ import print_function
 
 import os
-
-from builtins import str
 from builtins import object
-
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -40,8 +39,7 @@ class Module(object):
 
         if not main_menu.listeners.is_listener_valid(listener_name):
             # not a valid listener, return nothing for the script
-            print(helpers.color("[!] Invalid listener: " + listener_name))
-            return ""
+            return handle_error_message("[!] Invalid listener: " + listener_name)
 
         else:
             # generate the PowerShell one-liner with all of the proper options set
@@ -60,8 +58,7 @@ class Module(object):
         try:
             f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
-            return ""
+            return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
         script = f.read()
         f.close()
@@ -88,15 +85,13 @@ class Module(object):
                     status_msg += "using external file " + ext_file
 
                 else:
-                    print(helpers.color("[!] File does not exist: " + ext_file))
-                    return ""
+                    return handle_error_message("[!] File does not exist: " + ext_file)
 
             else:
                 # if an external file isn't specified, use a listener
                 if not main_menu.listeners.is_listener_valid(listener_name):
                     # not a valid listener, return nothing for the script
-                    print(helpers.color("[!] Invalid listener: " + listener_name))
-                    return ""
+                    return handle_error_message("[!] Invalid listener: " + listener_name)
 
                 else:
                     # generate the PowerShell one-liner with all of the proper options set

@@ -1,15 +1,14 @@
 from __future__ import print_function
 
 import os
-
-from builtins import str
 from builtins import object
-
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -56,8 +55,7 @@ Invoke-EventLogBackdoor"""
 
         if not main_menu.listeners.is_listener_valid(listener_name):
             # not a valid listener, return nothing for the script
-            print(helpers.color("[!] Invalid listener: " + listener_name))
-            return ""
+            return handle_error_message("[!] Invalid listener: " + listener_name)
 
         else:
             # set the listener value for the launcher
@@ -69,7 +67,7 @@ Invoke-EventLogBackdoor"""
             stager_code = stager.generate()
 
             if stager_code == "":
-                return ""
+                return handle_error_message('[!] Error in launcher generation.')
             else:
                 script = script.replace("REPLACE_LAUNCHER", stager_code)
 
@@ -92,8 +90,7 @@ Invoke-EventLogBackdoor"""
             f.write(script)
             f.close()
 
-            print(helpers.color("[+] PowerBreach deaduser backdoor written to " + outFile))
-            return ""
+            return handle_error_message("[+] PowerBreach deaduser backdoor written to " + outFile)
 
         script = data_util.keyword_obfuscation(script)
         if obfuscate:

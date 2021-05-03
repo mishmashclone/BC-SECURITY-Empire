@@ -1,11 +1,11 @@
 from __future__ import print_function
 
-from builtins import str
 from builtins import object
+from builtins import str
 from typing import Dict
 
-from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -22,8 +22,7 @@ class Module(object):
         launcher = launcher.replace("'", "\\'")
         launcher = launcher.replace('"', '\\"')
         if launcher == "":
-            print(helpers.color("[!] Error in launcher command generation."))
-            return ""
+            return handle_error_message("[!] Error in launcher command generation.")
         script = """
 import os
 import pty

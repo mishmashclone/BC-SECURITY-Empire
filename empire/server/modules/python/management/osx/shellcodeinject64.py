@@ -2,13 +2,12 @@ from __future__ import print_function
 
 import base64
 import os
-
-from builtins import str
 from builtins import object
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -19,8 +18,7 @@ class Module(object):
         shellcodeBinPath = params['Shellcode']
 
         if not os.path.exists(shellcodeBinPath):
-            print(helpers.color("[!] Shellcode bin file not found."))
-            return ""
+            return handle_error_message("[!] Shellcode bin file not found.")
 
         f = open(shellcodeBinPath, 'rb')
         shellcode = base64.b64encode(f.read())

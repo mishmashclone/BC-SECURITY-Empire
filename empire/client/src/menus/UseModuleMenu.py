@@ -74,7 +74,11 @@ class UseModuleMenu(UseMenu):
             shell_return.daemon = True
             shell_return.start()
         elif 'error' in response.keys():
-            print(print_util.color('[!] Error: ' + response['error']))
+            if response['error'].startswith('[!]'):
+                msg = response['error']
+            else:
+                msg = f"[!] Error: {response['error']}"
+            print(print_util.color(msg))
 
     @command
     def generate(self):

@@ -1,14 +1,14 @@
 from __future__ import print_function
 
-from builtins import str
 from builtins import object
-
-from empire.server.database.models import Credential
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.database.models import Credential
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -39,8 +39,7 @@ class Module(object):
         if cred_id != "":
             
             if not main_menu.credentials.is_credential_valid(cred_id):
-                print(helpers.color("[!] CredID is invalid!"))
-                return ""
+                return handle_error_message("[!] CredID is invalid!")
 
             cred: Credential = main_menu.credentials.get_credentials(cred_id)
 
@@ -61,8 +60,7 @@ class Module(object):
             # if there's a listener specified, generate a stager and store it
             if not main_menu.listeners.is_listener_valid(listener_name):
                 # not a valid listener, return nothing for the script
-                print(helpers.color("[!] Invalid listener: " + listener_name))
-                return ""
+                return handle_error_message("[!] Invalid listener: " + listener_name)
 
             else:
                 # generate the PowerShell one-liner with all of the proper options set

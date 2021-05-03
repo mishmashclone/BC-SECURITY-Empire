@@ -1,14 +1,14 @@
 from __future__ import print_function
 
-from builtins import str
-from builtins import object
-
-from empire.server.utils import data_util
-from empire.server.common import helpers
 import base64
+from builtins import object
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -23,8 +23,7 @@ class Module(object):
         try:
             f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
-            return ""
+            return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
         module_code = f.read()
         f.close()
@@ -35,8 +34,7 @@ class Module(object):
 
         #check if dllpath or PEUrl is set. Both are required params in their respective parameter sets.
         if params['DllPath'] == "" and params['PEUrl'] == "":
-            print(helpers.color("[!] Please provide a PEUrl or DllPath"))
-            return ""
+            return handle_error_message("[!] Please provide a PEUrl or DllPath")
         for option,values in params.items():
             if option.lower() != "agent":
                 if option.lower() == "dllpath":

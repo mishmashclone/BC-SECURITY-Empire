@@ -1,13 +1,13 @@
 from __future__ import print_function
 
-from builtins import str
 from builtins import object
-
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -31,8 +31,7 @@ class Module(object):
         try:
             f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
-            return ""
+            return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
         module_code = f.read()
         f.close()
@@ -57,8 +56,7 @@ class Module(object):
                                                        proxyCreds=proxy_creds, bypasses=params['Bypasses'])
 
         if launcher == "":
-            print(helpers.color("[!] Error in launcher command generation."))
-            return ""
+            return handle_error_message("[!] Error in launcher command generation.")
 
         else:
             out_file = params['DllPath']

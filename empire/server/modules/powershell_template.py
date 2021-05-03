@@ -1,11 +1,13 @@
 from __future__ import print_function
-from builtins import str
-from builtins import object
-from typing import Dict
 
-from empire.server.utils import data_util
+from builtins import object
+from builtins import str
+from typing import Dict, Optional, Tuple
+
 from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -14,7 +16,7 @@ class Module(object):
     Take a look at the wiki: TODO Link. to see if you truly need this.
     """
     @staticmethod
-    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = "") -> str:
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = "") -> Tuple[Optional[str], Optional[str]]:
         # First method: Read in the source script from module_source
         module_source = main_menu.installPath + "/data/module_source/..."
         if obfuscate:
@@ -23,8 +25,7 @@ class Module(object):
         try:
             f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
-            return ""
+            return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
         module_code = f.read()
         f.close()

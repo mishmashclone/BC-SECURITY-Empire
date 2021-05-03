@@ -1,11 +1,11 @@
 from __future__ import print_function
 
-from builtins import str
 from builtins import object
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -20,8 +20,7 @@ class Module(object):
         launcher = main_menu.stagers.generate_launcher(listener_name, language='python', userAgent=user_agent)
 
         if launcher == "":
-            print(helpers.color("[!] Error in launcher command generation."))
-            return ""
+            return handle_error_message("[!] Error in launcher command generation.")
         else:
 
             launcher = launcher.replace('"', '\\"')

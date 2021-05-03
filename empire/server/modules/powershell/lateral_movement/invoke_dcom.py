@@ -1,13 +1,13 @@
 from __future__ import print_function
 
-from builtins import str
 from builtins import object
-
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -29,11 +29,9 @@ class Module(object):
 
         # Only "Command" or "Listener" but not both
         if (listener_name == "" and command  == ""):
-          print(helpers.color("[!] Listener or Command required"))
-          return ""
+          return handle_error_message("[!] Listener or Command required")
         if (listener_name and command):
-          print(helpers.color("[!] Cannot use Listener and Command at the same time"))
-          return ""
+          return handle_error_message("[!] Cannot use Listener and Command at the same time")
 
         module_source = main_menu.installPath + "/data/module_source/lateral_movement/Invoke-DCOM.ps1"
         if obfuscate:
@@ -42,8 +40,7 @@ class Module(object):
         try:
             f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
-            return ""
+            return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
         module_code = f.read()
         f.close()
@@ -53,8 +50,7 @@ class Module(object):
 
         if not main_menu.listeners.is_listener_valid(listener_name) and not command:
             # not a valid listener, return nothing for the script
-            print(helpers.color("[!] Invalid listener: " + listener_name))
-            return ""
+            return handle_error_message("[!] Invalid listener: " + listener_name)
 
         elif listener_name:
 
@@ -65,8 +61,7 @@ class Module(object):
                                                            proxyCreds=proxy_creds, bypasses=params['Bypasses'])
 
             if launcher == "":
-                print(helpers.color("[!] Error in launcher generation."))
-                return ""
+                return handle_error_message("[!] Error in launcher generation.")
             else:
 
                 Cmd = '%COMSPEC% /C start /b C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher

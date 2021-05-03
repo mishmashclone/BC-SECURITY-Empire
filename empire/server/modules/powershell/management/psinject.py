@@ -1,13 +1,13 @@
 from __future__ import print_function
 
-from builtins import str
 from builtins import object
-
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -24,8 +24,7 @@ class Module(object):
         obfuscate_command = params['ObfuscateCommand']
 
         if proc_id == '' and proc_name == '':
-            print(helpers.color("[!] Either ProcID or ProcName must be specified."))
-            return ""
+            return handle_error_message("[!] Either ProcID or ProcName must be specified.")
 
         # staging options
         user_agent = params['UserAgent']
@@ -40,8 +39,7 @@ class Module(object):
         try:
             f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
-            return ""
+            return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
         module_code = f.read()
         f.close()
@@ -50,8 +48,7 @@ class Module(object):
         script_end = ""
         if not main_menu.listeners.is_listener_valid(listener_name):
             # not a valid listener, return nothing for the script
-            print(helpers.color("[!] Invalid listener: %s" %(listener_name)))
-            return ''
+            return handle_error_message("[!] Invalid listener: %s" %(listener_name))
         else:
             # generate the PowerShell one-liner with all of the proper options set
             launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', obfuscate=obfuscate,
@@ -59,11 +56,9 @@ class Module(object):
                                                            userAgent=user_agent, proxy=proxy, proxyCreds=proxy_creds,
                                                            bypasses=params['Bypasses'])
             if launcher == '':
-                print(helpers.color('[!] Error in launcher generation.'))
-                return ''
+                return handle_error_message('[!] Error in launcher generation.')
             elif len(launcher) > 5952:
-                print(helpers.color("[!] Launcher string is too long!"))
-                return ''
+                return handle_error_message("[!] Launcher string is too long!")
             else:
                 launcher_code = launcher.split(' ')[-1]
 

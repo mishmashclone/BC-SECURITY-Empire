@@ -1,14 +1,15 @@
 from __future__ import print_function
 
-from builtins import str
 from builtins import object
 
-from empire.server.database.models import Credential
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.database.models import Credential
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -23,8 +24,7 @@ class Module(object):
         try:
             f = open(module_source, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(module_source)))
-            return ""
+            return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
         module_code = f.read()
         f.close()
@@ -34,22 +34,19 @@ class Module(object):
         script_end = "Invoke-CredentialInjection"
 
         if params["NewWinLogon"] == "" and params["ExistingWinLogon"] == "":
-            print(helpers.color("[!] Either NewWinLogon or ExistingWinLogon must be specified"))
-            return ""
+            return handle_error_message("[!] Either NewWinLogon or ExistingWinLogon must be specified")
 
         # if a credential ID is specified, try to parse
         cred_id = params["CredID"]
         if cred_id != "":
 
             if not main_menu.credentials.is_credential_valid(cred_id):
-                print(helpers.color("[!] CredID is invalid!"))
-                return ""
+                return handle_error_message("[!] CredID is invalid!")
 
             cred: Credential = main_menu.credentials.get_credentials(cred_id)
 
             if cred.credtype != "plaintext":
-                print(helpers.color("[!] A CredID with a plaintext password must be used!"))
-                return ""
+                return handle_error_message("[!] A CredID with a plaintext password must be used!")
 
             if cred.domain != "":
                 params["DomainName"] = cred.domain
@@ -59,8 +56,7 @@ class Module(object):
                 params["Password"] = cred.password
 
         if params["DomainName"] == "" or params["UserName"] == "" or params["Password"] == "":
-            print(helpers.color("[!] DomainName/UserName/Password or CredID required!"))
-            return ""
+            return handle_error_message("[!] DomainName/UserName/Password or CredID required!")
 
         for option,values in params.items():
             if option.lower() != "agent" and option.lower() != "credid":

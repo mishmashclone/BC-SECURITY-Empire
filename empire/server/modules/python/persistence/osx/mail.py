@@ -1,17 +1,17 @@
-from builtins import str
-from builtins import range
 from builtins import object
-from time import time
+from builtins import range
+from builtins import str
 from random import choice
 from string import ascii_uppercase
-from typing import Dict
+from time import time
+from typing import Dict, Tuple, Optional
 
 from empire.server.common.module_models import PydanticModule
 
 
 class Module(object):
     @staticmethod
-    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = "") -> str:
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = "") -> Tuple[Optional[str], Optional[str]]:
 
         rule_name = params['RuleName']
         trigger = params['Trigger']

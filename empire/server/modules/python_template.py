@@ -1,7 +1,9 @@
 from __future__ import print_function
-from builtins import str
+
 from builtins import object
-from empire.server.common import helpers
+from builtins import str
+
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -101,8 +103,7 @@ class Module(object):
         try:
             f = open(moduleSource, 'r')
         except:
-            print(helpers.color("[!] Could not read module source path at: " + str(moduleSource)))
-            return ""
+            return handle_error_message("[!] Could not read module source path at: " + str(moduleSource))
 
         moduleCode = f.read()
         f.close()

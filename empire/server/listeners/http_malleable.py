@@ -372,7 +372,7 @@ class Listener(object):
                 if safeChecks.lower() == 'true':
                     launcherBase = helpers.randomize_capitalization("If($PSVersionTable.PSVersion.Major -ge 3){")
                 for bypass in bypasses:
-                    stager += bypass
+                    launcherBase += bypass
                 if safeChecks.lower() == 'true':
                     launcherBase += "};"
                     launcherBase += helpers.randomize_capitalization("[System.Net.ServicePointManager]::Expect100Continue=0;")

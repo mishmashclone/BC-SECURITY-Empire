@@ -147,7 +147,7 @@ class Listeners(object):
                     ###################################################################################################################################
                     return True
 
-                elif option == 'CertPath':
+                elif option == 'CertPath' and value != '':
                     listenerObject.options[option]['Value'] = value
                     host = listenerObject.options['Host']['Value']
                     # if we're setting a SSL cert path, but the host is specific at http

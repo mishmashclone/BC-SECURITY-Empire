@@ -1252,6 +1252,21 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'creds': credential_list})
 
+    @app.route('/api/creds/<int:uid>', methods=['GET'])
+    def get_cred(uid):
+        """
+        Returns JSON describing the credentials stored in the backend database.
+        """
+        credential = Session().query(models.Credential).filter(models.Credential.id == uid).first()
+
+        if credential:
+            return {"ID": credential.id, "credtype": credential.credtype, "domain": credential.domain,
+                    "username": credential.username, "password": credential.password,
+                    "host": credential.host, "os": credential.os, "sid": credential.sid,
+                    "notes": credential.notes}
+
+        return make_response(jsonify({'error': f'Credential {uid} not found'}), 404)
+
     @app.route('/api/creds', methods=['POST'])
     def add_creds():
         """
@@ -1313,6 +1328,56 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             )
 
         return jsonify({'success': '%s credentials added' % len(creds)})
+
+    @app.route('/api/creds/<int:uid>', methods=['DELETE'])
+    def remove_cred(uid):
+        """
+        Delete credential from database.
+        """
+        cred = Session().query(models.Credential).filter(models.Credential.id == uid).first()
+        if cred:
+            Session().delete(cred)
+            Session().commit()
+            return jsonify({"success": True})
+
+        return make_response(jsonify({'error': f'Credential {cred} not found'}), 404)
+
+    @app.route('/api/creds/<int:uid>', methods=['PUT'])
+    def edit_cred(uid):
+        """
+        Edit credential in database
+        """
+        if not request.json or 'data' not in request.json:
+            abort(400)
+
+        required_fields = ["credtype", "domain", "username", "password", "host"]
+
+        if not all(k in request.json for k in required_fields):
+            return make_response(jsonify({'error': 'invalid credential'}), 400)
+
+        # ensure the type is either "hash" or "plaintext"
+        if not (request.json['credtype'] == u'hash' or request.json['credtype'] == u'plaintext'):
+            return make_response(
+                jsonify({'error': 'invalid credential type, must be "hash" or "plaintext"'}), 400)
+
+        credential: models.Credential = Session().query(models.Credential).filter(models.Credential.id == uid).first()
+
+        if credential:
+            credential.credtype = request.json['credtype']
+            credential.domain = request.json['domain']
+            credential.username = request.json['username']
+            credential.password = request.json['password']
+            credential.host = request.json['host']
+            credential.os = request.get('os', '')
+            credential.notes = request.get('notes', '')
+            credential.sid = request.get('sid', '')
+            Session().commit()
+            return {"ID": credential.id, "credtype": credential.credtype, "domain": credential.domain,
+                                    "username": credential.username, "password": credential.password,
+                                    "host": credential.host, "os": credential.os, "sid": credential.sid,
+                                    "notes": credential.notes}
+
+        return make_response(jsonify({'error': f'Credential {uid} not found'}), 404)
 
     @app.route('/api/reporting', methods=['GET'])
     def get_reporting():
@@ -1735,8 +1800,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         if not request.json:
             return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
 
-        if not 'notes' in request.json:
-            return make_response(jsonify({'error': 'JSON body must include key "credentials"'}), 400)
+        if 'notes' not in request.json:
+            return make_response(jsonify({'error': 'JSON body must include key "notes"'}), 400)
 
         user = Session().query(models.User).filter(models.User.id == uid).first()
         user.notes = request.json['notes']

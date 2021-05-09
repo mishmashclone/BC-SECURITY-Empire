@@ -29,6 +29,7 @@ X/XX/2021
         - Added API endpoints for managing bypasses (@Vinnybod)
         - Add processor architecture to powershell, csharp, and python agents (@Vinnybod)
         - Add a display command to interact menu (@Vinnybod)
+        - Add additional endpoints for credential for get, update, and delete
 
 3/28/2021
 ------------

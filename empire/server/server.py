@@ -1409,34 +1409,53 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         profiles = []
         for active_profile in active_profiles_raw:
             profiles.append(
-                {'name': active_profile.name, 'category': active_profile.category, 'data': active_profile.data,
-                 'file_path': active_profile.file_path})
+                {'name': active_profile.name, 'category': active_profile.category,
+                 'data': active_profile.data, 'file_path': active_profile.file_path,
+                 'created_at': active_profile.created_at,
+                 'updated_at': active_profile.updated_at})
 
         return jsonify({"profiles": profiles})
 
+    @app.route('/api/malleable-profiles/<string:profile_name>', methods=['GET'])
+    def get_malleable_profile(profile_name):
+        """
+        Returns JSON with the requested profile
+        """
+        profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
+
+        if profile:
+            return {'name': profile.name, 'category': profile.category,
+                    'data': profile.data, 'file_path': profile.file_path,
+                    'created_at': profile.created_at, 'profile': profile.updated_at}
+
+        return make_response(jsonify({'error': f'malleable profile {profile_name} not found'}), 404)
+
     @app.route('/api/malleable-profiles', methods=['POST'])
-    def add_malleable_profiles():
+    def add_malleable_profile():
         """
-        Add malleable profiles to database
+        Add malleable profile to database
         """
-        if not request.json or not 'profile_name' and 'profile_category' and 'data':
+        if not request.json or 'name' not in request.json or 'category' not in request.json or 'data' not in request.json:
             abort(400)
 
-        profile_name = request.json['profile_name']
-        profile_category = request.json['profile_category']
+        profile_name = request.json['name']
+        profile_category = request.json['category']
         profile_data = request.json['data']
 
         profile = Session().query(models.Profile).filter(models.Profile.name == profile_name).first()
         if not profile:
-            Session().add(models.Profile(name=profile_name,
-                                         file_path='',
-                                         category=profile_category,
-                                         data=profile_data,
-                                         ))
+            profile = models.Profile(name=profile_name,
+                                     file_path='',
+                                     category=profile_category,
+                                     data=profile_data,
+                                     )
+            Session().add(profile)
             Session().commit()
-            return jsonify({"success": True})
-        else:
-            return jsonify({'error': 'Profile %s already exists' % profile_name})
+            return {'name': profile.name, 'category': profile.category,
+                    'data': profile.data, 'file_path': profile.file_path,
+                    'created_at': profile.created_at, 'profile': profile.updated_at}
+
+        return make_response(jsonify({'error': f'malleable profile {profile_name} already exists'}), 400)
 
     @app.route('/api/malleable-profiles/<string:profile_name>', methods=['DELETE'])
     def remove_malleable_profiles(profile_name):
@@ -1449,15 +1468,15 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             Session().delete(profile)
             Session().commit()
             return jsonify({"success": True})
-        else:
-            return jsonify({'error': 'Unable to delete profile %s' % profile_name})
+
+        return make_response(jsonify({'error': f'malleable profile {profile_name} not found'}), 404)
 
     @app.route('/api/malleable-profiles/<string:profile_name>', methods=['PUT'])
     def edit_malleable_profiles(profile_name):
         """
         Edit malleable profiles in database
         """
-        if not request.json or 'data':
+        if not request.json or 'data' not in request.json:
             abort(400)
 
         profile_data = request.json['data']
@@ -1467,9 +1486,11 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         if profile:
             profile.data = profile_data
             Session().commit()
-            return jsonify({"success": True})
-        else:
-            return jsonify({'error': 'Failed to edit malleable profile %s' % profile_name})
+            return {'name': profile.name, 'category': profile.category,
+                    'data': profile.data, 'file_path': profile.file_path,
+                    'created_at': profile.created_at, 'profile': profile.updated_at}
+
+        return make_response(jsonify({'error': f'malleable profile {profile_name} not found'}), 404)
 
     @app.route('/api/malleable-profiles/export', methods=['POST'])
     def export_malleable_profiles():

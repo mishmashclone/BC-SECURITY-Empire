@@ -215,6 +215,8 @@ class Profile(Base):
     file_path = Column(String(255))
     category = Column(String(255))
     data = Column(String, nullable=False)
+    created_at = Column(UtcDateTime, nullable=False, default=getutcnow)
+    updated_at = Column(UtcDateTime, default=getutcnow, onupdate=getutcnow, nullable=False)
 
 
 class Bypass(Base):

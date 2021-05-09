@@ -1347,7 +1347,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         """
         Edit credential in database
         """
-        if not request.json or 'data' not in request.json:
+        if not request.json:
             abort(400)
 
         required_fields = ["credtype", "domain", "username", "password", "host"]
@@ -1368,9 +1368,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             credential.username = request.json['username']
             credential.password = request.json['password']
             credential.host = request.json['host']
-            credential.os = request.get('os', '')
-            credential.notes = request.get('notes', '')
-            credential.sid = request.get('sid', '')
+            credential.os = request.json.get('os', '')
+            credential.notes = request.json.get('notes', '')
+            credential.sid = request.json.get('sid', '')
             Session().commit()
             return {"ID": credential.id, "credtype": credential.credtype, "domain": credential.domain,
                                     "username": credential.username, "password": credential.password,

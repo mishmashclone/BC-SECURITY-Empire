@@ -1275,59 +1275,40 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         if not request.json:
             return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
 
-        if not 'credentials' in request.json:
-            return make_response(jsonify({'error': 'JSON body must include key "credentials"'}), 400)
-
-        creds = request.json['credentials']
-
-        if not type(creds) == list:
-            return make_response(jsonify({'error': 'credentials must be provided as a list'}), 400)
-
         required_fields = ["credtype", "domain", "username", "password", "host"]
         optional_fields = ["OS", "notes", "sid"]
 
-        for cred in creds:
-            # ensure every credential given to us has all the required fields
-            if not all(k in cred for k in required_fields):
-                return make_response(jsonify({'error': 'invalid credential %s' % cred}), 400)
+        cred = request.json
 
-            # ensure the type is either "hash" or "plaintext"
-            if not (cred['credtype'] == u'hash' or cred['credtype'] == u'plaintext'):
-                return make_response(
-                    jsonify({'error': 'invalid credential type in %s, must be "hash" or "plaintext"' % cred}), 400)
+        # ensure every credential given to us has all the required fields
+        if not all(k in cred for k in required_fields):
+            return make_response(jsonify({'error': 'invalid credential fields'}), 400)
+        # ensure the type is either "hash" or "plaintext"
+        if not (cred['credtype'] == u'hash' or cred['credtype'] == u'plaintext'):
+            return make_response(
+                jsonify({'error': 'invalid credential type in credtype, must be "hash" or "plaintext"'}), 400)
 
-        # other than that... just assume everything is valid
+        os = request.json.get('os', '')
+        notes = request.json.get('notes', '')
+        sid = request.json.get('sid', '')
 
-        # this would be way faster if batched but will work for now
-        for cred in creds:
-            # get the optional stuff, if it's there
-            try:
-                os = cred['os']
-            except KeyError:
-                os = ''
+        credential = main.credentials.add_credential(
+            cred['credtype'],
+            cred['domain'],
+            cred['username'],
+            cred['password'],
+            cred['host'],
+            os,
+            sid,
+            notes
+        )
 
-            try:
-                sid = cred['sid']
-            except KeyError:
-                sid = ''
-
-            try:
-                notes = cred['notes']
-            except KeyError:
-                notes = ''
-
-            main.credentials.add_credential(
-                cred['credtype'],
-                cred['domain'],
-                cred['username'],
-                cred['password'],
-                cred['host'],
-                os,
-                sid,
-                notes
-            )
-
-        return jsonify({'success': '%s credentials added' % len(creds)})
+        if credential:
+            return {"ID": credential.id, "credtype": credential.credtype, "domain": credential.domain,
+                    "username": credential.username, "password": credential.password,
+                    "host": credential.host, "os": credential.os, "sid": credential.sid,
+                    "notes": credential.notes}
+        return make_response(jsonify({'error': f'Error writing credential. Check you aren\'t writing a duplicate.'}), 400)
 
     @app.route('/api/creds/<int:uid>', methods=['DELETE'])
     def remove_cred(uid):

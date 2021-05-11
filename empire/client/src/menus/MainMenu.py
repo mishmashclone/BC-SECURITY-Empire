@@ -119,6 +119,7 @@ class MainMenu(Menu):
         help_list.append(['uselisteners', 'Use an Empire listener.', 'uselisteners <listener_name>'])
         help_list.append(['usestager', 'Use an Empire stager.', 'usestager <stager_name>'])
         help_list.append(['useplugin', 'Use an Empire plugin.', 'useplugin <plugin_name>'])
+        help_list.append(['usecredential', 'View and edit an credential.', 'usecredential <cred_id>'])
         help_list.append(['plugins', 'View active plugins menu.', 'plugins'])
         help_list.append(['agents', 'View all agents.', 'agents'])
         help_list.append(['usemodule', 'Use an Empire module.', 'usemodule <module_name>'])

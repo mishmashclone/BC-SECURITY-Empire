@@ -59,6 +59,7 @@ class UseMenu(Menu):
                     yield Completion(cred,
                                      display=HTML(f"{full['ID']} <purple>({help_text})</purple>"),
                                      start_position=-len(word_before_cursor))
+
             if len(cmd_line) > 1 and len(self.suggested_values_for_option(cmd_line[1])) > 0:
                 for suggested_value in filtered_search_list(word_before_cursor,
                                                             self.suggested_values_for_option(cmd_line[1])):
@@ -147,5 +148,8 @@ class UseMenu(Menu):
         table_util.print_table(record_list, 'Record Info', colored_header=False, no_borders=True)
 
     def suggested_values_for_option(self, option: str) -> List[str]:
-        lower = {k.lower(): v for k, v in self.record_options.items()}
-        return lower.get(option, {}).get('SuggestedValues', [])
+        try:
+            lower = {k.lower(): v for k, v in self.record_options.items()}
+            return lower.get(option, {}).get('SuggestedValues', [])
+        except AttributeError:
+            return []

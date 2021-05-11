@@ -404,6 +404,37 @@ class EmpireCliState(object):
 
         return json.loads(response.content)['creds']
 
+    def get_credential(self, cred_id):
+        response = requests.get(url=f'{self.host}:{self.port}/api/creds/{cred_id}',
+                                verify=False,
+                                params={'token': self.token})
+
+        return json.loads(response.content)
+
+    def edit_credential(self, cred_id, cred_options: Dict):
+        response = requests.put(url=f'{self.host}:{self.port}/api/creds/{cred_id}',
+                                verify=False,
+                                json=cred_options,
+                                params={'token': self.token})
+
+        return json.loads(response.content)
+
+    def add_credential(self, cred_options):
+        response = requests.post(url=f'{self.host}:{self.port}/api/creds',
+                                 json=cred_options,
+                                 verify=False,
+                                 params={'token': self.token})
+
+        return json.loads(response.content)
+
+    def remove_credential(self, cred_id):
+        response = requests.delete(url=f'{self.host}:{self.port}/api/creds/{cred_id}',
+                                verify=False,
+                                params={'token': self.token})
+
+        return json.loads(response.content)
+
+
     def generate_report(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/reporting/generate',
                                 verify=False,

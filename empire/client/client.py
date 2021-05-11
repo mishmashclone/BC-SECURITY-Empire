@@ -31,6 +31,7 @@ from empire.client.src.menus.UseListenerMenu import use_listener_menu
 from empire.client.src.menus.UseModuleMenu import use_module_menu
 from empire.client.src.menus.UsePluginMenu import use_plugin_menu
 from empire.client.src.menus.UseStagerMenu import use_stager_menu
+from empire.client.src.menus.UseCredentialMenu import use_credential_menu
 from empire.client.src.utils import print_util
 
 
@@ -67,6 +68,10 @@ class MyCustomCompleter(Completer):
             elif cmd_line[0] in ['useplugin']:
                 yield from self.empire_cli.menus['UsePluginMenu'].get_completions(document, complete_event, cmd_line,
                                                                                   word_before_cursor)
+            elif cmd_line[0] in ['usecredential']:
+                yield from self.empire_cli.menus['UseCredentialMenu'].get_completions(document, complete_event,
+                                                                                      cmd_line,
+                                                                                      word_before_cursor)
             else:
                 # Menu specific commands
                 yield from menu_state.current_menu.get_completions(document, complete_event, cmd_line,
@@ -83,6 +88,7 @@ class EmpireCli(object):
         self.menus: Dict[Menu] = {
             'MainMenu': main_menu,
             'ListenerMenu': listener_menu,
+            'UseCredentialMenu': use_credential_menu,
             'UseListenerMenu': use_listener_menu,
             'UseStagerMenu': use_stager_menu,
             'AgentMenu': agent_menu,
@@ -251,6 +257,11 @@ class EmpireCli(object):
                 menu_state.push(self.menus['UsePluginMenu'], selected=cmd_line[1])
             else:
                 print(f'No plugin {cmd_line[1]}')
+        elif cmd_line[0] == 'usecredential' and len(cmd_line) > 1:
+            if cmd_line[1] in state.credentials or cmd_line[1] == 'add':
+                menu_state.push(self.menus['UseCredentialMenu'], selected=cmd_line[1])
+            else:
+                print(f'[!] No credential {cmd_line[1]}')
         elif cmd_line[0] == 'usemodule' and len(cmd_line) > 1:
             if cmd_line[1] in state.modules:
                 if menu_state.current_menu_name == 'InteractMenu':

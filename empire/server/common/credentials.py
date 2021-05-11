@@ -97,17 +97,18 @@ class Credentials(object):
                                                                  models.Credential.username.like(username),
                                                                  models.Credential.password.like(password))).all()
 
-        if results == []:
-            Session().add(models.Credential(credtype=credtype,
-                                            domain=domain,
-                                            username=username,
-                                            password=password,
-                                            host=host,
-                                            os=os,
-                                            sid=sid,
-                                            notes=notes))
-
+        if len(results) == 0:
+            credential = models.Credential(credtype=credtype,
+                                           domain=domain,
+                                           username=username,
+                                           password=password,
+                                           host=host,
+                                           os=os,
+                                           sid=sid,
+                                           notes=notes)
+            Session().add(credential)
             Session().commit()
+            return credential
 
     def add_credential_note(self, credential_id, note):
         """

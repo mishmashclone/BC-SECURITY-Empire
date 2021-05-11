@@ -40,6 +40,7 @@ class Menu(object):
             'usemodule',
             'useplugin',
             'usestager',
+            'usecredential',
             'exit',
         ]
 

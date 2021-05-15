@@ -136,7 +136,7 @@ The following operating systems have been tested for Empire compatibility. We wi
 - Ubuntu 20.04
 - Debian 10
 
-As of Empire 4.0, Python 3.7 is the minimum Python version required.
+As of Empire 4.0, Python 3.8 is the minimum Python version required.
 
 ### Kali
 You can install the latest version of Empire by running the following:

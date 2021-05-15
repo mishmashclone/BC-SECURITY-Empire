@@ -1920,7 +1920,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppress: bool = False):
     app = Flask(__name__)
     app.json_encoder = MyJsonEncoder
-    socketio = SocketIO(app, cors_allowed_origins="*", json=flask.json)
+    socketio = SocketIO(app, cors_allowed_origins="*", json=flask.json, async_mode="threading")
 
     empire_menu.socketio = socketio
     room = 'general'  # A socketio user is in the general channel if the join the chat.
@@ -1949,11 +1949,12 @@ def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppres
             print(helpers.color(f"[+] {user['username']} connected to socketio"))
             return
 
-        raise ConnectionRefusedError('unauthorized!')
+        return False
 
     @socketio.on('disconnect')
     def test_disconnect():
-        print(helpers.color('[+] Client disconnected from socketio'))
+        user = get_user_from_token()
+        print(helpers.color(f"[+] {'Client' if user is None else user['username']} disconnected from socketio"))
 
     @socketio.on('chat/join')
     def on_join(data=None):
@@ -1983,7 +1984,7 @@ def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppres
             leave_room(room)
             socketio.emit("chat/leave", {'user': user,
                                          'username': user['username'],
-                                         'message': user['username'] + ' has left the room.'}, room=room)
+                                         'message': user['username'] + ' has left the room.'}, to=room)
 
     @socketio.on('chat/message')
     def on_message(data):
@@ -1994,7 +1995,7 @@ def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppres
         """
         user = get_user_from_token()
         chat_log.append({'username': user['username'], 'message': data['message']})
-        socketio.emit("chat/message", {'username': user['username'], 'message': data['message']}, room=room)
+        socketio.emit("chat/message", {'username': user['username'], 'message': data['message']}, to=room)
 
     @socketio.on('chat/history')
     def on_history(data=None):
@@ -2006,7 +2007,7 @@ def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppres
         for x in range(len(chat_log[-20:])):
             username = chat_log[x]['username']
             message = chat_log[x]['message']
-            socketio.emit("chat/message", {'username': username, 'message': message, 'history': True}, room=sid)
+            socketio.emit("chat/message", {'username': username, 'message': message, 'history': True}, to=sid)
 
     @socketio.on('chat/participants')
     def on_participants(data=None):
@@ -2015,11 +2016,7 @@ def start_sockets(empire_menu: MainMenu, ip='0.0.0.0', port: int = 5000, suppres
         :return: emit participant event containing list of users.
         """
         sid = request.sid
-        socketio.emit("chat/participants", list(chat_participants.values()), room=sid)
-
-    @socketio.on('startup_validator')
-    def test():
-        socketio.emit("startup_validator")
+        socketio.emit("chat/participants", list(chat_participants.values()), to=sid)
 
     print(helpers.color("[*] Starting Empire SocketIO on %s:%s" % (ip, port)))
 
@@ -2045,37 +2042,38 @@ def run(args):
             pass
 
     def server_startup_validator():
+        print(helpers.color('[*] Testing APIs'))
+        username = 'test-' + ''.join(random.choice(string.ascii_lowercase) for i in range(4))
+        password = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+        main.users.add_new_user(username, password)
         response = requests.post(url=f'https://{args.restip}:{args.restport}/api/admin/login',
-                                 json={'username': 'empireadmin', 'password': 'password123'},
+                                 json={'username': username, 'password': password},
                                  verify=False)
         if response:
             print(helpers.color('[+] Empire RESTful API successfully started'))
 
             try:
                 sio = socketio.Client(ssl_verify=False)
-                sio.emit('startup_validator')
-
-                t_end = time.time() + 10
-                sio_check = False
-                while time.time() < t_end:
-                    if sio.on('startup_validator'):
-                        sio_check = True
-                        break
-
-                if sio_check is True:
-                    print(helpers.color('[+] Empire SocketIO successfully started'))
-                else:
-                    print(helpers.color('[!] Empire SocketIO failed to start'))
-                    sys.exit()
-            except:
+                sio.connect(f'wss://{args.restip}:{args.socketport}?token={response.json()["token"]}')
+                print(helpers.color('[+] Empire SocketIO successfully started'))
+            except Exception as e:
+                print(e)
                 print(helpers.color('[!] Empire SocketIO failed to start'))
                 sys.exit()
             finally:
+                cleanup_test_user(username)
                 sio.disconnect()
 
         else:
             print(helpers.color('[!] Empire RESTful API failed to start'))
+            cleanup_test_user(password)
             sys.exit()
+
+    def cleanup_test_user(username: str):
+        print(helpers.color('[*] Cleaning up test user'))
+        user = Session().query(models.User).filter(models.User.username == username).first()
+        Session().delete(user)
+        Session().commit()
 
     database_check_docker()
 

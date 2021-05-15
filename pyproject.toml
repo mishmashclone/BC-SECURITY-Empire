@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "empire-bc-security-fork"
-version = "4.0.0-alpha.2"
+version = "4.0.0-alpha.3"
 description = ""
 authors = ["BC Security <info@bc-security.org>"]
 readme = "README.md"
@@ -13,13 +13,13 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 urllib3 = "*"
 requests = "^2.24.0"
 setuptools = "*"
 iptools = "*"
 pydispatcher = "*"
-flask = "*"
+flask = "^1.1.2"
 macholib = "*"
 dropbox = "*"
 pyOpenSSL = "*"
@@ -35,16 +35,16 @@ pyparsing = "*"
 PyMySQL = "^0.10.1"
 SQLAlchemy = "^1.3.20"
 PyYAML = "^5.3.1"
-Flask-SocketIO = "^4.3.2"
 SQLAlchemy-Utc = "^0.11.0"
 prompt-toolkit = "^3.0.9"
 terminaltables = "^3.1.0"
 docopt = "^0.6.2"
-python-socketio = {extras = ["client"], version = "^4.6.0"}
 humanize = "^3.2.0"
 pydantic = "^1.8.1"
 pycryptodome = "^3.10.1"
 cryptography = "^3.4.7"
+Flask-SocketIO = "^5.0.1"
+python-socketio = "^5.2.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

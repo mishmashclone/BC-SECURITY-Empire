@@ -443,26 +443,26 @@ class EmpireCliState(object):
         return json.loads(response.content)
 
     def get_active_plugins(self):
-        response = requests.get(url=f'{self.host}:{self.port}/api/plugin/active',
+        response = requests.get(url=f'{self.host}:{self.port}/api/plugins/active',
                                 verify=False,
                                 params={'token': self.token})
 
         self.plugins = {x['Name']: x for x in json.loads(response.content)['plugins']}
         for name, plugin in self.plugins.items():
             plugin_name = plugin['Name']
-            self.sio.on(f'plugin/{plugin_name}/notifications', self.add_plugin_cache)
+            self.sio.on(f'plugins/{plugin_name}/notifications', self.add_plugin_cache)
 
         return self.plugins
 
     def get_plugin(self, plugin_name):
-        response = requests.get(url=f'{self.host}:{self.port}/api/plugin/{plugin_name}',
+        response = requests.get(url=f'{self.host}:{self.port}/api/plugins/{plugin_name}',
                                 verify=False,
                                 params={'token': self.token})
 
         return json.loads(response.content)
 
     def execute_plugin(self, plugin_name, options: Dict):
-        response = requests.post(url=f'{self.host}:{self.port}/api/plugin/{plugin_name}',
+        response = requests.post(url=f'{self.host}:{self.port}/api/plugins/{plugin_name}',
                                  json=options,
                                  verify=False,
                                  params={'token': self.token})

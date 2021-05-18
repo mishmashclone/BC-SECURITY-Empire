@@ -219,13 +219,13 @@ class MainMenu(cmd.Cmd):
                                                          ))
         Session().commit()
 
-    def plugin_socketio_message(self, plugin_name, socket_address, msg):
+    def plugin_socketio_message(self, plugin_name, msg):
         """
         Send socketio message to the socket address
         """
         if self.args.debug is not None:
             print(helpers.color(msg))
-        self.socketio.emit(socket_address, {'message': msg, 'plugin_name': plugin_name})
+        self.socketio.emit(f'plugins/{plugin_name}/notifications', {'message': msg, 'plugin_name': plugin_name})
 
     def check_root(self):
         """

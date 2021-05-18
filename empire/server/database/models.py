@@ -4,9 +4,9 @@ from sqlalchemy import Column, Integer, Sequence, String, Boolean, ForeignKey, P
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, deferred
-from sqlalchemy_utc import UtcDateTime
+from sqlalchemy_utc import UtcDateTime, utcnow
 
-from empire.server.utils.datetime_util import getutcnow, is_stale
+from empire.server.utils.datetime_util import is_stale
 
 Base = declarative_base()
 
@@ -17,7 +17,7 @@ class User(Base):
     username = Column(String(255), nullable=False)
     password = Column(String(255), nullable=False)
     api_token = Column(String(50))
-    last_logon_time = Column(UtcDateTime, default=getutcnow, onupdate=getutcnow)
+    last_logon_time = Column(UtcDateTime, default=utcnow(), onupdate=utcnow())
     enabled = Column(Boolean, nullable=False)
     admin = Column(Boolean, nullable=False)
     notes = Column(Text)
@@ -36,7 +36,7 @@ class Listener(Base):
     listener_category = Column(String(255), nullable=False)
     enabled = Column(Boolean, nullable=False)
     options = Column(PickleType)  # Todo Json?
-    created_at = Column(UtcDateTime, nullable=False, default=getutcnow)
+    created_at = Column(UtcDateTime, nullable=False, default=utcnow())
 
     def __repr__(self):
         return "<Listener(name='%s')>" % (
@@ -69,8 +69,8 @@ class Agent(Base):
     os_details = Column(String(255))
     session_key = Column(String(255))
     nonce = Column(String(255))
-    checkin_time = Column(UtcDateTime, default=getutcnow)
-    lastseen_time = Column(UtcDateTime, default=getutcnow, onupdate=getutcnow)
+    checkin_time = Column(UtcDateTime, default=utcnow())
+    lastseen_time = Column(UtcDateTime, default=utcnow(), onupdate=utcnow())
     parent = Column(String(255))
     children = Column(String(255))
     servers = Column(String(255))
@@ -168,8 +168,8 @@ class Tasking(Base):
     output = Column(Text, nullable=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     user = relationship(User)
-    created_at = Column(UtcDateTime, default=getutcnow, nullable=False)
-    updated_at = Column(UtcDateTime, default=getutcnow, onupdate=getutcnow, nullable=False)
+    created_at = Column(UtcDateTime, default=utcnow(), nullable=False)
+    updated_at = Column(UtcDateTime, default=utcnow(), onupdate=utcnow(), nullable=False)
     module_name = Column(Text)
     task_name = Column(Text)
     status = Column(Enum(TaskingStatus))
@@ -185,7 +185,7 @@ class Reporting(Base):
     name = Column(String(255), nullable=False)
     event_type = Column(String(255))
     message = Column(Text)
-    timestamp = Column(UtcDateTime, default=getutcnow, nullable=False)
+    timestamp = Column(UtcDateTime, default=utcnow(), nullable=False)
     taskID = Column(Integer, ForeignKey('taskings.id'))
 
     def __repr__(self):
@@ -215,8 +215,8 @@ class Profile(Base):
     file_path = Column(String(255))
     category = Column(String(255))
     data = Column(String, nullable=False)
-    created_at = Column(UtcDateTime, nullable=False, default=getutcnow)
-    updated_at = Column(UtcDateTime, default=getutcnow, onupdate=getutcnow, nullable=False)
+    created_at = Column(UtcDateTime, nullable=False, default=utcnow())
+    updated_at = Column(UtcDateTime, default=utcnow(), onupdate=utcnow(), nullable=False)
 
 
 class Bypass(Base):
@@ -224,5 +224,5 @@ class Bypass(Base):
     id = Column(Integer, Sequence("bypass_seq"), primary_key=True)
     name = Column(String(255), unique=True)
     code = Column(Text)
-    created_at = Column(UtcDateTime, nullable=False, default=getutcnow)
-    updated_at = Column(UtcDateTime, default=getutcnow, onupdate=getutcnow, nullable=False)
+    created_at = Column(UtcDateTime, nullable=False, default=utcnow())
+    updated_at = Column(UtcDateTime, default=utcnow(), onupdate=utcnow(), nullable=False)

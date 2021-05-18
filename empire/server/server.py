@@ -887,8 +887,13 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             .options(joinedload(models.Tasking.user))
 
         if request.args.get('updated_since'):
-            timestamp = datetime.fromisoformat(request.args.get('updated_since')).astimezone(timezone.utc)
-            query = query.filter(models.Tasking.updated_at > timestamp)
+            try:
+                since = request.args.get('updated_since')
+                since.replace('Z', '+00:00')  # from isoformat does not recognize Z as utc
+                timestamp = datetime.fromisoformat(since).astimezone(timezone.utc)
+                query = query.filter(models.Tasking.updated_at > timestamp)
+            except ValueError as e:
+                return make_response({'error': f'Invalid ISO-8601 timestamp: {request.args.get("updated_since")}'}, 400)
 
         tasks = query.all()
 
@@ -1792,7 +1797,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'success': True})
 
-    @app.route('/api/plugin/active', methods=['GET'])
+    @app.route('/api/plugins/active', methods=['GET'])
     def list_active_plugins():
         """
         Lists all active plugins
@@ -1811,7 +1816,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'plugins': plugins})
 
-    @app.route('/api/plugin/<string:plugin_name>', methods=['GET'])
+    @app.route('/api/plugins/<string:plugin_name>', methods=['GET'])
     def get_plugin(plugin_name):
         # check if the plugin has already been loaded
         if plugin_name not in empireMenu.loadedPlugins.keys():
@@ -1826,7 +1831,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         data = {'name': name, 'commands': commands, 'description': description}
         return jsonify(data)
 
-    @app.route('/api/plugin/<string:plugin_name>', methods=['POST'])
+    @app.route('/api/plugins/<string:plugin_name>', methods=['POST'])
     def execute_plugin(plugin_name):
         # check if the plugin has been loaded
         if plugin_name not in empireMenu.loadedPlugins.keys():

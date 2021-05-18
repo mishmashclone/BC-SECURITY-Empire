@@ -32,6 +32,7 @@ X/XX/2021
         - Add additional endpoints for credential for get, update, and delete (@Vinnybod)
         - Add create, update, remove credential functionality to the CLI (@Cx01N)
         - The credential create endpoint now accepts a single credential instead of a list
+        - Plugin endpoints and socketio channels renamed to plural (plugin -> plugins) to match naming convention of other resources (@Vinnybod)
 
 3/28/2021
 ------------

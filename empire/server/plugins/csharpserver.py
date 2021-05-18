@@ -83,18 +83,18 @@ class Plugin(Plugin):
             self.status = "ON"
 
         if not args:
-            self.main_menu.plugin_socketio_message(self.info[0]['Name'],f'plugin/{self.info[0]["Name"]}/notifications',
+            self.main_menu.plugin_socketio_message(self.info[0]['Name'],
                                                  "[*] Empire C# server is currently: %s" % self.status)
-            self.main_menu.plugin_socketio_message(self.info[0]['Name'],f'plugin/{self.info[0]["Name"]}/notifications',
+            self.main_menu.plugin_socketio_message(self.info[0]['Name'],
                                                  "[!] Empire C# <start|stop> <port>")
 
         elif self.start == "stop":
             if self.status == "ON":
                 self.csharpserver_proc.kill()
-                self.main_menu.plugin_socketio_message(self.info[0]['Name'], f'plugin/{self.info[0]["Name"]}/notifications',
+                self.main_menu.plugin_socketio_message(self.info[0]['Name'],
                                                      "[*] Stopping Empire C# server")
             else:
-                self.main_menu.plugin_socketio_message(self.info[0]['Name'], f'plugin/{self.info[0]["Name"]}/notifications',
+                self.main_menu.plugin_socketio_message(self.info[0]['Name'],
                                                      "[!] Empire C# server is already stopped")
 
         elif self.start == "start":
@@ -108,14 +108,13 @@ class Plugin(Plugin):
                     time.sleep(10)
                     self.csharpserverbuild_proc.kill()
 
-                self.main_menu.plugin_socketio_message(self.info[0]['Name'], f'plugin/{self.info[0]["Name"]}/notifications',
+                self.main_menu.plugin_socketio_message(self.info[0]['Name'],
                                                      "[*] Starting Empire C# server")
                 csharp_cmd = ["dotnet",
                               self.installPath + "/csharp/Covenant/bin/Debug/netcoreapp3.1/EmpireCompiler.dll"]
                 self.csharpserver_proc = subprocess.Popen(csharp_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
                 self.main_menu.plugin_socketio_message(self.info[0]['Name'],
-                                                       f'plugin/{self.info[0]["Name"]}/notifications',
                                                        "[!] Empire C# server is already started")
 
             thread = helpers.KThread(target=self.thread_csharp_responses, args=())
@@ -140,7 +139,7 @@ class Plugin(Plugin):
         s.send(message)
 
         recv_message = s.recv(1024)
-        self.main_menu.plugin_socketio_message(self.info[0]['Name'], f'plugin/{self.info[0]["Name"]}/notifications',
+        self.main_menu.plugin_socketio_message(self.info[0]['Name'],
                                              ("[*] " + recv_message.decode("ascii")))
         s.close()
 
@@ -156,7 +155,7 @@ class Plugin(Plugin):
         s.send(message)
 
         recv_message = s.recv(1024)
-        self.main_menu.plugin_socketio_message(self.info[0]['Name'], f'plugin/{self.info[0]["Name"]}/notifications',
+        self.main_menu.plugin_socketio_message(self.info[0]['Name'],
                                              ("[*] " + recv_message.decode("ascii")))
         s.close()
 

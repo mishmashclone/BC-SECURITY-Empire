@@ -1,4 +1,3 @@
-import json
 from typing import Dict, Optional
 
 import requests
@@ -61,7 +60,7 @@ class EmpireCliState(object):
             return e
 
         if response.status_code == 200:
-            self.token = json.loads(response.content)['token']
+            self.token = response.json()['token']
             self.connected = True
 
             self.sio = socketio.Client(ssl_verify=False)
@@ -166,7 +165,7 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        self.listeners = {x['name']: x for x in json.loads(response.content)['listeners']}
+        self.listeners = {x['name']: x for x in response.json()['listeners']}
 
         return self.listeners
 
@@ -176,14 +175,14 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_version(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/version',
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def set_admin_options(self, options: Dict):
         response = requests.post(url=f'{self.host}:{self.port}/api/admin/options',
@@ -191,21 +190,21 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def kill_listener(self, listener_name: str):
         response = requests.delete(url=f'{self.host}:{self.port}/api/listeners/{listener_name}',
                                    verify=False,
                                    params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_listener_types(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/listeners/types',
                                 verify=False,
                                 params={'token': self.token})
 
-        self.listener_types = json.loads(response.content)['types']
+        self.listener_types = response.json()['types']
 
         return self.listener_types
 
@@ -214,7 +213,7 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def create_listener(self, listener_type: str, options: Dict):
         response = requests.post(url=f'{self.host}:{self.port}/api/listeners/{listener_type}',
@@ -224,7 +223,7 @@ class EmpireCliState(object):
 
         # todo push to state array or just call get_listeners() to refresh cache??
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_stagers(self):
         # todo need error handling in all api requests
@@ -232,7 +231,7 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        self.stagers = {x['Name']: x for x in json.loads(response.content)['stagers']}
+        self.stagers = {x['Name']: x for x in response.json()['stagers']}
 
         return self.stagers
 
@@ -243,14 +242,14 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_agents(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/agents',
                                 verify=False,
                                 params={'token': self.token})
 
-        self.agents = {x['name']: x for x in json.loads(response.content)['agents']}
+        self.agents = {x['name']: x for x in response.json()['agents']}
 
         # Whenever agents are refreshed, add socketio listeners for taskings.
         for name, agent in self.agents.items():
@@ -264,7 +263,7 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        self.modules = {x['Name']: x for x in json.loads(response.content)['modules']}
+        self.modules = {x['Name']: x for x in response.json()['modules']}
 
         return self.modules
 
@@ -274,28 +273,28 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def kill_agent(self, agent_name: str):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/kill',
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def remove_agent(self, agent_name: str):
         response = requests.delete(url=f'{self.host}:{self.port}/api/agents/{agent_name}',
                                    verify=False,
                                    params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def remove_stale_agents(self):
         response = requests.delete(url=f'{self.host}:{self.port}/api/agents/stale',
                                    verify=False,
                                    params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def update_agent_comms(self, agent_name: str, listener_name: str):
         response = requests.put(url=f'{self.host}:{self.port}/api/agents/{agent_name}/update_comms',
@@ -303,7 +302,7 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def update_agent_killdate(self, agent_name: str, kill_date: str):
         response = requests.put(url=f'{self.host}:{self.port}/api/agents/{agent_name}/killdate',
@@ -311,7 +310,7 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def update_agent_working_hours(self, agent_name: str, working_hours: str):
         response = requests.put(url=f'{self.host}:{self.port}/api/agents/{agent_name}/workinghours',
@@ -319,14 +318,14 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def clear_agent(self, agent_name: str):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/clear',
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def rename_agent(self, agent_name: str, new_agent_name: str):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/rename',
@@ -334,7 +333,7 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def agent_shell(self, agent_name, shell_cmd: str):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/shell',
@@ -342,7 +341,7 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def agent_script_import(self, agent_name, script_location: str):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/script_import',
@@ -350,7 +349,7 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def agent_script_command(self, agent_name, script_command: str):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/script_command',
@@ -358,58 +357,58 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def scrape_directory(self, agent_name):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/directory',
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_directory(self, agent_name):
         response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/directory',
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_result(self, agent_name):
         response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/results',
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_task_result(self, agent_name, task_id):
         response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/task/{task_id}',
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_agent_result(self, agent_name):
         response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/results',
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_credentials(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/creds',
                                 verify=False,
                                 params={'token': self.token})
 
-        self.credentials = {str(x['ID']): x for x in json.loads(response.content)['creds']}
+        self.credentials = {str(x['ID']): x for x in response.json()['creds']}
 
-        return json.loads(response.content)['creds']
+        return response.json()['creds']
 
     def get_credential(self, cred_id):
         response = requests.get(url=f'{self.host}:{self.port}/api/creds/{cred_id}',
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def edit_credential(self, cred_id, cred_options: Dict):
         response = requests.put(url=f'{self.host}:{self.port}/api/creds/{cred_id}',
@@ -417,7 +416,7 @@ class EmpireCliState(object):
                                 json=cred_options,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def add_credential(self, cred_options):
         response = requests.post(url=f'{self.host}:{self.port}/api/creds',
@@ -425,14 +424,14 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def remove_credential(self, cred_id):
         response = requests.delete(url=f'{self.host}:{self.port}/api/creds/{cred_id}',
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
 
     def generate_report(self):
@@ -440,14 +439,14 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_active_plugins(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/plugins/active',
                                 verify=False,
                                 params={'token': self.token})
 
-        self.plugins = {x['Name']: x for x in json.loads(response.content)['plugins']}
+        self.plugins = {x['Name']: x for x in response.json()['plugins']}
         for name, plugin in self.plugins.items():
             plugin_name = plugin['Name']
             self.sio.on(f'plugins/{plugin_name}/notifications', self.add_plugin_cache)
@@ -459,7 +458,7 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def execute_plugin(self, plugin_name, options: Dict):
         response = requests.post(url=f'{self.host}:{self.port}/api/plugins/{plugin_name}',
@@ -467,7 +466,7 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def update_agent_notes(self, agent_name: str, notes: str):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/notes',
@@ -475,7 +474,7 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def agent_upload_file(self, agent_name: str, file_name: str, file_data: bytes):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/upload',
@@ -483,7 +482,7 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def agent_download_file(self, agent_name: str, file_name: str):
         response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/download',
@@ -491,7 +490,7 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def update_user_notes(self, username: str, notes: str):
         response = requests.post(url=f'{self.host}:{self.port}/api/users/{username}/notes',
@@ -499,14 +498,14 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_users(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/users',
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def create_user(self, new_user):
         response = requests.post(url=f'{self.host}:{self.port}/api/users',
@@ -514,7 +513,7 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def disable_user(self, user_id: str, account_status: str):
         response = requests.put(url=f'{self.host}:{self.port}/api/users/{user_id}/disable',
@@ -522,29 +521,29 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_user(self, user_id: str):
         response = requests.get(url=f'{self.host}:{self.port}/api/users/{user_id}',
                                 verify=False,
                                 params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def get_user_me(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/users/me',
                                 verify=False,
                                 params={'token': self.token})
 
-        self.me = json.loads(response.content)
-        return json.loads(response.content)
+        self.me = response.json()
+        return response.json()
 
     def get_malleable_profile(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/malleable-profiles',
                                 verify=False,
                                 params={'token': self.token})
 
-        self.profiles = {x['name']: x for x in json.loads(response.content)['profiles']}
+        self.profiles = {x['name']: x for x in response.json()['profiles']}
 
         return self.profiles
 
@@ -553,7 +552,7 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        self.bypasses = {x['name']: x for x in json.loads(response.content)['bypasses']}
+        self.bypasses = {x['name']: x for x in response.json()['bypasses']}
 
         return self.bypasses
 
@@ -564,14 +563,14 @@ class EmpireCliState(object):
                                  verify=False,
                                  params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
     def delete_malleable_profile(self, profile_name: str):
         response = requests.delete(url=f'{self.host}:{self.port}/api/malleable-profiles/{profile_name}',
                                    verify=False,
                                    params={'token': self.token})
 
-        return json.loads(response.content)
+        return response.json()
 
 
 state = EmpireCliState()

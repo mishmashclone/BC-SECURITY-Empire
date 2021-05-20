@@ -17,6 +17,7 @@ function install_powershell() {
   elif [ $OS_NAME == "KALI" ]; then
     apt update && apt -y install powershell
   fi
+  rm packages-microsoft-prod.deb*
 }
 
 function install_xar() {
@@ -24,11 +25,15 @@ function install_xar() {
   wget https://github.com/BC-SECURITY/xar/archive/xar-1.6.1-patch.tar.gz
   rm -rf xar-1.6.1
   rm -rf xar-1.6.1-patch/xar
+  rm -rf xar-xar-1.6.1-patch
   tar -xvf xar-1.6.1-patch.tar.gz && mv xar-xar-1.6.1-patch/xar/ xar-1.6.1/
   (cd xar-1.6.1 && ./autogen.sh)
   (cd xar-1.6.1 && ./configure)
   (cd xar-1.6.1 && make)
   (cd xar-1.6.1 && sudo make install)
+  rm -rf xar-1.6.1
+  rm -rf xar-1.6.1-patch/xar
+  rm -rf xar-xar-1.6.1-patch
 }
 
 function install_bomutils() {
@@ -37,6 +42,7 @@ function install_bomutils() {
   (cd bomutils && make)
   (cd bomutils && sudo make install)
   chmod 755 bomutils/build/bin/mkbom && sudo cp bomutils/build/bin/mkbom /usr/local/bin/.
+  rm -rf bomutils
 }
 
 export DEBIAN_FRONTEND=noninteractive
@@ -125,10 +131,33 @@ fi
 echo -e "\x1b[1;34m[*] Checking Python version\x1b[0m"
 python_version=($(python3 -c 'import sys; print("{} {}".format(sys.version_info.major, sys.version_info.minor))'))
 
-if [ "${python_version[0]}" -eq 3 ] && [ "${python_version[1]}" -lt 7 ]; then
-  echo -e "\x1b[1;34m[*] Python3 version less than 3.7, installing 3.7\x1b[0m"
-  apt-get install python3.7 python3.7-dev
-  python3.7 -m pip install poetry
+if [ "${python_version[0]}" -eq 3 ] && [ "${python_version[1]}" -lt 8 ]; then
+  if ! command -v python3.8 &> /dev/null; then
+    if [ $OS_NAME == "UBUNTU" ]; then
+      echo -e "\x1b[1;34m[*] Python3 version less than 3.8, installing 3.8\x1b[0m"
+      sudo apt-get install -y python3.8 python3.8-dev python3-pip
+    elif [ $OS_NAME == "DEBIAN" ]; then
+      echo -e "\x1b[1;34m[*] Python3 version less than 3.8, installing 3.8\x1b[0m"
+      echo -n -e "\x1b[1;33m[>] Python 3.8 must be built from source on Debian. This might take a bit, do you want to continue (y/N)? \x1b[0m"
+      read answer
+      if [ "$answer" != "${answer#[Yy]}" ] ;then
+        sudo apt-get install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl libbz2-dev
+        curl -O https://www.python.org/ftp/python/3.8.10/Python-3.8.10.tar.xz
+        tar -xf Python-3.8.10.tar.xz
+        cd Python-3.8.10
+        ./configure --enable-optimizations
+        make -j$(nproc)
+        sudo make altinstall
+        cd ..
+        rm -rf Python-3.8.10
+        rm Python-3.8.10.tar.xz
+      else
+        echo -e "Abort"
+        exit
+      fi
+    fi
+  fi
+  python3.8 -m pip install poetry
 else
   python3 -m pip install poetry
 fi

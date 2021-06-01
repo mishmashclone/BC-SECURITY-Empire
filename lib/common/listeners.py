@@ -20,6 +20,7 @@ from builtins import str
 from lib.database.base import Session
 from lib.database import models
 from sqlalchemy import or_, and_
+from sqlalchemy.orm.attributes import flag_modified
 from pydispatch import dispatcher
 
 from . import helpers
@@ -484,7 +485,7 @@ class Listeners(object):
         listener.enabled = False
 
         self.shutdown_listener(listener_name)
-        Session.commit()
+        Session().commit()
 
         # dispatch this event
         message = "[*] Listener {} killed".format(listener_name)
@@ -564,4 +565,5 @@ class Listeners(object):
             print(helpers.color("[!] Listener %s does not have the option %s" % (listener_name, option_name)))
             return
         listener.options[option_name]['Value'] = option_value
+        flag_modified(listener,'options')
         Session().commit()

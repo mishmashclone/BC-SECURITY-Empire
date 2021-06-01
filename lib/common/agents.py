@@ -207,11 +207,24 @@ class Agents(object):
 
     def remove_agent_db(self, session_id):
         """
-        Remove an agent to the internal cache and database.
+        Remove all agents / an agent to the internal cache and database.
         """
         if session_id == '%' or session_id.lower() == 'all':
-            session_id = '%'
             self.agents = {}
+
+            all_agents = Session().query(models.Agent).all()
+
+            for agent in all_agents:
+                Session().delete(agent)
+            Session().commit()
+            
+            # dispatch this event
+            message = "[*] All Agents deleted"
+            signal = json.dumps({
+                'print': True,
+                'message': message
+            })
+
         else:
             # see if we were passed a name instead of an ID
             nameid = self.get_agent_id_db(session_id)
@@ -221,18 +234,19 @@ class Agents(object):
             # remove the agent from the internal cache
             self.agents.pop(session_id, None)
 
-        # remove the agent from the database
-        agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
-        if agent:
-            Session().delete(agent)
-            Session().commit()
+            # remove the agent from the database
+            agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
+            if agent:
+                Session().delete(agent)
+                Session().commit()
 
-        # dispatch this event
-        message = "[*] Agent {} deleted".format(session_id)
-        signal = json.dumps({
-            'print': True,
-            'message': message
-        })
+            # dispatch this event
+            message = "[*] Agent {} deleted".format(session_id)
+            signal = json.dumps({
+                'print': True,
+                'message': message
+            })
+
         dispatcher.send(signal, sender="agents/{}".format(session_id))
 
     def is_ip_allowed(self, ip_address):

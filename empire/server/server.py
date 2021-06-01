@@ -749,6 +749,35 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'agents': agents})
 
+    @app.route('/api/agents/active', methods=['GET'])
+    def get_active_agents():
+        """
+        Returns JSON describing all currently registered agents.
+        """
+        active_agents_raw = Session().query(models.Agent).filter(models.Agent.killed == False).all()
+        agents = []
+
+        for active_agent in active_agents_raw:
+            if active_agent.stale is False:
+                agents.append(
+                    {"ID": active_agent.id, "session_id": active_agent.session_id, "listener": active_agent.listener,
+                     "name": active_agent.name, "language": active_agent.language,
+                     "language_version": active_agent.language_version, "delay": active_agent.delay,
+                     "jitter": active_agent.jitter, "external_ip": active_agent.external_ip,
+                     "internal_ip": active_agent.internal_ip, "username": active_agent.username,
+                     "high_integrity": int(active_agent.high_integrity or 0), "process_name": active_agent.process_name,
+                     "process_id": active_agent.process_id, "hostname": active_agent.hostname,
+                     "os_details": active_agent.os_details,
+                     "session_key": str(active_agent.session_key),
+                     "nonce": active_agent.nonce, "checkin_time": active_agent.checkin_time,
+                     "lastseen_time": active_agent.lastseen_time, "parent": active_agent.parent,
+                     "children": active_agent.children, "servers": active_agent.servers, "profile": active_agent.profile,
+                     "functions": active_agent.functions, "kill_date": active_agent.kill_date,
+                     "working_hours": active_agent.working_hours, "lost_limit": active_agent.lost_limit,
+                     "stale": active_agent.stale, "notes": active_agent.notes, "architecture": active_agent.architecture})
+
+        return jsonify({'agents': agents})
+
     @app.route('/api/agents/stale', methods=['GET'])
     def get_agents_stale():
         """

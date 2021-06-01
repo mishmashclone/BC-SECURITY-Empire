@@ -72,7 +72,7 @@ class EmpireCliState(object):
             self.init()
             self.init_handlers()
             self.notify_connected()
-            print_util.title(self.empire_version, len(self.modules), len(self.listeners), len(self.agents))
+            print_util.title(self.empire_version, len(self.modules), len(self.listeners), len(self.active_agents))
             return response
 
         elif response.status_code == 401:
@@ -84,6 +84,7 @@ class EmpireCliState(object):
         self.get_stagers()
         self.get_modules()
         self.get_agents()
+        self.get_active_agents()
         self.get_active_plugins()
         self.get_user_me()
         self.get_malleable_profile()
@@ -257,6 +258,14 @@ class EmpireCliState(object):
             self.sio.on(f'agents/{session_id}/task', self.add_to_cached_results)
 
         return self.agents
+
+    def get_active_agents(self):
+        response = requests.get(url=f'{self.host}:{self.port}/api/agents/active',
+                                verify=False,
+                                params={'token': self.token})
+
+        self.active_agents = {x['name']: x for x in response.json()['agents']}
+        return self.active_agents
 
     def get_modules(self):
         response = requests.get(url=f'{self.host}:{self.port}/api/modules',

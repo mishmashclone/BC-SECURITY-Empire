@@ -42,7 +42,7 @@ class CredentialMenu(Menu):
         Usage: list
         """
         cred_list = list(map(
-            lambda x: [x['ID'], x['credtype'], x['domain'], x['username'], x['host'], x['password'], x['sid'],
+            lambda x: [x['ID'], x['credtype'], x['domain'], x['username'], x['host'], x['password'][:50], x['sid'],
                        x['os'], x['notes']],
             state.get_credentials()))
         cred_list.insert(0, ['ID', 'CredType', 'Domain', 'UserName', 'Host', 'Password/Hash', 'SID', 'OS', 'Notes'])

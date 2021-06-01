@@ -43,7 +43,7 @@ from empire.server.database.base import Session
 from empire.server.database import models
 from sqlalchemy import or_, func, and_
 
-VERSION = "4.0.0-alpha.3 BC Security Fork"
+VERSION = "4.0.0-beta.1 BC Security Fork"
 
 
 class MainMenu(cmd.Cmd):

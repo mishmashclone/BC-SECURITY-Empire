@@ -33,6 +33,8 @@ X/XX/2021
         - Add create, update, remove credential functionality to the CLI (@Cx01N)
         - The credential create endpoint now accepts a single credential instead of a list
         - Plugin endpoints and socketio channels renamed to plural (plugin -> plugins) to match naming convention of other resources (@Vinnybod)
+        - Add an "output function" option on several modules (@jamarir)
+        - Updated shellcoderdi to newest version (@Cx01N)
 
 3/28/2021
 ------------

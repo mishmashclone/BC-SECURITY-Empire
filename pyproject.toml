@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "empire-bc-security-fork"
-version = "4.0.0-alpha.3"
+version = "4.0.0-beta.1"
 description = ""
 authors = ["BC Security <info@bc-security.org>"]
 readme = "README.md"

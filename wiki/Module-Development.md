@@ -41,7 +41,7 @@ script_end: Invoke-Function {{ PARAMS }}
 
 There are functions that require the script_end to be customized a bit further. For example: the one found in [Invoke-Kerberoast](../empire/server/modules/powershell/credentials/invoke_kerberoast.yaml)
 ```yaml
-script_end: Invoke-Kerberoast {{ PARAMS }} | fl | Out-String | %{$_ + "`n"};"`nInvoke-Kerberoast completed!
+script_end: Invoke-Kerberoast {{ PARAMS }} | fl | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"};"`nInvoke-Kerberoast completed!
 ```
 
 ## Advanced

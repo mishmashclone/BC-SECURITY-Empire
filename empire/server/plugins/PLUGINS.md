@@ -1,7 +1,9 @@
 # Empire Plugins
 
-
-| Plugin                                                                            | Description                                        | Authors         |
-| --------------------------------------------------------------------------------- | -------------------------------------------------- | --------------- |
-| [Socks Proxy Server](https://github.com/BC-SECURITY/SocksProxyServer-Plugin)      | Self-contained server for Invoke-SocksProxy.       | @Cx01N, @mjokic |
-| [Chisel Server](https://github.com/BC-SECURITY/ChiselServer-Plugin)               | Runs chisels from the Empire CLI.                  | @kevin          |
+| Plugin Name                                                                       | Description                                                                                                                                                         | Authors         | Sponsor Plugin  |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | :-------------: |
+| [Socks Proxy Server](https://github.com/BC-SECURITY/SocksProxyServer-Plugin)      | Self-contained server for Invoke-SocksProxy.                                                                                                                        | @Cx01N, @mjokic |                 |
+| [Chisel Server](https://github.com/BC-SECURITY/ChiselServer-Plugin)               | Runs chisels from the Empire CLI.                                                                                                                                   | @kevin          |                 |
+| [AMSI Fail](https://github.com/BC-SECURITY/AmsiFail-Plugin)                       | The AMSI Fail Plugin calls the [AMSI.fail API](https://github.com/Flangvik/AMSI.fail) to generate and add a fresh AMSI Bypass to the Empire database.                | @Vinnybod       |         X       |
+| [MITRE ATT&CK](https://github.com/BC-SECURITY/Attack-Plugin)                      | The ATT&CK plugin assists in better threat emulation in Empire by leveraging the MITRE ATT&CK Framework for report generation and module management.                | @Cx01N          |         X       |
+| [Advanced Reports](https://github.com/BC-SECURITY/Report-Generation-Plugin)       | Creates customizable PDF reports (Empire Report, Module Report, Master Log, Sessions, Credentials)                                                                  | @Cx01N          |         X       |

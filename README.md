@@ -182,12 +182,14 @@ docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data bcsecurity/empire:{
 All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
 * The last commit from master will be deployed to the `latest` tag
 * The last commit from the dev branch will be deployed to the `dev` tag
-* All github tagged releases will be deployed using their version numbers (v3.0.0, v3.1.0, etc)
+* All GitHub tagged releases will be deployed using their version numbers (v3.0.0, v3.1.0, etc)
 
 ## Plugins
 Plugins are an extension of Empire that allow for custom scripts to be loaded. This allows anyone to easily build or add
 community projects to extend Empire functionality. Plugins can be accessed from the Empire CLI or the API as long as the 
-plugin follows the [template example](empire/teamserver/plugins/example.py). A list of Empire Plugins is located [here](empire/teamserver/plugins/PLUGINS.md).
+plugin follows the [template example](empire/server/plugins/example.py). 
+
+A list of Empire Plugins is located [here](empire/server/plugins/PLUGINS.md).
 
 ## Starkiller
 <div align="center"><img width="125" src="https://github.com/BC-SECURITY/Starkiller/blob/master/src/assets/icon.png"></div>

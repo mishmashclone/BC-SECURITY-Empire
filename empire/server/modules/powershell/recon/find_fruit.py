@@ -33,7 +33,7 @@ class Module(object):
         show_all = params['ShowAll'].lower()
 
         for option,values in params.items():
-            if option.lower() != "agent" and option.lower() != "showall":
+            if option.lower() != "agent" and option.lower() != "showall" and option.lower() != "outputfunction":
                 if values and values != '':
                     if values.lower() == "true":
                         # if we're just adding a switch
@@ -44,7 +44,9 @@ class Module(object):
         if show_all != "true":
             script_end += " | ?{$_.Status -eq 'OK'}"
 
-        script_end += " | Format-Table -AutoSize | Out-String"
+        script_end += " | Format-Table -AutoSize"
+        outputf = params.get("OutputFunction", "Out-String")
+        script_end += f" | {outputf} | " + '%{$_ + \"`n\"};"`n' + str(module.name.split("/")[-1]) + ' completed!"'
 
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)

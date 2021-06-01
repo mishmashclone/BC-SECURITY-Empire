@@ -29,6 +29,17 @@ options:
     description: Username to test the execution policy for.
     required: false
     value: Everyone
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script: |
   function Get-AppLockerConfig
   {
@@ -88,4 +99,4 @@ script: |
 
       $Result
   }
-script_end: Get-AppLockerConfig {{ PARAMS }}
+script_end: Get-AppLockerConfig {{ PARAMS }} | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Get-AppLockerConfig completed'

@@ -35,7 +35,7 @@ class Module(object):
             script += "$Servers;"
 
         for option,values in params.items():
-            if option.lower() != "agent":
+            if option.lower() != "agent" and option.lower() != "outputfunction":
                 if values and values != '':
                     if values.lower() == "true":
                         # if we're just adding a switch
@@ -43,7 +43,8 @@ class Module(object):
                     else:
                         script += " -" + str(option) + " " + str(values)
 
-        script += ' | Out-String | %{$_ + \"`n\"};"`n' + "get_subnet_ranges"+' completed!"'
+        outputf = params.get("OutputFunction", "Out-String")
+        script += f" | {outputf} | " + '%{$_ + \"`n\"};"`n' + str(module.name.split("/")[-1]) + ' completed!"'
 
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)

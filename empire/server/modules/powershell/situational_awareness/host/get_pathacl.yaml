@@ -22,5 +22,16 @@ options:
     description: The local/remote (UNC) path to enumerate the ACLs for.
     required: true
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/situational_awareness/network/powerview.ps1'
-script_end: Get-PathAcl {{ PARAMS }} | Out-String | %{$_ + "`n"}; 'Get-PathAcl completed'
+script_end: Get-PathAcl {{ PARAMS }} | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Get-PathAcl completed'

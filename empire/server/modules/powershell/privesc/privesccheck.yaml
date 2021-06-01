@@ -26,5 +26,16 @@ options:
     description: 'Select the format of the output file (e.g.: TXT, HTML or CSV).'
     required: true
     value: TXT
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/privesc/PrivescCheck.ps1'
-script_end: Invoke-PrivescCheck {{ PARAMS }}
+script_end: Invoke-PrivescCheck {{ PARAMS }} | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'PrivescCheck completed'

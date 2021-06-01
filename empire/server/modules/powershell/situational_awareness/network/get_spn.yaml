@@ -27,5 +27,16 @@ options:
     description: Search string for group, username, or service name. Wildcards accepted.
     required: false
     value: MSSQL*
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/situational_awareness/network/Get-SPN.ps1'
-script_end: Get-SPN {{ PARAMS }}  -List yes | Format-Table -Wrap | Out-String | %{$_ + "`n"}
+script_end: Get-SPN {{ PARAMS }}  -List yes | Format-Table -Wrap | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Get-SPN completed'

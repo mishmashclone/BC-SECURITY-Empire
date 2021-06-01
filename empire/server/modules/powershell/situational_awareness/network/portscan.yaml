@@ -67,5 +67,16 @@ options:
     description: Output file of all formats.
     required: false
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/situational_awareness/network/Invoke-Portscan.ps1'
-script_end: Invoke-PortScan -noProgressMeter -f {{ PARAMS }} | ? {$_.alive}| Select-Object HostName,@{name='OpenPorts';expression={$_.openPorts -join ','}} | ft -wrap | Out-String | %{$_ + "`n"}
+script_end: Invoke-PortScan -noProgressMeter -f {{ PARAMS }} | ? {$_.alive}| Select-Object HostName,@{name='OpenPorts';expression={$_.openPorts -join ','}} | ft -wrap | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Invoke-Portscan completed'

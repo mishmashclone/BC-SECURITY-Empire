@@ -57,6 +57,9 @@ class Module(object):
         if instance != "" and not check_all:
             script_end += " -Instance "+instance
 
+        outputf = params.get("OutputFunction", "Out-String")
+        script_end += f" | {outputf} | " + '%{$_ + \"`n\"};"`n' + str(module.name.split("/")[-1]) + ' completed!"'
+
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
         script += script_end

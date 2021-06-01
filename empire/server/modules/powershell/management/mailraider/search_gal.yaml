@@ -40,5 +40,16 @@ options:
     description: Maximum number of threads to use when searching.
     required: true
     value: '15'
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/management/MailRaider.ps1'
-script_end: Invoke-SearchGAL {{ PARAMS }} | Out-String | %{$_ + "`n"};"`n Invoke-SearchGAL completed!"
+script_end: Invoke-SearchGAL {{ PARAMS }} | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"};"`n Invoke-SearchGAL completed!"

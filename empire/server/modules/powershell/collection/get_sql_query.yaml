@@ -35,5 +35,16 @@ options:
     description: Query to be executed on the SQL Server.
     required: true
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/collection/Get-SQLQuery.ps1'
-script_end: Get-SQLQuery {{ PARAMS }}
+script_end: Get-SQLQuery {{ PARAMS }} | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Get-SQLQuery completed'

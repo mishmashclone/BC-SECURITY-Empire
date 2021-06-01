@@ -18,5 +18,16 @@ options:
     description: Agent to run module on.
     required: true
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/privesc/Sherlock.ps1'
-script_end: 'Find-AllVulns | Out-String'
+script_end: 'Find-AllVulns | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Get-Forest completed'

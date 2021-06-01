@@ -21,6 +21,17 @@ options:
     description: Domain to resolve SID for, defaults to the current domain.
     required: false
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script: |
   function Get-DomainSID {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
@@ -520,4 +531,4 @@ script: |
           }
       }
   }
-script_end: Get-DomainSID | Out-String | %{$_ + "`n"};"`n Get-DomainSID completed!"
+script_end: Get-DomainSID | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"};"`n Get-DomainSID completed!"

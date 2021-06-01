@@ -69,7 +69,8 @@ class Module(object):
                             else:
                                 script += " -" + str(option) + " '" + str(values) + "'"
 
-                script += ' | Out-String | %{$_ + \"`n\"};"`n' + str(module_name) + ' completed!"'
+                outputf = params.get("OutputFunction", "Out-String")
+                script += f" | {outputf} | " + '%{$_ + \"`n\"};"`n' + str(module.name.split("/")[-1]) + ' completed!"'
 
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script,

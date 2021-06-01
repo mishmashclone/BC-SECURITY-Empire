@@ -26,5 +26,16 @@ options:
     description: CIDR to ARP scan.
     required: false
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/situational_awareness/network/Invoke-ARPScan.ps1'
-script_end: Invoke-ARPScan {{ PARAMS }} | Select-Object MAC, Address | ft -autosize | Out-String | %{$_ + "`n"}
+script_end: Invoke-ARPScan {{ PARAMS }} | Select-Object MAC, Address | ft -autosize | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Invoke-ARPScan completed'

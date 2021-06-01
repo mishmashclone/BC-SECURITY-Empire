@@ -51,8 +51,9 @@ def get_default_functions():
 
 def get_default_bypasses():
     return [
-        models.Bypass(name="mattifestation", code=bypasses.AMSIBypass()),
-        models.Bypass(name="liberman", code=bypasses.AMSIBypass2()),
+        models.Bypass(name="mattifestation", code=bypasses.mattifestation_amsibypass()),
+        models.Bypass(name="liberman", code=bypasses.liberman_amsibypass()),
+        models.Bypass(name="rastamouse", code=bypasses.rastamouse_amsibypass()),
         models.Bypass(name="scriptblocklog", code=bypasses.scriptBlockLogBypass()),
         models.Bypass(name="etw", code=bypasses.ETWBypass())
     ]
@@ -70,4 +71,3 @@ def get_staging_key():
 
     print('\x1b[1;34m[*] Generating random staging key\x1b[0m')
     return ''.join(random.sample(string.ascii_letters + string.digits + punctuation, 32))
-

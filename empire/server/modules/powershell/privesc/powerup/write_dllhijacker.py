@@ -22,7 +22,7 @@ class Module(object):
         obfuscate_command = params['ObfuscateCommand']
 
         module_name = 'Write-HijackDll'
-        
+
         # read in the common powerup.ps1 module source code
         module_source = main_menu.installPath + "/data/module_source/privesc/PowerUp.ps1"
         if obfuscate:
@@ -63,7 +63,8 @@ class Module(object):
             script_end += " -Command \"%s\"" % (launcher)
             script_end += " -DllPath %s" % (out_file)
 
-        script_end += ' | Out-String | %{$_ + \"`n\"};"`n'+str(module_name)+' completed!"'
+        outputf = params.get("OutputFunction", "Out-String")
+        script_end += f" | {outputf} | " + '%{$_ + \"`n\"};"`n' + str(module.name.split("/")[-1]) + ' completed!"'
 
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)

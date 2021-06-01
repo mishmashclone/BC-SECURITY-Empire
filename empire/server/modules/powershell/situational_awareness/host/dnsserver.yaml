@@ -19,6 +19,17 @@ options:
     description: Agent to run module on.
     required: true
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script: |
   function Get-SystemDNSServer
   {
@@ -57,4 +68,4 @@ script: |
       }
       $DNSServerAddresses
   }
-script_end: Get-SystemDNSServer {{ PARAMS }}
+script_end: Get-SystemDNSServer {{ PARAMS }} | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Get-SystemDNSServer completed'

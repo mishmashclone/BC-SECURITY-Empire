@@ -21,7 +21,6 @@ class Module(object):
         except:
             return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
-        module_name = 'Get-GPOComputer'
         module_code = f.read()
         f.close()
 
@@ -31,7 +30,7 @@ class Module(object):
         script += "\nGet-DomainOU "
 
         for option, values in params.items():
-            if option.lower() != "agent" and option.lower() != "guid":
+            if option.lower() != "agent" and option.lower() != "guid" and option.lower() != "outputfunction":
                 if values and values != '':
                     if values.lower() == "true":
                         # if we're just adding a switch
@@ -42,7 +41,7 @@ class Module(object):
         script += "-GPLink " + str(params['GUID']) + " | %{ Get-DomainComputer -SearchBase $_.distinguishedname"
 
         for option, values in params.items():
-            if option.lower() != "agent" and option.lower() != "guid":
+            if option.lower() != "agent" and option.lower() != "guid" and option.lower() != "outputfunction":
                 if values and values != '':
                     if values.lower() == "true":
                         # if we're just adding a switch
@@ -50,7 +49,8 @@ class Module(object):
                     else:
                         script += " -" + str(option) + " " + str(values)
 
-        script += '} | Out-String | %{$_ + \"`n\"};"`n' + str(module_name) + ' completed!"'
+        outputf = params.get("OutputFunction", "Out-String")
+        script += f"} | {outputf}  | " + '%{$_ + \"`n\"};"`n' + str(module.name.split("/")[-1]) + ' completed!"'
         if obfuscate:
             script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
         script = data_util.keyword_obfuscation(script)

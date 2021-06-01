@@ -35,7 +35,8 @@ class Module(object):
 
         script_end = "Get-OutlookFolder -Name '%s' | Get-EmailItems -MaxEmails %s" %(folder_name, max_emails)
 
-        script_end += ' | Out-String | %{$_ + \"`n\"};"`n'+str(module_name)+' completed!"'
+        outputf = params.get("OutputFunction", "Out-String")
+        script_end += f" | {outputf} | " + '%{$_ + \"`n\"};"`n' + str(module.name.split("/")[-1]) + ' completed!"'
 
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)

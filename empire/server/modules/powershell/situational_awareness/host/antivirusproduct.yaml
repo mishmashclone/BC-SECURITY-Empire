@@ -23,6 +23,17 @@ options:
     description: Computername to run the module on, defaults to localhost.
     required: false
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script: |
   function Get-AntiVirusProduct {
         [CmdletBinding()]
@@ -53,4 +64,4 @@ script: |
         $ht.'Real-time Protection Status' = $rtstatus
         New-Object -TypeName PSObject -Property $ht
   }
-script_end: Get-AntiVirusProduct {{ PARAMS }} | Out-String | %{$_ + "`n"}; 'Get-AntiVirusProduct completed'
+script_end: Get-AntiVirusProduct {{ PARAMS }} | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Get-AntiVirusProduct completed'

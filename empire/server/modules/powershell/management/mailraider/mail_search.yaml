@@ -44,5 +44,16 @@ options:
     description: Path to results file (instead of stdout).
     required: false
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/management/MailRaider.ps1'
-script_end: Invoke-MailSearch {{ PARAMS }} | Out-String | %{$_ + "`n"};"`n Invoke-MailSearch completed!"
+script_end: Invoke-MailSearch {{ PARAMS }} | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"};"`n Invoke-MailSearch completed!"

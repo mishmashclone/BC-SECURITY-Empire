@@ -121,5 +121,16 @@ options:
     description: The maximum concurrent threads to execute.
     required: false
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/situational_awareness/network/powerview.ps1'
-script_end: Find-DomainProcess {{ PARAMS }} | Out-String | %{$_ + "`n"}; 'Find-DomainProcess completed'
+script_end: Find-DomainProcess {{ PARAMS }} | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Find-DomainProcess completed'

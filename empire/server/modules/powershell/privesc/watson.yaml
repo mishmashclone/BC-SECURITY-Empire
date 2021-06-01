@@ -21,4 +21,4 @@ options:
     required: true
     value: ''
 script_path: 'empire/server/data/module_source/privesc/Invoke-Watson.ps1'
-script_end: Invoke-Watson
+script_end: Invoke-Watson | %{$_ + "`n"}; 'Invoke-Watson completed'

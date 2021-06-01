@@ -51,5 +51,16 @@ options:
     description: SQL Server or domain account password to authenticate with.
     required: false
     value: ''
+  - name: OutputFunction
+    description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
+    required: false
+    value: 'Out-String'
+    strict: true
+    suggested_values:
+      - Out-String
+      - ConvertTo-Json
+      - ConvertTo-Csv
+      - ConvertTo-Html
+      - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1'
-script_end: Get-SQLInstanceDomain {{ PARAMS }}
+script_end: Get-SQLInstanceDomain {{ PARAMS }} | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Get-SQLInstanceDomain completed'

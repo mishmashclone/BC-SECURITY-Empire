@@ -21,4 +21,14 @@ then
 	rm -rf ./downloads/
 fi
 
+# remove the compiled csharp folders
+if [ -d ./csharp/Covenant/bin ]
+then
+	rm -rf ./csharp/Covenant/bin
+fi
+if [ -d ./csharp/Covenant/obj ]
+then
+	rm -rf ./csharp/Covenant/obj
+fi
+
 cd ../..

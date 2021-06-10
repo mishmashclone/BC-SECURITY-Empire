@@ -93,6 +93,7 @@ class Plugin(Plugin):
                 self.csharpserver_proc.kill()
                 self.main_menu.plugin_socketio_message(self.info[0]['Name'],
                                                      "[*] Stopping Empire C# server")
+                self.status = "OFF"
             else:
                 self.main_menu.plugin_socketio_message(self.info[0]['Name'],
                                                      "[!] Empire C# server is already stopped")
@@ -113,6 +114,7 @@ class Plugin(Plugin):
                 csharp_cmd = ["dotnet",
                               self.installPath + "/csharp/Covenant/bin/Debug/netcoreapp3.1/EmpireCompiler.dll"]
                 self.csharpserver_proc = subprocess.Popen(csharp_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.status = "ON"
             else:
                 self.main_menu.plugin_socketio_message(self.info[0]['Name'],
                                                        "[!] Empire C# server is already started")

@@ -1034,10 +1034,13 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         command = request.json['command']
 
-        # add task command to agent taskings
-        msg = "tasked agent %s to run command %s" % (agent.session_id, command)
-        main.agents.save_agent_log(agent.session_id, msg)
-        task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_SHELL", command, uid=g.user['id'])
+        if command == 'sysinfo':
+            task_id =  main.agents.add_agent_task_db(agent_name, "TASK_SYSINFO")
+        else:
+            # add task command to agent taskings
+            msg = "tasked agent %s to run command %s" % (agent.session_id, command)
+            main.agents.save_agent_log(agent.session_id, msg)
+            task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_SHELL", command, uid=g.user['id'])
 
         return jsonify({'success': True, 'taskID': task_id})
 

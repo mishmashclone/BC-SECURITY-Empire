@@ -188,31 +188,11 @@ class Listeners(object):
                     return True
 
                 elif option in listenerObject.options:
-                    if listenerObject.options[option]['Strict'] and option not in listenerObject.options[option]['SuggestedValues']:
+                    if listenerObject.options.get(option, {}).get('Strict', False) and \
+                            option not in listenerObject.options.get(option, {}).get('SuggestedValues', []):
                         return False
                     listenerObject.options[option]['Value'] = value
                     return True
-
-                    # if option.lower() == 'type':
-                    #     if value.lower() == "hop":
-                    #         # set the profile for hop.php for hop
-                    #         parts = self.options['DefaultProfile']['Value'].split("|")
-                    #         self.options['DefaultProfile']['Value'] = "/hop.php|" + "|".join(parts[1:])
-
-
-                # if parts[0].lower() == 'defaultprofile' and os.path.exists(parts[1]):
-                #     try:
-                #         open_file = open(parts[1], 'r')
-                #         profile_data_raw = open_file.readlines()
-                #         open_file.close()
-
-                #         profile_data = [l for l in profile_data_raw if not l.startswith('#' and l.strip() != '')]
-                #         profile_data = profile_data[0].strip("\"")
-
-                #         self.mainMenu.listeners.set_listener_option(parts[0], profile_data)
-
-                #     except Exception:
-                #         print helpers.color("[!] Error opening profile file %s" % (parts[1]))
 
                 else:
                     print(helpers.color('[!] Error: invalid option name'))
@@ -307,14 +287,17 @@ class Listeners(object):
             try:
                 listener_module = self.loadedListeners[module_name]
 
-                for option, value in options.items():
-                    listener_module.options[option]['Value'] = value['Value']
-
-                print(helpers.color("[*] Starting listener '%s'" % listener_name))
                 if module_name == 'redirector':
+                    #todo: fix redirector listeners when empire is resetarted
+                    print(helpers.color("[!] Redirector listeners may not work when Empire is restarted."))
+                    #listener_module.options.update(options)
                     success = True
                 else:
+                    for option, value in options.items():
+                        listener_module.options[option]['Value'] = value['Value']
                     success = listener_module.start(name=listener_name)
+
+                print(helpers.color("[*] Starting listener '%s'" % listener_name))
 
                 if success:
                     listener_options = copy.deepcopy(listener_module.options)

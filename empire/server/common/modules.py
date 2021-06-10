@@ -150,6 +150,9 @@ class Modules(object):
             elif option.required:
                 return None, f'required module option missing: {option.name}'
 
+        if module.name == 'generate_agent':
+            return options, None
+
         session_id = params['Agent']
         agent = self.main_menu.agents.get_agent_db(session_id)
 
@@ -335,8 +338,8 @@ class Modules(object):
         # extract just the module name from the full path
         module_name = file_path.split(root_path)[-1][0:-5]
 
-        if root_path != f"{self.main_menu.installPath}/modules/":
-            module_name = f"external/{module_name}"
+        #if root_path != f"{self.main_menu.installPath}/modules/":
+        #    module_name = f"external/{module_name}"
 
         if file_path.lower().endswith('.covenant.yaml'):
             my_model = PydanticModule(**_convert_covenant_to_empire(yaml_module, file_path))

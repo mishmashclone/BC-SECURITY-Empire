@@ -641,15 +641,14 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         """
         active_listener = Session().query(models.Listener).filter(models.Listener.name == listener_name).first()
 
-        listeners = []
-        if active_listener.name == listener_name:
-            listeners.append({'ID': active_listener.id, 'name': active_listener.name, 'module': active_listener.module,
-                              'listener_type': active_listener.listener_type,
-                              'listener_category': active_listener.listener_category,
-                              'options': active_listener.options})
-            return jsonify({'listeners': listeners})
-        else:
+        if not active_listener:
             return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
+
+        listeners = [{'ID': active_listener.id, 'name': active_listener.name, 'module': active_listener.module,
+                      'listener_type': active_listener.listener_type,
+                      'listener_category': active_listener.listener_category,
+                      'options': active_listener.options}]
+        return jsonify({'listeners': listeners})
 
     @app.route('/api/listeners/<string:listener_name>', methods=['DELETE'])
     def kill_listener(listener_name):
@@ -829,7 +828,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         agent = Session().query(models.Agent).filter(models.Agent.name == agent_name).first()
 
         if not agent:
-            return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
+            return make_response(jsonify({'error': 'agent %s not found' % agent_name}), 404)
 
         agent.killed = True
         Session().commit()
@@ -842,6 +841,10 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         Returns JSON describing the agent specified by agent_name.
         """
         agent = Session().query(models.Agent).filter(models.Agent.name == agent_name).first()
+
+        if not agent:
+            return make_response(jsonify({'error': 'agent %s not found' % agent_name}), 404)
+
         active_agent = []
         active_agent.append(
             {"ID": agent.id, "session_id": agent.session_id, "listener": agent.listener, "name": agent.name,
@@ -1758,7 +1761,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         user = Session().query(models.User).filter(models.User.id == uid).first()
 
         if user is None:
-            make_response(jsonify({'error': 'user %s not found' % uid}), 404)
+            return make_response(jsonify({'error': 'user %s not found' % uid}), 404)
 
         return jsonify(
             {"ID": user.id, "username": user.username, "last_logon_time": user.last_logon_time, "enabled": user.enabled,

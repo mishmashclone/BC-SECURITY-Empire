@@ -12,7 +12,6 @@ from empire.server.database.models import Base
 
 database_config = empire_config.yaml.get('database', {})
 
-# Note: MySQL not supported yet.
 if database_config.get('type') == 'mysql':
     url = database_config.get('url')
     username = database_config.get('username') or ''

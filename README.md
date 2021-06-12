@@ -30,7 +30,7 @@ included author/reference link information in the source of each Empire module a
 properly cite existing or prior work, please let us know at Empire@BC-Security.org.
 
 Empire is currently being developed and maintained by [@Cx01N](https://twitter.com/Cx01N_), 
-[@Hubbl3](https://twitter.com/_Hubbl3), & [@Vinnybod](https://twitter.com/_vinnybod). While the main Empire project is 
+[@Hubbl3](https://twitter.com/_Hubbl3), & [@Vinnybod](https://twitter.com/_vinnybod). While the original Empire project is
 no longer maintained, this fork is maintained by [@bcsecurity1](https://twitter.com/BCSecurity1). Please reach out to 
 us on our [Discord](https://discord.gg/P8PZPyf) if you have any questions or want talk about offensive security.
 
@@ -46,7 +46,7 @@ Thank you to the original team of developers: [@harmj0y](https://twitter.com/har
 ## Release Notes
 Please see our [Releases](https://github.com/BC-SECURITY/Empire/releases) or [Changelog](/changelog) page for detailed release notes.
 
-## Empire 4.0 Alpha Documentation
+## Empire 4.0 Documentation
 **Note**: Some things are subject to change before the GA release, and this documentation will (hopefully ;) ) be built 
 out to the wiki before then.
 
@@ -83,7 +83,7 @@ poetry run python empire.py server
 ./ps-empire server -h
 ```
 
-The old embedded client has been removed. To run the new command line client.
+The old embedded client has been removed. To run the new command line client:
 ```sh
 poetry run python empire.py client
 

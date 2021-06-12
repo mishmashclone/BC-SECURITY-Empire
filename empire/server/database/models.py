@@ -214,7 +214,7 @@ class Profile(Base):
     name = Column(String(255), primary_key=True)
     file_path = Column(String(255))
     category = Column(String(255))
-    data = Column(String, nullable=False)
+    data = Column(Text, nullable=False)
     created_at = Column(UtcDateTime, nullable=False, default=utcnow())
     updated_at = Column(UtcDateTime, default=utcnow(), onupdate=utcnow(), nullable=False)
 

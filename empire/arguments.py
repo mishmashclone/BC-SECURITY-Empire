@@ -14,6 +14,8 @@ client_parser = subparsers.add_parser('client', help='Launch Empire CLI')
 # Client Args
 client_parser.add_argument('-r', '--resource', type=str,
                            help='Run the Empire commands in the specified resource file after startup.')
+client_parser.add_argument('--config', type=str, nargs=1,
+                           help='Specify a config.yaml different from the config.yaml in the empire/client directory.')
 
 # Server Args
 general_group = server_parser.add_argument_group('General Options')
@@ -21,6 +23,8 @@ general_group.add_argument('--debug', nargs='?', const='1',
                            help='Debug level for output (default of 1, 2 for msg display).')
 general_group.add_argument('--reset', action='store_true', help="Resets Empire's database to defaults.")
 general_group.add_argument('-v', '--version', action='store_true', help='Display current Empire version.')
+general_group.add_argument('--config', type=str, nargs=1,
+                           help='Specify a config.yaml different from the config.yaml in the empire/server directory.')
 
 rest_group = server_parser.add_argument_group('RESTful API Options')
 rest_group.add_argument('--restip', nargs=1, help='IP to bind the Empire RESTful API on. Defaults to 0.0.0.0')

@@ -48,6 +48,8 @@ COPY . /empire
 
 RUN sudo pip install poetry && sudo poetry config virtualenvs.create false && sudo poetry install
 
-RUN rm -rf /empire/data/empire*
+RUN /empire/setup/reset.sh
+RUN rm -rf /empire/server/data/empire*
 
-CMD ["sudo", "poetry", "run", "python", "empire.py", "server"]
+ENTRYPOINT ["./ps-empire"]
+CMD ["server"]

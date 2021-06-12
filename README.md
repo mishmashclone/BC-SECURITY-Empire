@@ -162,22 +162,35 @@ sudo poetry install
 ### Docker
 If you want to run Empire using a pre-built docker container:
 **Note**: For size savings on the image, it is not pre-built with the
-libraries needed for jar and dmg stagers or the needed libraries for csharp
+libraries needed for jar, dmg, and nim stagers or the needed libraries for csharp
 agents and modules.
 To add these to your image, run the `install.sh` script in the container and answer
 `y` to the prompts.
+
 ```bash
-docker pull bcsecurity/empire:{version}
-docker run -it -p 1337:1337 -p 5000:5000 bcsecurity/empire:{version}
+# Pull the latest image
+docker pull bcsecurity/empire:latest
+
+# Run the server with the rest api and socket ports open
+docker run -it -p 1337:1337 -p 5000:5000 bcsecurity/empire:latest
+
+# Run the client
+docker run -it -p 1337:1337 -p 5000:5000 bcsecurity/empire:latest client
+
+# To run the client against the already running server container
+docker container ls
+docker exec -it {container-id} ./ps-empire client
 
 # with persistent storage
-docker pull bcsecurity/empire:{version}
-docker create -v /empire --name data bcsecurity/empire:{version}
-docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data bcsecurity/empire:{version}
+docker pull bcsecurity/empire:latest
+docker create -v /empire --name data bcsecurity/empire:latest
+docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data bcsecurity/empire:latest
 
 # if you prefer to be dropped into bash instead of directly into empire
-docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data bcsecurity/empire:{version} /bin/bash
+docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data --entrypoint /bin/bash bcsecurity/empire:latest
 ```
+Note: These are example basic commands to get started with docker.
+Depending on the use case of the individual, one may need to reference the [Docker documentation](https://docs.docker.com/).
 
 All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
 * The last commit from master will be deployed to the `latest` tag

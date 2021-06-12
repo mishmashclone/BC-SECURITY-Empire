@@ -27,6 +27,8 @@ args = arguments.args
 if args.reset:
     choice = input("[>] Would you like to reset your Empire instance? [y/N]: ")
     if choice.lower() == "y":
+        # The reset script will delete the default db file. This will drop tables if connected to MySQL or
+        # a different SQLite .db file.
         Base.metadata.drop_all(engine)
         subprocess.call("./setup/reset.sh")
     else:

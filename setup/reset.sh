@@ -10,6 +10,9 @@ IFS='/' read -a array <<< pwd
 # remove the debug file if it exists
 cd empire/server
 
+# delete the default named empire.db
+rm data/empire.db
+
 if [ -e empire.debug ]
 then
 	rm empire.debug

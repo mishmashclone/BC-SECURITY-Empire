@@ -124,6 +124,11 @@ These values will be available in the CLI and Starkiller as autocomplete values.
 **strict**: If true, the option validator will check that the value chosen matches a value from
 the suggested values list.
 
+**OUTPUT_FUNCTION**: Some Powershell modules have an option named `OutputFunction` that converts the output to json, xml, etc.
+The `OutputFunction` option can be inserted anywher in the `script` and `script_end` by using `{{ OUTPUT_FUNCTION }}`.
+- An example of this in a yaml can be seen in [sherlock](../empire/server/modules/powershell/privesc/sherlock.yaml).
+- If a module uses a `custom_generate` function, it needs to perform this substitution on its own.
+
 # Python
 Python modules are not much different from Powershell modules in terms of the yaml schema.
 The differences for Python come in with the `script`, `script_path`, `script_end`, and option formatters.
@@ -151,5 +156,3 @@ Python modules can be used with `script` OR `script_path` and will ignore `scrip
 
 # C#
 TODO
-
-<!--TODO Mention the new config for retaining last value-->

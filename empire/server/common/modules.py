@@ -52,7 +52,6 @@ class Modules(object):
         :param user_id: the user executing the module
         :return: tuple with the response and an error message (if applicable)
         """
-        # TODO We need to start validating whether this module is valid for this agent language.
         cleaned_options, err = self._validate_module_params(module, params)
 
         if err:

@@ -698,13 +698,16 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         if listener_type.lower() not in main.listeners.loadedListeners:
             return make_response(jsonify({'error': 'listener type %s not found' % listener_type}), 404)
 
+        listener_name = request.json['Name']
+        dupe_check = Session().query(models.Listener).filter(models.Listener.name == listener_name).first()
+        if dupe_check:
+            return make_response(jsonify({'error': f'listener with name {listener_name} already exists'}), 400)
+
         listenerObject = main.listeners.loadedListeners[listener_type]
         # set all passed options
         for option, values in request.json.items():
             if isinstance(values, bytes):
                 values = values.decode('UTF-8')
-            if option == "Name":
-                listenerName = values
 
             returnVal = main.listeners.set_listener_option(listener_type, option, values)
             if not returnVal:
@@ -714,11 +717,11 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         main.listeners.start_listener(listener_type, listenerObject)
 
         # check to see if the listener was created
-        listenerID = main.listeners.get_listener_id(listenerName)
+        listenerID = main.listeners.get_listener_id(listener_name)
         if listenerID:
-            return jsonify({'success': 'Listener %s successfully started' % listenerName})
+            return jsonify({'success': 'Listener %s successfully started' % listener_name})
         else:
-            return jsonify({'error': 'failed to start listener %s' % listenerName})
+            return jsonify({'error': 'failed to start listener %s' % listener_name})
 
     @app.route('/api/agents', methods=['GET'])
     def get_agents():

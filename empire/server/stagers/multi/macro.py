@@ -42,12 +42,6 @@ class Stager(object):
                 'Required'      :   False,
                 'Value'         :   '0'
             },
-            # don't think this OutFile is used anywhere:
-            'OutFile' : {
-                'Description'   :   'File to output macro to, otherwise displayed on the screen.',
-                'Required'      :   False,
-                'Value'         :   '/tmp/macro'
-            },
             'SafeChecks' : {
                 'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
                 'Required'       :  True,

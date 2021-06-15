@@ -37,11 +37,6 @@ class Stager(object):
                 'Required'      :   False,
                 'Value'         :   '0'
             },
-            'OutFile' : {
-                'Description'   :   'File to output launcher to, otherwise displayed on the screen.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
             'Base64' : {
                 'Description'    :  'Switch. Base64 encode the output.',
                 'Required'       :  True,

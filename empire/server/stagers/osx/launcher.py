@@ -33,11 +33,6 @@ class Stager(object):
                 'Required'      :   True,
                 'Value'         :   'python'
             },
-            'OutFile' : {
-                'Description'   :   'File to output launcher to, otherwise displayed on the screen.',
-                'Required'      :   False,
-                'Value'         :   ''
-            },
             'SafeChecks' : {
                 'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
                 'Required'       :  True,

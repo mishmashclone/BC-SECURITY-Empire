@@ -46,7 +46,7 @@ class Stager(object):
                 'Value'         :   '0'
             },
             'OutFile' : {
-                'Description'   :   'File to output LNK to.',
+                'Description'   :   'Filename that should be used for the generated output.',
                 'Required'      :   True,
                 'Value'         :   'clickme.lnk'
             },

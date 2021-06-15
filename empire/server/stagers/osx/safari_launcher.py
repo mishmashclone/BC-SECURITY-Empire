@@ -34,7 +34,7 @@ class Stager(object):
                 'Value'         :   'python'
             },
             'OutFile' : {
-                'Description'   :   'File to output launcher to, otherwise displayed on the screen.',
+                'Description'   :   'Filename that should be used for the generated output, otherwise returned as a string.',
                 'Required'      :   False,
                 'Value'         :   ''
             },

@@ -38,9 +38,9 @@ class Stager(object):
                 'Value'         :   '0'
             },
             'OutFile' : {
-                'Description'   :   'File to output .vbs launcher to, otherwise displayed on the screen.',
+                'Description'   :   'Filename that should be used for the generated output.',
                 'Required'      :   False,
-                'Value'         :   '/tmp/launcher.vbs'
+                'Value'         :   'launcher.vbs'
             },
             'Obfuscate' : {
                 'Description'    :  'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',

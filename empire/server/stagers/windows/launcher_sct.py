@@ -57,9 +57,9 @@ class Stager(object):
                 'Value'         :   r'Token\All\1'
             },
             'OutFile': {
-                'Description':   'File to output SCT to, otherwise displayed on the screen.',
+                'Description':   'Filename that should be used for the generated output.',
                 'Required':   False,
-                'Value':   '/tmp/launcher.sct'
+                'Value':   'launcher.sct'
             },
             'UserAgent': {
                 'Description':   'User-agent string to use for the staging request (default, none, or other).',

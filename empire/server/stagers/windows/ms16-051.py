@@ -60,9 +60,9 @@ class Stager(object):
                 'Value': r'Token\All\1,Launcher\STDIN++\12467'
             },
             'OutFile': {
-                'Description': 'File to output JS to, otherwise displayed on the screen.',
+                'Description': 'Filename that should be used for the generated output, otherwise returned as a string.',
                 'Required': False,
-                'Value': '/tmp/index.html'
+                'Value': 'index.html'
             },
             'UserAgent': {
                 'Description': 'User-agent string to use for the staging request (default, none, or other).',

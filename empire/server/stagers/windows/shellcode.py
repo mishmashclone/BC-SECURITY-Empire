@@ -55,9 +55,9 @@ class Stager(object):
                 'Value'         :   'default'
             },
             'OutFile' : {
-                'Description'   :   'File to output dll to.',
+                'Description'   :   'Filename that should be used for the generated output.',
                 'Required'      :   True,
-                'Value'         :   '/tmp/launcher.bin'
+                'Value'         :   'launcher.bin'
             },
             'Obfuscate' : {
                 'Description'   :   'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',

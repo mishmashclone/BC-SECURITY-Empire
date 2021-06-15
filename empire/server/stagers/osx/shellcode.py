@@ -39,9 +39,9 @@ class Stager(object):
                 'Value'         :   'x64'
             },
             'OutFile' : {
-                'Description'   :   'File to write shellcode to.',
+                'Description'   :   'Filename that should be used for the generated output.',
                 'Required'      :   True,
-                'Value'         :   '/tmp/launcher.bin'
+                'Value'         :   'launcher.bin'
             },
             'SafeChecks' : {
                 'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',

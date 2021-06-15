@@ -38,9 +38,9 @@ class Stager(object):
                 'Value'         :   '0'
             },
             'OutFile' : {
-                'Description'   :   'File to output XSL to, otherwise displayed on the screen.',
+                'Description'   :   'Filename that should be used for the generated output, otherwise returned as a string.',
                 'Required'      :   False,
-                'Value'         :   '/tmp/launcher.xsl'
+                'Value'         :   'launcher.xsl'
             },
             'Base64' : {
                 'Description'    :  'Switch. Base64 encode the output.',

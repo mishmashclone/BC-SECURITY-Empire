@@ -50,9 +50,9 @@ class Stager(object):
                 'Value'         :   r'Token\All\1'
             },
             'OutFile': {
-                'Description':   'File to output XML to, otherwise displayed on the screen.',
+                'Description':   'Filename that should be used for the generated output, otherwise returned as a string.',
                 'Required':   False,
-                'Value':   '/tmp/launcher.xml'
+                'Value':   'launcher.xml'
             },
             'UserAgent': {
                 'Description':   'User-agent string to use for the staging request (default, none, or other).',

@@ -44,9 +44,9 @@ class Stager(object):
                 'Value'         :   ''
             },
             'OutFile' : {
-                'Description'   :   'path to output Empire application. The application will be saved to a zip file.',
+                'Description'   :   'Filename that should be used for the generated output.',
                 'Required'      :   True,
-                'Value'         :   '/tmp/out.zip'
+                'Value'         :   'out.zip'
             },
             'SafeChecks' : {
                 'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',

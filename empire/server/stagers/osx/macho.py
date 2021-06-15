@@ -34,7 +34,7 @@ class Stager(object):
                 'Value'         :   'python'
             },
             'OutFile' : {
-                'Description'   :   'File to write macho to.',
+                'Description'   :   'Filename that should be used for the generated output.',
                 'Required'      :   True,
                 'Value'         :   ''
             },

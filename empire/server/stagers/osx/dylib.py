@@ -52,7 +52,7 @@ class Stager(object):
                 'Strict'         :  True
             },          
             'OutFile' : {
-                'Description'   :   'File to write the dylib.',
+                'Description'   :   'Filename that should be used for the generated output.',
                 'Required'      :   True,
                 'Value'         :   ''
             },

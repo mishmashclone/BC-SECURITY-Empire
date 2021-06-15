@@ -48,7 +48,7 @@ class Stager(object):
                 'Value'         :   ''
             },
             'OutFile' : {
-                'Description'   :   'File to write .war to.',
+                'Description'   :   'Filename that should be used for the generated output.',
                 'Required'      :   True,
                 'Value'         :   ''
             },

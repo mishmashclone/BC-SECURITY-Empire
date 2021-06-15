@@ -76,9 +76,9 @@ class Stager(object):
                 'Value': '/tmp/default.xls'
             },
             'OutFile': {
-                'Description': 'File to output macro to, otherwise displayed on the screen.',
+                'Description': 'Filename that should be used for the generated output, otherwise returned as a string.',
                 'Required': False,
-                'Value': '/tmp/macro'
+                'Value': 'macro'
             },
             'XmlOutFile': {
                 'Description': 'Local path + file to output xml to.',

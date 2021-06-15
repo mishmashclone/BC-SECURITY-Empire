@@ -39,9 +39,9 @@ class Stager(object):
                 'Value': '0'
             },
             'OutFile': {
-                'Description': 'File to output .bat launcher to, otherwise displayed on the screen.',
+                'Description': 'Filename that should be used for the generated output, otherwise returned as a string.',
                 'Required': False,
-                'Value': '/tmp/launcher.bat'
+                'Value': 'launcher.bat'
             },
             'Delete': {
                 'Description': 'Switch. Delete .bat after running.',

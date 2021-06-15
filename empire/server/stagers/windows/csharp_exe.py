@@ -57,8 +57,8 @@ class Stager(object):
                 'Value': 'default'
             },
             'OutFile': {
-                'Description': 'File to output zip to (PowerShell: /tmp/launcher.src, CSharp: Sharpire.exe).',
-                'Required': False,
+                'Description': 'Filename that should be used for the generated output.',
+                'Required': True,
                 'Value': 'Sharpire.exe'
             },
             'Obfuscate': {

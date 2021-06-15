@@ -128,6 +128,24 @@ else
   echo -e "\x1b[1;34m[*] Skipping dotnet\x1b[0m"
 fi
 
+echo -n -e "\x1b[1;33m[>] Do you want to install Nim and MinGW? It is only needed to generate a Nim stager (y/N)? \x1b[0m"
+read answer
+if [ "$answer" != "${answer#[Yy]}" ] ;then
+  if [ $OS_NAME == "DEBIAN" ]; then
+    sudo apt install -y curl git gcc
+    curl https://nim-lang.org/choosenim/init.sh -sSf | sh -s -- -y
+    echo "export PATH=/root/.nimble/bin:$PATH" >> ~/.bashrc
+    export PATH=/root/.nimble/bin:$PATH
+    SOURCE_MESSAGE=true
+  else
+    sudo apt install -y nim
+  fi
+  nimble install -y winim zippy nimcrypto
+  sudo apt install -y mingw-w64
+else
+  echo -e "\x1b[1;34m[*] Skipping Nim\x1b[0m"
+fi
+
 echo -e "\x1b[1;34m[*] Checking Python version\x1b[0m"
 python_version=($(python3 -c 'import sys; print("{} {}".format(sys.version_info.major, sys.version_info.minor))'))
 
@@ -168,3 +186,7 @@ poetry install
 echo -e '\x1b[1;34m[*] Install Complete!\x1b[0m'
 echo -e '\x1b[1;34m[*] poetry run python empire.py server\x1b[0m'
 echo -e '\x1b[1;34m[*] poetry run python empire.py client\x1b[0m'
+
+if $SOURCE_MESSAGE; then
+  echo -e '\x1b[1;34m[*] source ~/.bashrc to enable nim \x1b[0m'
+fi

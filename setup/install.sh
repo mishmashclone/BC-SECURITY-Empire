@@ -1,6 +1,6 @@
 #!/bin/bash
 function install_powershell() {
-  echo -e "x1b[1;34m[*] Installing Powershell\x1b[0m"
+  echo -e "\x1b[1;34m[*] Installing Powershell\x1b[0m"
   if [ $OS_NAME == "DEBIAN" ]; then
     wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb
     sudo dpkg -i packages-microsoft-prod.deb
@@ -17,7 +17,7 @@ function install_powershell() {
   elif [ $OS_NAME == "KALI" ]; then
     apt update && apt -y install powershell
   fi
-  rm packages-microsoft-prod.deb*
+  rm -f packages-microsoft-prod.deb*
 }
 
 function install_xar() {

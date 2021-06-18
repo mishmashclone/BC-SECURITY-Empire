@@ -13,9 +13,6 @@
 [submodule "empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/SharpSC"]
 	path = empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/SharpSC
 	url = https://github.com/djhohnstein/SharpSC
-[submodule "empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/SharpSploit"]
-	path = empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/SharpSploit
-	url = https://github.com/cobbr/SharpSploit
 [submodule "empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/SharpUp"]
 	path = empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/SharpUp
 	url = https://github.com/GhostPack/SharpUp
@@ -25,3 +22,6 @@
 [submodule "empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/Rubeus"]
 	path = empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/Rubeus
 	url = https://github.com/GhostPack/Rubeus
+[submodule "empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/SharpSploit"]
+	path = empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/SharpSploit
+	url = https://github.com/cobbr/SharpSploit/

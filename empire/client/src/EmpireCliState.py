@@ -63,7 +63,7 @@ class EmpireCliState(object):
             self.token = response.json()['token']
             self.connected = True
 
-            self.sio = socketio.Client(ssl_verify=False)
+            self.sio = socketio.Client(ssl_verify=False, reconnection_attempts=5)
             self.sio.connect(f'{host}:{socketport}?token={self.token}')
 
             # Wait for version to be returned

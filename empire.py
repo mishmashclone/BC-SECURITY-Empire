@@ -15,4 +15,4 @@ if __name__ == '__main__':
         import empire.client.client as client
         client.start()
 
-    sys.exit()
+    sys.exit(0)

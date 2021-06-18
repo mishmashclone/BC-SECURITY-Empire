@@ -1,3 +1,5 @@
+import socketio.exceptions
+
 from empire.client.src.EmpireCliState import state
 from empire.client.src.MenuState import menu_state
 from empire.client.src.menus.Menu import Menu
@@ -32,7 +34,10 @@ class ChatMenu(Menu):
 
     def on_disconnect(self):
         if state.sio is not None:
-            state.sio.emit('chat/leave')
+            try:
+                state.sio.emit('chat/leave')
+            except socketio.exceptions.BadNamespaceError:
+                print(print_util.color("[!] Unable to reach to server."))
 
     def on_enter(self):
         print('Exit Chat Menu with ctrl-c')

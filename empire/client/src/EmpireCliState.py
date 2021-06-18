@@ -272,7 +272,7 @@ class EmpireCliState(object):
                                 verify=False,
                                 params={'token': self.token})
 
-        self.modules = {x['Name']: x for x in response.json()['modules']}
+        self.modules = {x['Name']: x for x in response.json()['modules'] if x['Enabled']}
 
         return self.modules
 

@@ -561,9 +561,12 @@ class Listener(object):
                     .replace("{{ REPLACE_ADDRESS }}", host) \
                     .replace("{{ REPLACE_SESSIONKEY }}", stagingKey)
 
-                compiler = self.mainMenu.loadedPlugins["csharpserver"]
-                compiler.do_send_stager(stager_yaml, "Sharpire")
-                return "success"
+                compiler = self.mainMenu.loadedPlugins.get("csharpserver")
+                if not compiler.status == 'ON':
+                    print(helpers.color('[!] csharpserver plugin not running'))
+                else:
+                    compiler.do_send_stager(stager_yaml, "Sharpire")
+                    return "success"
 
             else:
                 print(helpers.color(

@@ -54,6 +54,7 @@ class Plugin(Plugin):
             return results
         except Exception as e:
             print(e)
+            self.main_menu.plugin_socketio_message(self.info[0]['Name'], f'[!] {e}')
             return False
 
     def get_commands(self):

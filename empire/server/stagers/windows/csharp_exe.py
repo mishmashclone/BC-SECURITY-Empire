@@ -91,7 +91,7 @@ class Stager(object):
                 self.options[option]['Value'] = value
 
     def generate(self):
-
+        self.options.pop('Output', None)  # clear the previous output
         # staging options
         language = self.options['Language']['Value']
         user_agent = self.options['UserAgent']['Value']
@@ -156,7 +156,7 @@ class Stager(object):
                                                                stagerRetries=stager_retries,
                                                                bypasses=bypasses)
 
-            if launcher == "":
+            if not launcher or launcher == "":
                 print(helpers.color("[!] Error in launcher command generation."))
                 return ""
             else:

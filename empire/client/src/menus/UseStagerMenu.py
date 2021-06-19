@@ -73,6 +73,11 @@ class UseStagerMenu(UseMenu):
             print(print_util.color(response['error']))
             return
         elif response[self.selected].get('OutFile', {}).get('Value'):
+            if response[self.selected].get('Output', '') == '':
+                # todo stagers endpoint needs to give modules a way to return errors better.
+                #  This says if the output is empty then something must have gone wrong.
+                print(print_util.color('[!] Stager output empty.'))
+                return
             file_name = response[self.selected].get('OutFile').get('Value').split('/')[-1]
             output_bytes = base64.b64decode(response[self.selected]['Output'])
             file = open(f'empire/client/generated-stagers/{file_name}', 'wb')

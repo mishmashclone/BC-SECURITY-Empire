@@ -1517,7 +1517,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         if profile:
             return {'name': profile.name, 'category': profile.category,
                     'data': profile.data, 'file_path': profile.file_path,
-                    'created_at': profile.created_at, 'profile': profile.updated_at}
+                    'created_at': profile.created_at, 'updated_at': profile.updated_at}
 
         return make_response(jsonify({'error': f'malleable profile {profile_name} not found'}), 404)
 
@@ -1544,7 +1544,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             Session().commit()
             return {'name': profile.name, 'category': profile.category,
                     'data': profile.data, 'file_path': profile.file_path,
-                    'created_at': profile.created_at, 'profile': profile.updated_at}
+                    'created_at': profile.created_at, 'updated_at': profile.updated_at}
 
         return make_response(jsonify({'error': f'malleable profile {profile_name} already exists'}), 400)
 
@@ -1579,7 +1579,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             Session().commit()
             return {'name': profile.name, 'category': profile.category,
                     'data': profile.data, 'file_path': profile.file_path,
-                    'created_at': profile.created_at, 'profile': profile.updated_at}
+                    'created_at': profile.created_at, 'updated_at': profile.updated_at}
 
         return make_response(jsonify({'error': f'malleable profile {profile_name} not found'}), 404)
 
@@ -1594,69 +1594,81 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
     @app.route('/api/bypasses', methods=['GET'])
     def get_bypasses():
         """
-        Returns JSON with all currently registered profiles.
+        Returns JSON with all the bypasses.
         """
         bypasses_raw = Session().query(models.Bypass).all()
 
         bypasses = []
         for bypass in bypasses_raw:
-            bypasses.append( {'id': bypass.id, 'name': bypass.name, 'code': bypass.code})
+            bypasses.append({'id': bypass.id, 'name': bypass.name, 'code': bypass.code,
+                             'created_at': bypass.created_at, 'updated_at': bypass.updated_at})
 
-        return jsonify({"bypasses": bypasses})
+        return {"bypasses": bypasses}
+
+    @app.route('/api/bypasses/<int:uid>', methods=['GET'])
+    def get_bypass(uid: int):
+        """
+        Returns JSON with a single bypass
+        """
+        bypass = Session().query(models.Bypass).filter(models.Bypass.id == uid).first()
+
+        if not bypass:
+            return make_response(jsonify({'error': f'bypass {uid} not found'}), 404)
+
+        return {'id': bypass.id, 'name': bypass.name, 'code': bypass.code,
+                'created_at': bypass.created_at, 'updated_at': bypass.updated_at}
 
     @app.route('/api/bypasses', methods=['POST'])
     def create_bypass():
         """
-        Returns JSON with all currently registered profiles.
+        Create a bypass
         """
-        # todo no spaces in name
         if not request.json or 'name' not in request.json or 'code' not in request.json:
             abort(400)
 
-        code = request.json['code']
-        if request.args.get('randomize_capitalization', '').lower() == 'true':
-            code = helpers.randomize_capitalization(code)
-        bypass = models.Bypass(name=request.json['name'].lower(), code=code)
-        Session().add(bypass)
-        Session().commit()
+        name = request.json['name'].lower()
+        bypass = Session().query(models.Bypass).filter(models.Bypass.name == name).first()
+        if not bypass:
+            bypass = models.Bypass(name=name, code=request.json['code'])
+            Session().add(bypass)
+            Session().commit()
 
-        return jsonify({'id': bypass.id, 'name': bypass.name, 'code': bypass.code})
+            return {'id': bypass.id, 'name': bypass.name, 'code': bypass.code,
+                    'created_at': bypass.created_at, 'updated_at': bypass.updated_at}
+
+        return make_response(jsonify({'error': f'bypass {name} already exists'}), 400)
 
     @app.route('/api/bypasses/<int:uid>', methods=['PUT'])
     def edit_bypass(uid: int):
         """
-        Returns JSON with all currently registered profiles.
+        Edit a bypass
         """
-        if not request.json or 'name' not in request.json or 'code' not in request.json:
+        if not request.json or 'code' not in request.json:
             abort(400)
 
         bypass = Session().query(models.Bypass).filter(models.Bypass.id == uid).first()
-
         if not bypass:
-            abort(404)
+            return make_response(jsonify({'error': f'bypass {uid} not found'}), 404)
 
-        code = request.json['code']
-        if request.args.get('randomize_capitalization', '').lower() == 'true':
-            code = helpers.randomize_capitalization(code)
-
-        bypass.code = code
-        bypass.name = request.json['name']
+        bypass.code = request.json['code']
         Session().commit()
 
-        return jsonify({'id': bypass.id, 'name': bypass.name, 'code': bypass.code})
+        return {'id': bypass.id, 'name': bypass.name, 'code': bypass.code,
+                'created_at': bypass.created_at, 'updated_at': bypass.updated_at}
 
     @app.route('/api/bypasses/<int:uid>', methods=['DELETE'])
     def delete_bypass(uid: int):
         """
-        Returns JSON with all currently registered profiles.
+        Delete a bypass
         """
         bypass = Session().query(models.Bypass).filter(models.Bypass.id == uid).first()
 
         if not bypass:
-            abort(404)
+            return make_response(jsonify({'error': f'bypass {uid} not found'}), 404)
 
         Session().delete(bypass)
         Session().commit()
+        return jsonify({"success": True})
 
     @app.route('/api/admin/login', methods=['POST'])
     def server_login():

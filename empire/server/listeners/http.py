@@ -555,11 +555,24 @@ class Listener(object):
                     return launcherBase
                 #very basic csharp implementation
             if language.startswith("csh"):
+                workingHours = listenerOptions['WorkingHours']['Value']
+                killDate = listenerOptions['KillDate']['Value']
+                customHeaders = profile.split('|')[2:]
+                delay = listenerOptions['DefaultDelay']['Value']
+                jitter = listenerOptions['DefaultJitter']['Value']
+                lostLimit = listenerOptions['DefaultLostLimit']['Value']
+
                 stager_yaml = open(self.mainMenu.installPath + "/stagers/Sharpire.yaml", "rb").read()
                 stager_yaml = stager_yaml.decode("UTF-8")
                 stager_yaml = stager_yaml \
                     .replace("{{ REPLACE_ADDRESS }}", host) \
-                    .replace("{{ REPLACE_SESSIONKEY }}", stagingKey)
+                    .replace("{{ REPLACE_SESSIONKEY }}", stagingKey) \
+                    .replace("{{ REPLACE_PROFILE }}", profile) \
+                    .replace("{{ REPLACE_WORKINGHOURS }}", workingHours) \
+                    .replace("{{ REPLACE_KILLDATE }}", killDate) \
+                    .replace("{{ REPLACE_DELAY }}", str(delay)) \
+                    .replace("{{ REPLACE_JITTER }}", str(jitter)) \
+                    .replace("{{ REPLACE_LOSTLIMIT }}", str(lostLimit))
 
                 compiler = self.mainMenu.loadedPlugins.get("csharpserver")
                 if not compiler.status == 'ON':

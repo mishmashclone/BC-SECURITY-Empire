@@ -156,11 +156,11 @@ class Stager(object):
                                                                stagerRetries=stager_retries,
                                                                bypasses=bypasses)
 
-            if not launcher or launcher == "":
+            if not launcher or launcher.lower() == "failed":
                 print(helpers.color("[!] Error in launcher command generation."))
                 return ""
             else:
-                directory = self.mainMenu.installPath + "/csharp/Covenant/Data/Tasks/CSharp/Compiled/net40/Sharpire.exe"
+                directory = self.mainMenu.installPath + "/csharp/Covenant/Data/Tasks/CSharp/Compiled/net40/"+ launcher + ".exe"
                 f = open(directory, 'rb')
                 code = f.read()
                 f.close()

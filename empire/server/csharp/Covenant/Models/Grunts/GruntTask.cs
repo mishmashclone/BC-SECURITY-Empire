@@ -268,7 +268,7 @@ namespace Covenant.Models.Grunts
                 })
             );
             #region testOutFile
-            if (this.Name == "Sharpire")
+            if (this.Name.StartsWith("Sharpire"))
             {
                 File.WriteAllBytes(Common.CovenantTaskCSharpCompiledNet35Directory + this.Name + ".exe",
                     Compiler.Compile(new Compiler.CsharpFrameworkCompilationRequest
@@ -368,7 +368,7 @@ namespace Covenant.Models.Grunts
                 })
             );
             #region testOutFile
-            if (this.Name == "Sharpire")
+            if (this.Name.StartsWith("Sharpire"))
             {
                 File.WriteAllBytes(Common.CovenantTaskCSharpCompiledNet40Directory + this.Name + ".exe",
                     Compiler.Compile(new Compiler.CsharpFrameworkCompilationRequest

@@ -277,8 +277,10 @@ class Modules(object):
             compiler = self.main_menu.loadedPlugins.get("csharpserver")
             if not compiler.status == 'ON':
                 return None, 'csharpserver plugin not running'
-            compiler.do_send_message(module.compiler_yaml, module.name)
-            dll_payload = open(self.main_menu.installPath + "/csharp/Covenant/Data/Tasks/CSharp/Compiled/net40/" + module.name + ".compiled" , "rb").read()
+            file_name = compiler.do_send_message(module.compiler_yaml, module.name)
+            if file_name == "failed":
+                return None, 'module compile failed'
+            dll_payload = open(self.main_menu.installPath + "/csharp/Covenant/Data/Tasks/CSharp/Compiled/net40/" + file_name + ".compiled","rb").read()
             dll_encoded = base64.b64encode(dll_payload).decode("UTF-8")
             script = dll_encoded
             for key, value in params.items():

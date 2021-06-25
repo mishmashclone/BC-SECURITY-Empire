@@ -142,9 +142,16 @@ class Plugin(Plugin):
         s.send(message)
 
         recv_message = s.recv(1024)
-        self.main_menu.plugin_socketio_message(self.info[0]['Name'],
-                                             ("[*] " + recv_message.decode("ascii")))
+        recv_message = recv_message.decode("ascii")
+        if recv_message.startswith("FileName:"):
+            file_name = recv_message.split(":")[1]
+        else:
+            self.main_menu.plugin_socketio_message(self.info[0]['Name'],
+                                                   ("[*] " + recv_message))
+            file_name = "failed"
         s.close()
+
+        return file_name
 
     def do_send_stager(self, stager, task_name):
         bytes_yaml = stager.encode("UTF-8")
@@ -158,9 +165,16 @@ class Plugin(Plugin):
         s.send(message)
 
         recv_message = s.recv(1024)
-        self.main_menu.plugin_socketio_message(self.info[0]['Name'],
-                                             ("[*] " + recv_message.decode("ascii")))
+        recv_message = recv_message.decode("ascii")
+        if recv_message.startswith("FileName:"):
+            file_name = recv_message.split(":")[1]
+        else:
+            self.main_menu.plugin_socketio_message(self.info[0]['Name'],
+                                                   ("[*] " + recv_message))
+            file_name = "failed"
         s.close()
+
+        return file_name
 
     def shutdown(self):
         try:

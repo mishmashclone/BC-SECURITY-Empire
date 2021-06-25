@@ -62,11 +62,19 @@ namespace Covenant
                         if (strTaskName != "close")
                         {
                             GruntTask tsk = tsks.First(tk => tk.Name == strTaskName);
+                            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                            var stringChars = new char[5];
+                            var random = new Random();
+                            for (int i = 0; i < stringChars.Length; i++)
+                            {
+                                stringChars[i] = chars[random.Next(chars.Length)];
+                            }
+                            var randNew = new String(stringChars);
+                            tsk.Name = tsk.Name + "_" + randNew;
                             tsk.Compile();
-                            string message = "Compile complete";
+                            string message = "FileName:" + tsk.Name;
                             var msgBytes = Encoding.ASCII.GetBytes(message);
                             socket.Send(msgBytes);
-
                         }
                         else
                         {

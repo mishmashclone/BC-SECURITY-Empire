@@ -565,8 +565,8 @@ class Listener(object):
                 if not compiler.status == 'ON':
                     print(helpers.color('[!] csharpserver plugin not running'))
                 else:
-                    compiler.do_send_stager(stager_yaml, "Sharpire")
-                    return "success"
+                    file_name = compiler.do_send_stager(stager_yaml, "Sharpire")
+                    return file_name
 
             else:
                 print(helpers.color(

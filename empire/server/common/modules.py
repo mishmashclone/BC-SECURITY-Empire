@@ -52,6 +52,9 @@ class Modules(object):
         :param user_id: the user executing the module
         :return: tuple with the response and an error message (if applicable)
         """
+        if not module.enabled:
+            return None, 'Cannot execute disabled module'
+
         cleaned_options, err = self._validate_module_params(module, params)
 
         if err:

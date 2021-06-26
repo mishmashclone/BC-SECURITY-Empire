@@ -438,7 +438,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         module_list = request.json['module_list']
         main.modules.change_module_state(main, module_list, False)
-        jsonify({'success': True})
+        return jsonify({'success': True})
 
     @app.route('/api/modules/enable', methods=['POST'])
     def enable_modules():
@@ -450,7 +450,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         module_list = request.json['module_list']
         main.modules.change_module_state(main, module_list, True)
-        jsonify({'success': True})
+        return jsonify({'success': True})
 
     @app.route('/api/modules/<path:module_name>', methods=['POST'])
     def execute_module(module_name):

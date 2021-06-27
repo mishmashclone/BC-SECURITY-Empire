@@ -57,6 +57,7 @@ Most methods utilize self.lock to deal with the concurreny issue of kicking off 
 from __future__ import absolute_import
 from __future__ import print_function
 
+import base64
 import sqlite3
 import json
 import os
@@ -1353,7 +1354,12 @@ class Agents(object):
 
             # build tasking packets for everything we have
             for tasking in taskings:
-                all_task_packets += packets.build_task_packet(tasking.task_name, tasking.input_full, tasking.id)
+                input_full = tasking.input_full
+                if tasking.task_name == "TASK_CSHARP":
+                    input_full = open(tasking.input_full.split("|")[0], "rb").read()
+                    input_full = base64.b64encode(input_full).decode("UTF-8")
+                    input_full += tasking.input_full.split("|", maxsplit=1)[1]
+                all_task_packets += packets.build_task_packet(tasking.task_name, input_full, tasking.id)
 
             # get the session key for the agent
             session_key = self.agents[sessionID]['sessionKey']

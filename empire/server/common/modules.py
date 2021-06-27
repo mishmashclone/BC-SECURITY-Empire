@@ -283,16 +283,16 @@ class Modules(object):
             file_name = compiler.do_send_message(module.compiler_yaml, module.name)
             if file_name == "failed":
                 return None, 'module compile failed'
-            dll_payload = open(self.main_menu.installPath + "/csharp/Covenant/Data/Tasks/CSharp/Compiled/" + (
-            params["DotNetVersion"]).lower() + "/" + file_name  + ".compiled", "rb").read()
-            dll_encoded = base64.b64encode(dll_payload).decode("UTF-8")
-            script = dll_encoded
+
+            script_file = self.main_menu.installPath + "/csharp/Covenant/Data/Tasks/CSharp/Compiled/" +\
+                (params["DotNetVersion"]).lower() + "/" + file_name + ".compiled"
+            param_string = ''
             for key, value in params.items():
                 if key.lower() not in ['agent', 'computername', 'dotnetversion']:
                     if value and value != '':
-                        script += "," + value
+                        param_string += "," + value
 
-            return script, None
+            return f"{script_file}|{param_string}", None
 
         except Exception as e:
             print(e)

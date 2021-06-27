@@ -25,7 +25,7 @@ Session = scoped_session(sessionmaker(bind=engine))
 
 args = arguments.args
 if args.reset:
-    choice = input("[>] Would you like to reset your Empire instance? [y/N]: ")
+    choice = input("\x1b[1;33m[>] Would you like to reset your Empire instance? [y/N]: \x1b[0m")
     if choice.lower() == "y":
         # The reset script will delete the default db file. This will drop tables if connected to MySQL or
         # a different SQLite .db file.

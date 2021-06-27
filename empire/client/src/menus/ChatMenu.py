@@ -40,7 +40,7 @@ class ChatMenu(Menu):
                 print(print_util.color("[!] Unable to reach to server."))
 
     def on_enter(self):
-        print('Exit Chat Menu with ctrl-c')
+        print(print_util.color('[*] Exit Chat Menu with Ctrl+C'))
         self.my_username = state.me['username']
 
         for message in self.chat_cache:

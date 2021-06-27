@@ -56,11 +56,11 @@ def title(version, modules, listeners, agents):
     """
     os.system('clear')
     print("========================================================================================")
-    print(" [Empire]  Post-Exploitation Framework")
+    print(" [\x1b[1;32mEmpire\x1b[0m] Post-Exploitation Framework")
     print('========================================================================================')
-    print(" [Version] %s | [Web] https://github.com/BC-SECURITY/Empire" % version)
+    print(" [\x1b[1;32mVersion\x1b[0m] %s | [Web] https://github.com/BC-SECURITY/Empire" % version)
     print('========================================================================================')
-    print(" [Starkiller] Multi-User GUI | [Web] https://github.com/BC-SECURITY/Starkiller")
+    print(" [\x1b[1;32mStarkiller\x1b[0m] Multi-User GUI | [Web] https://github.com/BC-SECURITY/Starkiller")
     print('========================================================================================')
     print("""
    _______   ___  ___   ______    __   ______        _______

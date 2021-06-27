@@ -1,6 +1,6 @@
 import sys
 from typing import Dict
-
+from empire.server.common import helpers
 import yaml
 
 
@@ -12,7 +12,7 @@ class EmpireConfig(object):
             print(f'Loading config from {location}')
             self.set_yaml(location)
         if len(self.yaml.items()) == 0:
-            print('Loading default config.')
+            print(helpers.color('[*] Loading default config'))
             self.set_yaml("./empire/server/config.yaml")
 
     def set_yaml(self, location: str):

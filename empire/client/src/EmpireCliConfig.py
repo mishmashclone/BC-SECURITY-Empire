@@ -1,5 +1,6 @@
 import sys
 from typing import Dict
+from empire.client.src.utils import print_util
 
 import yaml
 
@@ -12,7 +13,7 @@ class EmpireCliConfig(object):
             print(f'Loading config from {location}')
             self.set_yaml(location)
         if len(self.yaml.items()) == 0:
-            print('Loading default config.')
+            print(print_util.color('[*] Loading default config'))
             self.set_yaml("./empire/client/config.yaml")
 
     def set_yaml(self, location: str):

@@ -27,7 +27,7 @@ class ShellMenu(Menu):
         else:
             self.use(kwargs['selected'])
             self.stop_threads = False
-            print('Exit Shell Menu with ctrl-c')
+            print(print_util.color('[*] Exit Shell Menu with Ctrl+C'))
             return True
 
     def on_leave(self):

@@ -31,6 +31,13 @@ class Stager(object):
                 'SuggestedValues': ['powershell', 'csharp'],
                 'Strict': True
             },
+            'DotNetVersion': {
+                'Description': 'Language of the stager to generate(powershell, csharp).',
+                'Required': True,
+                'Value': 'net40',
+                'SuggestedValues': ['net35','net40'],
+                'Strict': True
+            },
             'Listener': {
                 'Description': 'Listener to use.',
                 'Required': True,
@@ -100,6 +107,7 @@ class Stager(object):
         stager_retries = self.options['StagerRetries']['Value']
         listener_name = self.options['Listener']['Value']
         stager_retries = self.options['StagerRetries']['Value']
+        dot_net_version = self.options['DotNetVersion']['Value']
 
         bypasses = ''
         if language.lower() == 'powershell':
@@ -160,7 +168,7 @@ class Stager(object):
                 print(helpers.color("[!] Error in launcher command generation."))
                 return ""
             else:
-                directory = f"{self.mainMenu.installPath}/csharp/Covenant/Data/Tasks/CSharp/Compiled/net40/{launcher}.exe"
+                directory = f"{self.mainMenu.installPath}/csharp/Covenant/Data/Tasks/CSharp/Compiled/{dot_net_version}/{launcher}.exe"
                 f = open(directory, 'rb')
                 code = f.read()
                 f.close()

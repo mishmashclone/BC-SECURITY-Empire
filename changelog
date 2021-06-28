@@ -8,6 +8,9 @@ X/XX/2021
         - Plugin endpoints and socketio channels renamed to plural (plugin -> plugins) to match naming convention of other resources (@Vinnybod)
     - New Features
         - Integrated server and client into Empire (@Cx01N, @Vinnybod)
+        - Introduced C# agents (@Hubbl3)
+        - Integrated Covenant Roslyn compiler for task compilation (@Hubbl3)
+        - Covenant Task compatibility (@Hubbl3, @Vinnybod) 
         - Added support for 'suggested values' on the server and auto completing the suggested values in the CLI (@Vinnybod)
         - Added new launch parameters for starting server/client (@Cx01N, @Vinnybod)
         - Added Offensive DLR Modules: IronPython, ClearScript, & Boolang (@Cx01N)

@@ -1,3 +1,52 @@
+6/28/2021
+------------
+- Version 4.0.0 Master Release
+    - Breaking Changes
+        - Removed old Empire CLI and cmdloop from server (@Cx01N)
+        - The credential create endpoint now accepts a single credential instead of a list
+        - Some endpoints which were previously throwing 500s when not found, now properly return a 404
+        - Plugin endpoints and socketio channels renamed to plural (plugin -> plugins) to match naming convention of other resources (@Vinnybod)
+    - New Features
+        - Integrated server and client into Empire (@Cx01N, @Vinnybod)
+        - Introduced C# agents (@Hubbl3)
+        - Integrated Covenant Roslyn compiler for task compilation (@Hubbl3)
+        - Covenant Task compatibility (@Hubbl3, @Vinnybod) 
+        - Added support for 'suggested values' on the server and auto completing the suggested values in the CLI (@Vinnybod)
+        - Added new launch parameters for starting server/client (@Cx01N, @Vinnybod)
+        - Added Offensive DLR Modules: IronPython, ClearScript, & Boolang (@Cx01N)
+        - Added MS16-051 stager (@Cx01N)
+        - Added Start-ProcessAsUser module (@Cx01N)
+        - Added NTLM-Extract module (@Cx01N)
+        - Added Invoke-SharpSecDump module (@Cx01N)
+        - Added sriptimport and scriptcommand to API (@Cx01N)
+        - Added auto generate certificate function to startup script (@Cx01N)
+        - Added Invoke-SpoolSample (@Cx01N)
+        - Added redirector chaining and proper tunneling (@Cx01N)
+        - Updated pycrypto to pycryptodome (@Cx01N)
+        - Updated PowerDump with AES NTLM hashes (@Cx01N)
+        - Updated cert/install/reset script with new directories (@Cx01N)
+        - Updated all modules to new YAML format (@Vinnybod, @Cx01N)
+        - Updated to Mimikatz 2.2.0 20210531 X11 RDP Clients (@Cx01N)
+        - Removed M2Crypto dependency (@Cx01N)
+        - Simplified kill/remove commands and added 'all' and 'stale' options (@Cx01N)
+        - Removed the need for manual database timestamp updates, merge taskings and results table to a single table (@Vinnybod)
+        - Added a socketio event for when tasking results come back (@Vinnybod)
+        - Readded rastamouse's bypass (@Cx01N)
+        - Added a 'since' query parameter to the tasks endpoint for more efficient querying (@Vinnybod)
+        - Added socketio tasking event handler to CLI for displaying task results in the interact menu (@Vinnybod)
+        - Install script prompts for xar, bomutils, openjdk, and dotnet for a more streamlined install (@Vinnybod)
+        - Install script now includes dotnet (@Vinnybod)
+        - Dockerfile size decreased by ~1GB by only installing the essentials. There is a note in the README (@Vinnybod)
+        - Made powershell bypasses dynamic. Now set with a single field `Bypasses` and they will be applied in the order provided (@Vinnybod)
+        - Added API endpoints for managing bypasses (@Vinnybod)
+        - Add processor architecture to powershell, csharp, and python agents (@Vinnybod)
+        - Add a display command to interact menu (@Vinnybod)
+        - Add additional endpoints for credential for get, update, and delete (@Vinnybod)
+        - Add create, update, remove credential functionality to the CLI (@Cx01N)
+        - Add an "output function" option on several modules (@jamarir)
+        - Updated shellcoderdi to newest version (@Cx01N)
+        - Added a Nim launcher (@Hubbl3)
+
 3/28/2021
 ------------
 - Version 3.8.2 Master Release

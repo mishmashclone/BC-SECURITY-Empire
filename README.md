@@ -34,7 +34,7 @@ properly cite existing or prior work, please let us know at Empire@BC-Security.o
 Empire is currently being developed and maintained by [@Cx01N](https://twitter.com/Cx01N_), 
 [@Hubbl3](https://twitter.com/_Hubbl3), & [@Vinnybod](https://twitter.com/_vinnybod). While the original Empire project is
 no longer maintained, this fork is maintained by [@bcsecurity1](https://twitter.com/BCSecurity1). Please reach out to 
-us on our [Discord](https://discord.gg/P8PZPyf) if you have any questions or want talk about offensive security.
+us on our [Discord](https://discord.gg/P8PZPyf) if you have any questions or want to talk about offensive security.
 
 Thank you to the original team of developers: [@harmj0y](https://twitter.com/harmj0y), 
 [@sixdub](https://twitter.com/sixdub), [@enigma0x3](https://twitter.com/enigma0x3), 

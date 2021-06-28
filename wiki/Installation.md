@@ -21,7 +21,7 @@ git clone https://github.com/BC-SECURITY/Empire.git
 cd Empire
 sudo ./setup/install.sh
 sudo poetry install
-sudo poetry run python empire --rest -n
+./ps-empire server # or ./ps-empire client
 ```
 
 ## Docker
@@ -45,7 +45,7 @@ All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
 * All github tagged releases will be deployed using their version numbers (v3.0.0, v3.1.0, etc)
 
 # Community-Supported Operating Systems
-At this time, we are choosing to only support Kali, Debian, and Ubuntu installations, however we will accept pull requests that fix issues or provide installation scripts specific to other operating systems to this wiki.
+At this time, we are choosing to only support Kali, Debian 10, and Ubuntu 20.04 installations, however we will accept pull requests that fix issues or provide installation scripts specific to other operating systems to this wiki.
 
 <!---
 ## Fedora

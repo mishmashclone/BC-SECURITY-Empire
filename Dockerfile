@@ -13,7 +13,7 @@
 # -----BUILD ENTRY-----
 
 # image base
-FROM python:3.7.5-buster
+FROM python:3.9.4-buster
 
 # extra metadata
 LABEL maintainer="bc-security"
@@ -29,26 +29,16 @@ SHELL ["/bin/bash", "-c"]
 RUN apt-get update && \
       apt-get -y install \
         sudo \
-        lsb-release \
-	    make \
-	    g++ \
 	    python3-dev \
-	    swig \
-	    python-pip \
-	    libxml2-dev \
-	    default-jdk \
-	    libffi-dev \
-	    libssl1.1 \
-	    libssl-dev \
-	    build-essential \
+	    python3-pip \
 	    apt-transport-https \
-	    curl \
-	    gnupg
+    && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb && \
     sudo dpkg -i packages-microsoft-prod.deb && \
     sudo apt-get update && \
-    sudo apt-get install -y powershell
+    sudo apt-get install -y powershell \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /empire
 
@@ -58,10 +48,8 @@ COPY . /empire
 
 RUN sudo pip install poetry && sudo poetry config virtualenvs.create false && sudo poetry install
 
-RUN rm -rf /empire/data/empire*
+RUN /empire/setup/reset.sh
+RUN rm -rf /empire/server/data/empire*
 
-RUN cd setup && ./reset.sh
-
-RUN cd setup && ./cert.sh
-
-CMD ["sudo", "poetry", "run", "python", "empire", "--rest", "--notifications"]
+ENTRYPOINT ["./ps-empire"]
+CMD ["server"]

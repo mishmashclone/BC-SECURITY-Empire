@@ -12,6 +12,8 @@
 
 Keep up-to-date on our blog at [https://www.bc-security.org/blog][1]
 
+[Documentation](https://bc-security.gitbook.io/empire-wiki/)
+
 # Empire
 Empire 4 is a post-exploitation framework that includes a pure-PowerShell Windows agents, Python 3.x Linux/OS X agents, 
 and C# agents. It is the merger of the previous PowerShell Empire and Python EmPyre projects. The framework offers 
@@ -46,26 +48,6 @@ Thank you to the original team of developers: [@harmj0y](https://twitter.com/har
 ## Release Notes
 Please see our [Releases](https://github.com/BC-SECURITY/Empire/releases) or [Changelog](/changelog) page for detailed release notes.
 
-## Empire 4.0 Documentation
-**Note**: Some things are subject to change before the GA release, and this documentation will (hopefully ;) ) be built 
-out to the wiki before then.
-
-Empire 4 made some changes to the crypto libraries. Run these commands to refresh your virtual environment,  
-if you already have one.
-```sh
-poetry run python -m pip uninstall PyCrypto
-poetry run python -m pip uninstall pycryptodome
-poetry install
-```
-
-You will want to run the install script to get the latest OS dependencies. It has been tested and runs properly on
-Ubuntu 20.04, Debian 10, and Kali Rolling release. When prompted for dotnet, type `y` to get the required dependencies for 
-C# agents.
-```sh
-cd setup
-./install.sh
-```
-
 ###  Quickstart
 Empire 4 introduces a new run command for the server and client. The API and SocketIO servers run by default and are 
 no longer needed to be provided as parameters.
@@ -94,115 +76,10 @@ poetry run python empire.py client
 ./ps-empire client -h
 ```
 
-Check out the [Empire wiki](https://github.com/BC-SECURITY/Empire/wiki/Quickstart) for more instructions on getting started with Empire.
-
-### C# agents
-Empire 4 combines the power of Covenant and Sharpire to give us C# agents. In order to be able to run the C# plugin and covenant compiler you need to have the dotnet 3.1 SDK installed on your computer. You can follow the [Microsoft Documentation](https://docs.microsoft.com/en-us/dotnet/core/install/linux-debian#supported-distributions) or run the install script mentioned above. When prompted for dotnet, type `y`.
-
-Currently, the C# functionality is contained in a plugin. The plugin **MUST** be running
-to generate the stager and execute C# tasks.
-To start the server:
-```
-# from the client
-useplugin csharpserver
-set status start
-execute
-```
-
-To get a stager for a C# agent
-```
-usestager windows/csharp_exe
-set Listener <listener_name>
-generate
-```
-
-Drop the stager on your windows box and execute it. You should see a callback just like
-any other Empire stager. Covenant modules have also been loaded into Empire. They can be 
-executed both against the C# agent and the PowerShell agent. You can find them prefixed 
-with `csharp/`.
-
-![](https://user-images.githubusercontent.com/9831420/115481326-3d2da280-a201-11eb-90d3-e00595d76c0a.png)
-
+Check out the [Empire Docs](https://bc-security.gitbook.io/empire-wiki/) for more instructions on installing and using with Empire.
 For a complete list of the 4.0 changes, see the [changelog](./changelog).
 
 Join us in [our Discord](https://discord.gg/P8PZPyf) to with any comments, questions, concerns, or problems!
-
-## Install
-We recommend the use of [Kali](https://www.kali.org/downloads/), [Poetry](https://python-poetry.org/docs/), or our [Docker images](https://hub.docker.com/r/bcsecurity/empire) to run Empire.
-Kali Linux users and [Direct Sponsors](https://github.com/sponsors/BC-SECURITY) will receive 30-day early access to new Empire and Starkiller features.
-
-The following operating systems have been tested for Empire compatibility. We will be unable to provide support for other OSs at this time. Consider using our [Prebuilt Docker containers](#Docker) which can run on any system.
-- Kali Linux Rolling
-- Ubuntu 20.04
-- Debian 10
-
-As of Empire 4.0, Python 3.8 is the minimum Python version required.
-
-### Kali
-You can install the latest version of Empire by running the following:
-
-```sh
-sudo apt install powershell-empire
-```
-
-__Note:__ Newer versions of Kali require you to run ```sudo``` before starting Empire.
-
-
-### Github
-Poetry is a dependency and virtual environment management tool. This is highly recommended if using the SocketIO notification feature introduced in 3.5.0. To install Poetry, please follow the installation guide in the documentation or run `sudo pip3 install poetry`.
-
-To install and run:
-```sh
-git clone --recursive https://github.com/BC-SECURITY/Empire.git
-cd Empire
-sudo ./setup/install.sh
-sudo poetry install
-```
-
-### Docker
-If you want to run Empire using a pre-built docker container:
-**Note**: For size savings on the image, it is not pre-built with the
-libraries needed for jar, dmg, and nim stagers or the needed libraries for csharp
-agents and modules.
-To add these to your image, run the `install.sh` script in the container and answer
-`y` to the prompts.
-
-```bash
-# Pull the latest image
-docker pull bcsecurity/empire:latest
-
-# Run the server with the rest api and socket ports open
-docker run -it -p 1337:1337 -p 5000:5000 bcsecurity/empire:latest
-
-# Run the client
-docker run -it -p 1337:1337 -p 5000:5000 bcsecurity/empire:latest client
-
-# To run the client against the already running server container
-docker container ls
-docker exec -it {container-id} ./ps-empire client
-
-# with persistent storage
-docker pull bcsecurity/empire:latest
-docker create -v /empire --name data bcsecurity/empire:latest
-docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data bcsecurity/empire:latest
-
-# if you prefer to be dropped into bash instead of directly into empire
-docker run -it -p 1337:1337 -p 5000:5000 --volumes-from data --entrypoint /bin/bash bcsecurity/empire:latest
-```
-Note: These are example basic commands to get started with docker.
-Depending on the use case of the individual, one may need to reference the [Docker documentation](https://docs.docker.com/).
-
-All image versions can be found at: https://hub.docker.com/r/bcsecurity/empire/
-* The last commit from master will be deployed to the `latest` tag
-* The last commit from the dev branch will be deployed to the `dev` tag
-* All GitHub tagged releases will be deployed using their version numbers (v3.0.0, v3.1.0, etc)
-
-## Plugins
-Plugins are an extension of Empire that allow for custom scripts to be loaded. This allows anyone to easily build or add
-community projects to extend Empire functionality. Plugins can be accessed from the Empire CLI or the API as long as the 
-plugin follows the [template example](empire/server/plugins/example.py). 
-
-A list of Empire Plugins is located [here](empire/server/plugins/PLUGINS.md).
 
 ## Starkiller
 <div align="center"><img width="125" src="https://github.com/BC-SECURITY/Starkiller/blob/master/src/assets/icon.png"></div>
@@ -212,13 +89,11 @@ A list of Empire Plugins is located [here](empire/server/plugins/PLUGINS.md).
 ## Contribution Rules
 Contributions are more than welcome! The more people who contribute to the project the better Empire will be for everyone. Below are a few guidelines for submitting contributions.
 
-* As of Empire 3.1.0, Empire only officially supports Python 3. If you still need Python 2 support, please use the [3.0.x branch](https://github.com/BC-SECURITY/Empire/tree/3.0.x) or releases.
 * Submit pull requests to the [dev branch](https://github.com/BC-SECURITY/Empire/tree/dev). After testing, changes will be merged to master.
 * Depending on what you're working on, base your module on [./lib/modules/powershell_template.py](empire/teamserver/lib/modules/powershell_template.py) or [./lib/modules/python_template.py](empire/teamserver/lib/modules/python_template.py). **Note** that for some modules you may need to massage the output to get it into a nicely displayable text format [with Out-String](https://github.com/PowerShellEmpire/Empire/blob/0cbdb165a29e4a65ad8dddf03f6f0e36c33a7350/lib/modules/situational_awareness/network/powerview/get_user.py#L111).
 * Cite previous work in the **'Comments'** module section.
 * If your script.ps1 logic is large, may be reused by multiple modules, or is updated often, consider implementing the logic in the appropriate **data/module_source/*** directory and [pulling the script contents into the module on tasking](https://github.com/PowerShellEmpire/Empire/blob/0cbdb165a29e4a65ad8dddf03f6f0e36c33a7350/lib/modules/situational_awareness/network/powerview/get_user.py#L85-L95).
 * Use [approved PowerShell verbs](https://technet.microsoft.com/en-us/library/ms714428(v=vs.85).aspx) for any functions.
-* PowerShell Version 2 compatibility is **STRONGLY** preferred.
 * TEST YOUR MODULE! Be sure to run it from an Empire agent and test Python 3.x functionality before submitting a pull to ensure everything is working correctly.
 * For additional guidelines for your PowerShell code itself, check out the [PowerSploit style guide](https://github.com/PowerShellMafia/PowerSploit/blob/master/README.md).
 

@@ -180,7 +180,7 @@ else
   python3 -m pip install poetry
 fi
 
-echo -e "\x1b[1;34m[[*] Installing Poetry\x1b[0m"
+echo -e "\x1b[1;34m[*] Installing Poetry\x1b[0m"
 poetry install
 
 echo -e '\x1b[1;34m[*] Install Complete!\x1b[0m'

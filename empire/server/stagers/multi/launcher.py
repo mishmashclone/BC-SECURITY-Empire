@@ -37,6 +37,11 @@ class Stager(object):
                 'Required'      :   False,
                 'Value'         :   '0'
             },
+            'OutFile': {
+                'Description': 'Filename that should be used for the generated output.',
+                'Required': False,
+                'Value': ''
+            },
             'Base64' : {
                 'Description'    :  'Switch. Base64 encode the output.',
                 'Required'       :  True,

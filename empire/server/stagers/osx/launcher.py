@@ -33,6 +33,11 @@ class Stager(object):
                 'Required'      :   True,
                 'Value'         :   'python'
             },
+            'OutFile': {
+                'Description': 'Filename that should be used for the generated output.',
+                'Required': False,
+                'Value': ''
+            },
             'SafeChecks' : {
                 'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
                 'Required'       :  True,

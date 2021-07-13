@@ -152,6 +152,17 @@ class InteractMenu(Menu):
         print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
 
     @command
+    def sleep(self, delay: int, jitter: int) -> None:
+        """
+        Tasks an the specified agent to update delay (s) and jitter (0.0 - 1.0)
+
+        Usage: sleep <delay> <jitter>
+        """
+        response = state.agent_sleep(self.session_id, delay, jitter)
+        print(print_util.color(f'[*] Tasked agent to sleep delay/jitter {delay}/{jitter}'))
+        print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
+
+    @command
     def info(self) -> None:
         """
         Display agent info.

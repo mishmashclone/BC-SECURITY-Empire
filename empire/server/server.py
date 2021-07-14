@@ -1200,7 +1200,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             kill_date = request.json['kill_date']
 
             # update this agent's information in the database
-            main.agents.set_agent_field_db("kill_date", kill_date, agent_name)
+            agent = Session().query(models.Agent).filter(models.Agent.session_id == agent_name).first()
+            agent.kill_date = kill_date
 
             # task the agent
             main.agents.add_agent_task_db(agent_name, "TASK_SHELL", "Set-KillDate " + str(kill_date))
@@ -1208,7 +1209,11 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             # update the agent log
             msg = "Tasked agent to set killdate to " + str(kill_date)
             main.agents.save_agent_log(agent_name, msg)
+
+            Session.commit()
+
             return jsonify({'success': True})
+
         except:
             return jsonify({'error': 'Unable to update agent killdate'})
 
@@ -1231,7 +1236,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             working_hours = working_hours.replace(",", "-")
 
             # update this agent's information in the database
-            main.agents.set_agent_field_db("working_hours", working_hours, agent_name)
+            agent = Session().query(models.Agent).filter(models.Agent.session_id == agent_name).first()
+            agent.working_hours = working_hours
 
             # task the agent
             main.agents.add_agent_task_db(agent_name, "TASK_SHELL", "Set-WorkingHours " + str(working_hours))
@@ -1239,6 +1245,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             # update the agent log
             msg = "Tasked agent to set working hours to " + str(working_hours)
             main.agents.save_agent_log(agent_name, msg)
+
+            Session().commit()
+
             return jsonify({'success': True})
         except:
             return jsonify({'error': 'Unable to update agent working hours'})

@@ -27,6 +27,7 @@ from empire.client.src.menus.ListenerMenu import listener_menu
 from empire.client.src.menus.MainMenu import main_menu
 from empire.client.src.menus.PluginMenu import plugin_menu
 from empire.client.src.menus.ShellMenu import shell_menu
+from empire.client.src.menus.EditListenerMenu import edit_listener_menu
 from empire.client.src.menus.UseListenerMenu import use_listener_menu
 from empire.client.src.menus.UseModuleMenu import use_module_menu
 from empire.client.src.menus.UsePluginMenu import use_plugin_menu
@@ -90,6 +91,7 @@ class EmpireCli(object):
             'ListenerMenu': listener_menu,
             'UseCredentialMenu': use_credential_menu,
             'UseListenerMenu': use_listener_menu,
+            'EditListenerMenu': edit_listener_menu,
             'UseStagerMenu': use_stager_menu,
             'AgentMenu': agent_menu,
             'UseModuleMenu': use_module_menu,
@@ -274,6 +276,12 @@ class EmpireCli(object):
                     menu_state.push(self.menus['UseModuleMenu'], selected=cmd_line[1])
             else:
                 print(f'No module {cmd_line[1]}')
+        elif cmd_line[0] == 'editlistener' and len(cmd_line) > 1:
+            if menu_state.current_menu_name == 'ListenerMenu':
+                if cmd_line[1] in state.listeners:
+                    menu_state.push(self.menus['EditListenerMenu'], selected=cmd_line[1])
+            else:
+                print(f'No listener {cmd_line[1]}')
         elif text == 'shell':
             if menu_state.current_menu_name == 'InteractMenu':
                 menu_state.push(self.menus['ShellMenu'], selected=menu_state.current_menu.selected)

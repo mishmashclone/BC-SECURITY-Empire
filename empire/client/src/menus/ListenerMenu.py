@@ -22,7 +22,9 @@ class ListenerMenu(Menu):
         if cmd_line[0] in ['kill', 'options', 'enable', 'disable'] and position_util(cmd_line, 2, word_before_cursor):
             for listener in filtered_search_list(word_before_cursor, state.listeners.keys()):
                 yield Completion(listener, start_position=-len(word_before_cursor))
-
+        elif cmd_line[0] == 'editlistener' and position_util(cmd_line, 2, word_before_cursor):
+            for listener in filtered_search_list(word_before_cursor, sorted(state.listeners.keys())):
+                yield Completion(listener, start_position=-len(word_before_cursor))
         elif position_util(cmd_line, 1, word_before_cursor):
             yield from super().get_completions(document, complete_event, cmd_line, word_before_cursor)
 
@@ -104,5 +106,13 @@ class ListenerMenu(Menu):
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 
+    @command
+    def editlistener(self, listener_name: str) -> None:
+        """
+        Edit the selected listener
+
+        Usage: editlistener <listener_name>
+        """
+        # Empty so the menu can see the option and usage
 
 listener_menu = ListenerMenu()

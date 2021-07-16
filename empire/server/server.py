@@ -690,6 +690,26 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         else:
             return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
 
+    @app.route('/api/listeners/<string:listener_name>/edit', methods=['POST'])
+    def edit_listener(listener_name):
+        """
+        Edit listener specified by listener_name.
+        """
+        if not request.json['option_name']:
+            return make_response(jsonify({'error': 'option_name not provided'}), 404)
+
+        if not request.json['option_value']:
+            return make_response(jsonify({'error': 'option_value not provided'}), 404)
+
+        option_name = request.json['option_name']
+        option_value = request.json['option_value']
+
+        if listener_name != "" and main.listeners.is_listener_valid(listener_name):
+            main.listeners.update_listener_options(listener_name, option_name, option_value)
+            return jsonify({'success': True})
+        else:
+            return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
+
     @app.route('/api/listeners/types', methods=['GET'])
     def get_listener_types():
         """

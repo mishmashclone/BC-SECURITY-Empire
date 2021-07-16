@@ -600,7 +600,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                               'listener_type': active_listener.listener_type,
                               'listener_category': active_listener.listener_category,
                               'options': active_listener.options,
-                              'created_at': active_listener.created_at})
+                              'created_at': active_listener.created_at,
+                              'enabled': active_listener.enabled})
 
         return jsonify({"listeners": listeners})
 

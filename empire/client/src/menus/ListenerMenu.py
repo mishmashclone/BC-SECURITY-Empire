@@ -5,7 +5,7 @@ from prompt_toolkit.completion import Completion
 
 from empire.client.src.EmpireCliState import state
 from empire.client.src.menus.Menu import Menu
-from empire.client.src.utils import table_util, date_util
+from empire.client.src.utils import table_util, date_util, print_util
 from empire.client.src.utils.autocomplete_util import filtered_search_list, position_util
 from empire.client.src.utils.cli_util import register_cli_commands, command
 
@@ -19,9 +19,10 @@ class ListenerMenu(Menu):
         return self._cmd_registry + super().autocomplete()
 
     def get_completions(self, document, complete_event, cmd_line, word_before_cursor):
-        if cmd_line[0] in ['kill', 'options'] and position_util(cmd_line, 2, word_before_cursor):
+        if cmd_line[0] in ['kill', 'options', 'enable', 'disable'] and position_util(cmd_line, 2, word_before_cursor):
             for listener in filtered_search_list(word_before_cursor, state.listeners.keys()):
                 yield Completion(listener, start_position=-len(word_before_cursor))
+
         elif position_util(cmd_line, 1, word_before_cursor):
             yield from super().get_completions(document, complete_event, cmd_line, word_before_cursor)
 
@@ -71,7 +72,37 @@ class ListenerMenu(Menu):
 
         Usage: kill <listener_name>
         """
-        state.kill_listener(listener_name)
+        response = state.kill_listener(listener_name)
+        if 'success' in response.keys():
+            print(print_util.color('[*] Listener ' + listener_name + ' killed'))
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
+
+    @command
+    def enable(self, listener_name: str) -> None:
+        """
+        Enable the selected listener
+
+        Usage: enable <listener_name>
+        """
+        response = state.enable_listener(listener_name)
+        if 'success' in response.keys():
+            print(print_util.color('[*] Listener ' + listener_name + ' enabled'))
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
+
+    @command
+    def disable(self, listener_name: str) -> None:
+        """
+        Disable the selected listener
+
+        Usage: disable <listener_name>
+        """
+        response = state.disable_listener(listener_name)
+        if 'success' in response.keys():
+            print(print_util.color('[*] Listener ' + listener_name + ' disabled'))
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
 
 
 listener_menu = ListenerMenu()

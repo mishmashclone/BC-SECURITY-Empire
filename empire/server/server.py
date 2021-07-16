@@ -682,9 +682,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
     @app.route('/api/listeners/<string:listener_name>/enable', methods=['POST'])
     def enable_listener(listener_name):
         """
-        Disables the listener specified by listener_name.
+        Enable the listener specified by listener_name.
         """
-        if listener_name != "" and main.listeners.is_listener_valid(listener_name):
+        if listener_name != "" and main.listeners.is_loaded_listener_valid(listener_name):
             main.listeners.enable_listener(listener_name)
             return jsonify({'success': True})
         else:

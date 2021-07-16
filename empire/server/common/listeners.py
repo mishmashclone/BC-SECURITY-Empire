@@ -470,7 +470,7 @@ class Listeners(object):
         Session().commit()
 
         # dispatch this event
-        message = "[*] Listener {} killed".format(listener_name)
+        message = "[*] Listener {} disabled".format(listener_name)
         signal = json.dumps({
             'print': True,
             'message': message
@@ -479,6 +479,9 @@ class Listeners(object):
 
     def is_listener_valid(self, name):
         return name in self.activeListeners
+
+    def is_loaded_listener_valid(self, name):
+        return name in self.loadedListeners
 
     def get_listener_id(self, name):
         """

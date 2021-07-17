@@ -1008,7 +1008,7 @@ def run_command(command, cmdargs=None):
 
     elif re.compile("(whoami|getuid)").match(command):
         if platform.python_implementation() == 'IronPython':
-            username = Environment.UserName
+            return Environment.UserName
         else:
             return pwd.getpwuid(os.getuid())[0]
 

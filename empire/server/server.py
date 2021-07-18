@@ -946,6 +946,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
     @app.route('/api/agents/<string:agent_name>/task/<int:task_id>', methods=['GET'])
     def get_task(agent_name, task_id):
+        """
+        Returns json about an task from the database.
+        """
         task = Session().query(models.Tasking) \
             .filter(models.Tasking.agent == agent_name) \
             .filter(models.Tasking.id == task_id) \
@@ -958,6 +961,42 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                  'user_id': task.user_id, 'username': task.user.username, 'agent': task.agent}))
 
         return make_response(jsonify({'error': 'task not found.'}), 404)
+
+    @app.route('/api/agents/<string:agent_name>/task', methods=['GET'])
+    def get_agent_tasks(agent_name):
+        """
+        Returns json of last number of tasks tasks from an agent.
+        """
+        agent = main.agents.get_agent_from_name_or_session_id(agent_name)
+
+        if agent is None:
+            return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
+
+        if not request.args.get('num_results'):
+            return make_response(jsonify({'error': 'number of results to return not provided'}), 404)
+
+        num_results = int(request.args.get('num_results'))
+
+        tasks = Session().query(models.Tasking) \
+            .filter(models.Tasking.agent == agent_name) \
+            .options(joinedload(models.Tasking.user)) \
+            .order_by(models.Tasking.id.desc()) \
+            .limit(num_results).all()
+
+        last_task_num = len(tasks)
+
+        # Set num_results to max number of last task results if there are too many
+        if num_results > last_task_num:
+            num_results = last_task_num
+
+        agent_tasks = []
+        for task in tasks[last_task_num-num_results:]:
+            agent_tasks.append(
+                {'taskID': task.id, 'command': task.input, 'results': task.output,
+                 'user_id': task.user_id, 'username': task.user.username, 'agent': task.agent})
+
+        agent_tasks.reverse()
+        return jsonify({'agent': agent_tasks})
 
     @app.route('/api/agents/<string:agent_name>/results', methods=['DELETE'])
     def delete_agent_results(agent_name):

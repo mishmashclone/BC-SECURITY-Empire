@@ -1089,7 +1089,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'success': True, 'taskID': task_id})
 
-    @app.route('/api/agents/<string:agent_name>/sleep', methods=['POST'])
+    @app.route('/api/agents/<string:agent_name>/sleep', methods=['PUT'])
     def set_agent_sleep(agent_name):
         """
         Tasks the specified agent to sleep or change jitter

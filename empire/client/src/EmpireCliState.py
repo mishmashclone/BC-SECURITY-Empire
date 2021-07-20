@@ -502,7 +502,7 @@ class EmpireCliState(object):
         return response.json()
 
     def agent_sleep(self, agent_name: str, delay: int, jitter: float):
-        response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/sleep',
+        response = requests.put(url=f'{self.host}:{self.port}/api/agents/{agent_name}/sleep',
                                  json={'delay': delay, 'jitter': jitter},
                                  verify=False,
                                  params={'token': self.token})

@@ -152,6 +152,17 @@ class InteractMenu(Menu):
         print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
 
     @command
+    def sleep(self, delay: int, jitter: int) -> None:
+        """
+        Tasks an the specified agent to update delay (s) and jitter (0.0 - 1.0)
+
+        Usage: sleep <delay> <jitter>
+        """
+        response = state.agent_sleep(self.session_id, delay, jitter)
+        print(print_util.color(f'[*] Tasked agent to sleep delay/jitter {delay}/{jitter}'))
+        print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
+
+    @command
     def info(self) -> None:
         """
         Display agent info.
@@ -247,6 +258,26 @@ class InteractMenu(Menu):
         """
         if property_name in self.agent_options:
             print(f'{property_name} is {self.agent_options[property_name]}')
+
+    @command
+    def history(self, number_tasks: int):
+        """
+        Display last number of task results received.
+
+        Usage: history [<number_tasks>]
+        """
+        if not number_tasks:
+            number_tasks = 5
+
+        response = state.get_agent_tasks(self.session_id, str(number_tasks))
+
+        if 'agent' in response.keys():
+            tasks = response['agent']
+            for task in tasks:
+                print(print_util.color('[*] Task ' + str(task['taskID']) + " results received"))
+                print(print_util.color(task['results']))
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
 
     def execute_shortcut(self, command_name: str, params: List[str]):
         shortcut: Shortcut = shortcut_handler.get(self.agent_language, command_name)

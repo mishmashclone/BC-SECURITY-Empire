@@ -946,6 +946,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
     @app.route('/api/agents/<string:agent_name>/task/<int:task_id>', methods=['GET'])
     def get_task(agent_name, task_id):
+        """
+        Returns json about an task from the database.
+        """
         task = Session().query(models.Tasking) \
             .filter(models.Tasking.agent == agent_name) \
             .filter(models.Tasking.id == task_id) \
@@ -958,6 +961,42 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                  'user_id': task.user_id, 'username': task.user.username, 'agent': task.agent}))
 
         return make_response(jsonify({'error': 'task not found.'}), 404)
+
+    @app.route('/api/agents/<string:agent_name>/task', methods=['GET'])
+    def get_agent_tasks(agent_name):
+        """
+        Returns json of last number of tasks tasks from an agent.
+        """
+        agent = main.agents.get_agent_from_name_or_session_id(agent_name)
+
+        if agent is None:
+            return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
+
+        if not request.args.get('num_results'):
+            return make_response(jsonify({'error': 'number of results to return not provided'}), 404)
+
+        num_results = int(request.args.get('num_results'))
+
+        tasks = Session().query(models.Tasking) \
+            .filter(models.Tasking.agent == agent_name) \
+            .options(joinedload(models.Tasking.user)) \
+            .order_by(models.Tasking.id.desc()) \
+            .limit(num_results).all()
+
+        last_task_num = len(tasks)
+
+        # Set num_results to max number of last task results if there are too many
+        if num_results > last_task_num:
+            num_results = last_task_num
+
+        agent_tasks = []
+        for task in tasks[last_task_num-num_results:]:
+            agent_tasks.append(
+                {'taskID': task.id, 'command': task.input, 'results': task.output,
+                 'user_id': task.user_id, 'username': task.user.username, 'agent': task.agent})
+
+        agent_tasks.reverse()
+        return jsonify({'agent': agent_tasks})
 
     @app.route('/api/agents/<string:agent_name>/results', methods=['DELETE'])
     def delete_agent_results(agent_name):
@@ -1047,6 +1086,49 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             msg = "tasked agent %s to run command %s" % (agent.session_id, command)
             main.agents.save_agent_log(agent.session_id, msg)
             task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_SHELL", command, uid=g.user['id'])
+
+        return jsonify({'success': True, 'taskID': task_id})
+
+    @app.route('/api/agents/<string:agent_name>/sleep', methods=['PUT'])
+    def set_agent_sleep(agent_name):
+        """
+        Tasks the specified agent to sleep or change jitter
+        """
+        agent = main.agents.get_agent_from_name_or_session_id(agent_name)
+
+        if agent is None:
+            return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
+
+        if not request.json or 'delay' not in request.json or 'jitter' not in request.json:
+            return make_response(jsonify({'error': 'Jitter and sleep interval are not provided'}), 400)
+
+        agent_delay = int(request.json['delay'])
+        agent_jitter = float(request.json['jitter'])
+
+        if agent_delay >= 0:
+            agent.delay = agent_delay
+        else:
+            return make_response(jsonify({'error': 'Delay must be a positive integer'}), 400)
+
+        if agent_jitter >= 0 and agent_jitter <= 1:
+            agent.jitter = agent_jitter
+        else:
+            return make_response(jsonify({'error': 'Jitter must be between 0.0 and 1.0'}), 400)
+
+        if agent.language == 'powershell':
+            task_id = main.agents.add_agent_task_db(agent.session_id, 'TASK_SHELL',
+                                 'Set-Delay ' + str(agent_delay) + ' ' + str(agent_jitter))
+        elif agent.language == 'python':
+            task_id = main.agents.add_agent_task_db(agent.session_id, "TASK_CMD_WAIT", "global delay; global jitter; delay=%s; jitter=%s; print('delay/jitter set to %s/%s')" % (agent_delay, agent_jitter, agent_delay, agent_jitter))
+        elif agent.language == 'csharp':
+            task_id = main.agents.add_agent_task_db(agent.session_id, 'TASK_SHELL',
+                                 'Set-Delay ' + str(agent_delay) + ' ' + str(agent_jitter))
+
+        Session().commit()
+
+        # dispatch this event
+        msg = "[*] Tasked agent to sleep delay/jitter {}/{}".format(agent_delay, agent_jitter)
+        main.agents.save_agent_log(agent.session_id, msg)
 
         return jsonify({'success': True, 'taskID': task_id})
 
@@ -1157,7 +1239,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             kill_date = request.json['kill_date']
 
             # update this agent's information in the database
-            main.agents.set_agent_field_db("kill_date", kill_date, agent_name)
+            agent = Session().query(models.Agent).filter(models.Agent.session_id == agent_name).first()
+            agent.kill_date = kill_date
 
             # task the agent
             main.agents.add_agent_task_db(agent_name, "TASK_SHELL", "Set-KillDate " + str(kill_date))
@@ -1165,7 +1248,11 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             # update the agent log
             msg = "Tasked agent to set killdate to " + str(kill_date)
             main.agents.save_agent_log(agent_name, msg)
+
+            Session.commit()
+
             return jsonify({'success': True})
+
         except:
             return jsonify({'error': 'Unable to update agent killdate'})
 
@@ -1188,7 +1275,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             working_hours = working_hours.replace(",", "-")
 
             # update this agent's information in the database
-            main.agents.set_agent_field_db("working_hours", working_hours, agent_name)
+            agent = Session().query(models.Agent).filter(models.Agent.session_id == agent_name).first()
+            agent.working_hours = working_hours
 
             # task the agent
             main.agents.add_agent_task_db(agent_name, "TASK_SHELL", "Set-WorkingHours " + str(working_hours))
@@ -1196,6 +1284,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             # update the agent log
             msg = "Tasked agent to set working hours to " + str(working_hours)
             main.agents.save_agent_log(agent_name, msg)
+
+            Session().commit()
+
             return jsonify({'success': True})
         except:
             return jsonify({'error': 'Unable to update agent working hours'})

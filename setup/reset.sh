@@ -34,4 +34,8 @@ then
 	rm -rf ./csharp/Covenant/obj
 fi
 
+# remove invoke-obfuscation files and re-add
+rm -rf /usr/local/share/powershell/Modules/Invoke-Obfuscation/
+mkdir -p /usr/local/share/powershell/Modules
+cp -r ./powershell/Invoke-Obfuscation /usr/local/share/powershell/Modules
 cd ../..

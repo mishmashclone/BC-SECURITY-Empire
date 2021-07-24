@@ -201,24 +201,24 @@ class EmpireCliState(object):
         return response.json()
 
     def disable_listener(self, listener_name: str):
-        response = requests.post(url=f'{self.host}:{self.port}/api/listeners/{listener_name}/disable',
-                                   verify=False,
-                                   params={'token': self.token})
-
+        response = requests.put(url=f'{self.host}:{self.port}/api/listeners/{listener_name}/disable',
+                                verify=False,
+                                params={'token': self.token})
+        self.get_listeners()
         return response.json()
 
     def enable_listener(self, listener_name: str):
-        response = requests.post(url=f'{self.host}:{self.port}/api/listeners/{listener_name}/enable',
-                                   verify=False,
-                                   params={'token': self.token})
-
+        response = requests.put(url=f'{self.host}:{self.port}/api/listeners/{listener_name}/enable',
+                                verify=False,
+                                params={'token': self.token})
+        self.get_listeners()
         return response.json()
 
     def edit_listener(self, listener_name: str, option_name, option_value):
-        response = requests.post(url=f'{self.host}:{self.port}/api/listeners/{listener_name}/enable',
-                                 json={'option_name': option_name, 'option_value': option_value},
-                                 verify=False,
-                                 params={'token': self.token})
+        response = requests.put(url=f'{self.host}:{self.port}/api/listeners/{listener_name}/edit',
+                                json={'option_name': option_name, 'option_value': option_value},
+                                verify=False,
+                                params={'token': self.token})
 
         return response.json()
 

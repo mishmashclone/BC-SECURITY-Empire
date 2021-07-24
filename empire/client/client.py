@@ -222,25 +222,25 @@ class EmpireCli(object):
                 return
 
         # Switch Menus
-        if text == 'main':
+        if text.strip() == 'main':
             state.get_modules()
             state.get_listeners()
             print_util.title(state.empire_version, len(state.modules), len(state.listeners),
                              len(state.get_active_agents()))
             menu_state.push(self.menus['MainMenu'])
-        elif text == 'listeners':
+        elif text.strip() == 'listeners':
             menu_state.push(self.menus['ListenerMenu'])
-        elif text == 'chat':
+        elif text.strip() == 'chat':
             menu_state.push(self.menus['ChatMenu'])
         elif menu_state.current_menu_name == 'ChatMenu':
             menu_state.current_menu.send_chat(text)
-        elif text == 'agents':
+        elif text.strip() == 'agents':
             menu_state.push(self.menus['AgentMenu'])
-        elif text == 'credentials':
+        elif text.strip() == 'credentials':
             menu_state.push(self.menus['CredentialMenu'])
-        elif text == 'plugins':
+        elif text.strip() == 'plugins':
             menu_state.push(self.menus['PluginMenu'])
-        elif text == 'admin':
+        elif text.strip() == 'admin':
             menu_state.push(self.menus['AdminMenu'])
         elif cmd_line[0] == 'uselistener' and len(cmd_line) > 1:
             if cmd_line[1] in state.listener_types:
@@ -282,7 +282,7 @@ class EmpireCli(object):
                     menu_state.push(self.menus['EditListenerMenu'], selected=cmd_line[1])
             else:
                 print(f'No listener {cmd_line[1]}')
-        elif text == 'shell':
+        elif text.strip() == 'shell':
             if menu_state.current_menu_name == 'InteractMenu':
                 menu_state.push(self.menus['ShellMenu'], selected=menu_state.current_menu.selected)
             else:
@@ -292,9 +292,9 @@ class EmpireCli(object):
                 menu_state.push(self.menus['InteractMenu'], selected=menu_state.current_menu.selected)
             else:
                 menu_state.current_menu.shell(menu_state.current_menu.selected, text)
-        elif text == 'back':
+        elif text.strip() == 'back':
             menu_state.pop()
-        elif text == 'exit':
+        elif text.strip() == 'exit':
             if resource_file:
                 raise CliExitException
             choice = input(print_util.color("[>] Exit? [y/N] ", "red"))

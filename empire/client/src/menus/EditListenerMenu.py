@@ -18,18 +18,14 @@ class EditListenerMenu(UseMenu):
         return self._cmd_registry + super().autocomplete()
 
     def get_completions(self, document, complete_event, cmd_line, word_before_cursor):
-        if cmd_line[0] in ['edit'] and position_util(cmd_line, 2, word_before_cursor):
-            for option in filtered_search_list(word_before_cursor, self.record_options):
-                yield Completion(option, start_position=-len(word_before_cursor))
-        else:
-            yield from super().get_completions(document, complete_event, cmd_line, word_before_cursor)
+        yield from super().get_completions(document, complete_event, cmd_line, word_before_cursor)
 
     def on_enter(self, **kwargs) -> bool:
         if 'selected' not in kwargs:
             return False
         else:
             self.use(kwargs['selected'])
-            #self.info()
+            self.info()
             self.options()
             return True
 
@@ -43,44 +39,23 @@ class EditListenerMenu(UseMenu):
             return None
 
         self.selected = module
-        self.record = state.listeners[self.selected]['options']
-        self.record_options = state.get_listener_options(self.selected)['listeneroptions']
+        self.record = state.get_listener_options(self.selected)['listenerinfo']
+        self.record_options = state.listeners[self.selected]['options']
 
     @command
-    def options(self) -> None:
-        """
-        Get option details for the selected listener
-
-        Usage: options
-        """
-        if self.selected not in state.listeners:
-            return None
-
-        listener_list = []
-
-        for key, value in state.listeners[self.selected]['options'].items():
-            values = list(map(lambda x: '\n'.join(textwrap.wrap(str(x), width=40)), value.values()))
-            values.reverse()
-            temp = [key] + values
-            listener_list.append(temp)
-
-        listener_list.insert(0, ['Name', 'Value', 'Required', 'Description'])
-
-        table_util.print_table(listener_list, self.selected)
-
-    @command
-    def edit(self, key: str, value: str):
+    def set(self, key: str, value: str):
         """
         Edit a field for the current record
 
         Usage: edit <key> <value>
         """
-        if state.listeners[self.selected]['enabled'] == False:
+        if not state.listeners[self.selected]['enabled']:
             if value.startswith("\"") and value.endswith("\""):
                 value = value[1:-1]
             if key in self.record_options:
                 response = state.edit_listener(self.selected, key, value)
                 if 'success' in response.keys():
+                    state.listeners[self.selected]['options'][key]['Value'] = value
                     print(print_util.color(f'[*] Updated listener {self.selected}: {key} to {value}'))
                 elif 'error' in response.keys():
                     print(print_util.color('[!] Error: ' + response['error']))
@@ -88,6 +63,22 @@ class EditListenerMenu(UseMenu):
                 print(print_util.color(f'Could not find field: {key}'))
         else:
             print(print_util.color(f'[!] Listener must be disabled before edits'))
+
+    @command
+    def unset(self, key: str):
+        """
+        Unset a record option.
+
+        Usage: unset <key>
+        """
+        if key in self.record_options:
+            if self.record_options[key]['Required']:
+                print(print_util.color(f'[!] Cannot unset required field'))
+                return
+            else:
+                self.set(key, '')
+        else:
+            print(print_util.color(f'Could not find field: {key}'))
 
     @command
     def kill(self) -> None:

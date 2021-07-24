@@ -678,18 +678,18 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             main.listeners.disable_listener(listener_name)
             return jsonify({'success': True})
         else:
-            return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
+            return make_response(jsonify({'error': 'listener name %s not found or already disabled' % listener_name}), 404)
 
     @app.route('/api/listeners/<string:listener_name>/enable', methods=['PUT'])
     def enable_listener(listener_name):
         """
         Enable the listener specified by listener_name.
         """
-        if listener_name != "" and main.listeners.is_loaded_listener_valid(listener_name):
+        if listener_name != "" and listener_name in main.listeners.get_inactive_listeners():
             main.listeners.enable_listener(listener_name)
             return jsonify({'success': True})
         else:
-            return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
+            return make_response(jsonify({'error': 'listener name %s not found or already enabled' % listener_name}), 404)
 
     @app.route('/api/listeners/<string:listener_name>/edit', methods=['PUT'])
     def edit_listener(listener_name):

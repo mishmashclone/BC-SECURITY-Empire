@@ -29,18 +29,19 @@ class EditListenerMenu(UseMenu):
             self.options()
             return True
 
-    def use(self, module: str) -> None:
+    def use(self, name: str) -> None:
         """
         Use the selected listener
 
-        Usage: use <module>
+        Usage: use <name>
         """
-        if module not in state.listeners:
+        if name not in state.listeners:
             return None
 
-        self.selected = module
-        self.record = state.get_listener_options(self.selected)['listenerinfo']
-        self.record_options = state.listeners[self.selected]['options']
+        self.selected = name
+        listener = state.listeners[self.selected]
+        self.record_options = listener['options']
+        self.record = state.get_listener_options(listener['module'])['listenerinfo']
 
     @command
     def set(self, key: str, value: str):

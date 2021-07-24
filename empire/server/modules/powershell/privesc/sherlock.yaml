@@ -30,4 +30,4 @@ options:
       - ConvertTo-Html
       - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/privesc/Sherlock.ps1'
-script_end: Find-AllVulns | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Get-Forest completed'
+script_end: Find-AllVulns | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"};

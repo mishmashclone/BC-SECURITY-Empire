@@ -46,6 +46,9 @@ COPY pyproject.toml /empire
 
 COPY . /empire
 
+RUN mkdir -p /usr/local/share/powershell/Modules && \
+    cp -r ./empire/server/powershell/Invoke-Obfuscation /usr/local/share/powershell/Modules
+
 RUN sudo pip install poetry && sudo poetry config virtualenvs.create false && sudo poetry install
 
 RUN /empire/setup/reset.sh

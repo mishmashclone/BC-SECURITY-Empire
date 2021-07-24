@@ -63,7 +63,7 @@ class EmpireCliState(object):
             self.token = response.json()['token']
             self.connected = True
 
-            self.sio = socketio.Client(ssl_verify=False, reconnection_attempts=5)
+            self.sio = socketio.Client(ssl_verify=False, reconnection_attempts=3)
             self.sio.connect(f'{host}:{socketport}?token={self.token}')
 
             # Wait for version to be returned
@@ -404,17 +404,17 @@ class EmpireCliState(object):
 
         return response.json()
 
-    def get_result(self, agent_name):
-        response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/results',
+    def get_task_result(self, agent_name, task_id):
+        response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/task/{task_id}',
                                 verify=False,
                                 params={'token': self.token})
 
         return response.json()
 
-    def get_task_result(self, agent_name, task_id):
-        response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/task/{task_id}',
+    def get_agent_tasks(self, agent_name, num_results):
+        response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/task',
                                 verify=False,
-                                params={'token': self.token})
+                                params={'token': self.token, 'num_results': num_results})
 
         return response.json()
 
@@ -524,7 +524,7 @@ class EmpireCliState(object):
         return response.json()
 
     def agent_sleep(self, agent_name: str, delay: int, jitter: float):
-        response = requests.post(url=f'{self.host}:{self.port}/api/agents/{agent_name}/sleep',
+        response = requests.put(url=f'{self.host}:{self.port}/api/agents/{agent_name}/sleep',
                                  json={'delay': delay, 'jitter': jitter},
                                  verify=False,
                                  params={'token': self.token})

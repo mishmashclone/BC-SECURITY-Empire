@@ -17,6 +17,8 @@ function install_powershell() {
   elif [ $OS_NAME == "KALI" ]; then
     apt update && apt -y install powershell
   fi
+  mkdir -p /usr/local/share/powershell/Modules
+  cp -r ./empire/server/powershell/Invoke-Obfuscation /usr/local/share/powershell/Modules
   rm -f packages-microsoft-prod.deb*
 }
 

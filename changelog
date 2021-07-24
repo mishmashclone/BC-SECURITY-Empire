@@ -1,11 +1,15 @@
-7/xx/2021
+- Version 4.1.0 Master Release
+       - Added disable/enable listener to client/server (@Cx01N)
+       - Added edit listener to client/server (@Cx01N)
+
+7/19/2021
 ------------
 - Version 4.0.1 Master Release
        - Added API endpoints for sleep/jitter to agents (@Cx01N)
        - Added sleep command to CLI (@Cx01N)
        - Added sleep/jitter option to C# agents (@Hubbl3)
-       - Added disable/enable listener to client/server (@Cx01N)
-       - Added edit listener to client/server (@Cx01N)
+       - Fix for Invoke-Obfuscation installation
+       - Added PrintNightmare module (@Cx01N)
 
 6/28/2021
 ------------

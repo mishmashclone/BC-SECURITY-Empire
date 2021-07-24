@@ -21,7 +21,7 @@ class Plugin(Plugin):
         self.info = {
                         'Name': 'csharpserver',
 
-                        'Author': ['@Cx01n'],
+                        'Author': ['@Cx01N'],
 
                         'Description': ('Empire C# server for agents.'),
 

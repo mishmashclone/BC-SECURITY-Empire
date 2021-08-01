@@ -48,7 +48,7 @@ class EditListenerMenu(UseMenu):
         """
         Edit a field for the current record
 
-        Usage: edit <key> <value>
+        Usage: set <key> <value>
         """
         if not state.listeners[self.selected]['enabled']:
             if value.startswith("\"") and value.endswith("\""):

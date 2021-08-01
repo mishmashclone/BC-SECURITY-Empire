@@ -545,10 +545,11 @@ class Listeners(object):
 
         if not listener:
             print(helpers.color("[!] Listener %s not found" % listener_name))
-            return
+            return False
         if option_name not in list(listener.options.keys()):
             print(helpers.color("[!] Listener %s does not have the option %s" % (listener_name, option_name)))
-            return
+            return False
         listener.options[option_name]['Value'] = option_value
         flag_modified(listener, 'options')
         Session().commit()
+        return True

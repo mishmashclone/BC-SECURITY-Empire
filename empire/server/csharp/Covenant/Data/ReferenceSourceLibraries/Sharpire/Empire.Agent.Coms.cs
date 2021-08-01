@@ -236,7 +236,7 @@ namespace Sharpire
                         {
                             Console.WriteLine("Current delay" + sessionInfo.GetDefaultDelay());
                             sessionInfo.SetDefaultDelay(UInt32.Parse(parts[1]));
-                            sessionInfo.SetDefaultJitter(UInt32.Parse(parts[2]))
+                            sessionInfo.SetDefaultJitter(UInt32.Parse(parts[2]));
                             output = "Delay set to " + parts[1]+ "Jitter set to "+ parts[2];
                         }
                         else if (1 == parts.Length)

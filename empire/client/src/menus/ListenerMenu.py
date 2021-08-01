@@ -114,5 +114,7 @@ class ListenerMenu(Menu):
         Usage: editlistener <listener_name>
         """
         # Empty so the menu can see the option and usage
+        pass
+
 
 listener_menu = ListenerMenu()

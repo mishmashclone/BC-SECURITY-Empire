@@ -669,7 +669,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             else:
                 return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
 
-    @app.route('/api/listeners/<string:listener_name>/disable', methods=['POST'])
+    @app.route('/api/listeners/<string:listener_name>/disable', methods=['PUT'])
     def disable_listener(listener_name):
         """
         Disables the listener specified by listener_name.
@@ -678,38 +678,45 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             main.listeners.disable_listener(listener_name)
             return jsonify({'success': True})
         else:
-            return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
+            return make_response(jsonify({'error': 'listener name %s not found or already disabled' % listener_name}), 404)
 
-    @app.route('/api/listeners/<string:listener_name>/enable', methods=['POST'])
+    @app.route('/api/listeners/<string:listener_name>/enable', methods=['PUT'])
     def enable_listener(listener_name):
         """
         Enable the listener specified by listener_name.
         """
-        if listener_name != "" and main.listeners.is_loaded_listener_valid(listener_name):
+        if listener_name != "" and listener_name in main.listeners.get_inactive_listeners():
             main.listeners.enable_listener(listener_name)
             return jsonify({'success': True})
         else:
-            return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
+            return make_response(jsonify({'error': 'listener name %s not found or already enabled' % listener_name}), 404)
 
-    @app.route('/api/listeners/<string:listener_name>/edit', methods=['POST'])
+    @app.route('/api/listeners/<string:listener_name>/edit', methods=['PUT'])
     def edit_listener(listener_name):
         """
         Edit listener specified by listener_name.
         """
         if not request.json['option_name']:
-            return make_response(jsonify({'error': 'option_name not provided'}), 404)
-
-        if not request.json['option_value']:
-            return make_response(jsonify({'error': 'option_value not provided'}), 404)
+            return make_response(jsonify({'error': 'option_name not provided'}), 400)
+        if main.listeners.is_listener_valid(listener_name):
+            return make_response(jsonify({'error': 'Provided listener should be disabled'}), 400)
 
         option_name = request.json['option_name']
-        option_value = request.json['option_value']
+        option_value = request.json.get('option_value', '')
 
-        if listener_name != "" and main.listeners.is_listener_valid(listener_name):
-            main.listeners.update_listener_options(listener_name, option_name, option_value)
-            return jsonify({'success': True})
+        if listener_name in main.listeners.get_inactive_listeners():
+            # todo For right now, setting listener options via update does not go through the same validation and formatters
+            #  that start_listener does. In order to do that requires some refactors on listeners.py to use the db better
+            #  as a source of truth and not depend on all the in-memory objects.
+            success = main.listeners.update_listener_options(listener_name, option_name, option_value)
+            if success:
+                return jsonify({'success': True})
+            else:
+                # todo propagate the actual error with setting the value
+                return make_response(
+                    jsonify({'error': 'error setting listener value %s with option %s' % (option_name, option_value)}), 400)
         else:
-            return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
+            return make_response(jsonify({'error': 'listener name %s not found or not inactive' % listener_name}), 404)
 
     @app.route('/api/listeners/types', methods=['GET'])
     def get_listener_types():
@@ -989,6 +996,9 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
     @app.route('/api/agents/<string:agent_name>/task/<int:task_id>', methods=['GET'])
     def get_task(agent_name, task_id):
+        """
+        Returns json about an task from the database.
+        """
         task = Session().query(models.Tasking) \
             .filter(models.Tasking.agent == agent_name) \
             .filter(models.Tasking.id == task_id) \
@@ -1001,6 +1011,42 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                  'user_id': task.user_id, 'username': task.user.username, 'agent': task.agent}))
 
         return make_response(jsonify({'error': 'task not found.'}), 404)
+
+    @app.route('/api/agents/<string:agent_name>/task', methods=['GET'])
+    def get_agent_tasks(agent_name):
+        """
+        Returns json of last number of tasks tasks from an agent.
+        """
+        agent = main.agents.get_agent_from_name_or_session_id(agent_name)
+
+        if agent is None:
+            return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
+
+        if not request.args.get('num_results'):
+            return make_response(jsonify({'error': 'number of results to return not provided'}), 404)
+
+        num_results = int(request.args.get('num_results'))
+
+        tasks = Session().query(models.Tasking) \
+            .filter(models.Tasking.agent == agent_name) \
+            .options(joinedload(models.Tasking.user)) \
+            .order_by(models.Tasking.id.desc()) \
+            .limit(num_results).all()
+
+        last_task_num = len(tasks)
+
+        # Set num_results to max number of last task results if there are too many
+        if num_results > last_task_num:
+            num_results = last_task_num
+
+        agent_tasks = []
+        for task in tasks[last_task_num-num_results:]:
+            agent_tasks.append(
+                {'taskID': task.id, 'command': task.input, 'results': task.output,
+                 'user_id': task.user_id, 'username': task.user.username, 'agent': task.agent})
+
+        agent_tasks.reverse()
+        return jsonify({'agent': agent_tasks})
 
     @app.route('/api/agents/<string:agent_name>/results', methods=['DELETE'])
     def delete_agent_results(agent_name):
@@ -1093,7 +1139,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'success': True, 'taskID': task_id})
 
-    @app.route('/api/agents/<string:agent_name>/sleep', methods=['POST'])
+    @app.route('/api/agents/<string:agent_name>/sleep', methods=['PUT'])
     def set_agent_sleep(agent_name):
         """
         Tasks the specified agent to sleep or change jitter

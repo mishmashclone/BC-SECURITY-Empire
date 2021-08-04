@@ -470,7 +470,7 @@ class Listeners(object):
         Session().commit()
 
         # dispatch this event
-        message = "[*] Listener {} killed".format(listener_name)
+        message = "[*] Listener {} disabled".format(listener_name)
         signal = json.dumps({
             'print': True,
             'message': message
@@ -479,6 +479,9 @@ class Listeners(object):
 
     def is_listener_valid(self, name):
         return name in self.activeListeners
+
+    def is_loaded_listener_valid(self, name):
+        return name in self.loadedListeners
 
     def get_listener_id(self, name):
         """
@@ -542,10 +545,11 @@ class Listeners(object):
 
         if not listener:
             print(helpers.color("[!] Listener %s not found" % listener_name))
-            return
+            return False
         if option_name not in list(listener.options.keys()):
             print(helpers.color("[!] Listener %s does not have the option %s" % (listener_name, option_name)))
-            return
+            return False
         listener.options[option_name]['Value'] = option_value
         flag_modified(listener, 'options')
         Session().commit()
+        return True

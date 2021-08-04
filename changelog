@@ -1,3 +1,7 @@
+- Version 4.1.0 Master Release
+       - Added disable/enable listener to client/server (@Cx01N)
+       - Added edit listener to client/server (@Cx01N)
+
 7/19/2021
 ------------
 - Version 4.0.1 Master Release

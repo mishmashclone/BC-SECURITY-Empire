@@ -600,7 +600,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                               'listener_type': active_listener.listener_type,
                               'listener_category': active_listener.listener_category,
                               'options': active_listener.options,
-                              'created_at': active_listener.created_at})
+                              'created_at': active_listener.created_at,
+                              'enabled': active_listener.enabled})
 
         return jsonify({"listeners": listeners})
 
@@ -667,6 +668,55 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                 return jsonify({'success': True})
             else:
                 return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
+
+    @app.route('/api/listeners/<string:listener_name>/disable', methods=['PUT'])
+    def disable_listener(listener_name):
+        """
+        Disables the listener specified by listener_name.
+        """
+        if listener_name != "" and main.listeners.is_listener_valid(listener_name):
+            main.listeners.disable_listener(listener_name)
+            return jsonify({'success': True})
+        else:
+            return make_response(jsonify({'error': 'listener name %s not found or already disabled' % listener_name}), 404)
+
+    @app.route('/api/listeners/<string:listener_name>/enable', methods=['PUT'])
+    def enable_listener(listener_name):
+        """
+        Enable the listener specified by listener_name.
+        """
+        if listener_name != "" and listener_name in main.listeners.get_inactive_listeners():
+            main.listeners.enable_listener(listener_name)
+            return jsonify({'success': True})
+        else:
+            return make_response(jsonify({'error': 'listener name %s not found or already enabled' % listener_name}), 404)
+
+    @app.route('/api/listeners/<string:listener_name>/edit', methods=['PUT'])
+    def edit_listener(listener_name):
+        """
+        Edit listener specified by listener_name.
+        """
+        if not request.json['option_name']:
+            return make_response(jsonify({'error': 'option_name not provided'}), 400)
+        if main.listeners.is_listener_valid(listener_name):
+            return make_response(jsonify({'error': 'Provided listener should be disabled'}), 400)
+
+        option_name = request.json['option_name']
+        option_value = request.json.get('option_value', '')
+
+        if listener_name in main.listeners.get_inactive_listeners():
+            # todo For right now, setting listener options via update does not go through the same validation and formatters
+            #  that start_listener does. In order to do that requires some refactors on listeners.py to use the db better
+            #  as a source of truth and not depend on all the in-memory objects.
+            success = main.listeners.update_listener_options(listener_name, option_name, option_value)
+            if success:
+                return jsonify({'success': True})
+            else:
+                # todo propagate the actual error with setting the value
+                return make_response(
+                    jsonify({'error': 'error setting listener value %s with option %s' % (option_name, option_value)}), 400)
+        else:
+            return make_response(jsonify({'error': 'listener name %s not found or not inactive' % listener_name}), 404)
 
     @app.route('/api/listeners/types', methods=['GET'])
     def get_listener_types():

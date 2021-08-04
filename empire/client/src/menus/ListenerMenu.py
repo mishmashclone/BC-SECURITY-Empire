@@ -55,17 +55,17 @@ class ListenerMenu(Menu):
         if listener_name not in state.listeners:
             return None
 
-        listener_list = []
-
+        record_list = []
         for key, value in state.listeners[listener_name]['options'].items():
-            values = list(map(lambda x: '\n'.join(textwrap.wrap(str(x), width=40)), value.values()))
-            values.reverse()
-            temp = [key] + values
-            listener_list.append(temp)
+            name = key
+            record_value = print_util.text_wrap(value.get('Value', ''))
+            required = print_util.text_wrap(value.get('Required', ''))
+            description = print_util.text_wrap(value.get('Description', ''))
+            record_list.append([name, record_value, required, description])
 
-        listener_list.insert(0, ['Name', 'Value', 'Required', 'Description'])
+        record_list.insert(0, ['Name', 'Value', 'Required', 'Description'])
 
-        table_util.print_table(listener_list, listener_name)
+        table_util.print_table(record_list, 'Record Options')
 
     @command
     def kill(self, listener_name: str) -> None:

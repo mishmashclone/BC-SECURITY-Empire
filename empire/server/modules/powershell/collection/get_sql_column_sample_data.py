@@ -21,7 +21,7 @@ class Module(object):
         script_end = ""
         
         # read in the common module source code
-        module_source = main_menu.installPath + "data/module_source/collection/Get-SQLColumnSampleData.ps1"
+        module_source = main_menu.installPath + "/data/module_source/collection/Get-SQLColumnSampleData.ps1"
         script = ""
         if obfuscate:
             data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
@@ -32,7 +32,7 @@ class Module(object):
             return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
         if check_all:
-            aux_module_source = main_menu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
+            aux_module_source = main_menu.installPath + "/data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
             if obfuscate:
                 data_util.obfuscate_module(moduleSource=aux_module_source, obfuscationCommand=obfuscation_command)
                 aux_module_source = module_source.replace("module_source", "obfuscated_module_source")

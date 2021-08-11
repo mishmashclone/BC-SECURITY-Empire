@@ -8,7 +8,7 @@ from empire.server.common.module_models import PydanticModule
 class Module(object):
     @staticmethod
     def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = "") -> Tuple[Optional[str], Optional[str]]:
-        path = main_menu.installPath + "data/misc/python_modules/mss.zip"
+        path = main_menu.installPath + "/data/misc/python_modules/mss.zip"
         open_file = open(path, 'rb')
         module_data = open_file.read()
         open_file.close()

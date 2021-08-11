@@ -32,7 +32,7 @@ class Module(object):
 
         script_end = ""
         if check_all:
-            sql_instance_source = main_menu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
+            sql_instance_source = main_menu.installPath + "/data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
             if obfuscate:
                 data_util.obfuscate_module(moduleSource=sql_info_source, obfuscationCommand=obfuscation_command)
                 sql_instance_source = sql_info_source.replace("module_source", "obfuscated_module_source")

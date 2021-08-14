@@ -134,12 +134,10 @@ class EmpireCliState(object):
 
         if menu_state.current_menu_name == 'InteractMenu' and menu_state.current_menu.selected == session_id:
             if data['results'] is not None:
-                if 'Job started:' not in data['results']:
-                    print(print_util.color('[*] Task ' + str(data['taskID']) + " results received"))
-                    print(print_util.color(data['results']))
+                print(print_util.color('[*] Task ' + str(data['taskID']) + " results received"))
+                print(print_util.color(data['results']))
         else:
-            if 'Job started:' not in data['results']:
-                self.cached_agent_results[session_id][data['taskID']] = data['results']
+            self.cached_agent_results[session_id][data['taskID']] = data['results']
 
     def add_plugin_cache(self, data) -> None:
         """

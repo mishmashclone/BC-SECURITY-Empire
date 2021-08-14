@@ -115,7 +115,7 @@ class Modules(object):
         msg = f"tasked agent {session_id} to run module {module.name}"
         self.main_menu.agents.save_agent_log(session_id, msg)
 
-        if empire_config.yaml.get('modules.retain-last-value', True):
+        if empire_config.yaml.get('modules',{}).get('retain-last-value', True):
             self._set_default_values(module, cleaned_options)
 
         return {'success': True, 'taskID': task_id, 'msg': msg}, None

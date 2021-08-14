@@ -1448,10 +1448,16 @@ class Agents(object):
             # Update result with data
             tasking = Session().query(models.Tasking).filter(and_(models.Tasking.id == task_id,
                                                                   models.Tasking.agent == session_id)).first()
-
+            # add keystrokes to database
             if 'function Get-Keystrokes' in tasking.input:
                 key_log_task_id = tasking.id
-                tasking.output += data
+                if tasking.output is None:
+                    tasking.output = ''
+
+                if data:
+                    raw_key_stroke = data.decode('UTF-8')
+                    tasking.output += raw_key_stroke.replace("\r\n", "").replace("[SpaceBar]", "").replace('\b', '')\
+                        .replace("[Shift]", "").replace("[Enter]\r", "\r\n")
             else:
                 tasking.output = data
 
@@ -1704,6 +1710,7 @@ class Agents(object):
                     new_results = data.replace("\r\n", "").replace("[SpaceBar]", "").replace('\b', '').replace(
                         "[Shift]", "").replace("[Enter]\r", "\r\n")
                     f.write(new_results)
+
             else:
                 # dynamic script output -> non-blocking
                 # see if there are any credentials to parse

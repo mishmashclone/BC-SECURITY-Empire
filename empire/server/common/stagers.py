@@ -505,11 +505,11 @@ class Stagers(object):
         return package
 
     def generate_jar(self, launcherCode):
-        file = open(self.mainMenu.installPath+'data/misc/Run.java','r')
+        file = open(self.mainMenu.installPath+'/data/misc/Run.java', 'r')
         javacode = file.read()
         file.close()
-        javacode = javacode.replace("LAUNCHER",launcherCode)
-        jarpath = self.mainMenu.installPath+'data/misc/classes/com/installer/apple/'
+        javacode = javacode.replace("LAUNCHER", launcherCode)
+        jarpath = self.mainMenu.installPath + '/data/misc/classes/com/installer/apple/'
         try:
             os.makedirs(jarpath)
         except OSError as e:
@@ -518,20 +518,17 @@ class Stagers(object):
             else:
                 pass
 
-        file = open(jarpath+'Run.java','w')
+        file = open(jarpath+'Run.java', 'w')
         file.write(javacode)
         file.close()
-        currdir = os.getcwd()
-        os.chdir(self.mainMenu.installPath+'data/misc/classes/')
-        os.system('javac com/installer/apple/Run.java')
-        os.system('jar -cfe '+self.mainMenu.installPath+'Run.jar com.installer.apple.Run com/installer/apple/Run.class')
-        os.chdir(currdir)
-        os.remove(self.mainMenu.installPath+'data/misc/classes/com/installer/apple/Run.class')
-        os.remove(self.mainMenu.installPath+'data/misc/classes/com/installer/apple/Run.java')
-        jarfile = open('Run.jar','rb')
+        os.system('javac ' + self.mainMenu.installPath + '/data/misc/classes/com/installer/apple/Run.java')
+        os.system('jar -cfe ' + self.mainMenu.installPath + '/data/misc/Run.jar com.installer.apple.Run ' + self.mainMenu.installPath + '/data/misc/classes/com/installer/apple/Run.class')
+        os.remove(self.mainMenu.installPath + '/data/misc/classes/com/installer/apple/Run.class')
+        os.remove(self.mainMenu.installPath + '/data/misc/classes/com/installer/apple/Run.java')
+        jarfile = open(self.mainMenu.installPath + '/data/misc/Run.jar', 'rb')
         jar = jarfile.read()
         jarfile.close()
-        os.remove('Run.jar')
+        os.remove(self.mainMenu.installPath + '/data/misc/Run.jar')
 
         return jar
 

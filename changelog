@@ -1,3 +1,19 @@
+8/16/2021
+------------
+- Version 4.0.2 Master Release
+       - Added socketio messages to screenshot/download/upload (@Cx01N)
+       - Added help message when no input is given to empire.py (@Cx01N)
+       - Fixed missing slash for module directories (@Cx01N)
+       - Fixed modules Get-SQLServerLoginDefaultPw and PortScan (@jamarir)
+       - Fixed formatting bug in the options table on the listener menu (@Vinnybod)
+       - Fixed querying retain-last-value config parameters (@ilanisme)
+       - Fixed invalid concat on keylogs (@Cx01N)
+       - Fixed mimikatz command and added suggested values (@Cx01N)
+       - Fixed misc bugs (@Vinnybod)
+       - Updated suggested values for stagers and reformatted code (@Cx01N)
+       - Updated editlistener menu (@Vinnybod)
+       - Removed client suppression for job started taskings (@Cx01N)
+
 7/19/2021
 ------------
 - Version 4.0.1 Master Release

@@ -134,12 +134,10 @@ class EmpireCliState(object):
 
         if menu_state.current_menu_name == 'InteractMenu' and menu_state.current_menu.selected == session_id:
             if data['results'] is not None:
-                if 'Job started:' not in data['results']:
-                    print(print_util.color('[*] Task ' + str(data['taskID']) + " results received"))
-                    print(print_util.color(data['results']))
+                print(print_util.color('[*] Task ' + str(data['taskID']) + " results received"))
+                print(print_util.color(data['results']))
         else:
-            if 'Job started:' not in data['results']:
-                self.cached_agent_results[session_id][data['taskID']] = data['results']
+            self.cached_agent_results[session_id][data['taskID']] = data['results']
 
     def add_plugin_cache(self, data) -> None:
         """
@@ -197,6 +195,28 @@ class EmpireCliState(object):
         response = requests.delete(url=f'{self.host}:{self.port}/api/listeners/{listener_name}',
                                    verify=False,
                                    params={'token': self.token})
+
+        return response.json()
+
+    def disable_listener(self, listener_name: str):
+        response = requests.put(url=f'{self.host}:{self.port}/api/listeners/{listener_name}/disable',
+                                verify=False,
+                                params={'token': self.token})
+        self.get_listeners()
+        return response.json()
+
+    def enable_listener(self, listener_name: str):
+        response = requests.put(url=f'{self.host}:{self.port}/api/listeners/{listener_name}/enable',
+                                verify=False,
+                                params={'token': self.token})
+        self.get_listeners()
+        return response.json()
+
+    def edit_listener(self, listener_name: str, option_name, option_value):
+        response = requests.put(url=f'{self.host}:{self.port}/api/listeners/{listener_name}/edit',
+                                json={'option_name': option_name, 'option_value': option_value},
+                                verify=False,
+                                params={'token': self.token})
 
         return response.json()
 

@@ -12,50 +12,50 @@ class Stager(object):
 
             'Author': ['@424f424f'],
 
-            'Description': ('Generates an HTML payload launcher for Empire.'),
+            'Description': 'Generates an HTML payload launcher for Empire.',
 
-            'Comments': [
-                'https://www.exploit-db.com/exploits/38535/'
-            ]
+            'Comments': ['https://www.exploit-db.com/exploits/38535/']
         }
 
         # any options needed by the stager, settable during runtime
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Listener' : {
-                'Description'   :   'Listener to generate stager for.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Listener': {
+                'Description': 'Listener to generate stager for.',
+                'Required': True,
+                'Value': ''
             },
-            'Language' : {
-                'Description'   :   'Language of the stager to generate.',
-                'Required'      :   True,
-                'Value'         :   'python'
+            'Language': {
+                'Description': 'Language of the stager to generate.',
+                'Required': True,
+                'Value': 'python',
+                'SuggestedValues': ['python'],
+                'Strict': True
             },
-            'OutFile' : {
-                'Description'   :   'Filename that should be used for the generated output, otherwise returned as a string.',
-                'Required'      :   False,
-                'Value'         :   ''
+            'OutFile': {
+                'Description': 'Filename that should be used for the generated output, otherwise returned as a string.',
+                'Required': False,
+                'Value': ''
             },
-            'SafeChecks' : {
-                'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required'       :  True,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
+            'SafeChecks': {
+                'Description': 'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
+                'Required': True,
+                'Value': 'True',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             },
-            'Base64' : {
-                'Description'    :  'Switch. Base64 encode the output.',
-                'Required'       :  True,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
-            },            
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'Base64': {
+                'Description': 'Switch. Base64 encode the output.',
+                'Required': True,
+                'Value': 'True',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
+            },
+            'UserAgent': {
+                'Description': 'User-agent string to use for the staging request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             }
         }
 
@@ -73,17 +73,18 @@ class Stager(object):
 
         # extract all of our options
         language = self.options['Language']['Value']
-        listenerName = self.options['Listener']['Value']
+        listener_name = self.options['Listener']['Value']
         base64 = self.options['Base64']['Value']
-        userAgent = self.options['UserAgent']['Value']
-        safeChecks = self.options['SafeChecks']['Value']
+        user_agent = self.options['UserAgent']['Value']
+        safe_checks = self.options['SafeChecks']['Value']
 
         encode = False
         if base64.lower() == "true":
             encode = True
 
         # generate the launcher code
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=encode, userAgent=userAgent, safeChecks=safeChecks)
+        launcher = self.mainMenu.stagers.generate_launcher(listenerName=listener_name, language=language, encode=encode,
+                                                           userAgent=user_agent, safeChecks=safe_checks)
         if launcher == "":
             print(helpers.color("[!] Error in launcher command generation."))
             return ""

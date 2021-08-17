@@ -36,3 +36,6 @@ rest_group.add_argument('--password', nargs=1,
                         help='Start the RESTful API with the specified password instead of pulling from empire.db')
 
 args = parent_parser.parse_args()
+
+if parent_parser.parse_args().subparser_name == None:
+    parent_parser.print_help()

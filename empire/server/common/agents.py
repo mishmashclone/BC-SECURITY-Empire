@@ -1448,10 +1448,16 @@ class Agents(object):
             # Update result with data
             tasking = Session().query(models.Tasking).filter(and_(models.Tasking.id == task_id,
                                                                   models.Tasking.agent == session_id)).first()
-
+            # add keystrokes to database
             if 'function Get-Keystrokes' in tasking.input:
                 key_log_task_id = tasking.id
-                tasking.output += data
+                if tasking.output is None:
+                    tasking.output = ''
+
+                if data:
+                    raw_key_stroke = data.decode('UTF-8')
+                    tasking.output += raw_key_stroke.replace("\r\n", "").replace("[SpaceBar]", "").replace('\b', '')\
+                        .replace("[Shift]", "").replace("[Enter]\r", "\r\n")
             else:
                 tasking.output = data
 
@@ -1680,9 +1686,19 @@ class Agents(object):
             final_save_path = self.save_module_file(name, save_path, file_data)
 
             # update the agent log
-            msg = "Output saved to .%s" % (final_save_path)
+            msg = "[+] Output saved to .%s" % (final_save_path)
             self.save_agent_log(session_id, msg)
 
+            # Retrieve tasking data
+            tasking = Session().query(models.Tasking).filter(and_(models.Tasking.id == task_id,
+                                                                  models.Tasking.agent == session_id)).first()
+
+            # Send server notification for saving file
+            self.mainMenu.socketio.emit(f'agents/{session_id}/task', {
+                'taskID': tasking.id, 'command': tasking.input,
+                'results': msg, 'user_id': tasking.user_id,
+                'created_at': tasking.created_at, 'updated_at': tasking.updated_at,
+                'username': tasking.user.username, 'agent': tasking.agent}, broadcast=True)
 
         elif response_name == "TASK_CMD_JOB":
             # check if this is the powershell keylogging task, if so, write output to file instead of screen
@@ -1704,6 +1720,7 @@ class Agents(object):
                     new_results = data.replace("\r\n", "").replace("[SpaceBar]", "").replace('\b', '').replace(
                         "[Shift]", "").replace("[Enter]\r", "\r\n")
                     f.write(new_results)
+
             else:
                 # dynamic script output -> non-blocking
                 # see if there are any credentials to parse

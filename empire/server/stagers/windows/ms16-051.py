@@ -11,10 +11,10 @@ class Stager(object):
 
             'Author': ['CrossGroupSecurity'],
 
-            'Description': (
+            'Description':
                 'Leverages MS16-051 to execute powershell in unpatched browsers. This is a file-less vector which '
                 'works on IE9/10/11 and all versions of Windows. Target will have to open link with vulnerable version '
-                'of IE.'),
+                'of IE.',
 
             'Comments': [
                 'https://github.com/CrossGroupSecurity/PowerShell-MS16-051-IE-RCE'
@@ -31,7 +31,9 @@ class Stager(object):
             'Language': {
                 'Description': 'Language of the stager to generate.',
                 'Required': True,
-                'Value': 'powershell'
+                'Value': 'powershell',
+                'SuggestedValues': ['powershell'],
+                'Strict': True
             },
             'StagerRetries': {
                 'Description': 'Times for the stager to retry connecting.',
@@ -75,8 +77,7 @@ class Stager(object):
                 'Value': 'default'
             },
             'ProxyCreds': {
-                'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, '
-                               'or other).',
+                'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
                 'Required': False,
                 'Value': 'default'
             }

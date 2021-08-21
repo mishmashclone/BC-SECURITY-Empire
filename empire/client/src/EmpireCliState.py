@@ -195,7 +195,7 @@ class EmpireCliState(object):
         response = requests.delete(url=f'{self.host}:{self.port}/api/listeners/{listener_name}',
                                    verify=False,
                                    params={'token': self.token})
-
+        self.get_listeners()
         return response.json()
 
     def disable_listener(self, listener_name: str):

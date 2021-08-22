@@ -63,17 +63,6 @@ if empire_config.yaml.get('suppress-self-cert-warning', True):
 #
 #####################################################
 
-
-def database_check_docker():
-    """
-    Check for docker and setup database if necessary.
-    """
-    if os.path.exists('/.dockerenv'):
-        if not os.path.exists('data/empire.db'):
-            print('[*] Fresh start in docker, running reset.sh for you')
-            subprocess.call(['./setup/reset.sh'])
-
-
 class MyJsonEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, datetime):
@@ -2329,8 +2318,6 @@ def run(args):
         user = Session().query(models.User).filter(models.User.username == username).first()
         Session().delete(user)
         Session().commit()
-
-    database_check_docker()
 
     if not args.restport:
         args.restport = '1337'

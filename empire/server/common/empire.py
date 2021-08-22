@@ -26,6 +26,7 @@ import json
 import time
 
 # Empire imports
+from empire.server.common import hooks_internal
 from empire.server.utils import data_util
 from . import helpers
 from . import messages
@@ -92,11 +93,12 @@ class MainMenu(cmd.Cmd):
         self.stagers = stagers.Stagers(self, args=args)
         self.modules = modules.Modules(self, args=args)
         self.listeners = listeners.Listeners(self, args=args)
+        self.users = users.Users(self)
 
-        # load profiles to database
         self.load_malleable_profiles()
 
-        self.users = users.Users(self)
+        hooks_internal.initialize()
+
         self.socketio: Optional[SocketIO] = None
         self.resourceQueue = []
         # A hashtable of autruns based on agent language
@@ -376,7 +378,7 @@ class MainMenu(cmd.Cmd):
                    models.Tasking.input.label('task'),
                    models.Tasking.output.label('results')) \
             .join(models.Tasking, and_(models.Tasking.id == reporting_sub_query.c.taskID,
-                                       models.Tasking.agent == reporting_sub_query.c.agent_name), isouter=True) \
+                                       models.Tasking.agent_id == reporting_sub_query.c.agent_name), isouter=True) \
             .join(models.User, models.User.id == models.Tasking.user_id, isouter=True) \
             .join(models.Agent, models.Agent.session_id == reporting_sub_query.c.agent_name, isouter=True) \
             .all()

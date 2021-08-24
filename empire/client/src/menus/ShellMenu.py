@@ -57,6 +57,8 @@ class ShellMenu(Menu):
             task_id: int = state.agent_shell(session_id, '(Resolve-Path .\).Path')['taskID']
         elif self.language == 'python':
             task_id: int = state.agent_shell(session_id, 'echo $PWD')['taskID']
+        elif self.language == 'ironpython':
+            task_id: int = state.agent_shell(session_id, 'cd .')['taskID']
         elif self.language == 'csharp':
             task_id: int = state.agent_shell(session_id, '(Resolve-Path .\).Path')['taskID']
             pass

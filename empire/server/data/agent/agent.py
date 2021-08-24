@@ -277,12 +277,12 @@ def process_packet(packetType, data, resultID):
         if len(parts) == 1:
             data = parts[0]
             resultData = str(run_command(data))
-            send_message(build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID))
+            send_message(build_response_packet(40, resultData + "\r", resultID))
         else:
             cmd = parts[0]
             cmdargs = ' '.join(parts[1:len(parts)])
             resultData = str(run_command(cmd, cmdargs=cmdargs))
-            send_message(build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID))
+            send_message(build_response_packet(40, resultData + "\r", resultID))
 
     elif packetType == 41:
         # file download

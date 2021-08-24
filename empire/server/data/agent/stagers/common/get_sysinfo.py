@@ -82,11 +82,12 @@ def get_sysinfo(nonce='00000000'):
     except Exception as e:
         architecture = __FAILED_FUNCTION
 
-    language = 'python'
     if platform.python_implementation() == 'IronPython':
+        language = 'ironpython'
         processName = Process.GetCurrentProcess()
         return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (nonce, server, '', username, hostname, internalIP, osDetails, highIntegrity, processName, processID, language, pyVersion, architecture)
     else:
+        language = 'python'
         cmd = 'ps %s' % (os.getpid())
         ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = ps.communicate()

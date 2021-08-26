@@ -249,7 +249,7 @@ class Modules(object):
         option_strings = []
         # This is where the code goes for all the modules that do not have a custom generate function.
         for key, value in params.items():
-            if key.lower() != "agent" and key.lower() != "computername" and key.lower() != "outputfunction":
+            if key.lower() not in ["agent", "computername", "outputfunction"]:
                 if value and value != '':
                     if value.lower() == "true":
                         # if we're just adding a switch

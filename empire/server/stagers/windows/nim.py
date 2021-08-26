@@ -12,7 +12,7 @@ class Stager(object):
 
             'Author': ['@hubbl3'],
 
-            'Description': ('Generate an unmanaged binary that loads the CLR and executes a powershell one liner'),
+            'Description': 'Generate an unmanaged binary that loads the CLR and executes a powershell one liner',
 
             'Comments': [
                 'Based on the work of @bytebl33d3r'
@@ -24,7 +24,7 @@ class Stager(object):
             # format:
             #   value_name : {description, required, default_value}
             'Language': {
-                'Description': 'Language of the stager to generate (powershell).',
+                'Description': 'Language of the stager to generate.',
                 'Required': True,
                 'Value': 'powershell',
                 'SuggestedValues': ['powershell'],

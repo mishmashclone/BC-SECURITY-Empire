@@ -27,6 +27,7 @@ from empire.client.src.menus.ListenerMenu import listener_menu
 from empire.client.src.menus.MainMenu import main_menu
 from empire.client.src.menus.PluginMenu import plugin_menu
 from empire.client.src.menus.ShellMenu import shell_menu
+from empire.client.src.menus.EditListenerMenu import edit_listener_menu
 from empire.client.src.menus.UseListenerMenu import use_listener_menu
 from empire.client.src.menus.UseModuleMenu import use_module_menu
 from empire.client.src.menus.UsePluginMenu import use_plugin_menu
@@ -90,6 +91,7 @@ class EmpireCli(object):
             'ListenerMenu': listener_menu,
             'UseCredentialMenu': use_credential_menu,
             'UseListenerMenu': use_listener_menu,
+            'EditListenerMenu': edit_listener_menu,
             'UseStagerMenu': use_stager_menu,
             'AgentMenu': agent_menu,
             'UseModuleMenu': use_module_menu,
@@ -220,25 +222,25 @@ class EmpireCli(object):
                 return
 
         # Switch Menus
-        if text == 'main':
+        if text.strip() == 'main':
             state.get_modules()
             state.get_listeners()
             print_util.title(state.empire_version, len(state.modules), len(state.listeners),
                              len(state.get_active_agents()))
             menu_state.push(self.menus['MainMenu'])
-        elif text == 'listeners':
+        elif text.strip() == 'listeners':
             menu_state.push(self.menus['ListenerMenu'])
-        elif text == 'chat':
+        elif text.strip() == 'chat':
             menu_state.push(self.menus['ChatMenu'])
         elif menu_state.current_menu_name == 'ChatMenu':
             menu_state.current_menu.send_chat(text)
-        elif text == 'agents':
+        elif text.strip() == 'agents':
             menu_state.push(self.menus['AgentMenu'])
-        elif text == 'credentials':
+        elif text.strip() == 'credentials':
             menu_state.push(self.menus['CredentialMenu'])
-        elif text == 'plugins':
+        elif text.strip() == 'plugins':
             menu_state.push(self.menus['PluginMenu'])
-        elif text == 'admin':
+        elif text.strip() == 'admin':
             menu_state.push(self.menus['AdminMenu'])
         elif cmd_line[0] == 'uselistener' and len(cmd_line) > 1:
             if cmd_line[1] in state.listener_types:
@@ -274,7 +276,13 @@ class EmpireCli(object):
                     menu_state.push(self.menus['UseModuleMenu'], selected=cmd_line[1])
             else:
                 print(f'No module {cmd_line[1]}')
-        elif text == 'shell':
+        elif cmd_line[0] == 'editlistener' and len(cmd_line) > 1:
+            if menu_state.current_menu_name == 'ListenerMenu':
+                if cmd_line[1] in state.listeners:
+                    menu_state.push(self.menus['EditListenerMenu'], selected=cmd_line[1])
+            else:
+                print(f'No listener {cmd_line[1]}')
+        elif text.strip() == 'shell':
             if menu_state.current_menu_name == 'InteractMenu':
                 menu_state.push(self.menus['ShellMenu'], selected=menu_state.current_menu.selected)
             else:
@@ -284,9 +292,9 @@ class EmpireCli(object):
                 menu_state.push(self.menus['InteractMenu'], selected=menu_state.current_menu.selected)
             else:
                 menu_state.current_menu.shell(menu_state.current_menu.selected, text)
-        elif text == 'back':
+        elif text.strip() == 'back':
             menu_state.pop()
-        elif text == 'exit':
+        elif text.strip() == 'exit':
             if resource_file:
                 raise CliExitException
             choice = input(print_util.color("[>] Exit? [y/N] ", "red"))

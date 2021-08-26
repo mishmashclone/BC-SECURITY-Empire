@@ -79,4 +79,4 @@ options:
       - ConvertTo-Html
       - ConvertTo-Xml
 script_path: 'empire/server/data/module_source/situational_awareness/network/Invoke-Portscan.ps1'
-script_end: Invoke-PortScan -noProgressMeter -f {{ PARAMS }} | ? {$_.alive}| Select-Object HostName,@{name='OpenPorts';expression={$_.openPorts -join ','}} | ft -wrap | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Invoke-Portscan completed'
+script_end: Invoke-PortScan -noProgressMeter -f {{ PARAMS }} | Select-Object HostName,@{name='OpenPorts';expression={$_.openPorts -join ','}} | ft -wrap | {{ OUTPUT_FUNCTION }} | %{$_ + "`n"}; 'Invoke-Portscan completed'

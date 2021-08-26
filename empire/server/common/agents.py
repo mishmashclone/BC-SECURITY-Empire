@@ -79,6 +79,7 @@ from . import messages
 from . import packets
 from empire.server.database.base import Session
 from empire.server.database import models
+from empire.server.common.hooks import hooks
 from sqlalchemy import or_, func, and_, update
 
 
@@ -152,22 +153,26 @@ class Agents(object):
             profile = "/admin/get.php,/news.php,/login/process.php|Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
 
         # add the agent
-        Session().add(models.Agent(name=sessionID,
-                                   session_id=sessionID,
-                                   delay=delay,
-                                   jitter=jitter,
-                                   external_ip=externalIP,
-                                   session_key=sessionKey,
-                                   nonce=nonce,
-                                   profile=profile,
-                                   kill_date=killDate,
-                                   working_hours=workingHours,
-                                   lost_limit=lostLimit,
-                                   listener=listener,
-                                   language=language,
-                                   killed=False,
-                                   ))
+        agent = models.Agent(name=sessionID,
+                             session_id=sessionID,
+                             delay=delay,
+                             jitter=jitter,
+                             external_ip=externalIP,
+                             session_key=sessionKey,
+                             nonce=nonce,
+                             profile=profile,
+                             kill_date=killDate,
+                             working_hours=workingHours,
+                             lost_limit=lostLimit,
+                             listener=listener,
+                             language=language,
+                             killed=False
+                             )
+        Session().add(agent)
+        Session().flush()
         Session().commit()
+
+        hooks.run_hooks(hooks.AFTER_AGENT_CHECKIN_HOOK, agent)
 
         # dispatch this event
         message = "[*] New agent {} checked in".format(sessionID)
@@ -704,9 +709,27 @@ class Agents(object):
 
         agent = Session().query(models.Agent).filter(models.Agent.session_id == session_id).first()
 
+        host = Session().query(models.Host).filter(and_(models.Host.name == hostname,
+                                                        models.Host.internal_ip == internal_ip)).first()
+        if not host:
+            host = models.Host(name=hostname, internal_ip=internal_ip)
+            Session().add(host)
+            Session().flush()
+
+        process = Session().query(models.HostProcess).filter(and_(models.HostProcess.host_id == host.id,
+                                                                  models.HostProcess.process_id == process_id)).first()
+        if not process:
+            process = models.HostProcess(host_id=host.id,
+                                         process_id=process_id,
+                                         process_name=process_name,
+                                         user=agent.username)
+            Session().add(process)
+            Session().flush()
+
         agent.internal_ip = internal_ip.split(" ")[0]
         agent.username = username
         agent.hostname = hostname
+        agent.host_id = host.id
         agent.os_details = os_details
         agent.high_integrity = high_integrity
         agent.process_name = process_name
@@ -853,14 +876,14 @@ class Agents(object):
                 })
                 dispatcher.send(signal, sender="agents/{}".format(session_id))
 
-                pk = Session().query(func.max(models.Tasking.id)).filter(models.Tasking.agent == session_id).first()[0]
+                pk = Session().query(func.max(models.Tasking.id)).filter(models.Tasking.agent_id == session_id).first()[0]
 
                 if pk is None:
                     pk = 0
                 pk = (pk + 1) % 65536
 
                 Session().add(models.Tasking(id=pk,
-                                             agent=session_id,
+                                             agent_id=session_id,
                                              input=task[:100],
                                              input_full=task,
                                              user_id=uid,
@@ -913,7 +936,7 @@ class Agents(object):
             print(helpers.color("[!] Agent %s not active." % agent_name))
             return []
         else:
-            tasks = Session().query(models.Tasking).filter(and_(models.Tasking.agent == session_id,
+            tasks = Session().query(models.Tasking).filter(and_(models.Tasking.agent_id == session_id,
                                                                 models.Tasking.status == TaskingStatus.queued)).all()
             for task in tasks:
                 task.status = TaskingStatus.pulled
@@ -1447,15 +1470,27 @@ class Agents(object):
                                                   "TASK_CMD_WAIT_SAVE"] and data is not None:
             # Update result with data
             tasking = Session().query(models.Tasking).filter(and_(models.Tasking.id == task_id,
-                                                                  models.Tasking.agent == session_id)).first()
-
+                                                                  models.Tasking.agent_id == session_id)).first()
+            # add keystrokes to database
             if 'function Get-Keystrokes' in tasking.input:
                 key_log_task_id = tasking.id
-                tasking.output += data
+                if tasking.output is None:
+                    tasking.output = ''
+
+                if data:
+                    raw_key_stroke = data.decode('UTF-8')
+                    tasking.output += raw_key_stroke.replace("\r\n", "").replace("[SpaceBar]", "").replace('\b', '')\
+                        .replace("[Shift]", "").replace("[Enter]\r", "\r\n")
             else:
+                tasking.original_output = data
                 tasking.output = data
 
-            Session.commit()
+            hooks.run_hooks(hooks.BEFORE_TASKING_RESULT_HOOK, tasking)
+            tasking = hooks.run_filters(hooks.BEFORE_TASKING_RESULT_FILTER, tasking)
+
+            Session().commit()
+
+            hooks.run_hooks(hooks.AFTER_TASKING_RESULT_HOOK, tasking)
 
             if self.mainMenu.socketio and 'function Get-Keystrokes' not in tasking.input:
                 result_string = tasking.output
@@ -1466,7 +1501,7 @@ class Agents(object):
                     'taskID': tasking.id, 'command': tasking.input,
                     'results': result_string, 'user_id': tasking.user_id,
                     'created_at': tasking.created_at, 'updated_at': tasking.updated_at,
-                    'username': tasking.user.username, 'agent': tasking.agent}, broadcast=True)
+                    'username': tasking.user.username, 'agent': tasking.agent_id}, broadcast=True)
 
         # TODO: for heavy traffic packets, check these first (i.e. SOCKS?)
         #       so this logic is skipped
@@ -1680,9 +1715,19 @@ class Agents(object):
             final_save_path = self.save_module_file(name, save_path, file_data)
 
             # update the agent log
-            msg = "Output saved to .%s" % (final_save_path)
+            msg = "[+] Output saved to .%s" % (final_save_path)
             self.save_agent_log(session_id, msg)
 
+            # Retrieve tasking data
+            tasking = Session().query(models.Tasking).filter(and_(models.Tasking.id == task_id,
+                                                                  models.Tasking.agent == session_id)).first()
+
+            # Send server notification for saving file
+            self.mainMenu.socketio.emit(f'agents/{session_id}/task', {
+                'taskID': tasking.id, 'command': tasking.input,
+                'results': msg, 'user_id': tasking.user_id,
+                'created_at': tasking.created_at, 'updated_at': tasking.updated_at,
+                'username': tasking.user.username, 'agent': tasking.agent}, broadcast=True)
 
         elif response_name == "TASK_CMD_JOB":
             # check if this is the powershell keylogging task, if so, write output to file instead of screen
@@ -1704,6 +1749,7 @@ class Agents(object):
                     new_results = data.replace("\r\n", "").replace("[SpaceBar]", "").replace('\b', '').replace(
                         "[Shift]", "").replace("[Enter]\r", "\r\n")
                     f.write(new_results)
+
             else:
                 # dynamic script output -> non-blocking
                 # see if there are any credentials to parse

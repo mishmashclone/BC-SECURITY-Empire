@@ -16,6 +16,8 @@ import string
 import subprocess
 import sys
 import time
+from typing import List
+
 import urllib3
 
 import requests
@@ -27,8 +29,8 @@ import flask
 from flask import Flask, request, jsonify, make_response, abort, g
 from flask.json import JSONEncoder
 from flask_socketio import SocketIO, join_room, leave_room
-from sqlalchemy import and_
-from sqlalchemy.orm import aliased, joinedload
+from sqlalchemy import and_, or_
+from sqlalchemy.orm import aliased, joinedload, undefer
 
 # Empire imports
 from empire.server.common import empire, helpers
@@ -60,17 +62,6 @@ if empire_config.yaml.get('suppress-self-cert-warning', True):
 # Database interaction methods for the RESTful API
 #
 #####################################################
-
-
-def database_check_docker():
-    """
-    Check for docker and setup database if necessary.
-    """
-    if os.path.exists('/.dockerenv'):
-        if not os.path.exists('data/empire.db'):
-            print('[*] Fresh start in docker, running reset.sh for you')
-            subprocess.call(['./setup/reset.sh'])
-
 
 class MyJsonEncoder(JSONEncoder):
     def default(self, o):
@@ -600,7 +591,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                               'listener_type': active_listener.listener_type,
                               'listener_category': active_listener.listener_category,
                               'options': active_listener.options,
-                              'created_at': active_listener.created_at})
+                              'created_at': active_listener.created_at,
+                              'enabled': active_listener.enabled})
 
         return jsonify({"listeners": listeners})
 
@@ -667,6 +659,55 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                 return jsonify({'success': True})
             else:
                 return make_response(jsonify({'error': 'listener name %s not found' % listener_name}), 404)
+
+    @app.route('/api/listeners/<string:listener_name>/disable', methods=['PUT'])
+    def disable_listener(listener_name):
+        """
+        Disables the listener specified by listener_name.
+        """
+        if listener_name != "" and main.listeners.is_listener_valid(listener_name):
+            main.listeners.disable_listener(listener_name)
+            return jsonify({'success': True})
+        else:
+            return make_response(jsonify({'error': 'listener name %s not found or already disabled' % listener_name}), 404)
+
+    @app.route('/api/listeners/<string:listener_name>/enable', methods=['PUT'])
+    def enable_listener(listener_name):
+        """
+        Enable the listener specified by listener_name.
+        """
+        if listener_name != "" and listener_name in main.listeners.get_inactive_listeners():
+            main.listeners.enable_listener(listener_name)
+            return jsonify({'success': True})
+        else:
+            return make_response(jsonify({'error': 'listener name %s not found or already enabled' % listener_name}), 404)
+
+    @app.route('/api/listeners/<string:listener_name>/edit', methods=['PUT'])
+    def edit_listener(listener_name):
+        """
+        Edit listener specified by listener_name.
+        """
+        if not request.json['option_name']:
+            return make_response(jsonify({'error': 'option_name not provided'}), 400)
+        if main.listeners.is_listener_valid(listener_name):
+            return make_response(jsonify({'error': 'Provided listener should be disabled'}), 400)
+
+        option_name = request.json['option_name']
+        option_value = request.json.get('option_value', '')
+
+        if listener_name in main.listeners.get_inactive_listeners():
+            # todo For right now, setting listener options via update does not go through the same validation and formatters
+            #  that start_listener does. In order to do that requires some refactors on listeners.py to use the db better
+            #  as a source of truth and not depend on all the in-memory objects.
+            success = main.listeners.update_listener_options(listener_name, option_name, option_value)
+            if success:
+                return jsonify({'success': True})
+            else:
+                # todo propagate the actual error with setting the value
+                return make_response(
+                    jsonify({'error': 'error setting listener value %s with option %s' % (option_name, option_value)}), 400)
+        else:
+            return make_response(jsonify({'error': 'listener name %s not found or not inactive' % listener_name}), 404)
 
     @app.route('/api/listeners/types', methods=['GET'])
     def get_listener_types():
@@ -865,6 +906,27 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'agents': active_agent})
 
+    @app.route('/api/agents/<string:agent_name>/processes', methods=['GET'])
+    def get_host_process(agent_name):
+        """
+        Gets the processes from the processes table for a given agent. Processes are stored at the host level,
+        so it looks up the host from the agent and then gets the processes for that host.
+        """
+        agent = Session().query(models.Agent).filter(models.Agent.session_id == agent_name).first()
+        processes = []
+        if agent:
+            processes_raw: List[models.HostProcess] = Session().query(models.HostProcess).filter(models.HostProcess.host_id == agent.host_id).all()
+
+            for proc in processes_raw:
+                agent_session_id = None
+                if proc.agent:
+                    agent_session_id = proc.agent.session_id
+                processes.append({'host_id': proc.host_id, 'process_id': proc.process_id,
+                                  'process_name': proc.process_name, 'agent_session_id': agent_session_id,
+                                  'architecture': proc.architecture, 'user': proc.user})
+
+        return {'processes': processes}
+
     @app.route('/api/agents/<string:agent_name>/directory', methods=['POST'])
     def scrape_agent_directory(agent_name):
         directory = '/' if request.args.get('directory') is None else request.args.get('directory')
@@ -917,9 +979,14 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         """
         agent_task_results = []
 
+        query_options = [joinedload(models.Tasking.user)]
         query = Session().query(models.Tasking) \
-            .filter(models.Tasking.agent == agent_name) \
-            .options(joinedload(models.Tasking.user))
+            .filter(models.Tasking.agent_id == agent_name)
+
+        if request.args.get('include_full_input'):
+            query_options.append(undefer('input_full'))
+        if request.args.get('include_original_output'):
+            query_options.append(undefer('original_output'))
 
         if request.args.get('updated_since'):
             try:
@@ -930,15 +997,21 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             except ValueError as e:
                 return make_response({'error': f'Invalid ISO-8601 timestamp: {request.args.get("updated_since")}'}, 400)
 
-        tasks = query.all()
+        query = query.options(*query_options)
+
+        tasks: List[models.Tasking] = query.all()
 
         results = []
         for task in tasks:
-            results.append(
-                {'taskID': task.id, 'command': task.input,
-                 'results': task.output, 'user_id': task.user_id,
-                 'created_at': task.created_at, 'updated_at': task.updated_at,
-                 'username': task.user.username, 'agent': task.agent})
+            res = {'taskID': task.id, 'command': task.input,
+                   'results': task.output, 'user_id': task.user_id,
+                   'created_at': task.created_at, 'updated_at': task.updated_at,
+                   'username': task.user.username, 'agent': task.agent_id}
+            if request.args.get('include_full_input'):
+                res['full_input'] = task.input_full
+            if request.args.get('include_original_output'):
+                res['original_output'] = task.original_output
+            results.append(res)
 
         agent_task_results.append({"AgentName": agent_name, "AgentResults": results})
 
@@ -946,18 +1019,85 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
     @app.route('/api/agents/<string:agent_name>/task/<int:task_id>', methods=['GET'])
     def get_task(agent_name, task_id):
-        task = Session().query(models.Tasking) \
-            .filter(models.Tasking.agent == agent_name) \
+        """
+        Returns json about a task from the database.
+        """
+        task: models.Tasking = Session().query(models.Tasking) \
+            .filter(models.Tasking.agent_id == agent_name) \
             .filter(models.Tasking.id == task_id) \
             .options(joinedload(models.Tasking.user)) \
             .first()
 
         if task:
-            return make_response(jsonify(
-                {'taskID': task.id, 'command': task.input, 'results': task.output,
-                 'user_id': task.user_id, 'username': task.user.username, 'agent': task.agent}))
+            output = {'taskID': task.id, 'command': task.input, 'results': task.output,
+                      'user_id': task.user_id, 'username': task.user.username, 'agent': task.agent_id}
+            if request.args.get('include_full_input'):
+                output['full_input'] = task.input_full
+            if request.args.get('include_original_output'):
+                output['original_output'] = task.original_output
+            return make_response(jsonify(output))
 
         return make_response(jsonify({'error': 'task not found.'}), 404)
+
+    @app.route('/api/agents/<string:agent_name>/task/slim', methods=['GET'])
+    def get_agent_tasks_slim(agent_name):
+        """
+        Provides a slimmed down view of agent tasks.
+        This is useful for when trying to get a quick list of actions taken on an agent without
+        all the overhead of the joined tables or tasking result bloat.
+        :param agent_name:
+        :return:
+        """
+        num_results = int(request.args.get('num_results', 10))
+
+        tasks = Session().query(models.Tasking.id,
+                                models.Tasking.input,
+                                models.Tasking.agent_id,
+                                models.Tasking.user_id,
+                                models.User.username) \
+            .filter(models.Tasking.agent_id == agent_name) \
+            .join(models.User, models.Tasking.user_id == models.User.id) \
+            .order_by(models.Tasking.id.asc()) \
+            .limit(num_results) \
+            .all()
+
+        agent_tasks = []
+        for task in tasks:
+            agent_tasks.append(
+                {'taskID': task.id, 'command': task.input,
+                 'agent': task.agent_id, 'user_id': task.user_id,
+                 'username': task.username})
+
+        return jsonify({'agent': agent_tasks})
+
+    @app.route('/api/agents/<string:agent_name>/task', methods=['GET'])
+    def get_agent_tasks(agent_name):
+        """
+        Returns json of last number of tasks tasks from an agent.
+        """
+        agent = main.agents.get_agent_from_name_or_session_id(agent_name)
+
+        if agent is None:
+            return make_response(jsonify({'error': 'agent name %s not found' % agent_name}), 404)
+
+        if not request.args.get('num_results'):
+            return make_response(jsonify({'error': 'number of results to return not provided'}), 404)
+
+        num_results = int(request.args.get('num_results'))
+
+        tasks = Session().query(models.Tasking) \
+            .filter(models.Tasking.agent_id == agent_name) \
+            .options(joinedload(models.Tasking.user)) \
+            .order_by(models.Tasking.id.asc()) \
+            .limit(num_results).all()
+
+        agent_tasks = []
+        for task in tasks:
+            agent_tasks.append(
+                {'taskID': task.id, 'command': task.input, 'results': task.output,
+                 'user_id': task.user_id, 'username': task.user.username, 'agent': task.agent_id})
+
+        return jsonify({'agent': agent_tasks})
 
     @app.route('/api/agents/<string:agent_name>/results', methods=['DELETE'])
     def delete_agent_results(agent_name):
@@ -1050,7 +1190,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'success': True, 'taskID': task_id})
 
-    @app.route('/api/agents/<string:agent_name>/sleep', methods=['POST'])
+    @app.route('/api/agents/<string:agent_name>/sleep', methods=['PUT'])
     def set_agent_sleep(agent_name):
         """
         Tasks the specified agent to sleep or change jitter
@@ -1199,9 +1339,10 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         try:
             kill_date = request.json['kill_date']
 
-            # update this agent's information in the database
-            agent = Session().query(models.Agent).filter(models.Agent.session_id == agent_name).first()
+            agent = Session().query(models.Agent).filter(
+                or_(models.Agent.session_id == agent_name, models.Agent.name == agent_name)).first()
             agent.kill_date = kill_date
+            Session().commit()
 
             # task the agent
             main.agents.add_agent_task_db(agent_name, "TASK_SHELL", "Set-KillDate " + str(kill_date))
@@ -1209,11 +1350,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             # update the agent log
             msg = "Tasked agent to set killdate to " + str(kill_date)
             main.agents.save_agent_log(agent_name, msg)
-
-            Session.commit()
-
             return jsonify({'success': True})
-
         except:
             return jsonify({'error': 'Unable to update agent killdate'})
 
@@ -1235,9 +1372,10 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             working_hours = request.json['working_hours']
             working_hours = working_hours.replace(",", "-")
 
-            # update this agent's information in the database
-            agent = Session().query(models.Agent).filter(models.Agent.session_id == agent_name).first()
+            agent = Session().query(models.Agent).filter(
+                or_(models.Agent.session_id == agent_name, models.Agent.name == agent_name)).first()
             agent.working_hours = working_hours
+            Session().commit()
 
             # task the agent
             main.agents.add_agent_task_db(agent_name, "TASK_SHELL", "Set-WorkingHours " + str(working_hours))
@@ -1245,9 +1383,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             # update the agent log
             msg = "Tasked agent to set working hours to " + str(working_hours)
             main.agents.save_agent_log(agent_name, msg)
-
-            Session().commit()
-
             return jsonify({'success': True})
         except:
             return jsonify({'error': 'Unable to update agent working hours'})
@@ -2183,8 +2318,6 @@ def run(args):
         user = Session().query(models.User).filter(models.User.username == username).first()
         Session().delete(user)
         Session().commit()
-
-    database_check_docker()
 
     if not args.restport:
         args.restport = '1337'

@@ -28,9 +28,12 @@ function Get-SystemDNSServer
         if($interface.OperationalStatus -eq "Up")
         {
             $DNSConfig = $interface.GetIPProperties().DnsAddresses
-            if (!$DNSConfig.IsIPv6SiteLocal)
+            foreach ($DNSConfigItem in $DNSConfig)
             {
-                $DNSServerAddresses += $DNSConfig
+                if (!$DNSConfigItem.IsIPv6SiteLocal)
+                {
+                    $DNSServerAddresses += $DNSConfigItem
+                }
             }
         }
     }

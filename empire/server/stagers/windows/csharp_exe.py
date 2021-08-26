@@ -13,7 +13,7 @@ class Stager(object):
 
             'Author': ['@elitest', '@hubbl3'],
 
-            'Description': ('Generate a PowerShell C#  solution with embedded stager code that compiles to an exe'),
+            'Description': 'Generate a PowerShell C#  solution with embedded stager code that compiles to an exe',
 
             'Comments': [
                 'Based on the work of @bneg'
@@ -35,7 +35,7 @@ class Stager(object):
                 'Description': 'Language of the stager to generate(powershell, csharp).',
                 'Required': True,
                 'Value': 'net40',
-                'SuggestedValues': ['net35','net40'],
+                'SuggestedValues': ['net35', 'net40'],
                 'Strict': True
             },
             'Listener': {

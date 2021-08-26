@@ -13,7 +13,9 @@ from typing import Dict, Optional, Tuple
 
 import base64
 import yaml
+from sqlalchemy import and_
 
+from empire.server.common.hooks import hooks
 from empire.server.utils import data_util
 from empire.server.common import obfuscation
 from empire.server.common.config import empire_config
@@ -111,11 +113,15 @@ class Modules(object):
                                                           module_name=module.name,
                                                           uid=user_id)
 
+        task = Session().query(models.Tasking).filter(and_(models.Tasking.id == task_id,
+                                                           models.Tasking.agent_id == session_id)).first()
+        hooks.run_hooks(hooks.AFTER_TASKING_HOOK, task)
+
         # update the agent log
         msg = f"tasked agent {session_id} to run module {module.name}"
         self.main_menu.agents.save_agent_log(session_id, msg)
 
-        if empire_config.yaml.get('modules.retain-last-value', True):
+        if empire_config.yaml.get('modules',{}).get('retain-last-value', True):
             self._set_default_values(module, cleaned_options)
 
         return {'success': True, 'taskID': task_id, 'msg': msg}, None

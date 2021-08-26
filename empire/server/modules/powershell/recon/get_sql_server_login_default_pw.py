@@ -19,7 +19,7 @@ class Module(object):
         check_all = params['CheckAll']
 
         # read in the common module source code
-        module_source = main_menu.installPath + "data/module_source/recon/Get-SQLServerLoginDefaultPw.ps1"
+        module_source = main_menu.installPath + "/data/module_source/recon/Get-SQLServerLoginDefaultPw.ps1"
         script = ""
         if obfuscate:
             data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
@@ -31,7 +31,7 @@ class Module(object):
             return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
         if check_all:
-            module_source = main_menu.installPath + "data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
+            module_source = main_menu.installPath + "/data/module_source/situational_awareness/network/Get-SQLInstanceDomain.ps1"
             if obfuscate:
                 data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
                 module_source = module_source.replace("module_source", "obfuscated_module_source")

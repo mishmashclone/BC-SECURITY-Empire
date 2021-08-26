@@ -1048,18 +1048,19 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         :param agent_name:
         :return:
         """
-        num_results = int(request.args.get('num_results', 10))
-
-        tasks = Session().query(models.Tasking.id,
+        query = Session().query(models.Tasking.id,
                                 models.Tasking.input,
                                 models.Tasking.agent_id,
                                 models.Tasking.user_id,
                                 models.User.username) \
             .filter(models.Tasking.agent_id == agent_name) \
             .join(models.User, models.Tasking.user_id == models.User.id) \
-            .order_by(models.Tasking.id.asc()) \
-            .limit(num_results) \
-            .all()
+            .order_by(models.Tasking.id.asc())
+
+        if request.args.get('num_results'):
+            query.limit(request.args.get('num_results'))
+
+        tasks = query.all()
 
         agent_tasks = []
         for task in tasks:
@@ -1068,7 +1069,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                  'agent': task.agent_id, 'user_id': task.user_id,
                  'username': task.username})
 
-        return jsonify({'agent': agent_tasks})
+        return jsonify({'tasks': agent_tasks})
 
     @app.route('/api/agents/<string:agent_name>/task', methods=['GET'])
     def get_agent_tasks(agent_name):

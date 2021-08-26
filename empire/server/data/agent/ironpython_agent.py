@@ -1006,8 +1006,10 @@ def run_command(command, cmdargs=None):
     elif re.compile("ps").match(command):
         return os.popen('tasklist').read()
     else:
+        if cmdargs is None:
+            cmdargs = ''
         command = "{} {}".format(command, cmdargs)
-        return os.popen(command)
+        return os.popen(command).read()
 
 
 def get_file_part(filePath, offset=0, chunkSize=512000, base64=True):

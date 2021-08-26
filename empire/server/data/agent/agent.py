@@ -1018,11 +1018,14 @@ def run_command(command, cmdargs=None):
     elif (re.compile("ps").match(command)) and (platform.python_implementation() == 'IronPython'):
         return os.popen('tasklist').read()
     else:
-        if cmdargs != None:
-            command = "{} {}".format(command,cmdargs)
+        if platform.python_implementation() == 'IronPython':
+            return os.popen(command + ' ' + cmdargs).read()
+        else:
+            if cmdargs != None:
+                command = "{} {}".format(command, cmdargs)
 
-        p = subprocess.Popen(command, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        return p.communicate()[0].strip().decode('UTF-8')
+            p = subprocess.Popen(command, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+            return p.communicate()[0].strip().decode('UTF-8')
 
 def get_file_part(filePath, offset=0, chunkSize=512000, base64=True):
 

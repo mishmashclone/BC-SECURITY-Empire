@@ -24,7 +24,8 @@ from empire.server.common import obfuscation
 from empire.server.common import packets
 from empire.server.common import templating
 from empire.server.utils import data_util
-
+from empire.server.database.base import Session
+from empire.server.database import models
 
 class Listener(object):
     
@@ -717,7 +718,7 @@ class Listener(object):
             print(helpers.color(
                 "[!] listeners/http generate_stager(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
     
-    def generate_agent(self, listenerOptions, language=None, obfuscate=False, obfuscationCommand=""):
+    def generate_agent(self, listenerOptions, language=None, obfuscate=False, obfuscationCommand="", version=''):
         """
         Generate the full agent code needed for communications with this listener.
         """
@@ -768,7 +769,10 @@ class Listener(object):
             return code
         
         elif language == 'python':
-            f = open(self.mainMenu.installPath + "/data/agent/agent.py")
+            if version == 'ironpython':
+                f = open(self.mainMenu.installPath + "/data/agent/ironpython_agent.py")
+            else:
+                f = open(self.mainMenu.installPath + "/data/agent/agent.py")
             code = f.read()
             f.close()
             
@@ -1229,11 +1233,18 @@ def send_message(packets=None):
                                 tempListenerOptions['Host']['Value'] = hopListener.options['Host']['Value']
                             else:
                                 tempListenerOptions = listenerOptions
-                            
+
+                            session_info = Session().query(models.Agent).filter(models.Agent.session_id == sessionID).first()
+                            if session_info.language == 'ironpython':
+                                version = 'ironpython'
+                            else:
+                                version = ''
+
                             # step 6 of negotiation -> server sends patched agent.ps1/agent.py
                             agentCode = self.generate_agent(language=language, listenerOptions=tempListenerOptions,
                                                             obfuscate=self.mainMenu.obfuscate,
-                                                            obfuscationCommand=self.mainMenu.obfuscateCommand)
+                                                            obfuscationCommand=self.mainMenu.obfuscateCommand,
+                                                            version=version)
                             encryptedAgent = encryption.aes_encrypt_then_hmac(sessionKey, agentCode)
                             # TODO: wrap ^ in a routing packet?
                             

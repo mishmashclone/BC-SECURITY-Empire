@@ -1,0 +1,60 @@
+name: powershell_execution
+authors:
+  - '@Cx01N'
+description: Simple Port Scanner.
+software: ''
+techniques:
+  - T1046
+background: true
+output_extension:
+needs_admin: false
+opsec_safe: true
+language: python
+min_language_version: '2.6'
+comments:
+  - CIDR Parser credits to http://bibing.us.es/proyectos/abreproy/12106/fichero/ARCHIVOS%252Fservidor_xmlrpc%252Fcidr.py
+options:
+  - name: Agent
+    description: Agent to execute module on.
+    required: true
+    value: ''
+script: |
+  from System import Environment
+  import clr, System
+
+  clr.AddReference("System.Management.Automation")
+  from System.Management.Automation import Runspaces
+  myrunspace = Runspaces.RunspaceFactory.CreateRunspace()
+  myrunspace.Open()
+  pipeline = myrunspace.CreatePipeline()
+  pipeline.Commands.AddScript("""
+      $owners = @{}
+      Get-WmiObject win32_process | ForEach-Object {$o = $_.getowner(); if(-not $($o.User)) {$o='N/A'} else {$o="$($o.Domain)\$($o.User)"}; $owners[$_.handle] = $o}
+      $p = '*'
+      $output = Get-Process $p | ForEach-Object {
+          $arch = 'x64'
+          if ([System.IntPtr]::Size -eq 4) {
+              $arch = 'x86'
+          }
+          else{
+              foreach($module in $_.modules) {
+                  if([System.IO.Path]::GetFileName($module.FileName).ToLower() -eq "wow64.dll") {
+                      $arch = 'x86'
+                      break
+                  }
+              }
+          }
+          $out = New-Object psobject
+          $out | Add-Member Noteproperty 'ProcessName' $_.ProcessName
+          $out | Add-Member Noteproperty 'PID' $_.ID
+          $out | Add-Member Noteproperty 'Arch' $arch
+          $out | Add-Member Noteproperty 'UserName' $owners[$_.id.tostring()]
+          $mem = "{0:N2} MB" -f $($_.WS/1MB)
+          $out | Add-Member Noteproperty 'MemUsage' $mem
+          $out
+      } | Sort-Object -Property PID
+      $output | Format-Table -wrap | Out-String
+  """)
+  results = pipeline.Invoke();
+  for result in results:
+      print(result)

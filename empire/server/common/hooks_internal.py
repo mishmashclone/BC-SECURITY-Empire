@@ -62,7 +62,7 @@ def ps_filter(tasking: models.Tasking):
 
     if the results are from the Python or C# agents, it does nothing.
     """
-    if tasking.input.strip() not in ['ps', 'tasklist'] or tasking.agent.language != 'powershell':
+    if tasking.input.strip() not in ['ps', 'tasklist'] or tasking.agent.language not in ['powershell', 'ironpython']:
         return tasking
 
     output = json.loads(tasking.output.decode('utf-8'))

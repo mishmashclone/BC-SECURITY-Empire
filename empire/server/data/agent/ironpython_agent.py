@@ -1011,32 +1011,31 @@ def run_command(command, cmdargs=None):
         myrunspace.Open()
         pipeline = myrunspace.CreatePipeline()
         pipeline.Commands.AddScript("""
-           $owners = @{};
-           Get-WmiObject win32_process | ForEach-Object {$o = $_.getowner(); if(-not $($o.User)) {$o='N/A'} else {$o="$($o.Domain)\$($o.User)"}; $owners[$_.handle] = $o}
-           $p = '*';
-           $output = Get-Process $p | ForEach-Object {
-               $arch = 'x64';
-               if ([System.IntPtr]::Size -eq 4) {
-                   $arch = 'x86';
-               }
-               else{
-                   foreach($module in $_.modules) {
-                       if([System.IO.Path]::GetFileName($module.FileName).ToLower() -eq "wow64.dll") {
-                           $arch = 'x86';
-                           break;
-                       }
-                   }
-               }
-               $out = New-Object psobject;
-               $out | Add-Member Noteproperty 'ProcessName' $_.ProcessName;
-               $out | Add-Member Noteproperty 'PID' $_.ID;
-               $out | Add-Member Noteproperty 'Arch' $arch;
-               $out | Add-Member Noteproperty 'UserName' $owners[$_.id.tostring()];
-               $mem = "{0:N2} MB" -f $($_.WS/1MB);
-               $out | Add-Member Noteproperty 'MemUsage' $mem;
-               $out;
-           } | Sort-Object -Property PID;
-           $output | Format-Table -wrap | Out-String;
+                               $owners = @{}
+                    Get-WmiObject win32_process | ForEach-Object {$o = $_.getowner(); if(-not $($o.User)) {$o='N/A'} else {$o="$($o.Domain)\$($o.User)"}; $owners[$_.handle] = $o}
+                    $p = "*";
+                    $output = Get-Process $p | ForEach-Object {
+                        $arch = 'x64';
+                        if ([System.IntPtr]::Size -eq 4) {
+                            $arch = 'x86';
+                        }
+                        else{
+                            foreach($module in $_.modules) {
+                                if([System.IO.Path]::GetFileName($module.FileName).ToLower() -eq "wow64.dll") {
+                                    $arch = 'x86';
+                                    break;
+                                }
+                            }
+                        }
+                        $out = New-Object psobject
+                        $out | Add-Member Noteproperty 'ProcessName' $_.ProcessName
+                        $out | Add-Member Noteproperty 'PID' $_.ID
+                        $out | Add-Member Noteproperty 'Arch' $arch
+                        $out | Add-Member Noteproperty 'UserName' $owners[$_.id.tostring()]
+                        $mem = "{0:N2} MB" -f $($_.WS/1MB)
+                        $out | Add-Member Noteproperty 'MemUsage' $mem
+                        $out
+                    } | Sort-Object -Property PID | ConvertTo-Json;
         """)
         results = pipeline.Invoke()
         buffer = StringIO()
@@ -1049,8 +1048,8 @@ def run_command(command, cmdargs=None):
     else:
         if cmdargs is None:
             cmdargs = ''
-        command = "{} {}".format(command, cmdargs)
-        return os.popen(command).read()
+        cmd = "{} {}".format(command, cmdargs)
+        return os.popen(cmd).read()
 
 
 def get_file_part(filePath, offset=0, chunkSize=512000, base64=True):

@@ -471,7 +471,6 @@ def process_packet(packetType, data, resultID):
 
     elif packetType == 110:
         start_job(data, resultID)
-        #send_message(build_response_packet(110, "job %s started" %(len(jobs)-1), resultID))
 
     elif packetType == 111:
         # TASK_CMD_JOB_SAVE

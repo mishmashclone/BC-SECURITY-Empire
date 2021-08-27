@@ -2355,7 +2355,7 @@ def run(args):
         thread.start()
         sleep(2)
 
-        thread2 = helpers.KThread(target=thread_websocket, resultID False))
+        thread2 = helpers.KThread(target=thread_websocket, args=(main, False))
         thread2.daemon = True
         thread2.start()
         sleep(2)

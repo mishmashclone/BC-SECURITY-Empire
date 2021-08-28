@@ -27,6 +27,7 @@ from empire.server.utils import data_util
 from empire.server.database.base import Session
 from empire.server.database import models
 
+
 class Listener(object):
     
     def __init__(self, mainMenu, params=[]):

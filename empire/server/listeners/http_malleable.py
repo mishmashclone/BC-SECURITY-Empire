@@ -27,6 +27,8 @@ from empire.server.common import templating
 from empire.server.database import models
 from empire.server.database.base import Session
 from empire.server.utils import data_util
+from empire.server.database.base import Session
+from empire.server.database import models
 
 
 class Listener(object):
@@ -692,8 +694,7 @@ class Listener(object):
 
         return None
 
-
-    def generate_agent(self, listenerOptions, language=None, obfuscate=False, obfuscationCommand=""):
+    def generate_agent(self, listenerOptions, language=None, obfuscate=False, obfuscationCommand="", version=''):
         """
         Generate the full agent code needed for communications with the listener.
         """
@@ -746,11 +747,13 @@ class Listener(object):
             return code
 
         elif language == 'python':
-
             # read in the agent base
-            code = ""
-            with open(self.mainMenu.installPath + "/data/agent/agent.py") as f:
-                code = f.read()
+            if version == 'ironpython':
+                f = open(self.mainMenu.installPath + "/data/agent/ironpython_agent.py")
+            else:
+                f = open(self.mainMenu.installPath + "/data/agent/agent.py")
+            code = f.read()
+            f.close()
 
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
@@ -1240,8 +1243,19 @@ class Listener(object):
                                                 except TypeError:
                                                     tempListenerOptions = listenerOptions
 
+                                        session_info = Session().query(models.Agent).filter(
+                                            models.Agent.session_id == sessionID).first()
+                                        if session_info.language == 'ironpython':
+                                            version = 'ironpython'
+                                        else:
+                                            version = ''
+
                                         # generate agent
-                                        agentCode = self.generate_agent(language=language, listenerOptions=(tempListenerOptions if tempListenerOptions else listenerOptions), obfuscate=self.mainMenu.obfuscate, obfuscationCommand=self.mainMenu.obfuscateCommand)
+                                        agentCode = self.generate_agent(language=language,
+                                                                        listenerOptions=(tempListenerOptions if tempListenerOptions else listenerOptions),
+                                                                        obfuscate=self.mainMenu.obfuscate,
+                                                                        obfuscationCommand=self.mainMenu.obfuscateCommand,
+                                                                        version=version)
                                         encryptedAgent = encryption.aes_encrypt_then_hmac(sessionKey, agentCode)
 
                                         # build malleable response with agent

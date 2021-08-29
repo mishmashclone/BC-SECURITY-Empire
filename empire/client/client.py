@@ -33,6 +33,7 @@ from empire.client.src.menus.UseModuleMenu import use_module_menu
 from empire.client.src.menus.UsePluginMenu import use_plugin_menu
 from empire.client.src.menus.UseStagerMenu import use_stager_menu
 from empire.client.src.menus.UseCredentialMenu import use_credential_menu
+from empire.client.src.menus.SponsorsMenu import sponsors_menu
 from empire.client.src.utils import print_util
 
 
@@ -101,7 +102,8 @@ class EmpireCli(object):
             'PluginMenu': plugin_menu,
             'UsePluginMenu': use_plugin_menu,
             'AdminMenu': admin_menu,
-            'ChatMenu': chat_menu
+            'ChatMenu': chat_menu,
+            'SponsorsMenu': sponsors_menu
         }
         for menu in self.menus.values():
             state.register_menu(menu)
@@ -236,6 +238,8 @@ class EmpireCli(object):
             menu_state.current_menu.send_chat(text)
         elif text.strip() == 'agents':
             menu_state.push(self.menus['AgentMenu'])
+        elif text.strip() == 'sponsors':
+            menu_state.push(self.menus['SponsorsMenu'])
         elif text.strip() == 'credentials':
             menu_state.push(self.menus['CredentialMenu'])
         elif text.strip() == 'plugins':

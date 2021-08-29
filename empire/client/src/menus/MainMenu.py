@@ -126,6 +126,7 @@ class MainMenu(Menu):
         help_list.append(['credentials', 'Add/display credentials to/from the database.', 'credentials'])
         help_list.append(['admin', 'View admin menu', 'admin'])
         help_list.append(['interact', 'Interact with active listeners.', 'interact <agent_name>'])
+        help_list.append(['sponsors', 'List of Empire sponsors.', 'sponsors'])
 
         help_list.sort()
         help_list.insert(0, ['Name', 'Description', 'Usage'])

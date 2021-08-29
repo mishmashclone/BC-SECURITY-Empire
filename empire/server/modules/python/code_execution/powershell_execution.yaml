@@ -1,7 +1,7 @@
 name: powershell_execution
 authors:
   - '@Cx01N'
-description: Simple Port Scanner.
+description: Executes Powershell code from a Python code.
 software: ''
 techniques:
   - T1046

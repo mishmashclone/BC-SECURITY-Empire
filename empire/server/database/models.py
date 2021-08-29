@@ -1,6 +1,7 @@
 import enum
 
-from sqlalchemy import Column, Integer, Sequence, String, Boolean, ForeignKey, PickleType, Float, Text, Enum
+from sqlalchemy import Column, Integer, Sequence, String, Boolean, ForeignKey, PickleType, Float, Text, Enum, \
+    UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, deferred
@@ -49,10 +50,21 @@ class Listener(Base):
         self.__dict__[key] = value
 
 
+class Host(Base):
+    __tablename__ = 'hosts'
+    id = Column(Integer, Sequence("host_id_seq"), primary_key=True)
+    name = Column(String(255), nullable=False)
+    internal_ip = Column(String(255))
+
+    UniqueConstraint(name, internal_ip)
+
+
 class Agent(Base):
     __tablename__ = 'agents'
     id = Column(Integer, Sequence("agent_id_seq"), primary_key=True)
     name = Column(String(255), nullable=False)
+    host_id = Column(Integer, ForeignKey('hosts.id'))
+    host = relationship(Host, lazy="joined")
     listener = Column(String(255), nullable=False)
     session_id = Column(String(255), nullable=False, unique=True)
     language = Column(String(255))
@@ -106,6 +118,18 @@ class AgentFile(Base):
     path = Column(Text, nullable=False)
     is_file = Column(Boolean, nullable=False)
     parent_id = Column(Integer, ForeignKey('agent_files.id', ondelete='CASCADE'), nullable=True)
+
+
+class HostProcess(Base):
+    __tablename__ = 'host_processes'
+    host_id = Column(String(255), ForeignKey('hosts.id'), primary_key=True)
+    process_id = Column(Integer, primary_key=True)
+    process_name = Column(Text)
+    architecture = Column(String(255))
+    user = Column(String(255))
+    agent = relationship(Agent,
+                         lazy="joined",
+                         primaryjoin="and_(Agent.process_id==foreign(HostProcess.process_id), Agent.host_id==foreign(HostProcess.host_id), Agent.killed == False)")
 
 
 class Config(Base):
@@ -162,10 +186,14 @@ class TaskingStatus(enum.Enum):
 class Tasking(Base):
     __tablename__ = 'taskings'
     id = Column(Integer, primary_key=True)
-    agent = Column(String(255), ForeignKey('agents.session_id'), primary_key=True)
+    agent_id = Column(String(255), ForeignKey('agents.session_id'), primary_key=True)
+    agent = relationship(Agent, lazy="joined", innerjoin=True)
     input = Column(Text)
     input_full = deferred(Column(Text))
     output = Column(Text, nullable=True)
+    # In most cases, this isn't needed and will match output. However, with the filter feature, we want to store
+    # a copy of the original output if it gets modified by a filter.
+    original_output = deferred(Column(Text, nullable=True))
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     user = relationship(User)
     created_at = Column(UtcDateTime, default=utcnow(), nullable=False)

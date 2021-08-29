@@ -6,6 +6,7 @@ import time
 from typing import List
 
 from prompt_toolkit.completion import Completion
+from prompt_toolkit import HTML
 
 from empire.client.src.EmpireCliState import state
 from empire.client.src.Shortcut import Shortcut
@@ -50,15 +51,24 @@ class InteractMenu(Menu):
                 if params[position - 1].lower() == 'agent':
                     for agent in filtered_search_list(word_before_cursor, state.agents.keys()):
                         yield Completion(agent, start_position=-len(word_before_cursor))
+        elif cmd_line[0] in ['view']:
+            tasks = state.get_agent_tasks_slim(self.session_id)
+            tasks = {str(x['taskID']): x for x in tasks['tasks']}
+
+            for task_id in filtered_search_list(word_before_cursor, tasks.keys()):
+                full = tasks[task_id]
+                help_text = print_util.truncate(
+                    f"{full.get('command', '')[:30]}, {full.get('username', '')}", width=75)
+                yield Completion(task_id,
+                                 display=HTML(f"{full['taskID']} <purple>({help_text})</purple>"),
+                                 start_position=-len(word_before_cursor))
 
     def on_enter(self, **kwargs) -> bool:
         if 'selected' not in kwargs:
             return False
         else:
             self.use(kwargs['selected'])
-
             self.display_cached_results()
-
             return True
 
     def get_prompt(self) -> str:
@@ -278,6 +288,19 @@ class InteractMenu(Menu):
                 print(print_util.color(task['results']))
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
+
+    @command
+    def view(self, task_id: str):
+        """
+        View specific task and result
+
+        Usage: view <task_id>
+        """
+        task = state.get_agent_task(self.session_id,task_id)
+        record_list = []
+        for key, value in task.items():
+            record_list.append([print_util.color(key, 'blue'), value])
+        table_util.print_table(record_list, 'View Task', colored_header=False, no_borders=True)
 
     def execute_shortcut(self, command_name: str, params: List[str]):
         shortcut: Shortcut = shortcut_handler.get(self.agent_language, command_name)

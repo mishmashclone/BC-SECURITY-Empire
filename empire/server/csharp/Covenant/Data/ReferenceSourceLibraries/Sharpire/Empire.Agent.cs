@@ -239,7 +239,7 @@ namespace Sharpire
                 {
                     output = "no shell command supplied";
                 }
-                output += "\n\r..Command execution completed.";
+                output += "\n\r";
             }
             else
             {

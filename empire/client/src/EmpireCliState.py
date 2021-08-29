@@ -195,7 +195,7 @@ class EmpireCliState(object):
         response = requests.delete(url=f'{self.host}:{self.port}/api/listeners/{listener_name}',
                                    verify=False,
                                    params={'token': self.token})
-
+        self.get_listeners()
         return response.json()
 
     def disable_listener(self, listener_name: str):
@@ -413,6 +413,20 @@ class EmpireCliState(object):
         response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/task',
                                 verify=False,
                                 params={'token': self.token, 'num_results': num_results})
+
+        return response.json()
+
+    def get_agent_tasks_slim(self, agent_name):
+        response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/task/slim',
+                                verify=False,
+                                params={'token': self.token})
+
+        return response.json()
+
+    def get_agent_task(self, agent_name, task_id):
+        response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/task/{task_id}',
+                                verify=False,
+                                params={'token': self.token})
 
         return response.json()
 

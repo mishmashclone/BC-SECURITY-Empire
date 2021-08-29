@@ -239,6 +239,14 @@ MarkupSafe = ">=2.0.0rc2"
 i18n = ["Babel (>=2.7)"]
 
 [[package]]
+name = "jq"
+version = "1.1.3"
+description = "jq is a lightweight and flexible JSON processor."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[[package]]
 name = "macholib"
 version = "1.14"
 description = "Mach-O header analysis and editing"
@@ -649,7 +657,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "b04851ff6588403135296bd74869fb57c1789280adca2091762f521eb82e9c44"
+content-hash = "8327f8de303017bab7a0383df4ac1f386b2194bdbf4073145c220d413b04b6c0"
 
 [metadata.files]
 altgraph = [
@@ -831,6 +839,52 @@ itsdangerous = [
 jinja2 = [
     {file = "Jinja2-3.0.0-py3-none-any.whl", hash = "sha256:2f2de5285cf37f33d33ecd4a9080b75c87cd0c1994d5a9c6df17131ea1f049c6"},
     {file = "Jinja2-3.0.0.tar.gz", hash = "sha256:ea8d7dd814ce9df6de6a761ec7f1cac98afe305b8cdc4aaae4e114b8d8ce24c5"},
+]
+jq = [
+    {file = "jq-1.1.3-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:8e68a254216dbf343c9c2a240e17b28aecbe9987b557d396bf95bdda3ece82b1"},
+    {file = "jq-1.1.3-cp27-cp27m-manylinux1_i686.whl", hash = "sha256:c4691b058ed4f390ef8bfbbf3abfcb3afe60d6e91e6da43a6bab972d9b7b9907"},
+    {file = "jq-1.1.3-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:53024d227e50d13d81cbd5288085ae5d7881c05f957951a16388f1723633961f"},
+    {file = "jq-1.1.3-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:0e67d9723342fd1a09a8f0c7e64973e697ccfd611e049c65a5533eea7089a623"},
+    {file = "jq-1.1.3-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:077bb47273e98e3d4f903909d35eb0f0499a942e488bd74aeef21ba29369cd1e"},
+    {file = "jq-1.1.3-cp27-cp27mu-manylinux1_i686.whl", hash = "sha256:8fcf5042228c7a7c8573b2de8ddfc427b2f4c5633e5eb96e07b7351ad01c8ce2"},
+    {file = "jq-1.1.3-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:c14f3803955f9e80795d5c630b9c0b7b1d3601b90721bad1645c624878783039"},
+    {file = "jq-1.1.3-cp27-cp27mu-manylinux2010_i686.whl", hash = "sha256:2a92329fb345476477377a3fb968ae1993544a08c10ed17e494d185cde465cf5"},
+    {file = "jq-1.1.3-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:47a10543439512c943376736ae53664f1a6a28d06c4e663c67f77dcc2153a341"},
+    {file = "jq-1.1.3-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:a876e74391c3e1e402304b9421f99ff8187c71e1f250ae52138f93ff9c82239a"},
+    {file = "jq-1.1.3-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:ed1117b5eda08821bf8084a7cab5ee4b010f96afa3663290ebfcf24da7682d4f"},
+    {file = "jq-1.1.3-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:03e17e9dcb906c3b10df5c675acebaccff3e61060dca3d5b3d60f35c2af38f8c"},
+    {file = "jq-1.1.3-cp35-cp35m-manylinux2010_i686.whl", hash = "sha256:d09a150e18246d7245347011de6b711e9e1ec5abb00fb2baa9c96c810e10afb6"},
+    {file = "jq-1.1.3-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:544a18a39cc123699f894486f74681a19d7e407660c42aa78967497d021b7b23"},
+    {file = "jq-1.1.3-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:7367f67e8f232587694cd1840bf7dbfc59b1204caec5620a77b68a53c7770ddf"},
+    {file = "jq-1.1.3-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:392c5718c7b642e882a12e0d15cc52c59bc9b3e21c8b39330c10d052e3835abe"},
+    {file = "jq-1.1.3-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:5ed01ec10241460f5f78a08aa05da3b740037f9c840c4f6c8e9a79f7aeaf2f1c"},
+    {file = "jq-1.1.3-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:475a2a348f08b4be11638a6af3ae2799f9f266da65c81eb08b7c417bd3efcb06"},
+    {file = "jq-1.1.3-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:81dad8a1768d40cbb8b523422b1ac8e618e66588974891ad72696943a8c50762"},
+    {file = "jq-1.1.3-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:e2d96a54978055159bdc338bb6ddf589d171643d7f54bda2d54c5a0309bdaed6"},
+    {file = "jq-1.1.3-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:76bf0aacd04584ea72555dc1c61803ccb8c76f55b5910cc15e328513cbae3a04"},
+    {file = "jq-1.1.3-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:af4cf18ab201f6f8fcdce3611f0a0c09910d70e794796a9232705619e432d2cc"},
+    {file = "jq-1.1.3-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:09bba3037b7dd667b9630e3b3d5b2d755a89a8751de302c6580aa0b551de8434"},
+    {file = "jq-1.1.3-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:594f660f97ef71bd2aa112a285246da11f11b54a21af4af5c567cd29853dd273"},
+    {file = "jq-1.1.3-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:e60a31097d34659a13581fbae07f207c4fcf9a302754476be19521c886858f5e"},
+    {file = "jq-1.1.3-cp38-cp38-manylinux1_i686.whl", hash = "sha256:2437f3742ea7a33d8c259c9718811c54f0bfded5b06baf2efa9a12a0c2134d19"},
+    {file = "jq-1.1.3-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:2d8cfdafbde9be2a970b34d8f47af0a57dd86238f2514e7706bdd8d49e989e94"},
+    {file = "jq-1.1.3-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:6c90e2e93256d53fd41318f5e835a31c49a458e8866d46685a40f06537e6833d"},
+    {file = "jq-1.1.3-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:f9568fb1344fba6e298cc03f09425caac3d076e1509c6b06bb78eb34b975bc10"},
+    {file = "jq-1.1.3-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:b42490d80c5a8d46ade11f39a9e5353e893208dea66c3e434c483ab916372070"},
+    {file = "jq-1.1.3-cp39-cp39-manylinux1_i686.whl", hash = "sha256:995ce5a147879a84f7689462c49469ce4353e7b8f64eba46ead569343901009c"},
+    {file = "jq-1.1.3-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:4de997046cf7cc78e264ce2fac25b6df4350cc543e666541cc602046b107478e"},
+    {file = "jq-1.1.3-cp39-cp39-manylinux2010_i686.whl", hash = "sha256:f8a250c94f16b84e632090050bd2e8170628755bb3d97e93059e9dd6f83c5e06"},
+    {file = "jq-1.1.3-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:9576faff90a7cf0c04c2b7d5c3b3c72e8ed7fc428e434fa8ba40994c1f92fcd4"},
+    {file = "jq-1.1.3-pp27-pypy_73-macosx_10_7_x86_64.whl", hash = "sha256:d23d16f3d216da74136d9102ebeb0514a1e64b9ca71bcb4e23389e229a975faa"},
+    {file = "jq-1.1.3-pp27-pypy_73-manylinux1_x86_64.whl", hash = "sha256:db4ad30759b0a33bb3f2dbf4a5f4d7e2a3ff9c363ed7bf32f5a8cd79bace82b6"},
+    {file = "jq-1.1.3-pp27-pypy_73-manylinux2010_x86_64.whl", hash = "sha256:a1d3df8221e393dcfa70b566b44ac36d51701bd85eeba05fd17336320d499c0f"},
+    {file = "jq-1.1.3-pp36-pypy36_pp73-macosx_10_7_x86_64.whl", hash = "sha256:eee674fc6b647ddf9c981ddad9826eee6149a0760fafd6531818b3ca1040ca61"},
+    {file = "jq-1.1.3-pp36-pypy36_pp73-manylinux1_x86_64.whl", hash = "sha256:fac8e8a20415469470d38e209cf7c87ac91cac9d5234b2ea3e22e83ca97ed7ef"},
+    {file = "jq-1.1.3-pp36-pypy36_pp73-manylinux2010_x86_64.whl", hash = "sha256:f628b1fc32e3c5121aa15e1d72827fd167e404b9a53372c8fb94b2b72c919c30"},
+    {file = "jq-1.1.3-pp37-pypy37_pp73-macosx_10_7_x86_64.whl", hash = "sha256:be94ac6eabad84fedc198380fcad04adfe879d8b64ca09e0dab9a6770b55c583"},
+    {file = "jq-1.1.3-pp37-pypy37_pp73-manylinux1_x86_64.whl", hash = "sha256:5efccce1c9653ef8893b4b9cdbfe8049dbe8b0c80fc143eb3cd3503056dbc9a0"},
+    {file = "jq-1.1.3-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:bae856359ad00306424c026767fef6843dc680ce5c1d3352f762bb2432e49513"},
+    {file = "jq-1.1.3.tar.gz", hash = "sha256:f9ec1dfa7f9875b04495f3e08e85ee96f37a3b843e5bca738a3300732865dde7"},
 ]
 macholib = [
     {file = "macholib-1.14-py2.py3-none-any.whl", hash = "sha256:c500f02867515e6c60a27875b408920d18332ddf96b4035ef03beddd782d4281"},

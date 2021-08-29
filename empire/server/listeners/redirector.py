@@ -12,6 +12,8 @@ from empire.server.common import encryption
 from empire.server.common import helpers
 from empire.server.common import packets
 from empire.server.utils import data_util
+from empire.server.database.base import Session
+from empire.server.database import models
 
 
 class Listener(object):
@@ -461,7 +463,7 @@ class Listener(object):
             print(helpers.color(
                 "[!] listeners/http generate_stager(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
 
-    def generate_agent(self, listenerOptions, language=None, obfuscate=False, obfuscationCommand=""):
+    def generate_agent(self, listenerOptions, language=None, obfuscate=False, obfuscationCommand="", version=''):
         """
         If you want to support staging for the listener module, generate_agent must be
         implemented to return the actual staged agent code.
@@ -510,7 +512,10 @@ class Listener(object):
             return code
 
         elif language == 'python':
-            f = open(self.mainMenu.installPath + "/data/agent/agent.py")
+            if version == 'ironpython':
+                f = open(self.mainMenu.installPath + "/data/agent/ironpython_agent.py")
+            else:
+                f = open(self.mainMenu.installPath + "/data/agent/agent.py")
             code = f.read()
             f.close()
 

@@ -75,7 +75,7 @@ options:
     description: PowerShell's output function to use ("Out-String", "ConvertTo-Json", "ConvertTo-Csv", "ConvertTo-Html", "ConvertTo-Xml").
     required: false
     value: 'ConvertTo-Csv -NoTypeInformation'
-    strict: true
+    strict: false
     suggested_values:
       - Out-String
       - ConvertTo-Json

@@ -36,6 +36,7 @@ class Menu(object):
             'listeners',
             'main',
             'plugins',
+            'sponsors',
             'uselistener',
             'usemodule',
             'useplugin',

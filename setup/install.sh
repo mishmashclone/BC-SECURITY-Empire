@@ -17,8 +17,9 @@ function install_powershell() {
   elif [ $OS_NAME == "KALI" ]; then
     apt update && apt -y install powershell
   fi
+
   mkdir -p /usr/local/share/powershell/Modules
-  cp -r ./empire/server/powershell/Invoke-Obfuscation /usr/local/share/powershell/Modules
+  cp -r "$PARENT_PATH"/empire/server/powershell/Invoke-Obfuscation /usr/local/share/powershell/Modules
   rm -f packages-microsoft-prod.deb*
 }
 
@@ -54,6 +55,8 @@ apt-get update && apt-get install -y wget sudo
 
 sudo -v
 
+# https://stackoverflow.com/questions/24112727/relative-paths-based-on-file-location-instead-of-current-working-directory
+PARENT_PATH=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; cd .. ; pwd -P )
 OS_NAME=
 VERSION_ID=
 if grep "10.*" /etc/debian_version 2>/dev/null; then

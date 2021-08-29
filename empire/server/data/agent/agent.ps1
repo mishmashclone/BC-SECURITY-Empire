@@ -288,7 +288,7 @@ function Invoke-Empire {
                     $output = $StringWriter.ToString()
                     }
             }
-            $output += "`n`r..Command execution completed."
+            $output += "`n`r"
         }
         elseif ($cmd.ToLower() -eq 'reflectiveload'){
             if ($cmdargs.length -eq '') { $output = 'no binary supplied' }

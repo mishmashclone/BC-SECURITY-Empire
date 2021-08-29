@@ -1,3 +1,15 @@
+8/29/2021
+------------
+- Version 4.1.0 Master Release
+        - Correct issue where install script would break depending on the current working directory (@Vinnybod)
+        - Empire client now currently refreshes listener list after killing a listener (@Vinnybod)
+        - Removed the wiki and added a link to the new docs (@Vinnybod)
+        - Added the initial filtering/hooking feature (@Vinnybod)
+        - Fix an issue where the docker builds would not run because it was deleting the database (@Vinnybod)
+        - Added autocomplete for taskings in the Empire Client and added a command to view a specific task (@Cx01N)
+        - Updated the OutputFunction feature to allow for arbitrary values (@Vinnybod)
+        - Added an IronPython3 agent (@Cx01N)
+
 8/16/2021
 ------------
 - Version 4.0.2 Master Release

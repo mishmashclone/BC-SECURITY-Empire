@@ -162,10 +162,9 @@ class Credentials(object):
             print(helpers.color("[!] No credentials in the database."))
             return
 
-        output_file = open(export_path, 'w')
-        output_file.write("CredID,CredType,Domain,Username,Password,Host,OS,SID,Notes\n")
-        for cred in creds:
-            output_file.write("\"%s\"\n" % ('","'.join([str(x) for x in cred])))
+        with open(export_path, 'w') as output_file:
+            output_file.write("CredID,CredType,Domain,Username,Password,Host,OS,SID,Notes\n")
+            for cred in creds:
+                output_file.write("\"%s\"\n" % ('","'.join([str(x) for x in cred])))
 
-        print("\n" + helpers.color("[*] Credentials exported to %s\n" % (export_path)))
-        output_file.close()
+            print("\n" + helpers.color("[*] Credentials exported to %s\n" % (export_path)))

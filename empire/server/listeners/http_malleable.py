@@ -609,9 +609,8 @@ class Listener(object):
         if language.lower() == 'powershell':
 
             # read in the stager base
-            f = open("%s/data/agent/stagers/http.ps1" % (self.mainMenu.installPath))
-            stager = f.read()
-            f.close()
+            with open("%s/data/agent/stagers/http.ps1" % (self.mainMenu.installPath)) as f:
+                stager = f.read()
 
             # Get the random function name generated at install and patch the stager with the proper function name
             stager = data_util.keyword_obfuscation(stager)
@@ -718,9 +717,8 @@ class Listener(object):
 
         if language == 'powershell':
             #read in agent code
-            f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
-            code = f.read()
-            f.close()
+            with open(self.mainMenu.installPath + "/data/agent/agent.ps1") as f:
+                code = f.read()
 
             # Get the random function name generated at install and patch the stager with the proper function name
             code = data_util.keyword_obfuscation(code)

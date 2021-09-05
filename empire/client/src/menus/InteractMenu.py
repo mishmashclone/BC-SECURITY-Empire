@@ -142,8 +142,8 @@ class InteractMenu(Menu):
         Usage: upload <local_file_directory> [destination_file_name]
         """
         file_name = os.path.basename(local_file_directory)
-        open_file = open(local_file_directory, 'rb')
-        file_data = base64.b64encode(open_file.read())
+        with open(local_file_directory, 'rb') as open_file:
+            file_data = base64.b64encode(open_file.read())
 
         if destination_file_name:
             file_name = destination_file_name

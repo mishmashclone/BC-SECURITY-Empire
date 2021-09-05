@@ -347,9 +347,8 @@ def process_packet(packetType, data, resultID):
                                                    "[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!." % (
                                                    dec_data['header_crc32'], dec_data['dec_crc32'],
                                                    dec_data['crc32_check']), resultID))
-            f = open(filePath, 'ab')
-            f.write(dec_data['data'])
-            f.close()
+            with open(filePath, 'ab') as f:
+                f.write(dec_data['data'])
 
             send_message(build_response_packet(42, "[*] Upload of %s successful" % (filePath), resultID))
         except Exception as e:

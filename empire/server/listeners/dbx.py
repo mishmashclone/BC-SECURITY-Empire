@@ -367,9 +367,8 @@ class Listener(object):
         if language.lower() == 'powershell':
 
             # read in the stager base
-            f = open("%s/data/agent/stagers/dropbox.ps1" % (self.mainMenu.installPath))
-            stager = f.read()
-            f.close()
+            with open("%s/data/agent/stagers/dropbox.ps1" % (self.mainMenu.installPath)) as f:
+                stager = f.read()
 
             # patch the server and key information
             stager = stager.replace('REPLACE_STAGING_FOLDER', stagingFolder)
@@ -454,9 +453,8 @@ class Listener(object):
         b64DefaultResponse = base64.b64encode(self.default_response().encode('UTF-8'))
 
         if language == 'powershell':
-            f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
-            code = f.read()
-            f.close()
+            with open(self.mainMenu.installPath + "/data/agent/agent.ps1") as f:
+                code = f.read()
 
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
@@ -592,7 +590,7 @@ class Listener(object):
 
             $"""+helpers.generate_random_script_var_name("wc")+""".Headers.Add('User-Agent', $Script:UserAgent)
             $Script:Headers.GetEnumerator() | ForEach-Object {$"""+helpers.generate_random_script_var_name("wc")+""".Headers.Add($_.Name, $_.Value)}
-            
+
             $ResultsFolder = '"""+ resultsFolder +"""'
 
             try {

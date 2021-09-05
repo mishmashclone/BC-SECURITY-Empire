@@ -487,9 +487,8 @@ def send_message(packets=None):
             uris = [a for a in self.options['DefaultProfile']['Value'].split('|')[0].split(',')]
 
             hopCodeLocation = "%s/data/misc/hop.php" % (self.mainMenu.installPath)
-            f = open(hopCodeLocation, 'r')
-            hopCode = f.read()
-            f.close()
+            with open(hopCodeLocation, 'r') as f:
+                hopCode = f.read()
 
             hopCode = hopCode.replace('REPLACE_SERVER', redirectHost)
             hopCode = hopCode.replace('REPLACE_HOP_NAME', self.options['Name']['Value'])

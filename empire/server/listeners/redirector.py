@@ -372,9 +372,8 @@ class Listener(object):
         if language.lower() == 'powershell':
 
             # read in the stager base
-            f = open("%s/data/agent/stagers/http.ps1" % (self.mainMenu.installPath))
-            stager = f.read()
-            f.close()
+            with open("%s/data/agent/stagers/http.ps1" % (self.mainMenu.installPath)) as f:
+                stager = f.read()
             # Get the random function name generated at install and patch the stager with the proper function name
             stager = data_util.keyword_obfuscation(stager)
             # make sure the server ends with "/"
@@ -427,9 +426,8 @@ class Listener(object):
 
         elif language.lower() == 'python':
             # read in the stager base
-            f = open("%s/data/agent/stagers/http.py" % (self.mainMenu.installPath))
-            stager = f.read()
-            f.close()
+            with open("%s/data/agent/stagers/http.py" % (self.mainMenu.installPath)) as :
+                stager = f.read()
 
             stager = helpers.strip_python_comments(stager)
 
@@ -483,9 +481,8 @@ class Listener(object):
 
         if language == 'powershell':
 
-            f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
-            code = f.read()
-            f.close()
+            with open(self.mainMenu.installPath + "/data/agent/agent.ps1") as f
+                code = f.read()
             # Get the random function name generated at install and patch the stager with the proper function name
             code = data_util.keyword_obfuscation(code)
             # patch in the comms methods
@@ -880,7 +877,7 @@ def send_message(packets=None):
 
                     script = """
                 function Invoke-Redirector {
-                    param($FirewallName, $ListenAddress, $ListenPort, $ConnectHost, [switch]$Reset, [switch]$ShowAll)                   
+                    param($FirewallName, $ListenAddress, $ListenPort, $ConnectHost, [switch]$Reset, [switch]$ShowAll)
                     if($ShowAll){
                         $out = netsh interface portproxy show all
                         if($out){

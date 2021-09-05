@@ -79,6 +79,12 @@ class Modules(object):
         elif module.language == LanguageEnum.powershell:
             module_data = helpers.strip_powershell_comments(module_data)
 
+        # check if module is external
+        if 'Agent' not in params.keys():
+            msg = f"tasked external module: {module.name}"
+            # return success but no task_id for external modules
+            return {'success': True, 'taskID': None, 'msg': msg}, None
+
         session_id = params['Agent']
         task_command = ""
         if module.language == LanguageEnum.csharp:

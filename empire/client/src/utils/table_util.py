@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List
 
 from terminaltables import SingleTable
@@ -6,7 +5,8 @@ from terminaltables import SingleTable
 import empire.client.src.utils.print_util as print_utils
 
 
-def print_table(data: List[List[str]] = None, title: str = '', colored_header: bool = True, no_borders: bool = False):
+def print_table(data: List[List[str]] = None, title: str = '', colored_header: bool = True, no_borders: bool = False,
+                end_space: bool = True):
     if data is None:
         return
 
@@ -28,7 +28,10 @@ def print_table(data: List[List[str]] = None, title: str = '', colored_header: b
 
     print('')
     print(table.table)
-    print('')
+
+    if end_space:
+        print('')
+
 
 def print_agent_table(data: List[List[str]] = None, formatting: List[List[str]] = None, title: str = ''):
     if data is None:

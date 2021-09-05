@@ -135,7 +135,8 @@ class EmpireCliState(object):
         if menu_state.current_menu_name == 'InteractMenu' and menu_state.current_menu.selected == session_id:
             if data['results'] is not None:
                 print(print_util.color('[*] Task ' + str(data['taskID']) + " results received"))
-                print(print_util.color(data['results']))
+                for line in data['results'].split('\n'):
+                    print(print_util.color(line))
         else:
             self.cached_agent_results[session_id][data['taskID']] = data['results']
 

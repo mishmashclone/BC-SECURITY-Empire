@@ -1,8 +1,6 @@
 import base64
 import os
 import textwrap
-import threading
-import time
 from typing import List
 
 from prompt_toolkit.completion import Completion
@@ -284,8 +282,12 @@ class InteractMenu(Menu):
         if 'agent' in response.keys():
             tasks = response['agent']
             for task in tasks:
-                print(print_util.color('[*] Task ' + str(task['taskID']) + " results received"))
-                print(print_util.color(task['results']))
+                if task.get('results'):
+                    print(print_util.color(f'[*] Task {task["taskID"]} results received'))
+                    for line in task.get('results', '').split('\n'):
+                        print(print_util.color(line))
+                else:
+                    print(print_util.color(f'[!] Task {task["taskID"]} No tasking results received'))
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 
@@ -296,11 +298,16 @@ class InteractMenu(Menu):
 
         Usage: view <task_id>
         """
-        task = state.get_agent_task(self.session_id,task_id)
+        task = state.get_agent_task(self.session_id, task_id)
         record_list = []
         for key, value in task.items():
-            record_list.append([print_util.color(key, 'blue'), value])
-        table_util.print_table(record_list, 'View Task', colored_header=False, no_borders=True)
+            # If results exceed a certain length they break the table function
+            if key != 'results':
+                record_list.append([print_util.color(key, 'blue'), value])
+        table_util.print_table(record_list, 'View Task', colored_header=False, no_borders=True, end_space=False)
+        print(print_util.color(" results", "blue"))
+        for line in task['results'].split('\n'):
+            print(print_util.color(line))
 
     def execute_shortcut(self, command_name: str, params: List[str]):
         shortcut: Shortcut = shortcut_handler.get(self.agent_language, command_name)

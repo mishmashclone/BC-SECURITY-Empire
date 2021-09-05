@@ -1089,7 +1089,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         tasks = Session().query(models.Tasking) \
             .filter(models.Tasking.agent_id == agent_name) \
             .options(joinedload(models.Tasking.user)) \
-            .order_by(models.Tasking.id.asc()) \
+            .order_by(models.Tasking.id.desc()) \
             .limit(num_results).all()
 
         agent_tasks = []

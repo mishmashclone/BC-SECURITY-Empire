@@ -426,7 +426,7 @@ class Listener(object):
 
         elif language.lower() == 'python':
             # read in the stager base
-            with open("%s/data/agent/stagers/http.py" % (self.mainMenu.installPath)) as :
+            with open("%s/data/agent/stagers/http.py" % (self.mainMenu.installPath)) as f:
                 stager = f.read()
 
             stager = helpers.strip_python_comments(stager)
@@ -481,7 +481,7 @@ class Listener(object):
 
         if language == 'powershell':
 
-            with open(self.mainMenu.installPath + "/data/agent/agent.ps1") as f
+            with open(self.mainMenu.installPath + "/data/agent/agent.ps1") as f:
                 code = f.read()
             # Get the random function name generated at install and patch the stager with the proper function name
             code = data_util.keyword_obfuscation(code)

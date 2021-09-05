@@ -35,6 +35,11 @@ function Invoke-SSharp
         [string]
         $source
         )
+    # Setting a custom stdout to capture Console.WriteLine output
+    # https://stackoverflow.com/questions/33111014/redirecting-output-from-an-external-dll-in-powershell
+    $OldConsoleOut = [Console]::Out
+    $StringWriter = New-Object IO.StringWriter
+    [Console]::SetOut($StringWriter)
 
     $source = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($source))
 
@@ -48,12 +53,6 @@ function Invoke-SSharp
 
     [Scripting.SSharp.Runtime.RuntimeHost]::Initialize()
     [Scripting.SSharp.Runtime.RuntimeHost]::AddType("Interop", [System.Runtime.InteropServices.DllImportAttribute].GetType())
-
-    # Setting a custom stdout to capture Console.WriteLine output
-    # https://stackoverflow.com/questions/33111014/redirecting-output-from-an-external-dll-in-powershell
-    $OldConsoleOut = [Console]::Out
-    $StringWriter = New-Object IO.StringWriter
-    [Console]::SetOut($StringWriter)
 
     $script = [Scripting.SSharp.Script]::Compile($source)
     $script.Execute()

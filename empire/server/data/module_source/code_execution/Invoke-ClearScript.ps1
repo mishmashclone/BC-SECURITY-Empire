@@ -47,6 +47,12 @@ function Invoke-ClearScript
         $script
         )
 
+    # Setting a custom stdout to capture Console.WriteLine output
+    # https://stackoverflow.com/questions/33111014/redirecting-output-from-an-external-dll-in-powershell
+    $OldConsoleOut = [Console]::Out
+    $StringWriter = New-Object IO.StringWriter
+    [Console]::SetOut($StringWriter)
+
     $script = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($script))
 
     $EncodedCompressedFile = @'
@@ -56,12 +62,6 @@ zL0HnBzFsQfcOzM7s/Hu5na1q3zKGt3eSSBA3BFNjjIIkaPIiDRiVyIdd4icJMCACcIkmWAMTs/h2cYm
     $UncompressedFileBytes = New-Object Byte[](478720)
     $DeflatedStream.Read($UncompressedFileBytes, 0, 478720) | Out-Null
     [Reflection.Assembly]::Load($UncompressedFileBytes) | Out-Null
-
-    # Setting a custom stdout to capture Console.WriteLine output
-    # https://stackoverflow.com/questions/33111014/redirecting-output-from-an-external-dll-in-powershell
-    $OldConsoleOut = [Console]::Out
-    $StringWriter = New-Object IO.StringWriter
-    [Console]::SetOut($StringWriter)
 
     if ($JScript) {
     $engine = New-Object "Microsoft.ClearScript.Windows.JScriptEngine"

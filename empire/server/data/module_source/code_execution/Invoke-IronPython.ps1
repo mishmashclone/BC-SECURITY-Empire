@@ -52,6 +52,11 @@ nSGVsbG8gV29ybGQnDQoNCmZvcm0gPSBIZWxsb1dvcmxkRm9ybSgpDQpBcHBsaWNhdGlvbi5SdW4oZm9
         [string]
         $ipyscript
         )
+    # Setting a custom stdout to capture Console.WriteLine output
+    # https://stackoverflow.com/questions/33111014/redirecting-output-from-an-external-dll-in-powershell
+    $OldConsoleOut = [Console]::Out
+    $StringWriter = New-Object IO.StringWriter
+    [Console]::SetOut($StringWriter)
 
     $ipyscript = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($ipyscript))
 
@@ -753,11 +758,6 @@ exec clrtypesrc.replace('\r', '') in clrtypemodule.__dict__
 sys.modules['clrtype'] = clrtypemodule
 '@
 
-    # Setting a custom stdout to capture Console.WriteLine output
-    # https://stackoverflow.com/questions/33111014/redirecting-output-from-an-external-dll-in-powershell
-    $OldConsoleOut = [Console]::Out
-    $StringWriter = New-Object IO.StringWriter
-    [Console]::SetOut($StringWriter)
 
     $engine.Execute("print '[*] Loading clrtype module'`n" + $load_clrtype, $scope)
     $engine.Execute("print '[*] Executing embedded script'`n" + $ipyscript, $scope)

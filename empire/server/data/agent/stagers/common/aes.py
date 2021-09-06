@@ -306,8 +306,6 @@ def aes_encrypt(key, data):
     """
     if isinstance(data, str):
         data = data.encode('UTF-8')
-    if isinstance(key, str):
-        key = key.encode('UTF-8')
     IV = os.urandom(16)
     aes = AESModeOfOperationCBC(key, iv=IV)
     CBC = CBCenc(aes, data)
@@ -319,8 +317,6 @@ def aes_encrypt_then_hmac(key, data):
     """
     Encrypt the data then calculate HMAC over the ciphertext.
     """
-    if isinstance(key, str):
-       key = bytes(key, 'UTF-8')
     if isinstance(data, str):
        data = bytes(data, 'UTF-8')
     data = aes_encrypt(key, data)
@@ -342,9 +338,6 @@ def verify_hmac(key, data):
     """
     Verify the HMAC supplied in the data with the given key.
     """
-    if isinstance(key, str):
-        key = bytes(key, 'latin-1')
-
     if len(data) > 20:
         mac = data[-10:]
         data = data[:-10]
@@ -360,10 +353,7 @@ def aes_decrypt_and_verify(key, data):
     """
     Decrypt the data, but only if it has a valid MAC.
     """
-
     if len(data) > 32 and verify_hmac(key, data):
-        if isinstance(key, str):
-            key = bytes(key, 'latin-1')
         return aes_decrypt(key, data[:-10])
     raise Exception("Invalid ciphertext received.")
 

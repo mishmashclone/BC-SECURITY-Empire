@@ -91,7 +91,7 @@ def parse_routing_packet(stagingKey, data):
 
                 RC4IV = data[0+offset:4+offset]
                 RC4data = data[4+offset:20+offset]
-                routingPacket = rc4(RC4IV+stagingKey.encode('UTF-8'), RC4data)
+                routingPacket = rc4(RC4IV+stagingKey, RC4data)
 
                 sessionID = routingPacket[0:8].decode('UTF-8')
 
@@ -156,18 +156,12 @@ def build_routing_packet(stagingKey, sessionID, meta=0, additional=0, encData=''
 
     if isinstance(data, str):
         data = data.encode('UTF-8')
-    if isinstance(stagingKey, str):
-        stagingKey = stagingKey.encode('UTF-8')
     if isinstance(RC4IV, str):
         RC4IV = RC4IV.encode('UTF-8')
     if isinstance(encData, str):
         encData = encData.encode('UTF-8')
 
     key = RC4IV + stagingKey
-
-    if isinstance(key, str):
-        key = key.encode('UTF-8')
-
     rc4EncData = rc4(key, data)
 
     if isinstance(rc4EncData, str):

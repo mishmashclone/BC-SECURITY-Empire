@@ -25,6 +25,7 @@ def ps_hook(tasking: models.Tasking):
         return
 
     if tasking.agent.language == 'python':
+        # TODO: does removing the command exection message break hooks?
         output = jq.compile(
             """[sub("\n$";"") | splits("\n") | sub("^ +";"") | [splits(" +")]] | .[0] as $header | .[1:] | [.[] | [. as $x | range($header | length) | {"key": $header[.], "value": $x[.]}] | from_entries]""") \
             .input(tasking.output.decode('utf-8').split('\r\n ..Command execution completed.')[0]).first()

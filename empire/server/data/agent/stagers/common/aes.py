@@ -304,8 +304,6 @@ def aes_encrypt(key, data):
     IV = os.urandom(16)
     aes = AESModeOfOperationCBC(key, iv=IV)
     CBC = CBCenc(aes, data)
-    if isinstance(CBC, str):
-        CBC = CBC.encode('UTF-8')
     return IV + CBC
 
 def aes_encrypt_then_hmac(key, data):

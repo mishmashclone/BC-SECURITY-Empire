@@ -1,3 +1,15 @@
+9/??/2021
+------------
+- Version 4.1.1 Master Release
+        - Add OutputFunction to dcsync_hashdump (@jamarir)
+        - Convert file operations to use with syntax (@jamarir)
+        - Added Invoke-IronPython3 and some OffensiveDLR fixes (@Cx01N)
+        - Fix for (#476) - String indices error  ms16-032 & ms16-135 (@Cx01N)
+        - Fix help menu text on the interact menu (@archcloudlabs)
+        - Rework agent taskings in the client to not poll for a result (@Cx01N)
+        - Added Python agents to the external/generate_agent module (@Cx01N)
+        - Update add_sid_history module command (@ilanisme)
+
 8/29/2021
 ------------
 - Version 4.1.0 Master Release

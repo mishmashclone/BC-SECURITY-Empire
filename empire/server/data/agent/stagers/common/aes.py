@@ -244,11 +244,10 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
         if len(plaintext) != 16:
             raise ValueError('plaintext block must be 16 bytes')
 
-        plaintext = plaintext
         precipherblock = [(p ^ l) for (p, l) in zip(plaintext, self._last_cipherblock)]
         self._last_cipherblock = self._aes.encrypt(precipherblock)
 
-        return _bytes_to_string(self._last_cipherblock)
+        return bytes(self._last_cipherblock)
 
     def decrypt(self, ciphertext):
         if len(ciphertext) != 16:
@@ -269,11 +268,9 @@ def CBCenc(aesObj, plaintext, base64=False):
     blocks = [paddedPlaintext[0+i:16+i] for i in range(0, len(paddedPlaintext), 16)]
 
     # Finally we encrypt each block
-    ciphertext = ("")
+    ciphertext = b""
     for block in blocks:
-        ciphertext = "".join([ciphertext, aesObj.encrypt(block)])
-
-    ciphertext = ciphertext.encode('latin-1')
+        ciphertext = b"".join([ciphertext, aesObj.encrypt(block)])
 
     return ciphertext
 
@@ -304,8 +301,6 @@ def aes_encrypt(key, data):
     Generate a random IV and new AES cipher object with the given
     key, and return IV + encryptedData.
     """
-    if isinstance(data, str):
-        data = data.encode('UTF-8')
     IV = os.urandom(16)
     aes = AESModeOfOperationCBC(key, iv=IV)
     CBC = CBCenc(aes, data)

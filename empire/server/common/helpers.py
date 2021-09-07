@@ -522,7 +522,7 @@ def parse_mimikatz(data):
                 if not (credType == "plaintext" and username.endswith("$")):
                     creds.append((credType, domain, username, password, hostName, sid))
 
-    if len(creds) == 0:
+    if len(creds) == 0 and len(lines) >= 13:
         # check if we have lsadump output to check for krbtgt
         #   happens on domain controller hashdumps
         for x in range(8, 13):

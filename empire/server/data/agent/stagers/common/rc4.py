@@ -93,8 +93,7 @@ def parse_routing_packet(stagingKey, data):
                 RC4data = data[4+offset:20+offset]
                 routingPacket = rc4(RC4IV+stagingKey, RC4data)
 
-                sessionID = routingPacket[0:8].decode('UTF-8')
-
+                sessionID = routingPacket[0:8]
 
                 # B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
                 (language, meta, additional, length) = struct.unpack("=BBHL", routingPacket[8:])
@@ -148,9 +147,6 @@ def build_routing_packet(stagingKey, sessionID, meta=0, additional=0, encData=''
 
     # binary pack all of the passed config values as unsigned numbers
     #   B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
-    if isinstance(sessionID, str):
-        sessionID = sessionID.encode('UTF-8')
-
     data = sessionID + struct.pack("=BBHL", 2, meta, additional, len(encData))
     RC4IV = os.urandom(4)
 

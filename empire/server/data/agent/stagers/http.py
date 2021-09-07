@@ -25,7 +25,7 @@ def post_message(uri, data):
     return (urllib.request.urlopen(urllib.request.Request(uri, data, headers))).read()
 
 # generate a randomized sessionID
-sessionID = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+sessionID = b''.join(random.choice(string.ascii_uppercase + string.digits).encode('UTF-8') for _ in range(8))
 
 # server configuration information
 stagingKey = b'{{ staging_key }}'

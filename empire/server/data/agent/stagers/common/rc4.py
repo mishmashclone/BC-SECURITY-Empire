@@ -122,7 +122,7 @@ def parse_routing_packet(stagingKey, data):
         return None
 
 
-def build_routing_packet(stagingKey, sessionID, meta=0, additional=0, encData=''):
+def build_routing_packet(stagingKey, sessionID, meta=0, additional=0, encData=b''):
     """
     Takes the specified parameters for an RC4 "routing packet" and builds/returns
     an HMAC'ed RC4 "routing packet".
@@ -150,8 +150,6 @@ def build_routing_packet(stagingKey, sessionID, meta=0, additional=0, encData=''
     data = sessionID + struct.pack("=BBHL", 2, meta, additional, len(encData))
     RC4IV = os.urandom(4)
 
-    if isinstance(data, str):
-        data = data.encode('UTF-8')
     if isinstance(RC4IV, str):
         RC4IV = RC4IV.encode('UTF-8')
     if isinstance(encData, str):

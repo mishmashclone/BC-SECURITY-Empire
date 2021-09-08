@@ -149,16 +149,7 @@ def build_routing_packet(stagingKey, sessionID, meta=0, additional=0, encData=b'
     #   B == 1 byte unsigned char, H == 2 byte unsigned short, L == 4 byte unsigned long
     data = sessionID + struct.pack("=BBHL", 2, meta, additional, len(encData))
     RC4IV = os.urandom(4)
-
-    if isinstance(RC4IV, str):
-        RC4IV = RC4IV.encode('UTF-8')
-    if isinstance(encData, str):
-        encData = encData.encode('UTF-8')
-
     key = RC4IV + stagingKey
     rc4EncData = rc4(key, data)
-
-    if isinstance(rc4EncData, str):
-        rc4EncData = rc4EncData.encode('UTF-8')
     packet = RC4IV + rc4EncData + encData
     return packet

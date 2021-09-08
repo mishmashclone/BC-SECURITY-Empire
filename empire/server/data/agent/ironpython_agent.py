@@ -1010,7 +1010,7 @@ def run_command(command, cmdargs=None):
         myrunspace.Open()
         pipeline = myrunspace.CreatePipeline()
         pipeline.Commands.AddScript("""
-                               $owners = @{}
+                    $owners = @{}
                     Get-WmiObject win32_process | ForEach-Object {$o = $_.getowner(); if(-not $($o.User)) {$o='N/A'} else {$o="$($o.Domain)\$($o.User)"}; $owners[$_.handle] = $o}
                     $p = "*";
                     $output = Get-Process $p | ForEach-Object {
@@ -1035,6 +1035,7 @@ def run_command(command, cmdargs=None):
                         $out | Add-Member Noteproperty 'MemUsage' $mem
                         $out
                     } | Sort-Object -Property PID | ConvertTo-Json;
+                    $output
         """)
         results = pipeline.Invoke()
         buffer = StringIO()

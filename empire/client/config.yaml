@@ -102,3 +102,13 @@ shortcuts:
       params:
         - name: LogFile
           dynamic: true
+  ironpython:
+    whoami:
+      shell: whoami
+    ps:
+      shell: ps
+  csharp:
+    whoami:
+      shell: whoami
+    ps:
+      shell: ps

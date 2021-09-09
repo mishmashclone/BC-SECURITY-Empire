@@ -233,22 +233,17 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
         elif len(iv) != 16:
             raise ValueError('initialization vector must be 16 bytes')
         else:
-            if isinstance(iv, str):
-                self._last_cipherblock = _string_to_bytes(iv)
-            else:
-                self._last_cipherblock = iv
-
+             self._last_cipherblock = iv
         AESBlockModeOfOperation.__init__(self, key)
 
     def encrypt(self, plaintext):
         if len(plaintext) != 16:
             raise ValueError('plaintext block must be 16 bytes')
 
-        plaintext = plaintext
         precipherblock = [(p ^ l) for (p, l) in zip(plaintext, self._last_cipherblock)]
         self._last_cipherblock = self._aes.encrypt(precipherblock)
 
-        return _bytes_to_string(self._last_cipherblock)
+        return bytes(self._last_cipherblock)
 
     def decrypt(self, ciphertext):
         if len(ciphertext) != 16:
@@ -269,11 +264,9 @@ def CBCenc(aesObj, plaintext, base64=False):
     blocks = [paddedPlaintext[0+i:16+i] for i in range(0, len(paddedPlaintext), 16)]
 
     # Finally we encrypt each block
-    ciphertext = ("")
+    ciphertext = b""
     for block in blocks:
-        ciphertext = "".join([ciphertext, aesObj.encrypt(block)])
-
-    ciphertext = ciphertext.encode('latin-1')
+        ciphertext = b"".join([ciphertext, aesObj.encrypt(block)])
 
     return ciphertext
 
@@ -304,25 +297,15 @@ def aes_encrypt(key, data):
     Generate a random IV and new AES cipher object with the given
     key, and return IV + encryptedData.
     """
-    if isinstance(data, str):
-        data = data.encode('UTF-8')
-    if isinstance(key, str):
-        key = key.encode('UTF-8')
     IV = os.urandom(16)
     aes = AESModeOfOperationCBC(key, iv=IV)
     CBC = CBCenc(aes, data)
-    if isinstance(CBC, str):
-        CBC = CBC.encode('UTF-8')
     return IV + CBC
 
 def aes_encrypt_then_hmac(key, data):
     """
     Encrypt the data then calculate HMAC over the ciphertext.
     """
-    if isinstance(key, str):
-       key = bytes(key, 'UTF-8')
-    if isinstance(data, str):
-       data = bytes(data, 'UTF-8')
     data = aes_encrypt(key, data)
     mac = hmac.new(key, data, digestmod=hashlib.sha256).digest()
     return data + mac[0:10]
@@ -342,9 +325,6 @@ def verify_hmac(key, data):
     """
     Verify the HMAC supplied in the data with the given key.
     """
-    if isinstance(key, str):
-        key = bytes(key, 'latin-1')
-
     if len(data) > 20:
         mac = data[-10:]
         data = data[:-10]
@@ -360,10 +340,7 @@ def aes_decrypt_and_verify(key, data):
     """
     Decrypt the data, but only if it has a valid MAC.
     """
-
     if len(data) > 32 and verify_hmac(key, data):
-        if isinstance(key, str):
-            key = bytes(key, 'latin-1')
         return aes_decrypt(key, data[:-10])
     raise Exception("Invalid ciphertext received.")
 

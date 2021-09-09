@@ -64,7 +64,8 @@ class Module(object):
         else:
             stager_code = main_menu.listeners.loadedListeners[active_listener['moduleName']].generate_stager(
                 active_listener['options'], language=language, encrypt=False)
-            code = f"server='{host};'\n" + stager_code + f"\n{agent_code}"
+            stager_code = stager_code.replace('exec(agent)', '')
+            code = f"server='{host}';\n" + stager_code + f"\n{agent_code}"
 
         print(helpers.color("[+] Pre-generated agent '%s' now registered." % session_id))
 

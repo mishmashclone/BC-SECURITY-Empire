@@ -986,8 +986,7 @@ class Listener(object):
                 sendMessage += "    if packets:\n"
 
                 # ==== BUILD ROUTING PACKET ====
-                sendMessage += "        data = packets.decode('latin-1')\n"
-                sendMessage += "        encData = aes_encrypt_then_hmac(key, data)\n"
+                sendMessage += "        encData = aes_encrypt_then_hmac(key, packets)\n"
                 sendMessage += "        routingPacket = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)\n"
                 sendMessage += "\n".join(["        " + _ for _ in profile.post.client.output.generate_python("routingPacket").split("\n")]) + "\n"
 

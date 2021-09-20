@@ -340,12 +340,11 @@ class Stager(object):
 
             # write XML to disk
             print(helpers.color("Writing xml...\n", color="blue"))
-            file_write = open(xml_out, "wb")
-            file_write.write(b"<?xml version=\"1.0\"?>\n")
-            file_write.write(b"<main>")
-            file_write.write(cipher_text)
-            file_write.write(b"</main>\n")
-            file_write.close()
+            with open(xml_out, "wb") as file_write:
+                file_write.write(b"<?xml version=\"1.0\"?>\n")
+                file_write.write(b"<main>")
+                file_write.write(cipher_text)
+                file_write.write(b"</main>\n")
             print(helpers.color(
                 "xml written to " + xml_out + " please remember this file must be accessible by the target at this url: " + xml_path + "\n",
                 color="green"))

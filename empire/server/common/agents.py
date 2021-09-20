@@ -374,10 +374,8 @@ class Agents(object):
                 os.makedirs(save_path)
 
             # save the file out
-            f = open("%s/%s" % (save_path, filename), 'wb')
-
-            f.write(data)
-            f.close()
+            with open("%s/%s" % (save_path, filename), 'wb') as f:
+                f.write(data)
         finally:
             self.lock.release()
 
@@ -409,10 +407,9 @@ class Agents(object):
         try:
             self.lock.acquire()
 
-            f = open("%s/agent.log" % (save_path), 'a')
-            f.write("\n" + current_time + " : " + "\n")
-            f.write(data + "\n")
-            f.close()
+            with open("%s/agent.log" % (save_path), 'a') as f:
+                f.write("\n" + current_time + " : " + "\n")
+                f.write(data + "\n")
         finally:
 
             self.lock.release()
@@ -912,9 +909,8 @@ class Agents(object):
 
                     # write out the last tasked script to "LastTask" if in debug mode
                     if self.args and self.args.debug:
-                        f = open('%s/LastTask' % (self.installPath), 'w')
-                        f.write(task)
-                        f.close()
+                        with open('%s/LastTask' % (self.installPath), 'w') as f:
+                            f.write(task)
                 finally:
                     self.lock.release()
 
@@ -1366,7 +1362,8 @@ class Agents(object):
             for tasking in taskings:
                 input_full = tasking.input_full
                 if tasking.task_name == "TASK_CSHARP":
-                    input_full = open(tasking.input_full.split("|")[0], "rb").read()
+                    with open(tasking.input_full.split("|")[0], "rb") as f:
+                        input_full = f.read()
                     input_full = base64.b64encode(input_full).decode("UTF-8")
                     input_full += tasking.input_full.split("|", maxsplit=1)[1]
                 all_task_packets += packets.build_task_packet(tasking.task_name, input_full, tasking.id)

@@ -22,6 +22,11 @@ options:
     description: Language to generate for the agent.
     required: true
     value: ''
+    suggested_values:
+      - powershell
+      - python
+      - ironpython
+    strict: True
   - name: OutFile
     description: Output file to write the agent code to.
     required: True

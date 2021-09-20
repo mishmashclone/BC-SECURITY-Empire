@@ -40,6 +40,12 @@ function Invoke-Boolang
         $BooSource
         )
 
+    # Setting a custom stdout to capture Console.WriteLine output
+    # https://stackoverflow.com/questions/33111014/redirecting-output-from-an-external-dll-in-powershell
+    $OldConsoleOut = [Console]::Out
+    $StringWriter = New-Object IO.StringWriter
+    [Console]::SetOut($StringWriter)
+
     $BooSource = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($BooSource))
 
     $BooLangDLL = @'
@@ -113,12 +119,6 @@ vH0HfJRF+v/MvJvdzW4CbMpuIEBCCSyhBQiwJIGEZkGwYCEBC1UBlcUEEAiL9BAICIiKqKiIDVE5KyBn
     $parameters.AddAssembly([Reflection.Assembly]::LoadWithPartialName("mscorlib"))
     $parameters.AddAssembly([Reflection.Assembly]::LoadWithPartialName("System"))
     $parameters.AddAssembly([Reflection.Assembly]::LoadWithPartialName("System.Core"))
-
-    # Setting a custom stdout to capture Console.WriteLine output
-    # https://stackoverflow.com/questions/33111014/redirecting-output-from-an-external-dll-in-powershell
-    $OldConsoleOut = [Console]::Out
-    $StringWriter = New-Object IO.StringWriter
-    [Console]::SetOut($StringWriter)
 
     $compiler = [Boo.Lang.Compiler.BooCompiler]::new($parameters)
 

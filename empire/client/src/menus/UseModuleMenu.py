@@ -1,9 +1,7 @@
-import threading
-import time
-
 from prompt_toolkit.completion import Completion
 
 from empire.client.src.EmpireCliState import state
+from empire.client.src.MenuState import menu_state
 from empire.client.src.menus.UseMenu import UseMenu
 from empire.client.src.utils import print_util
 from empire.client.src.utils.autocomplete_util import filtered_search_list, position_util
@@ -68,11 +66,14 @@ class UseModuleMenu(UseMenu):
 
         response = state.execute_module(self.selected, post_body)
         if 'success' in response.keys():
-            print(print_util.color(
-                '[*] Tasked ' + self.record_options['Agent']['Value'] + ' to run Task ' + str(response['taskID'])))
-            shell_return = threading.Thread(target=self.tasking_id_returns, args=[response['taskID']])
-            shell_return.daemon = True
-            shell_return.start()
+            if 'Agent' in post_body.keys():
+                print(print_util.color(
+                    '[*] Tasked ' + self.record_options['Agent']['Value'] + ' to run Task ' + str(response['taskID'])))
+                menu_state.pop()
+            else:
+                print(print_util.color(
+                    '[*] ' + str(response['msg'])))
+
         elif 'error' in response.keys():
             if response['error'].startswith('[!]'):
                 msg = response['error']
@@ -88,24 +89,6 @@ class UseModuleMenu(UseMenu):
         Usage: generate
         """
         self.execute()
-
-    def tasking_id_returns(self, task_id: int):
-        """
-        Polls for the tasks that have been queued.
-        Once found, will remove from the cache and display.
-        """
-        count = 0
-        result = None
-        while result is None and count < 30 and not self.stop_threads:
-            # this may not work 100% of the time since there is a mix of agent session_id and names still.
-            result = state.cached_agent_results.get(self.record_options['Agent']['Value'], {}).get(task_id)
-            count += 1
-            time.sleep(1)
-
-        if result:
-            del state.cached_agent_results.get(self.record_options['Agent']['Value'], {})[task_id]
-
-        print(print_util.color(result))
 
 
 use_module_menu = UseModuleMenu()

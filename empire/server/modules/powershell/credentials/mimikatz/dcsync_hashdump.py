@@ -42,7 +42,8 @@ class Module(object):
         if params["Active"] == '':
             script_end += " -OnlyActive:$false "
 
-        script_end += "| Out-String;"
+        outputf = params.get("OutputFunction", "Out-String")
+        script_end += f" | {outputf};"
         if obfuscate:
             script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
         script += script_end

@@ -27,7 +27,7 @@ BC Security presented updates to further evade Microsoft Antimalware Scan Interf
 [DEF CON 27](https://github.com/BC-SECURITY/DEFCON27).
 
 Empire relies heavily on the work from several other projects for its underlying functionality. We have tried to call 
-out a few of those people we've interacted with [heavily here](http://www.powershellempire.com/?page_id=2) and have 
+out a few of those people we've interacted with heavily [here](http://www.powershellempire.com/?page_id=2) and have 
 included author/reference link information in the source of each Empire module as appropriate. If we have failed to 
 properly cite existing or prior work, please let us know at Empire@BC-Security.org.
 
@@ -90,10 +90,10 @@ Join us in [our Discord](https://discord.gg/P8PZPyf) to with any comments, quest
 Contributions are more than welcome! The more people who contribute to the project the better Empire will be for everyone. Below are a few guidelines for submitting contributions.
 
 * Submit pull requests to the [dev branch](https://github.com/BC-SECURITY/Empire/tree/dev). After testing, changes will be merged to master.
-* Depending on what you're working on, base your module on [./lib/modules/powershell_template.py](empire/teamserver/lib/modules/powershell_template.py) or [./lib/modules/python_template.py](empire/teamserver/lib/modules/python_template.py). **Note** that for some modules you may need to massage the output to get it into a nicely displayable text format [with Out-String](https://github.com/PowerShellEmpire/Empire/blob/0cbdb165a29e4a65ad8dddf03f6f0e36c33a7350/lib/modules/situational_awareness/network/powerview/get_user.py#L111).
+* Depending on what you're working on, base your module on [powershell_template.py](https://github.com/BC-SECURITY/Empire/blob/master/empire/server/modules/powershell_template.py) or [python_template.py](https://github.com/BC-SECURITY/Empire/blob/master/empire/server/modules/python_template.py). **Note** that for some modules you may need to massage the output to get it into a nicely displayable text format with [Out-String](https://github.com/PowerShellEmpire/Empire/blob/0cbdb165a29e4a65ad8dddf03f6f0e36c33a7350/lib/modules/situational_awareness/network/powerview/get_user.py#L111).
 * Cite previous work in the **'Comments'** module section.
 * If your script.ps1 logic is large, may be reused by multiple modules, or is updated often, consider implementing the logic in the appropriate **data/module_source/*** directory and [pulling the script contents into the module on tasking](https://github.com/PowerShellEmpire/Empire/blob/0cbdb165a29e4a65ad8dddf03f6f0e36c33a7350/lib/modules/situational_awareness/network/powerview/get_user.py#L85-L95).
-* Use [approved PowerShell verbs](https://technet.microsoft.com/en-us/library/ms714428(v=vs.85).aspx) for any functions.
+* Use [approved PowerShell verbs](https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-7.1) for any functions.
 * TEST YOUR MODULE! Be sure to run it from an Empire agent and test Python 3.x functionality before submitting a pull to ensure everything is working correctly.
 * For additional guidelines for your PowerShell code itself, check out the [PowerSploit style guide](https://github.com/PowerShellMafia/PowerSploit/blob/master/README.md).
 

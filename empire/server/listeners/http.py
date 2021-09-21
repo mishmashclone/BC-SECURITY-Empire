@@ -20,7 +20,6 @@ from werkzeug.serving import WSGIRequestHandler
 
 from empire.server.common import encryption
 from empire.server.common import helpers
-from empire.server.common import obfuscation
 from empire.server.common import packets
 from empire.server.common import templating
 from empire.server.utils import data_util
@@ -701,7 +700,6 @@ class Listener(object):
             }
 
             stager = template.render(template_options)
-            stager = obfuscation.py_minify(stager)
 
             # base64 encode the stager and return it
             if encode:

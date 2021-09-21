@@ -21,7 +21,6 @@ from pydispatch import dispatcher
 from empire.server.common import encryption
 from empire.server.common import helpers
 from empire.server.common import malleable
-from empire.server.common import obfuscation
 from empire.server.common import packets
 from empire.server.common import templating
 from empire.server.database import models
@@ -678,7 +677,6 @@ class Listener(object):
             }
 
             stager = template.render(template_options)
-            stager = obfuscation.py_minify(stager)
 
             if encode:
                 return base64.b64encode(stager)

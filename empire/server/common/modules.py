@@ -17,7 +17,6 @@ from sqlalchemy import and_
 
 from empire.server.common.hooks import hooks
 from empire.server.utils import data_util
-from empire.server.common import obfuscation
 from empire.server.common.config import empire_config
 from empire.server.common.converter.load_covenant import _convert_covenant_to_empire
 from empire.server.common.module_models import PydanticModule, LanguageEnum
@@ -74,9 +73,7 @@ class Modules(object):
         if not module_data.isascii():
             return None, 'module source contains non-ascii characters'
 
-        if module.language == LanguageEnum.python:
-            module_data = obfuscation.py_minify(module_data)
-        elif module.language == LanguageEnum.powershell:
+        if module.language == LanguageEnum.powershell:
             module_data = helpers.strip_powershell_comments(module_data)
 
         # check if module is external

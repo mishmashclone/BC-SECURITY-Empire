@@ -82,7 +82,7 @@ class UseStagerMenu(UseMenu):
             output_bytes = base64.b64decode(response[self.selected]['Output'])
             with open(f'empire/client/generated-stagers/{file_name}', 'wb') as f:
                 f.write(output_bytes)
-            print(print_util.color(f'[*] {file_name} written to {os.path.abspath(file.name)}'))
+            print(print_util.color(f'[*] {file_name} written to {os.path.abspath(file_name)}'))
         else:
             print(print_util.color(response[self.selected]['Output']))
 

@@ -8565,7 +8565,7 @@ for connection to the target domain.
 
 .PARAMETER Rights
 
-Rights to add for the principal, 'All', 'ResetPassword', 'WriteMembers', 'DCSync', 'Enroll'.
+Rights to add for the principal, 'All', 'ResetPassword', 'WriteMembers', 'DCSync'.
 Defaults to 'All'.
 
 .PARAMETER RightsGUID
@@ -8712,7 +8712,7 @@ https://social.technet.microsoft.com/Forums/windowsserver/en-US/df3bfd33-c070-4a
         [Management.Automation.CredentialAttribute()]
         $Credential = [Management.Automation.PSCredential]::Empty,
 
-        [ValidateSet('All', 'ResetPassword', 'WriteMembers', 'DCSync', 'Enroll')]
+        [ValidateSet('All', 'ResetPassword', 'WriteMembers', 'DCSync')]
         [String]
         $Rights = 'All',
 
@@ -8776,8 +8776,6 @@ https://social.technet.microsoft.com/Forums/windowsserver/en-US/df3bfd33-c070-4a
                     # 'DS-Replication-Get-Changes-In-Filtered-Set' = 89e95b76-444d-4c62-991a-0facbeda640c
                     #   when applied to a domain's ACL, allows for the use of DCSync
                     'DCSync' { '1131f6aa-9c07-11d1-f79f-00c04fc2dcd2', '1131f6ad-9c07-11d1-f79f-00c04fc2dcd2', '89e95b76-444d-4c62-991a-0facbeda640c'}
-                    # allows for certificate enrollment
-                    'Enroll' { '0e10c968-78fb-11d2-90d4-00c04f79dc55' }
                 }
             }
 
@@ -8892,7 +8890,7 @@ for connection to the target domain.
 
 .PARAMETER Rights
 
-Rights to add for the principal, 'All', 'ResetPassword', 'WriteMembers', 'DCSync', 'Enroll'.
+Rights to add for the principal, 'All', 'ResetPassword', 'WriteMembers', 'DCSync'.
 Defaults to 'All'.
 
 .PARAMETER RightsGUID
@@ -8995,7 +8993,7 @@ https://social.technet.microsoft.com/Forums/windowsserver/en-US/df3bfd33-c070-4a
         [Management.Automation.CredentialAttribute()]
         $Credential = [Management.Automation.PSCredential]::Empty,
 
-        [ValidateSet('All', 'ResetPassword', 'WriteMembers', 'DCSync', 'Enroll')]
+        [ValidateSet('All', 'ResetPassword', 'WriteMembers', 'DCSync')]
         [String]
         $Rights = 'All',
 
@@ -9059,8 +9057,6 @@ https://social.technet.microsoft.com/Forums/windowsserver/en-US/df3bfd33-c070-4a
                     # 'DS-Replication-Get-Changes-In-Filtered-Set' = 89e95b76-444d-4c62-991a-0facbeda640c
                     #   when applied to a domain's ACL, allows for the use of DCSync
                     'DCSync' { '1131f6aa-9c07-11d1-f79f-00c04fc2dcd2', '1131f6ad-9c07-11d1-f79f-00c04fc2dcd2', '89e95b76-444d-4c62-991a-0facbeda640c'}
-                    # allows for certificate enrollment
-                    'Enroll' { '0e10c968-78fb-11d2-90d4-00c04f79dc55' }
                 }
             }
 

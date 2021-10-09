@@ -3,6 +3,7 @@ authors:
   - '@mattifestation'
   - '@harmj0y'
   - '@jbooz1'
+  - '@janit0rjoe'
 description: Persist a stager (or script) using a permanent WMI subscription. This
   has a difficult detection/removal rating.
 software: ''
@@ -27,6 +28,14 @@ options:
     value: ''
   - name: DailyTime
     description: Daily time to trigger the script (HH:mm).
+    required: false
+    value: ''
+  - name: Day
+    description: Day of month to trigger the script (1-31). Optional to DailyTime.
+    required: false
+    value: ''
+  - name: DayOfWeek
+    description: Day of week to trigger the script (0-6). Sunday = 0. Optional to DailyTime.
     required: false
     value: ''
   - name: AtStartup

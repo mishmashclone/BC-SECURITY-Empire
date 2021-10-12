@@ -6,6 +6,7 @@ import socketio
 from empire.client.src.MenuState import menu_state
 from empire.client.src.menus import Menu
 from empire.client.src.utils import print_util
+from prompt_toolkit import HTML, ANSI
 
 
 class EmpireCliState(object):
@@ -32,6 +33,7 @@ class EmpireCliState(object):
         self.credentials = {}
         self.empire_version = ''
         self.cached_plugin_results = {}
+        self.chat_cache = []
 
         # { session_id: { task_id: 'output' }}
         self.cached_agent_results = {}
@@ -157,6 +159,40 @@ class EmpireCliState(object):
                 print(print_util.color(data['message']))
         else:
             self.cached_plugin_results[plugin_name][data['message']] = data['message']
+
+    def bottom_toolbar(self):
+        if self.connected:
+            agent_tasks = list(self.cached_agent_results.keys())
+            plugin_tasks = list(self.cached_plugin_results.keys())
+
+            toolbar_text = [("bold", f'Connected: ')]
+            toolbar_text.append(("bg:#FF0000 bold", f'{self.host}:{self.port} '))
+            toolbar_text.append(("bold", f'| '))
+            toolbar_text.append(("bg:#FF0000 bold", f'{len(state.agents)} '))
+            toolbar_text.append(("bold", f'agent(s) | '))
+            toolbar_text.append(("bg:#FF0000 bold", f'{len(state.chat_cache)} '))
+            toolbar_text.append(("bold", f'unread message(s) '))
+
+            agent_text = ''
+            for agents in agent_tasks:
+                if self.cached_agent_results[agents]:
+                    agent_text += f' {agents}'
+            if agent_text:
+                toolbar_text.append(("bold", '| Agent(s) received task results:'))
+                toolbar_text.append(("bg:#FF0000 bold", f'{agent_text} '))
+
+            plugin_text = ''
+            for plugins in plugin_tasks:
+                if self.cached_plugin_results[plugins]:
+                    plugin_text += f' {plugins}'
+            if plugin_text:
+                toolbar_text.append(("bold", f'| Plugin(s) received task result(s):'))
+                toolbar_text.append(("bg:#FF0000 bold", f'{plugin_text} '))
+
+            return toolbar_text
+
+        else:
+            return ''
 
     # I think we we will break out the socketio handler and http requests to new classes that the state imports.
     # This will do for this iteration.

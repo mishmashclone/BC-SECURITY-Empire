@@ -109,14 +109,6 @@ class EmpireCli(object):
             state.register_menu(menu)
 
     @staticmethod
-    def bottom_toolbar():
-        if state.connected:
-            return HTML(
-                f'Connected to {state.host}:{state.port}. {len(state.agents)} agents. {len(chat_menu.chat_cache)} unread messages.')
-        else:
-            return ''
-
-    @staticmethod
     def strip(options):
         return {re.sub('[^A-Za-z0-9 _]+', '', k): v for k, v in options.items()}
 
@@ -165,7 +157,7 @@ class EmpireCli(object):
             history=history,
             completer=self.completer,
             complete_in_thread=True,
-            bottom_toolbar=self.bottom_toolbar,
+            bottom_toolbar=state.bottom_toolbar,
         )
         t = threading.Thread(target=self.update_in_bg, args=[session])
         t.daemon = True

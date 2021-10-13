@@ -516,7 +516,7 @@
     DefaultValue: ''
     Description: ProcessID of the process to createa dump file of.
     SuggestedValues: []
-    Optional: true
+    Optional: false
     DisplayInCommand: true
     FileOption: false
   ReferenceSourceLibraries:

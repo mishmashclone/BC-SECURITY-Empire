@@ -111,6 +111,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "donut-shellcode"
+version = "0.9.2"
+description = "Donut Python C extension"
+category = "main"
+optional = false
+python-versions = ">=3.0"
+
+[[package]]
 name = "dropbox"
 version = "11.9.0"
 description = "Official Dropbox API Client"
@@ -649,7 +657,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "1d3afaeb5908c95bbbc4c9b15963b34ae0afd732c2f45ea0dcaf40a3d7d72b79"
+content-hash = "7a96128b67fbee9bbb764ff825a96ffc5fa34a65fbf3de360b163554355c80f3"
 
 [metadata.files]
 altgraph = [
@@ -754,6 +762,9 @@ cryptography = [
 ]
 docopt = [
     {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
+]
+donut-shellcode = [
+    {file = "donut-shellcode-0.9.2.tar.gz", hash = "sha256:85c6ddfc1370657779bdcb0564dd4f194f9fa10cae22f537d47857ee277b110d"},
 ]
 dropbox = [
     {file = "dropbox-11.9.0-py2-none-any.whl", hash = "sha256:9c5cfc092c49b38219854a4bac2898696a5714ef0189dcc6447246d2d89a198a"},

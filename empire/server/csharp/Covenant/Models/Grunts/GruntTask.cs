@@ -157,6 +157,7 @@ namespace Covenant.Models.Grunts
             this.CompatibleDotNetVersions = task.CompatibleDotNetVersions;
             this.Code = task.Code;
             this.Compiled = false;
+
             this.TaskingType = task.TaskingType;
             this.UnsafeCompile = task.UnsafeCompile;
             this.TokenTask = task.TokenTask;
@@ -268,7 +269,7 @@ namespace Covenant.Models.Grunts
                 })
             );
             #region testOutFile
-            if (this.Name.StartsWith("Sharpire"))
+            if (this.Name.StartsWith("Sharpire") || this.Name.StartsWith("CSharpPS") || this.Name.StartsWith("CSharpPy"))
             {
                 File.WriteAllBytes(Common.CovenantTaskCSharpCompiledNet35Directory + this.Name + ".exe",
                     Compiler.Compile(new Compiler.CsharpFrameworkCompilationRequest
@@ -352,7 +353,7 @@ namespace Covenant.Models.Grunts
                 })
             );
             #region testOutFile
-            if (this.Name.StartsWith("Sharpire"))
+            if (this.Name.StartsWith("Sharpire") || this.Name.StartsWith("CSharpPS") || this.Name.StartsWith("CSharpPy"))
             {
                 File.WriteAllBytes(Common.CovenantTaskCSharpCompiledNet40Directory + this.Name + ".exe",
                     Compiler.Compile(new Compiler.CsharpFrameworkCompilationRequest

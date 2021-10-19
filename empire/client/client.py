@@ -27,6 +27,7 @@ from empire.client.src.menus.ListenerMenu import listener_menu
 from empire.client.src.menus.MainMenu import main_menu
 from empire.client.src.menus.PluginMenu import plugin_menu
 from empire.client.src.menus.ShellMenu import shell_menu
+from empire.client.src.menus.ProxyMenu import proxy_menu
 from empire.client.src.menus.EditListenerMenu import edit_listener_menu
 from empire.client.src.menus.UseListenerMenu import use_listener_menu
 from empire.client.src.menus.UseModuleMenu import use_module_menu
@@ -103,7 +104,8 @@ class EmpireCli(object):
             'UsePluginMenu': use_plugin_menu,
             'AdminMenu': admin_menu,
             'ChatMenu': chat_menu,
-            'SponsorsMenu': sponsors_menu
+            'SponsorsMenu': sponsors_menu,
+            'ProxyMenu': proxy_menu
         }
         for menu in self.menus.values():
             state.register_menu(menu)
@@ -288,6 +290,17 @@ class EmpireCli(object):
                 menu_state.push(self.menus['InteractMenu'], selected=menu_state.current_menu.selected)
             else:
                 menu_state.current_menu.shell(menu_state.current_menu.selected, text)
+        elif text.strip() == 'proxy':
+            if menu_state.current_menu_name == 'InteractMenu':
+                if menu_state.current_menu.agent_options['language'] not in ['python', 'ironpython']:
+                    print(print_util.color(f'[!] Agent proxies are not available in {menu_state.current_menu.agent_options["language"]} agents'))
+                    pass
+                elif state.listeners[menu_state.current_menu.agent_options['listener']]['module'] not in ['http', 'http_hop', 'redirector']:
+                    print(print_util.color(f"[!] Agent proxies are not available in {state.listeners[menu_state.current_menu.agent_options['listener']]['module']} listeners"))
+                else:
+                    menu_state.push(self.menus['ProxyMenu'], selected=menu_state.current_menu.selected)
+            else:
+                pass
         elif text.strip() == 'back':
             menu_state.pop()
         elif text.strip() == 'exit':

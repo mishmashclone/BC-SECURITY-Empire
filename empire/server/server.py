@@ -56,6 +56,22 @@ cli.show_server_banner = lambda *x: None
 if empire_config.yaml.get('suppress-self-cert-warning', True):
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# Set proxy IDs
+PROXY_NAME = {
+    "SOCKS4": 1,
+    "SOCKS5": 2,
+    "HTTP": 3,
+    "SSL": 4,
+    "SSL_WEAK": 5,
+    "SSL_ANON": 6,
+    "TOR": 7,
+    "HTTPS": 8,
+    "HTTP_CONNECT": 9,
+    "HTTPS_CONNECT": 10
+}
+
+PROXY_IDS = {}
+for name, ID in list(PROXY_NAME.items()): PROXY_IDS[ID] = name
 
 #####################################################
 #
@@ -788,7 +804,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                  "children": active_agent.children, "servers": active_agent.servers, "profile": active_agent.profile,
                  "functions": active_agent.functions, "kill_date": active_agent.kill_date,
                  "working_hours": active_agent.working_hours, "lost_limit": active_agent.lost_limit,
-                 "stale": active_agent.stale, "notes": active_agent.notes, "architecture": active_agent.architecture})
+                 "stale": active_agent.stale, "notes": active_agent.notes, "architecture": active_agent.architecture,
+                 "proxy": active_agent.proxy})
 
         return jsonify({'agents': agents})
 
@@ -817,7 +834,8 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                      "children": active_agent.children, "servers": active_agent.servers, "profile": active_agent.profile,
                      "functions": active_agent.functions, "kill_date": active_agent.kill_date,
                      "working_hours": active_agent.working_hours, "lost_limit": active_agent.lost_limit,
-                     "stale": active_agent.stale, "notes": active_agent.notes, "architecture": active_agent.architecture})
+                     "stale": active_agent.stale, "notes": active_agent.notes, "architecture": active_agent.architecture,
+                     "proxy": active_agent.proxy})
 
         return jsonify({'agents': agents})
 
@@ -842,7 +860,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                      "checkin_time": agent.checkin_time, "lastseen_time": agent.lastseen_time, "parent": agent.parent,
                      "children": agent.children, "servers": agent.servers, "profile": agent.profile,
                      "functions": agent.functions, "kill_date": agent.kill_date, "working_hours": agent.working_hours,
-                     "lost_limit": agent.lost_limit, "architecture": agent.architecture})
+                     "lost_limit": agent.lost_limit, "architecture": agent.architecture, "proxy": agent.proxy})
 
         return jsonify({'agents': stale_agents})
 
@@ -902,7 +920,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
              "lastseen_time": agent.lastseen_time, "parent": agent.parent, "children": agent.children,
              "servers": agent.servers, "profile": agent.profile, "functions": agent.functions,
              "kill_date": agent.kill_date, "working_hours": agent.working_hours,
-             "lost_limit": agent.lost_limit, "architecture": agent.architecture})
+             "lost_limit": agent.lost_limit, "architecture": agent.architecture, "proxy": agent.proxy})
 
         return jsonify({'agents': active_agent})
 
@@ -1294,7 +1312,6 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         Takes {'listener': 'name'}
         """
-
         if not request.json:
             return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
 
@@ -1321,6 +1338,64 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
             else:
                 return jsonify(
                     {'error': 'Ineligible listener for updatecomms command: %s' % active_listener['moduleName']})
+
+    @app.route('/api/agents/<string:agent_name>/proxy', methods=['GET'])
+    def get_proxy_info(agent_name):
+        """
+        Returns JSON describing the specified currently module.
+        """
+        proxy_info = {'Name': 'Proxies',
+                       'Author': 'Cx01N',
+                       'Background': '',
+                       'Comments': '',
+                       'Description': '',
+                       'options': {'Address': {'Description': 'Address for the proxy.',
+                                                'Required': True,
+                                                'Value': '',
+                                                'SuggestedValues': '',
+                                                'Strict': ''},
+                                   'Proxy_Type': {'Description': '',
+                                                   'Required': True,
+                                                   'Value': '',
+                                                   'SuggestedValues': ['SOCKS4', 'SOCKS5', 'HTTP', 'SSL', 'SSL_WEAK',
+                                                                       'SSL_ANON', 'TOR', 'HTTPS', 'HTTP_CONNECT',
+                                                                       'HTTPS_CONNECT'],
+                                                   'Strict': True},
+                                   'Port': {'Description': '',
+                                            'Required': True,
+                                            'Value': '',
+                                            'SuggestedValues': '',
+                                            'Strict': ''}
+                                    }
+                       }
+
+        return jsonify({'proxy': proxy_info})
+
+    @app.route('/api/agents/<string:agent_name>/proxy', methods=['PUT'])
+    def agent_update_proxy(agent_name):
+        """
+        Dynamically update the agent proxy
+
+        Takes {'proxy': 'options'}
+        """
+        if not request.json:
+            return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
+
+        if not 'proxy' in request.json:
+            return make_response(jsonify({'error': 'JSON body must include key "listener"'}), 400)
+
+        proxy_list = request.json['proxy']
+        for x in range(len(proxy_list)):
+            proxy_list[0]['proxytype'] = PROXY_NAME[proxy_list[0]['proxytype']]
+
+        agent = Session().query(models.Agent).filter(
+            or_(models.Agent.session_id == agent_name, models.Agent.name == agent_name)).first()
+        agent.proxy = proxy_list
+        Session().commit()
+
+        main.agents.add_agent_task_db(agent_name, "TASK_SET_PROXY", json.dumps(proxy_list))
+
+        return jsonify({'success': True})
 
     @app.route('/api/agents/<string:agent_name>/killdate', methods=['PUT'])
     def agent_kill_date(agent_name):

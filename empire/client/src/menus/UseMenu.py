@@ -88,7 +88,7 @@ class UseMenu(Menu):
     @command
     def unset(self, key: str):
         """
-        Unset a record option.
+        Unset a record option
 
         Usage: unset <key>
         """

@@ -395,4 +395,4 @@ def relay_main(tunnel_addr=''):
     return
 
 
-relay_main(tunnel_addr='${TUNNEL_ADDR}')
+relay_main(tunnel_addr='{{ server }}')

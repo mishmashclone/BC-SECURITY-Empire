@@ -18,6 +18,7 @@ options:
     required: true
     value: ''
 script: |
+  import time;
   f2 = open("/etc/shadow")
   shadow = f2.readlines()
   f2.close()

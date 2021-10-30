@@ -25,6 +25,8 @@
             AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
                         {
                             String resourceName = new AssemblyName(args.Name).Name + ".dll";
+
+                            // Load embedded resources
                             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
                             {
                                 Byte[] assemblyData = new Byte[stream.Length];
@@ -32,9 +34,8 @@
                                 return Assembly.Load(assemblyData);
                             }
                         };
-            string PyDirectory = @"{{ REPLACE_DIRECTORY }}";
             string B64PyCode = "{{ REPLACE_LAUNCHER }}";
-            Empire.Agent(B64PyCode, PyDirectory);
+            Empire.Agent(B64PyCode);
         }
     }
   TaskingType: Assembly
@@ -82,6 +83,9 @@
       - Name: System.Runtime.CompilerServices.Unsafe.dll
         Location: net40\System.Runtime.CompilerServices.Unsafe.dll
         DotNetVersion: Net40
+      - Name: Microsoft.CSharp.Reference.dll
+        Location: net40\Microsoft.CSharp.dll
+        DotNetVersion: Net40
     EmbeddedResources:
       - Name: System.Runtime.CompilerServices.Unsafe.dll
         Location: System.Runtime.CompilerServices.Unsafe.dll
@@ -103,5 +107,7 @@
         Location: Microsoft.Scripting.Metadata.dll
       - Name: Microsoft.Dynamic.dll
         Location: Microsoft.Dynamic.dll
+      - Name: Lib.zip
+        Location: Lib.zip
   ReferenceAssemblies: []
   EmbeddedResources: []

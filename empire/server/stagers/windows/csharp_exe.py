@@ -85,11 +85,6 @@ class Stager(object):
                 'Description': 'Bypasses as a space separated list to be prepended to the launcher',
                 'Required': False,
                 'Value': 'mattifestation etw'
-            },
-            'Directory': {
-                'Description': 'Directory for the Python Standard Library or WebDAV server.',
-                'Required': False,
-                'Value': 'C:/Program Files/IronPython 3.4/Lib'
             }
         }
 
@@ -118,7 +113,6 @@ class Stager(object):
         obfuscate = self.options['Obfuscate']['Value']
         obfuscate_command = self.options['ObfuscateCommand']['Value']
         outfile = self.options['OutFile']['Value']
-        directory = self.options['Directory']['Value']
 
         if not self.mainMenu.listeners.is_listener_valid(listener_name):
             # not a valid listener, return nothing for the script
@@ -155,7 +149,7 @@ class Stager(object):
             return code
 
         elif language.lower() == 'python':
-            directory = self.mainMenu.stagers.generate_python_exe(launcher, directory, dot_net_version=dot_net_version)
+            directory = self.mainMenu.stagers.generate_python_exe(launcher, dot_net_version=dot_net_version)
             with open(directory, "rb") as f:
                 code = f.read()
             return code

@@ -199,7 +199,7 @@ class Stagers(object):
         shellcode = donut.create(file=directory, arch=arch_type)
         return shellcode
 
-    def generate_python_exe(self, posh_code, directory, dot_net_version='net40'):
+    def generate_python_exe(self, posh_code, dot_net_version='net40'):
         """
         Generate ironpython launcher embedded in csharp
         """
@@ -208,7 +208,6 @@ class Stagers(object):
         stager_yaml = stager_yaml.decode("UTF-8")
         posh_code = base64.b64encode(posh_code.encode("UTF-8")).decode("UTF-8")
         stager_yaml = stager_yaml.replace("{{ REPLACE_LAUNCHER }}", posh_code)
-        stager_yaml = stager_yaml.replace("{{ REPLACE_DIRECTORY }}", directory)
 
         compiler = self.mainMenu.loadedPlugins.get("csharpserver")
         if not compiler.status == 'ON':

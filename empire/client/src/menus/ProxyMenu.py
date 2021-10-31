@@ -126,8 +126,8 @@ class ProxyMenu(UseMenu):
 
         Usage: list
         """
-        proxies = list(map(lambda x: [x['addr'], x['port'], x['proxytype']], self.proxy_list))
-        proxies.insert(0, ['Address', 'Port', 'Proxy Type'])
+        proxies = list(map(lambda x: [self.proxy_list.index(x)+1, x['addr'], x['port'], x['proxytype']], self.proxy_list))
+        proxies.insert(0, ['Hop', 'Address', 'Port', 'Proxy Type'])
 
         table_util.print_table(proxies, 'Active Proxies')
 

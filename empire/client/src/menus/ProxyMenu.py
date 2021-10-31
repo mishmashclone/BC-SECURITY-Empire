@@ -75,7 +75,6 @@ class ProxyMenu(UseMenu):
         Usage: add_proxy [<position>]
         """
         self.agent_options = state.agents[self.session_id]
-        self.proxy_list = self.agent_options['proxy']
         if not self.proxy_list:
             self.proxy_list = []
 
@@ -99,7 +98,6 @@ class ProxyMenu(UseMenu):
         Usage: delete_proxy <position>
         """
         self.agent_options = state.agents[self.session_id]
-        self.proxy_list = self.agent_options['proxy']
         if not self.proxy_list:
             self.proxy_list = []
 

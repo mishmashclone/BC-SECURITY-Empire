@@ -258,6 +258,15 @@ class InteractMenu(Menu):
             print(print_util.color('[!] Error: ' + response['error']))
 
     @command
+    def proxy(self, agent_name: str) -> None:
+        """
+        Proxy management menu for configuring agent proxies
+
+        Usage: proxy
+        """
+        pass
+
+    @command
     def display(self, property_name: str):
         """
         Display an agent property

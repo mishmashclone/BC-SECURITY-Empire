@@ -40,7 +40,11 @@ options:
     value: ''
   - name: Shellcode
     description: Custom shellcode to inject, 0xaa,0xab,... format.
-    required: true
+    required: false
+    value: ''
+  - name: File
+    description: Binary file from the server to execute on the agent.
+    required: false
     value: ''
 advanced:
   custom_generate: true

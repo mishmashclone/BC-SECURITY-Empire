@@ -22,7 +22,7 @@ runspace.Open()
 
 var pipeline = runspace.CreatePipeline()
 dump pipeline
-pipeline.Commands.AddScript("{{ script }}")
+pipeline.Commands.AddScript("""{{ script }}""")
 pipeline.Commands.Add("Out-String")
 
 var results = pipeline.Invoke()

@@ -13,7 +13,7 @@ class ChatMenu(Menu):
     def __init__(self):
         super().__init__(display_name='chat', selected='')
         self.my_username = ''
-        self.chat_cache = []
+        state.chat_cache = []
 
     def autocomplete(self):
         return self._cmd_registry + super().autocomplete()
@@ -43,10 +43,10 @@ class ChatMenu(Menu):
         print(print_util.color('[*] Exit Chat Menu with Ctrl+C'))
         self.my_username = state.me['username']
 
-        for message in self.chat_cache:
+        for message in state.chat_cache:
             print(message)
 
-        self.chat_cache = []
+        state.chat_cache = []
 
         return True
 
@@ -59,14 +59,14 @@ class ChatMenu(Menu):
         if self.is_chat_active() == 'ChatMenu':
             print(message)
         else:
-            self.chat_cache.append(message)
+            state.chat_cache.append(message)
 
     def on_chat_leave(self, data):
         message = print_util.color('[+] ' + data['message'])
         if self.is_chat_active():
             print(message)
         else:
-            self.chat_cache.append(message)
+            state.chat_cache.append(message)
 
     def on_chat_message(self, data):
         if data['username'] != state.me['username'] or data.get('history') is True:
@@ -75,13 +75,13 @@ class ChatMenu(Menu):
                 if self.is_chat_active():
                     print(message)
                 else:
-                    self.chat_cache.append(print_util.color(message))
+                    state.chat_cache.append(print_util.color(message))
             else:
                 message = print_util.color(data['username'], 'red') + ': ' + data['message']
                 if self.is_chat_active():
                     print(message)
                 else:
-                    self.chat_cache.append(message)
+                    state.chat_cache.append(message)
 
     def send_chat(self, text):
         state.sio.emit('chat/message', {'message': text})

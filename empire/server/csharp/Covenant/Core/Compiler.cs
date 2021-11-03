@@ -109,8 +109,6 @@ namespace Covenant.Core
 
         public static byte[] Compile(CompilationRequest request)
         {
-
-
             if (request.Language == Models.Grunts.ImplantLanguage.CSharp)
             {
                 return CompileCSharp((CsharpCompilationRequest)request);
@@ -120,15 +118,8 @@ namespace Covenant.Core
 
         private static byte[] CompileCSharp(CsharpCompilationRequest request)
         {
+            return CompileCSharpRoslyn((CsharpFrameworkCompilationRequest)request);
 
-            if (request.TargetDotNetVersion == Common.DotNetVersion.NetCore31 && request.UseSubprocess)
-            {
-                return CompileCSharpCoreSubProcess((CsharpCoreCompilationRequest)request);
-            }
-            else
-            {
-                return CompileCSharpRoslyn((CsharpFrameworkCompilationRequest)request);
-            }
         }
 
         private static byte[] CompileCSharpCoreSubProcess(CsharpCoreCompilationRequest request)
@@ -143,7 +134,7 @@ namespace Covenant.Core
             p.WaitForExit();
             try
             {
-                string dir = Path.Combine(request.SourceDirectory, "bin", "Release", "netcoreapp3.1", RuntimeIdentifiers[request.RuntimeIdentifier], "publish");
+                string dir = Path.Combine(request.SourceDirectory, "bin", "Release", RuntimeIdentifiers[request.RuntimeIdentifier], "publish");
                 IEnumerable<string> files = Directory.EnumerateFiles(dir);
                 string file = files
                     .Select(F => new FileInfo(F))
@@ -176,10 +167,11 @@ namespace Covenant.Core
             {
                 foreach (var sourceDirectory in request.SourceDirectories)
                 {
-                    sourceSyntaxTrees.AddRange(Directory.GetFiles(Path.GetFullPath(sourceDirectory), "*.cs", SearchOption.AllDirectories)
+                    List<SourceSyntaxTree> ssts = Directory.GetFiles(sourceDirectory, "*.cs", SearchOption.AllDirectories)
                         .Select(F => new SourceSyntaxTree { FileName = F, SyntaxTree = CSharpSyntaxTree.ParseText(File.ReadAllText(F), new CSharpParseOptions()) })
-                        .ToList());
-                    compilationTrees.AddRange(sourceSyntaxTrees.Select(S => S.SyntaxTree).ToList());
+                        .ToList();
+                    sourceSyntaxTrees.AddRange(ssts);
+                    compilationTrees.AddRange(ssts.Select(S => S.SyntaxTree).ToList());
                 }
             }
             SyntaxTree sourceTree = CSharpSyntaxTree.ParseText(request.Source, new CSharpParseOptions());
@@ -188,7 +180,7 @@ namespace Covenant.Core
             List<PortableExecutableReference> references = request.References
                 .Where(R => R.Framework == request.TargetDotNetVersion)
                 .Where(R => R.Enabled)
-                .Select(R => MetadataReference.CreateFromFile(Path.GetFullPath(R.File)))
+                .Select(R => MetadataReference.CreateFromFile(R.File))
                 .ToList();
 
             // Use specified OutputKind and Platform
@@ -202,12 +194,12 @@ namespace Covenant.Core
             );
 
             // Perform source code optimization, removing unused types
-            
             if (request.Optimize)
             {
                 // Find all Types used by the generated compilation
                 HashSet<ITypeSymbol> usedTypes = new HashSet<ITypeSymbol>();
-                GetUsedTypesRecursively(compilation, sourceTree, ref usedTypes, ref sourceSyntaxTrees);
+                List<SyntaxTree> searchedTrees = new List<SyntaxTree>();
+                GetUsedTypesRecursively(compilation, sourceTree, ref usedTypes, ref sourceSyntaxTrees, ref searchedTrees);
                 List<string> usedTypeNames = usedTypes.Select(T => GetFullyQualifiedTypeName(T)).ToList();
 
                 // Filter SyntaxTrees to trees that define a used Type, otherwise the tree is not needed in this compilation
@@ -234,7 +226,7 @@ namespace Covenant.Core
                         return MetadataReference.CreateFromFile(R.File);
                     }).ToList(),
                     options
-                ); 
+                );
             }
 
             // Emit compilation
@@ -268,7 +260,6 @@ namespace Covenant.Core
                     throw new CompilerException("CompilationErrors: " + Environment.NewLine + sb);
                 }
             }
-
             if (request.Confuse)
             {
                 return ConfuseAssembly(ILbytes);
@@ -349,16 +340,27 @@ namespace Covenant.Core
             SemanticModel model = compilation.GetSemanticModel(tree);
             return null != tree.GetRoot().DescendantNodes().FirstOrDefault(SN =>
             {
-                if (SN.Kind() != SyntaxKind.ClassDeclaration)
+                if (SN.Kind() == SyntaxKind.ClassDeclaration)
                 {
-                    return false;
+                    ITypeSymbol symbol = model.GetDeclaredSymbol((ClassDeclarationSyntax)SN);
+                    return typeNames.Contains(GetFullyQualifiedTypeName(symbol));
                 }
-                ITypeSymbol symbol = model.GetDeclaredSymbol(((ClassDeclarationSyntax)SN));
-                if (symbol == null)
+                else if (SN.Kind() == SyntaxKind.InterfaceDeclaration)
                 {
-                    return false;
+                    ITypeSymbol symbol = model.GetDeclaredSymbol((InterfaceDeclarationSyntax)SN);
+                    return typeNames.Contains(GetFullyQualifiedTypeName(symbol));
                 }
-                return typeNames.Contains(GetFullyQualifiedTypeName(symbol));
+                else if (SN.Kind() == SyntaxKind.StructDeclaration)
+                {
+                    ITypeSymbol symbol = model.GetDeclaredSymbol((StructDeclarationSyntax)SN);
+                    return typeNames.Contains(GetFullyQualifiedTypeName(symbol));
+                }
+                else if (SN.Kind() == SyntaxKind.EnumDeclaration)
+                {
+                    ITypeSymbol symbol = model.GetDeclaredSymbol((EnumDeclarationSyntax)SN);
+                    return typeNames.Contains(GetFullyQualifiedTypeName(symbol));
+                }
+                return false;
             });
         }
 
@@ -366,14 +368,19 @@ namespace Covenant.Core
         private static HashSet<ITypeSymbol> GetUsedTypes(CSharpCompilation compilation, SyntaxTree sourceTree)
         {
             SemanticModel sm = compilation.GetSemanticModel(sourceTree);
-
-            return sourceTree.GetRoot().DescendantNodes().Select(N => sm.GetSymbolInfo(N).Symbol).Where(S =>
+            List<ITypeSymbol> types = new List<ITypeSymbol>();
+            sourceTree.GetRoot().DescendantNodes().Select(N => sm.GetSymbolInfo(N).Symbol).ToList().ForEach(Symbol =>
             {
-                return S != null && typeKinds.Contains(S.Kind);
-            }).Select(T => (ITypeSymbol)T).ToHashSet();
+                if (Symbol != null && typeKinds.Contains(Symbol.Kind))
+                {
+                    ITypeSymbol typeSymbol = (ITypeSymbol)Symbol;
+                    types.Add(typeSymbol);
+                }
+            });
+            return types.ToHashSet();
         }
 
-        private static HashSet<ITypeSymbol> GetUsedTypesRecursively(CSharpCompilation compilation, SyntaxTree sourceTree, ref HashSet<ITypeSymbol> currentUsedTypes, ref List<SourceSyntaxTree> sourceSyntaxTrees)
+        private static HashSet<ITypeSymbol> GetUsedTypesRecursively(CSharpCompilation compilation, SyntaxTree sourceTree, ref HashSet<ITypeSymbol> currentUsedTypes, ref List<SourceSyntaxTree> sourceSyntaxTrees, ref List<SyntaxTree> searchedTrees)
         {
             HashSet<string> copyCurrentUsedTypes = currentUsedTypes.Select(CT => GetFullyQualifiedTypeName(CT)).ToHashSet();
 
@@ -396,8 +403,12 @@ namespace Covenant.Core
             searchTrees.Remove(sourceTree);
             foreach (SyntaxTree tree in searchTrees)
             {
-                HashSet<ITypeSymbol> newTypes = GetUsedTypesRecursively(compilation, tree, ref currentUsedTypes, ref sourceSyntaxTrees);
-                currentUsedTypes.UnionWith(newTypes);
+                if (!searchedTrees.Contains(tree))
+                {
+                    searchedTrees.Add(tree);
+                    HashSet<ITypeSymbol> newTypes = GetUsedTypesRecursively(compilation, tree, ref currentUsedTypes, ref sourceSyntaxTrees, ref searchedTrees);
+                    currentUsedTypes.UnionWith(newTypes);
+                }
             }
             return currentUsedTypes;
         }

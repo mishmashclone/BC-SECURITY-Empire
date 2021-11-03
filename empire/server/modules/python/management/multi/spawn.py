@@ -24,6 +24,6 @@ class Module(object):
         else:
 
             launcher = launcher.replace('"', '\\"')
-            script = 'os.system("%s")' % (launcher)
+            script = 'import os; os.system("%s")' % (launcher)
 
             return script

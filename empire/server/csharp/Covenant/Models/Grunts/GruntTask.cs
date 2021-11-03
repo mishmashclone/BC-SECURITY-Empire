@@ -157,6 +157,7 @@ namespace Covenant.Models.Grunts
             this.CompatibleDotNetVersions = task.CompatibleDotNetVersions;
             this.Code = task.Code;
             this.Compiled = false;
+
             this.TaskingType = task.TaskingType;
             this.UnsafeCompile = task.UnsafeCompile;
             this.TokenTask = task.TokenTask;
@@ -268,7 +269,7 @@ namespace Covenant.Models.Grunts
                 })
             );
             #region testOutFile
-            if (this.Name.StartsWith("Sharpire"))
+            if (this.Name.StartsWith("Sharpire") || this.Name.StartsWith("CSharpPS") || this.Name.StartsWith("CSharpPy"))
             {
                 File.WriteAllBytes(Common.CovenantTaskCSharpCompiledNet35Directory + this.Name + ".exe",
                     Compiler.Compile(new Compiler.CsharpFrameworkCompilationRequest
@@ -283,15 +284,7 @@ namespace Covenant.Models.Grunts
                         OutputKind = OutputKind.WindowsApplication,
                         Confuse = true,
                         // TODO: Fix optimization to work with GhostPack
-                        Optimize = !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Rubeus") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Seatbelt") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpDPAPI") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpDump") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpUp") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpWMI") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpSC") &&
-                               !this.Name.Contains("inject", StringComparison.CurrentCultureIgnoreCase) &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Sharpire")
+                        Optimize = !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Seatbelt")
                     })
                 );
             }
@@ -310,15 +303,7 @@ namespace Covenant.Models.Grunts
                         UnsafeCompile = this.UnsafeCompile,
                         Confuse = true,
                         // TODO: Fix optimization to work with GhostPack
-                        Optimize = !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Rubeus") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Seatbelt") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpDPAPI") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpDump") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpUp") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpWMI") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpSC") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Sharpire") &&
-                               !this.Name.Contains("inject", StringComparison.CurrentCultureIgnoreCase)
+                        Optimize = !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Seatbelt")
                     }))
                 );
             }
@@ -368,7 +353,7 @@ namespace Covenant.Models.Grunts
                 })
             );
             #region testOutFile
-            if (this.Name.StartsWith("Sharpire"))
+            if (this.Name.StartsWith("Sharpire") || this.Name.StartsWith("CSharpPS") || this.Name.StartsWith("CSharpPy"))
             {
                 File.WriteAllBytes(Common.CovenantTaskCSharpCompiledNet40Directory + this.Name + ".exe",
                     Compiler.Compile(new Compiler.CsharpFrameworkCompilationRequest
@@ -383,15 +368,7 @@ namespace Covenant.Models.Grunts
                         OutputKind = OutputKind.WindowsApplication,
                         Confuse = true,
                         // TODO: Fix optimization to work with GhostPack. It also doesn't work with Sharpire. Not sure if this actuall works with anything...
-                        Optimize = !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Rubeus") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Seatbelt") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpDPAPI") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpDump") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpUp") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpWMI") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpSC") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Sharpire") &&
-                               !this.Name.Contains("inject", StringComparison.CurrentCultureIgnoreCase)
+                        Optimize = !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Seatbelt")
                     })
                 );
             }
@@ -410,15 +387,7 @@ namespace Covenant.Models.Grunts
                         UnsafeCompile = this.UnsafeCompile,
                         Confuse = true,
                         // TODO: Fix optimization to work with GhostPack
-                        Optimize = !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Rubeus") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Seatbelt") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpDPAPI") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpDump") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpUp") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpWMI") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("SharpSC") &&
-                               !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Sharpire") &&
-                               !this.Name.Contains("inject", StringComparison.CurrentCultureIgnoreCase)
+                        Optimize = !this.ReferenceSourceLibraries.Select(RSL => RSL.Name).Contains("Seatbelt")
                     }))
                 );
             }

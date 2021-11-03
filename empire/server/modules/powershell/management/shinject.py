@@ -52,7 +52,7 @@ class Module(object):
             else:
                 launcher_code = launcher.split(' ')[-1]
 
-                sc = main_menu.stagers.generate_shellcode(launcher_code, arch)
+                sc = main_menu.stagers.generate_powershell_shellcode(launcher_code, arch)
 
                 encoded_sc = helpers.encode_base64(sc)
 

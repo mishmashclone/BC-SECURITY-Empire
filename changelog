@@ -1,3 +1,22 @@
+11/1/2021
+------------
+- Version 4.2.0 Master Release
+        - Added revershell & cmd launchers with reversehell (@Cx01N)
+        - Added ironpython to compile through empire with embedded std lib (@Cx01N)
+        - Added proxy (SOCKS/TOR/HTTP) pivots to python agents (@Cx01N)
+        - Added notifications in bottom toolbar for plugins and agents (@Cx01N)
+        - Added C# VNC server (@Cx01N)
+        - Added extended rights for certificate templates (@daem0nc0re)
+        - Added donut for shellcode generation (@Cx01N)
+        - Updated WMI persistence and bug fixes (@janit0rjoe)
+        - Updated covenant compiler (@Hubbl3)
+        - Updated csharp powershell launcher to compile through empire (@Hubbl3)
+        - Fixed formatting error in enable_rdp (@jamarir)
+        - Fixed nim launcher to run internal to exe (@Cx01N)
+        - Fixed misc python module errors (@Cx01N)
+        - Fixed outfile message displaying wrong directory (@Cx01N)
+        - Removed sRDI for shellcode (@Cx01N)
+
 9/28/2021
 ------------
 - Version 4.1.3 Master Release

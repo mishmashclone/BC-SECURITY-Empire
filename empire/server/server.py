@@ -2287,8 +2287,9 @@ def run(args):
 
     def server_startup_validator():
         print(helpers.color('[*] Testing APIs'))
-        username = 'test-' + ''.join(random.choice(string.ascii_lowercase) for i in range(4))
-        password = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+        rng = random.SystemRandom()
+        username = 'test-' + ''.join(rng.choice(string.ascii_lowercase) for i in range(4))
+        password = ''.join(rng.choice(string.ascii_lowercase) for i in range(10))
         main.users.add_new_user(username, password)
         response = requests.post(url=f'https://{args.restip}:{args.restport}/api/admin/login',
                                  json={'username': username, 'password': password},

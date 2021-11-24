@@ -7,6 +7,9 @@ fi
 
 IFS='/' read -a array <<< pwd
 
+# remove generated-stagers
+rm -rf empire/client/generated-stagers/*
+
 # remove the debug file if it exists
 cd empire/server
 
@@ -33,6 +36,11 @@ if [ -d ./csharp/Covenant/obj ]
 then
 	rm -rf ./csharp/Covenant/obj
 fi
+
+# remove compiled csharp tasks
+rm -rf ./csharp/Covenant/Data/Tasks/CSharp/Compiled/net35/*
+rm -rf ./csharp/Covenant/Data/Tasks/CSharp/Compiled/net40/*
+rm -rf ./csharp/Covenant/Data/Tasks/CSharp/Compiled/netcoreapp3.0/*
 
 # remove invoke-obfuscation files and re-add
 rm -rf /usr/local/share/powershell/Modules/Invoke-Obfuscation/

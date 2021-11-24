@@ -25,3 +25,9 @@
 [submodule "empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/SharpSploit"]
 	path = empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/SharpSploit
 	url = https://github.com/cobbr/SharpSploit/
+[submodule "empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/NVNC"]
+	path = empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/NVNC
+	url = https://github.com/BC-SECURITY/NVNC.git
+[submodule "empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/Sharpire"]
+	path = empire/server/csharp/Covenant/Data/ReferenceSourceLibraries/Sharpire
+	url = https://github.com/BC-SECURITY/Sharpire.git

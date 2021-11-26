@@ -2116,15 +2116,12 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         """
         plugins = []
 
-        plugin_path = empireMenu.installPath + "/plugins"
-        all_plugin_names = [name for _, name, _ in pkgutil.walk_packages([plugin_path])]
-        # check if the plugin has already been loaded
+        # check for loaded plugins
         active_plugins = list(empireMenu.loadedPlugins.keys())
-        for plugin_name in all_plugin_names:
-            if plugin_name in active_plugins:
-                data = empireMenu.loadedPlugins[plugin_name].info[0]
-                data['options'] = empireMenu.loadedPlugins[plugin_name].options
-                plugins.append(data)
+        for plugin_name in active_plugins:
+            data = empireMenu.loadedPlugins[plugin_name].info[0]
+            data['options'] = empireMenu.loadedPlugins[plugin_name].options
+            plugins.append(data)
 
         return jsonify({'plugins': plugins})
 

@@ -157,25 +157,31 @@ class MainMenu(cmd.Cmd):
         """
         Load plugins at the start of Empire
         """
-        pluginPath = self.installPath + "/plugins"
-        print(helpers.color("[*] Searching for plugins at {}".format(pluginPath)))
+        plugin_path = self.installPath + "/plugins/"
+        print(helpers.color("[*] Searching for plugins at {}".format(plugin_path)))
 
-        # From walk_packages: "Note that this function must import all packages
-        # (not all modules!) on the given path, in order to access the __path__
-        # attribute to find submodules."
-        plugin_names = [name for _, name, _ in pkgutil.walk_packages([pluginPath])]
-
+        # Import old v1 plugins (remove in 5.0)
+        plugin_names = [name for _, name, _ in pkgutil.walk_packages([plugin_path])]
         for plugin_name in plugin_names:
             if plugin_name.lower() != 'example':
-                print(helpers.color("[*] Plugin {} found.".format(plugin_name)))
+                file_path = os.path.join(plugin_path, plugin_name + '.py')
+                plugins.load_plugin(self, plugin_name, file_path)
 
-                message = "[*] Loading plugin {}".format(plugin_name)
-                signal = json.dumps({
-                    'print': False,
-                    'message': message
-                })
-                dispatcher.send(signal, sender="empire")
-                plugins.load_plugin(self, plugin_name)
+        for root, dirs, files in os.walk(plugin_path):
+            for filename in files:
+                if not filename.lower().endswith('.plugin'):
+                    continue
+
+                file_path = os.path.join(root, filename)
+                plugin_name = filename.split('.')[0]
+
+                # don't load up any of the templates or examples
+                if fnmatch.fnmatch(filename, '*template.plugin'):
+                    continue
+                elif fnmatch.fnmatch(filename, '*example.plugin'):
+                    continue
+
+                plugins.load_plugin(self, plugin_name, file_path)
 
     def load_malleable_profiles(self):
         """

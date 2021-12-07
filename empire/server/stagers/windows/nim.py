@@ -118,7 +118,7 @@ class Stager(object):
                     print(helpers.color("[!] if using obfuscation, LAUNCHER obfuscation cannot be used in the dll stager."))
                     return ""
 
-            launcher = self.main_menu.stagers.generate_launcher(listener_name, language=language, encode=True,
+            launcher = self.main_menu.stagers.generate_launcher(listener_name, language=language, encode=False,
                                                                 userAgent=user_agent, proxy=proxy,
                                                                 proxyCreds=proxy_creds, stagerRetries=stager_retries,
                                                                 bypasses=self.options['Bypasses']['Value'])

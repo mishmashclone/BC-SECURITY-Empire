@@ -5,12 +5,12 @@ description: Spawns a new Empire agent.
 software: ''
 techniques:
   - T1050
-background: false
+background: true
 output_extension: ''
 needs_admin: false
 opsec_safe: true
 language: python
-min_language_version: '2.6'
+min_language_version: '3'
 comments: [ ]
 options:
   - name: Agent

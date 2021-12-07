@@ -94,6 +94,7 @@ class Agent(Base):
     notes = Column(Text)
     architecture = Column(String(255))
     killed = Column(Boolean, nullable=False)
+    proxy = Column(PickleType)
 
     @hybrid_property # todo @stale.expression
     def stale(self):

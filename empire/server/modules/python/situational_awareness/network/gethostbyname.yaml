@@ -11,7 +11,7 @@ output_extension:
 needs_admin: false
 opsec_safe: true
 language: python
-min_language_version: '2.6'
+min_language_version: '3'
 comments:
   - none
 options:
@@ -27,12 +27,11 @@ script: |
   import socket
 
   def main(target):
-      return_Str = ''
       try:
-          return_Str = str(socket.gethostbyname(target))
-          print("{} resolved to {} !".format(target, return_Str))
+          result = str(socket.gethostbyname(target))
+          print("Host: {}".format(result))
       except socket.error:
-          print("{} failed to resolve :(".format(target))
+          print("Target failed to resolve")
 
   target = "{{ Target }}"
 

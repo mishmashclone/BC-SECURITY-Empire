@@ -11,7 +11,7 @@ output_extension: ''
 needs_admin: false
 opsec_safe: true
 language: python
-min_language_version: '2.6'
+min_language_version: '3'
 comments:
   - 'Docs: https://mesos.github.io/chronos/docs/api.html'
   - 'urllib2 DELETE method credits to: http://stackoverflow.com/questions/21243834/doing-put-using-python-urllib2'
@@ -20,36 +20,20 @@ options:
     description: Agent to execute module on.
     required: true
     value: ''
-  - name: Protocol
-    description: Protocol or Scheme to use.
-    required: true
-    value: http
   - name: Target
     description: FQDN, domain name, or hostname of the remote target.
     required: true
-    value: master.mesos
-  - name: Port
-    description: The port to connect to.
-    required: true
-    value: '8123'
-  - name: Path
-    description: The path.
-    required: true
-    value: /v1/version
+    value: https://api.icndb.com/jokes/random/
   - name: RequMethod
     description: The HTTP request method to use.
     required: true
     value: GET
 script: |
-  import urllib2
+  import urllib.request as urllib2
 
-  protocol = "{{ Protocol }}"
-  target = "{{ Target }}"
-  port = "{{ Port }}"
-  path = "{{ Path }}"
   requmethod = "{{ RequMethod }}"
 
-  url = protocol + "://" + target + ":" + port + path
+  url = "{{ Target }}"
 
   class MethodRequest(urllib2.Request):
       def __init__(self, *args, **kwargs):
@@ -72,8 +56,8 @@ script: |
                      'Gecko/20140205     Firefox/27.0 Iceweasel/25.3.0')
       opener = urllib2.build_opener(urllib2.HTTPHandler)
       content = opener.open(request).read()
-      print(str(content))
+      print(content.decode('UTF-8'))
   except Exception as e:
-      print("Failure sending payload: " + str(e))
+    print("Failure sending payload: " + str(e))
 
   print("Finished")

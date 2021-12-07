@@ -10,7 +10,7 @@ output_extension:
 needs_admin: false
 opsec_safe: true
 language: python
-min_language_version: '2.6'
+min_language_version: '3'
 comments:
   - CIDR Parser credits to http://bibing.us.es/proyectos/abreproy/12106/fichero/ARCHIVOS%252Fservidor_xmlrpc%252Fcidr.py
 options:

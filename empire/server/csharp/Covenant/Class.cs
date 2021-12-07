@@ -33,7 +33,7 @@ namespace Covenant
 
 
             //arbitrary buffer size. This may need to change in the future
-            byte[] buffer = new byte[100000];
+            byte[] buffer = new byte[10000000];
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2012);
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
@@ -53,10 +53,10 @@ namespace Covenant
                     var bytesYAML = Convert.FromBase64String(recMessage[1]);
                     string strTaskName = Encoding.UTF8.GetString(bytesTaskName);
                     string strYAML = Encoding.UTF8.GetString(bytesYAML);
-
                     // Initialize the task from the passed YAML
                     DbInitializer.IngestTask(service, strYAML);
                     tsks = service.GetEmpire().gruntTasks;
+
                     try
                     {
                         if (strTaskName != "close")

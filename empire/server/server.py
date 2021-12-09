@@ -1176,7 +1176,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
         raw_bytes = base64.b64decode(file_data)
 
         if len(raw_bytes) > 1048576:
-            return make_response(jsonify({'error': 'file size too large'}), 404)
+            return make_response(jsonify({'error': 'file size too large, upload limit: <1MB.'}), 404)
 
         msg = "Tasked agent to upload %s : %s" % (file_name, hashlib.md5(raw_bytes).hexdigest())
         main.agents.save_agent_log(agent.session_id, msg)

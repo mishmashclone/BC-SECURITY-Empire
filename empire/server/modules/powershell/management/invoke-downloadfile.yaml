@@ -1,0 +1,26 @@
+name: Invoke-DownloadFile
+authors:
+  - Cx01N
+description: Download files from the internet through PowerShell.
+software: ''
+techniques:
+  - T1544
+background: true
+output_extension:
+needs_admin: false
+opsec_safe: true
+language: powershell
+min_language_version: '2'
+comments:
+  - https://github.com/Smalls1652/Get-RandomPowerShellScripts/blob/master/Actions/Networking/Invoke-DownloadFile.ps1
+options:
+  - name: Agent
+    description: Agent to run module on.
+    required: true
+    value: ''
+  - name: Url
+    description: Remote directory to download file from.
+    required: true
+    value: ''
+script_path: 'empire/server/data/module_source/management/Invoke-DownloadFile.ps1'
+script_end: Invoke-DownloadFile {{ PARAMS }}

@@ -331,24 +331,11 @@ def process_packet(packetType, data, resultID):
             filePath = parts[0]
             base64part = parts[1]
             raw = base64.b64decode(base64part)
-            d = decompress()
-            dec_data = d.dec_data(raw, cheader=True)
-            if not dec_data['crc32_check']:
-                send_message(
-                    build_response_packet(0, "[!] WARNING: File upload failed crc32 check during decompressing!.",
-                                          resultID))
-                send_message(build_response_packet(0,
-                                                   "[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!." % (
-                                                   dec_data['header_crc32'], dec_data['dec_crc32'],
-                                                   dec_data['crc32_check']), resultID))
             with open(filePath, 'ab') as f:
-                f.write(dec_data['data'])
-
+                f.write(raw)
             send_message(build_response_packet(42, "[*] Upload of %s successful" % (filePath), resultID))
         except Exception as e:
-            sendec_datadMessage(
-                build_response_packet(0, "[!] Error in writing file %s during upload: %s" % (filePath, str(e)),
-                                      resultID))
+            send_message(build_response_packet(0, "[!] Error in writing file %s during upload: %s" % (filePath, str(e)), resultID))
 
     elif packetType == 43:
         # directory list

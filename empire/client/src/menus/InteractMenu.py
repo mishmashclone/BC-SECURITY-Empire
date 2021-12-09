@@ -147,7 +147,11 @@ class InteractMenu(Menu):
             file_name = destination_file_name
 
         response = state.agent_upload_file(self.session_id, file_name, file_data.decode('UTF-8'))
-        print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
+        if 'success' in response.keys():
+            print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
+
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
 
     @command
     def download(self, file_name: str) -> None:
@@ -157,7 +161,11 @@ class InteractMenu(Menu):
         Usage: download <file_name>
         """
         response = state.agent_download_file(self.session_id, file_name)
-        print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
+        if 'success' in response.keys():
+            print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
+
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
 
     @command
     def sleep(self, delay: int, jitter: int) -> None:

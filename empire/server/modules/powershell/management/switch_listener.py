@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 from builtins import object
 from builtins import str
 from typing import Dict, Optional, Tuple
@@ -27,8 +28,8 @@ class Module(object):
         # signal the existing listener that we're switching listeners, and the new comms code
         script = "Send-Message -Packets $(Encode-Packet -Type 130 -Data '%s');\n%s" % (listener_name, script)
 
-        if obfuscate:
-            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
+        if main_menu.obfuscate:
+            script = data_util.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=main_menu.obfuscateCommand)
         script = data_util.keyword_obfuscation(script)
 
         return script

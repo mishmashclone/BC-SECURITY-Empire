@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 from builtins import object
 from builtins import str
 from typing import Dict
@@ -19,16 +20,23 @@ class Module(object):
         check_all = params['CheckAll']
 
         # read in the common module source code
-        sql_info_source = main_menu.installPath + "/data/module_source/situational_awareness/network/Get-SQLServerInfo.ps1"
-        script = ""
-        if obfuscate:
-            data_util.obfuscate_module(moduleSource=sql_info_source, obfuscationCommand=obfuscation_command)
-            sql_info_source = sql_info_source.replace("module_source", "obfuscated_module_source")
+        module_source = main_menu.installPath + "/data/module_source/management/Invoke-PSInject.ps1"
+        if main_menu.obfuscate:
+            obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
+            if pathlib.Path(obfuscated_module_source).is_file():
+                module_source = obfuscated_module_source
+
         try:
-            with open(sql_info_source, 'r') as source:
-                script = source.read()
+            with open(module_source, 'r') as f:
+                module_code = f.read()
         except:
-            return handle_error_message("[!] Could not read module source path at: " + str(sql_info_source))
+            return handle_error_message("[!] Could not read module source path at: " + str(module_source))
+
+        if main_menu.obfuscate and not pathlib.Path(obfuscated_module_source).is_file():
+            script = data_util.obfuscate(installPath=main_menu.installPath, psScript=module_code,
+                                         obfuscationCommand=main_menu.obfuscateCommand)
+        else:
+            script = module_code
 
         script_end = ""
         if check_all:
@@ -60,10 +68,9 @@ class Module(object):
         outputf = params.get("OutputFunction", "Out-String")
         script_end += f" | {outputf} | " + '%{$_ + \"`n\"};"`n' + str(module.name.split("/")[-1]) + ' completed!"'
 
-        if obfuscate:
-            script_end = helpers.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscation_command)
+        if main_menu.obfuscate:
+            script_end = data_util.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=main_menu.obfuscateCommand)
         script += script_end
         script = data_util.keyword_obfuscation(script)
 
         return script
-

@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 import os
 from builtins import object
 from builtins import str
@@ -147,8 +148,8 @@ class Module(object):
             status_msg += " with "+task_name+" daily trigger at " + daily_time + "."
         script += "'Schtasks persistence established "+status_msg+"'"
 
-        if obfuscate:
-            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
+        if main_menu.obfuscate:
+            script = data_util.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=main_menu.obfuscateCommand)
         script = data_util.keyword_obfuscation(script)
 
         return script

@@ -454,6 +454,31 @@ class MainMenu(cmd.Cmd):
 
         return f'{self.installPath}/data'
 
+    def preobfuscate_modules(self, obfuscation_command, reobfuscate=False):
+        """
+        Preobfuscate PowerShell module_source files
+        """
+        if not data_util.is_powershell_installed():
+            print(helpers.color(
+                "[!] PowerShell is not installed and is required to use obfuscation, please install it first."))
+            return
+
+        # Preobfuscate all module_source files
+        files = [file for file in helpers.get_module_source_files()]
+
+        for file in files:
+            file = os.getcwd() + '/' + file
+            if reobfuscate or not data_util.is_obfuscated(file):
+                message = "[*] Obfuscating {}...".format(os.path.basename(file))
+                signal = json.dumps({
+                    'print': True,
+                    'message': message,
+                    'obfuscated_file': os.path.basename(file)
+                })
+                dispatcher.send(signal, sender="empire")
+            else:
+                print(helpers.color("[*] " + os.path.basename(file) + " was already obfuscated. Not reobfuscating."))
+            data_util.obfuscate_module(file, obfuscation_command, reobfuscate)
 
 def xstr(s):
     """

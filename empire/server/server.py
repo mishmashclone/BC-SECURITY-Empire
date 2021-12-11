@@ -39,6 +39,7 @@ from empire.server.common.module_models import PydanticModule
 from empire.server.database.base import Session
 from empire.server.database import models
 from empire.server.common.config import empire_config
+from empire.server.utils import data_util
 
 # Check if running Python 3
 if sys.version[0] == '2':
@@ -1980,7 +1981,7 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
     @app.route('/api/admin/options', methods=['POST'])
     def set_admin_options():
         """
-        Obfuscate all future powershell commands run on all agents.
+        Admin menu options for obfuscation
         """
         if not request.json:
             return make_response(jsonify({'error': 'request body must be valid JSON'}), 400)
@@ -1991,26 +1992,41 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
                 main.obfuscate = True
             else:
                 main.obfuscate = False
+            msg = f"[*] Global obfuscation set to {request.json['obfuscate']}"
 
         # if obfuscate command is given then set, otherwise use default
-        if 'obfuscate_command' in request.json:
+        elif 'obfuscate_command' in request.json:
             main.obfuscateCommand = request.json['obfuscate_command']
+            msg = f"[*] Global obfuscation command set to {request.json['obfuscate_command']}"
 
         # add keywords to the obfuscation database
-        if 'keyword_obfuscation' in request.json:
+        elif 'keyword_obfuscation' in request.json:
             keyword = request.json['keyword_obfuscation']
-            try:
-                # if no replacement given then generate a random word
-                if not request.json['keyword_replacement']:
-                    keyword_replacement = random.choice(string.ascii_uppercase) + ''.join(
-                        random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
-                else:
-                    keyword_replacement = request.json['keyword_replacement']
-                Session().add(models.Function(keyword=keyword, replacement=keyword_replacement))
-                Session().commit()
-            except Exception:
-                print(helpers.color("couldn't connect to Database"))
+            keyword_replacement = request.json['keyword_replacement']
+            keyword_obfuscation = Session().query(models.Function).filter(models.Function.keyword == keyword).first()
+            if not keyword_obfuscation:
+                try:
+                    Session().add(models.Function(keyword=keyword, replacement=keyword_replacement))
+                    msg = f"[*] Keyword obfuscation set to replace {request.json['keyword_obfuscation']} with {keyword_replacement}"
+                except Exception as e:
+                    print(helpers.color(f"[!] Error: {e}"))
+            else:
+                keyword_obfuscation.replacement = keyword_replacement
+                msg = f"[*] Keyword obfuscation updated to replace {request.json['keyword_obfuscation']} with {keyword_replacement}"
+            Session().commit()
 
+        elif 'preobfuscation' in request.json:
+            obfuscate_command = request.json['preobfuscation']
+            if request.json['force_reobfuscation'].lower() == 'true':
+                force_reobfuscation = True
+            else:
+                force_reobfuscation = False
+            msg = f"[*] Preobfuscating all modules with {obfuscate_command}"
+            main.preobfuscate_modules(obfuscate_command, force_reobfuscation)
+        else:
+            return make_response(jsonify({'error': 'JSON body must include key valid admin option'}), 400)
+
+        print(helpers.color(msg))
         return jsonify({'success': True})
 
     @app.route('/api/users', methods=['GET'])

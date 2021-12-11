@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 import base64
 from builtins import object
 from builtins import str
@@ -45,25 +46,31 @@ class Module(object):
 
 
         module_source = main_menu.installPath + "/data/module_source/code_execution/Invoke-Assembly.ps1"
-        script_end = "\nInvoke-Assembly"
+        if main_menu.obfuscate:
+            obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
+            if pathlib.Path(obfuscated_module_source).is_file():
+                module_source = obfuscated_module_source
 
-        if obfuscate:
-            data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
-            module_source = module_source.replace("module_source", "obfuscated_module_source")
         try:
-            f = open(module_source, 'r')
+            with open(module_source, 'r') as f:
+                module_code = f.read()
         except:
             return handle_error_message("[!] Could not read module source path at: " + str(module_source))
-        module_code = f.read()
-        f.close()
+
+        if main_menu.obfuscate and not pathlib.Path(obfuscated_module_source).is_file():
+            script = data_util.obfuscate(installPath=main_menu.installPath, psScript=module_code, obfuscationCommand=main_menu.obfuscateCommand)
+        else:
+            script = module_code
+
+        script_end = "\nInvoke-Assembly"
 
         try:
             f = open(params['Assembly'], 'rb')
+            with open(module_source, 'rb') as f:
+                assembly_data = f.read()
         except:
             return handle_error_message("[!] Could not read .NET assembly path at: " + str(params['Arguments']))
 
-        assembly_data = f.read()
-        f.close()
         module_code = module_code.replace("~~ASSEMBLY~~", base64.b64encode(assembly_data).decode('utf-8'))
         script = module_code
 
@@ -71,13 +78,13 @@ class Module(object):
         if params['Arguments'] != '':
             assembly_args = parse_assembly_args(params['Arguments'])
 
+        script_end = "\nInvoke-Assembly"
         # Add any arguments to the end execution of the script
         if params['Arguments'] != '':
             script_end += " -" + "Arguments" + " " + assembly_args
 
-        if obfuscate:
-            script_end = helpers.obfuscate(psScript=script_end, installPath=main_menu.installPath,
-                                           obfuscationCommand=obfuscation_command)
+        if main_menu.obfuscate:
+            script_end = data_util.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=main_menu.obfuscateCommand)
         script += script_end
         script = data_util.keyword_obfuscation(script)
 

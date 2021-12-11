@@ -1,3 +1,6 @@
+import random
+import string
+
 from prompt_toolkit.completion import Completion
 
 from empire.client.src.EmpireCliState import state
@@ -45,7 +48,7 @@ class AdminMenu(Menu):
 
         # Return results and error message
         if 'success' in response.keys():
-            print(print_util.color('[*] Set obfuscate to %s' % (obfucate_bool)))
+            print(print_util.color('[*] Global obfuscation set to %s' % (obfucate_bool)))
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error'] + "obfuscate <True/False>"))
 
@@ -61,7 +64,23 @@ class AdminMenu(Menu):
 
         # Return results and error message
         if 'success' in response.keys():
-            print(print_util.color('[*] Set obfuscate_command to %s' % (obfucation_type)))
+            print(print_util.color('[*] Global obfuscation command set to %s' % (obfucation_type)))
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
+
+    @command
+    def preobfuscate(self, force_reobfuscation: str, obfuscation_command: str):
+        """
+        Preobfuscate modules on the server.
+
+        Usage: preobfuscate <force_reobfuscation> <obfuscation_command>
+        """
+        options = {'preobfuscation': obfuscation_command, 'force_reobfuscation': force_reobfuscation}
+        response = state.set_admin_options(options)
+
+        # Return results and error message
+        if 'success' in response.keys():
+            print(print_util.color('[+] Preobfuscating modules...'))
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 
@@ -72,12 +91,16 @@ class AdminMenu(Menu):
 
         Usage: keyword_obfuscation <keyword> [replacement]
         """
+        if not replacement:
+            replacement = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+            print(print_util.color(f'[*] No keyword obfuscation replacement given, generating random string'))
+
         options = {'keyword_obfuscation': keyword, 'keyword_replacement': replacement}
         response = state.set_admin_options(options)
 
         # Return results and error message
         if 'success' in response.keys():
-            print(print_util.color('[*] Added keyword_obfuscation'))
+            print(print_util.color(f'[*] Keyword obfuscation set to replace {keyword} with {replacement}'))
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 

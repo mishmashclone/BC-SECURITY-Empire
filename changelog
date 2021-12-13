@@ -2,6 +2,8 @@ XX/XX/2021
 ------------
 - Version 4.3.0 Master Release
         - Updated Invoke-Seatbelt, Invoke-Rubeus, & Invoke-WinPeas (@Cx01N)
+        - Updated C# modules: Seatbelt, SharpSploit (Cx01N)
+        - Updated profiles to include APT29 (Cx01N)
         - Updated Mimikatz to 20210810-2 (@Cx01N)
         - Updated reset script to remove c# tasks and generated-stagers (@Cx01N)
         - Added obfuscation options into Empire CLI (@Cx01N)

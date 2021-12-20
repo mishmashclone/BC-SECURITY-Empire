@@ -72,7 +72,7 @@ class Modules(object):
         if not module_data or module_data == "":
             return None, err or 'module produced an empty script'
         if not module_data.isascii():
-            return None, 'module source contains non-ascii characters'
+            print(helpers.color('[!] Warning: module source contains non-ascii characters'))
 
         if module.language == LanguageEnum.powershell:
             module_data = helpers.strip_powershell_comments(module_data)

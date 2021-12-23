@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 from builtins import object
 from builtins import str
 from typing import Dict
@@ -19,8 +20,8 @@ class Module(object):
         else:
             script = "'Logging off current user.'; Start-Sleep -s 3; shutdown /l /f"
 
-        if obfuscate:
-            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
+        if main_menu.obfuscate:
+            script = data_util.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=main_menu.obfuscateCommand)
         script = data_util.keyword_obfuscation(script)
 
         return script

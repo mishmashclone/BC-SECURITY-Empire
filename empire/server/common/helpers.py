@@ -807,59 +807,10 @@ def get_module_source_files():
     """
     paths = []
     pattern = '*.ps1'
-    for root, dirs, files in os.walk('data/module_source'):
+    for root, dirs, files in os.walk('empire/server/data/module_source'):
         for filename in fnmatch.filter(files, pattern):
             paths.append(os.path.join(root, filename))
     return paths
-
-
-def obfuscate(installPath, psScript, obfuscationCommand):
-    """
-    Obfuscate PowerShell scripts using Invoke-Obfuscation
-    """
-    if not is_powershell_installed():
-        print(color("[!] PowerShell is not installed and is required to use obfuscation, please install it first."))
-        return ""
-    # When obfuscating large scripts, command line length is too long. Need to save to temp file
-    toObfuscateFilename = installPath + "/data/misc/ToObfuscate.ps1"
-    obfuscatedFilename = installPath + "/data/misc/Obfuscated.ps1"
-    with open(toObfuscateFilename, 'w') as toObfuscateFile:
-        toObfuscateFile.write(psScript)
-    # Obfuscate using Invoke-Obfuscation w/ PowerShell
-    subprocess.call(
-        "%s -C '$ErrorActionPreference = \"SilentlyContinue\";Import-Module ./lib/powershell/Invoke-Obfuscation/Invoke-Obfuscation.psd1;Invoke-Obfuscation -ScriptPath %s -Command \"%s\" -Quiet | Out-File -Encoding ASCII %s'" % (
-            get_powershell_name(), toObfuscateFilename, convert_obfuscation_command(obfuscationCommand),
-            obfuscatedFilename), shell=True)
-    with open(obfuscatedFilename, 'r') as obfuscatedFile:
-        # Obfuscation writes a newline character to the end of the file, ignoring that character
-        psScript = obfuscatedFile.read()[0:-1]
-
-    return psScript
-
-
-def is_obfuscated(moduleSource):
-    obfuscatedSource = moduleSource.replace("module_source", "obfuscated_module_source")
-    return os.path.isfile(obfuscatedSource)
-
-
-def is_powershell_installed():
-    return (get_powershell_name() != "")
-
-
-def get_powershell_name():
-    try:
-        powershell_location = subprocess.check_output("which powershell", shell=True)
-    except subprocess.CalledProcessError as e:
-        try:
-            powershell_location = subprocess.check_output("which pwsh", shell=True)
-        except subprocess.CalledProcessError as e:
-            return ""
-        return "pwsh"
-    return "powershell"
-
-
-def convert_obfuscation_command(obfuscate_command):
-    return "".join(obfuscate_command.split()).replace(",", ",home,").replace("\\", ",")
 
 
 class KThread(threading.Thread):

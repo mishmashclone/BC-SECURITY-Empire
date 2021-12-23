@@ -49,30 +49,26 @@ Thank you to the original team of developers: [@harmj0y](https://twitter.com/har
 Please see our [Releases](https://github.com/BC-SECURITY/Empire/releases) or [Changelog](/changelog) page for detailed release notes.
 
 ###  Quickstart
-Empire 4 introduces a new run command for the server and client. The API and SocketIO servers run by default and are 
-no longer needed to be provided as parameters.
-```sh
-# Old
-poetry run python empire --server --rest --notifications
+Empire 4 introduces a new server and client architecture which requires running each in separate terminals. 
+Check out the [Installation Page](https://bc-security.gitbook.io/empire-wiki/quickstart/installation) for install instructions.
 
-# New
-poetry run python empire.py server
+#### Server
 
-# Or a shortcut
+```bash
+# Start Server
 ./ps-empire server
 
-# Help menus
+# Help
 ./ps-empire server -h
 ```
 
-The old embedded client has been removed. To run the new command line client:
-```sh
-poetry run python empire.py client
+#### Client
 
-# Or a shortcut
+```bash
+# Start Client
 ./ps-empire client
 
-# Help menus
+# Help
 ./ps-empire client -h
 ```
 

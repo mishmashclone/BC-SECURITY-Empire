@@ -1,6 +1,6 @@
 #!/bin/bash
 function install_powershell() {
-  echo -e "\x1b[1;34m[*] Installing Powershell\x1b[0m"
+  echo -e "\x1b[1;34m[*] Installing PowerShell\x1b[0m"
   if [ $OS_NAME == "DEBIAN" ]; then
     wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb
     sudo dpkg -i packages-microsoft-prod.deb
@@ -104,33 +104,28 @@ fi
 echo -n -e "\x1b[1;33m[>] Do you want to install OpenJDK? It is only needed to generate a .jar stager (y/N)? \x1b[0m"
 read answer
 if [ "$answer" != "${answer#[Yy]}" ] ;then
-  sudo apt-get install -y default-jdk
   echo -e "\x1b[1;34m[*] Installing OpenJDK\x1b[0m"
+  sudo apt-get install -y default-jdk
 else
   echo -e "\x1b[1;34m[*] Skipping OpenJDK\x1b[0m"
 fi
 
-echo -n -e "\x1b[1;33m[>] Do you want to install dotnet? It is needed to use CSharp agents and CSharp modules (y/N)? \x1b[0m"
-read answer
-if [ "$answer" != "${answer#[Yy]}" ] ;then
-  if [ $OS_NAME == "DEBIAN" ]; then
-    wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-    sudo dpkg -i packages-microsoft-prod.deb
-    sudo apt-get update
-    sudo apt-get install -y apt-transport-https dotnet-sdk-3.1
-  elif [ $OS_NAME == "UBUNTU" ]; then
-    wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-    sudo dpkg -i packages-microsoft-prod.deb
-    sudo apt-get update
-    sudo apt-get install -y apt-transport-https dotnet-sdk-3.1
-  elif [ $OS_NAME == "KALI" ]; then
-    wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-    sudo dpkg -i packages-microsoft-prod.deb
-    sudo apt-get update
-    sudo apt-get install -y apt-transport-https dotnet-sdk-3.1
-  fi
-else
-  echo -e "\x1b[1;34m[*] Skipping dotnet\x1b[0m"
+echo -e "\x1b[1;34m[*] Installing dotnet for C# agents and modules\x1b[0m"
+if [ $OS_NAME == "DEBIAN" ]; then
+  wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+  sudo dpkg -i packages-microsoft-prod.deb
+  sudo apt-get update
+  sudo apt-get install -y apt-transport-https dotnet-sdk-3.1
+elif [ $OS_NAME == "UBUNTU" ]; then
+  wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+  sudo dpkg -i packages-microsoft-prod.deb
+  sudo apt-get update
+  sudo apt-get install -y apt-transport-https dotnet-sdk-3.1
+elif [ $OS_NAME == "KALI" ]; then
+  wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+  sudo dpkg -i packages-microsoft-prod.deb
+  sudo apt-get update
+  sudo apt-get install -y apt-transport-https dotnet-sdk-3.1
 fi
 
 echo -n -e "\x1b[1;33m[>] Do you want to install Nim and MinGW? It is only needed to generate a Nim stager (y/N)? \x1b[0m"
@@ -188,9 +183,11 @@ fi
 echo -e "\x1b[1;34m[*] Installing Poetry\x1b[0m"
 poetry install
 
-echo -e '\x1b[1;34m[*] Install Complete!\x1b[0m'
-echo -e '\x1b[1;34m[*] poetry run python empire.py server\x1b[0m'
-echo -e '\x1b[1;34m[*] poetry run python empire.py client\x1b[0m'
+echo -e '\x1b[1;32m[+] Install Complete!\x1b[0m'
+echo -e ''
+echo -e '\x1b[1;32m[+] Run the following commands in separate terminals to start Empire\x1b[0m'
+echo -e '\x1b[1;34m[*] ./ps-empire server\x1b[0m'
+echo -e '\x1b[1;34m[*] ./ps-empire client\x1b[0m'
 
 if $SOURCE_MESSAGE; then
   echo -e '\x1b[1;34m[*] source ~/.bashrc to enable nim \x1b[0m'

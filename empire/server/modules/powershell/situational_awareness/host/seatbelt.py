@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 from builtins import object
 from builtins import str
 from typing import Dict
@@ -13,45 +14,47 @@ from empire.server.utils.module_util import handle_error_message
 class Module(object):
     @staticmethod
     def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
-        # First method: Read in the source script from module_source
         moduleSource = main_menu.installPath + "/data/module_source/situational_awareness/host/Invoke-Seatbelt.ps1"
-        if obfuscate:
-            data_util.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscation_command)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+        if main_menu.obfuscate:
+            obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
+            if pathlib.Path(obfuscated_module_source).is_file():
+                module_source = obfuscated_module_source
+
         try:
-            f = open(moduleSource, 'r')
+            with open(module_source, 'r') as f:
+                module_code = f.read()
         except:
-            return handle_error_message("[!] Could not read module source path at: " + str(moduleSource))
+            return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
-        moduleCode = f.read()
-        f.close()
-
-        script = moduleCode
-        scriptEnd = 'Invoke-Seatbelt -Command "'
+        if main_menu.obfuscate and not pathlib.Path(obfuscated_module_source).is_file():
+            script = data_util.obfuscate(installPath=main_menu.installPath, psScript=module_code,
+                                         obfuscationCommand=main_menu.obfuscateCommand)
+        else:
+            script = module_code
+        script_end = 'Invoke-Seatbelt -Command "'
 
         # Add any arguments to the end execution of the script
         if params['Command']:
-            scriptEnd += " " + str(params['Command'])
+            script_end += " " + str(params['Command'])
         if params['Group']:
-            scriptEnd += " -group=" + str(params['Group'])
+            script_end += " -group=" + str(params['Group'])
         if params['Computername']:
-            scriptEnd += " -computername=" + str(params['Computername'])
+            script_end += " -computername=" + str(params['Computername'])
         if params['Username']:
-            scriptEnd += " -username=" + str(params['Username'])
+            script_end += " -username=" + str(params['Username'])
         if params['Password']:
-            scriptEnd += " -password=" + str(params['Password'])
+            script_end += " -password=" + str(params['Password'])
         if params['Full'].lower() == 'true':
-            scriptEnd += " -full"
+            script_end += " -full"
         if params['Quiet'].lower() == 'true':
-            scriptEnd += " -q"
+            script_end += " -q"
 
-        scriptEnd = scriptEnd.replace('" ', '"')
-        scriptEnd += '"'
+        script_end = script_end.replace('" ', '"')
+        script_end += '"'
 
-        if obfuscate:
-            scriptEnd = helpers.obfuscate(psScript=scriptEnd, installPath=main_menu.installPath, obfuscationCommand=obfuscation_command)
-        script += scriptEnd
+        if main_menu.obfuscate:
+            script_end = data_util.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=main_menu.obfuscateCommand)
+        script += script_end
         script = data_util.keyword_obfuscation(script)
 
         return script
-

@@ -1,3 +1,25 @@
+12/23/2021
+------------
+- Version 4.3.0 Master Release
+        - Updated Invoke-Seatbelt, Invoke-Rubeus, & Invoke-WinPeas (@Cx01N)
+        - Updated C# modules: Seatbelt, SharpSploit (@Cx01N)
+        - Updated profiles to include APT29 (@Cx01N)
+        - Updated Mimikatz to 20210810-2 (@Cx01N)
+        - Updated reset script to remove c# tasks and generated-stagers (@Cx01N)
+        - Added obfuscation options into Empire CLI (@Cx01N)
+        - Added Invoke-BOF module (@Cx01N)
+	- Added C# server plugin to run on startup (@Cx01N)
+	- Added autostart plugin with options to config file (@Cx01N)
+        - Added upload & download options for Empire CLI (@Cx01N)
+        - Added Plugin folders and extensions (@Cx01N)
+        - Added C# redirector (@Cx01N)
+        - Added Invoke-DownloadFile (@Cx01N)
+        - Added error message in client for file downloads >1MB (@Cx01N)
+        - Moved NVNC and Sharpire as C# submodules (@Cx01N)
+	- Fixed Invoke-Assembley (@Cx01N)
+	- Fixed osx/clipboard & pilliageuser modules (@Cx01N)
+	- Removed unused wiki workflows (@Cx01N)
+
 11/1/2021
 ------------
 - Version 4.2.0 Master Release

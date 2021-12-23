@@ -49,7 +49,7 @@
   ReferenceSourceLibraries:
   - Name: Sharpire
     Description: Sharpire is a library for C# Empire Agents.
-    Location: Sharpire\
+    Location: Sharpire\Sharpire\
     Language: CSharp
     CompatibleDotNetVersions:
     - Net40

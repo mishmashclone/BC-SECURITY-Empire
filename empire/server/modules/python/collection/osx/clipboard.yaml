@@ -48,15 +48,15 @@ script: |
                       f = file(outFile, 'a+')
                       f.write(pbstring)
                       f.close()
-                      print("clipboard written to",outFile)
+                      print("clipboard written to", outFile)
                   else:
                       ts = time.time()
                       st = datetime.datetime.fromtimestamp(ts).strftime('%%Y-%%m-%%d %%H:%%M:%%S')
-                      print(st + ": %{{ OutFile }}".encode("utf-8") %% repr(pbstring))
+                      print(st + ": %{{ OutFile }}".encode("utf-8") % repr(pbstring))
               last = pbstring
               time.sleep(1)
               sleeptime += 1
           except Exception as e:
               print(e)
 
-  func(monitortime={{ MonitorTime }})
+  func(monitortime={{MonitorTime}})

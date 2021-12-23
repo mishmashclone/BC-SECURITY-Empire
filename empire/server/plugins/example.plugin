@@ -69,9 +69,6 @@ class Plugin(Plugin):
         Parses commands from the API
         """
         try:
-            # essentially switches to parse the proper command to execute
-            self.options['Status']['Value'] = command['Status']
-            self.options['Message']['Value'] = command['Message']
             results = self.do_test('')
             return results
         except:

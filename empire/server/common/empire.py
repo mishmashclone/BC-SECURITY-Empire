@@ -44,7 +44,7 @@ from empire.server.database.base import Session
 from empire.server.database import models
 from sqlalchemy import or_, func, and_
 
-VERSION = "4.2.0 BC Security Fork"
+VERSION = "4.3.0 BC Security Fork"
 
 
 class MainMenu(cmd.Cmd):
@@ -157,25 +157,31 @@ class MainMenu(cmd.Cmd):
         """
         Load plugins at the start of Empire
         """
-        pluginPath = self.installPath + "/plugins"
-        print(helpers.color("[*] Searching for plugins at {}".format(pluginPath)))
+        plugin_path = self.installPath + "/plugins/"
+        print(helpers.color("[*] Searching for plugins at {}".format(plugin_path)))
 
-        # From walk_packages: "Note that this function must import all packages
-        # (not all modules!) on the given path, in order to access the __path__
-        # attribute to find submodules."
-        plugin_names = [name for _, name, _ in pkgutil.walk_packages([pluginPath])]
-
+        # Import old v1 plugins (remove in 5.0)
+        plugin_names = [name for _, name, _ in pkgutil.walk_packages([plugin_path])]
         for plugin_name in plugin_names:
             if plugin_name.lower() != 'example':
-                print(helpers.color("[*] Plugin {} found.".format(plugin_name)))
+                file_path = os.path.join(plugin_path, plugin_name + '.py')
+                plugins.load_plugin(self, plugin_name, file_path)
 
-                message = "[*] Loading plugin {}".format(plugin_name)
-                signal = json.dumps({
-                    'print': False,
-                    'message': message
-                })
-                dispatcher.send(signal, sender="empire")
-                plugins.load_plugin(self, plugin_name)
+        for root, dirs, files in os.walk(plugin_path):
+            for filename in files:
+                if not filename.lower().endswith('.plugin'):
+                    continue
+
+                file_path = os.path.join(root, filename)
+                plugin_name = filename.split('.')[0]
+
+                # don't load up any of the templates or examples
+                if fnmatch.fnmatch(filename, '*template.plugin'):
+                    continue
+                elif fnmatch.fnmatch(filename, '*example.plugin'):
+                    continue
+
+                plugins.load_plugin(self, plugin_name, file_path)
 
     def load_malleable_profiles(self):
         """
@@ -447,6 +453,62 @@ class MainMenu(cmd.Cmd):
             self.lock.release()
 
         return f'{self.installPath}/data'
+
+    def preobfuscate_modules(self, obfuscation_command, reobfuscate=False):
+        """
+        Preobfuscate PowerShell module_source files
+        """
+        if not data_util.is_powershell_installed():
+            print(helpers.color(
+                "[!] PowerShell is not installed and is required to use obfuscation, please install it first."))
+            return
+
+        # Preobfuscate all module_source files
+        files = [file for file in helpers.get_module_source_files()]
+
+        for file in files:
+            file = os.getcwd() + '/' + file
+            if reobfuscate or not data_util.is_obfuscated(file):
+                message = "[*] Obfuscating {}...".format(os.path.basename(file))
+                signal = json.dumps({
+                    'print': True,
+                    'message': message,
+                    'obfuscated_file': os.path.basename(file)
+                })
+                dispatcher.send(signal, sender="empire")
+            else:
+                print(helpers.color("[*] " + os.path.basename(file) + " was already obfuscated. Not reobfuscating."))
+            data_util.obfuscate_module(file, obfuscation_command, reobfuscate)
+
+    def upload_file(self, filename: str, data: bytes):
+        """
+        Upload a file to the remote server.
+        """
+        # decode the file data and save it off as appropriate
+        file_data = helpers.decode_base64(data.encode('UTF-8'))
+
+        with open(f"{self.installPath}/downloads/{filename}", 'wb+') as f:
+            f.write(file_data)
+
+    def list_files(self):
+        """
+        List all files in the download directory.
+        """
+        files = next(os.walk(f"{self.installPath}/downloads"), (None, None, []))[2]
+        if '.keep' in files:
+            files.remove('.keep')
+        return files
+
+    def download_file(self, filename: str):
+        """
+        Download a file from the remote server.
+        """
+        with open(f"{self.installPath}/downloads/{filename}", 'rb') as f:
+            data = f.read()
+
+        # decode the file data and save it off as appropriate
+        file_data = helpers.encode_base64(data).decode('UTF-8')
+        return file_data
 
 
 def xstr(s):

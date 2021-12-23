@@ -4,6 +4,7 @@ Module handling functionality for Empire.
 from __future__ import absolute_import
 from __future__ import print_function
 
+import pathlib
 import fnmatch
 import importlib.util
 import os
@@ -71,7 +72,7 @@ class Modules(object):
         if not module_data or module_data == "":
             return None, err or 'module produced an empty script'
         if not module_data.isascii():
-            return None, 'module source contains non-ascii characters'
+            print(helpers.color('[!] Warning: module source contains non-ascii characters'))
 
         if module.language == LanguageEnum.powershell:
             module_data = helpers.strip_powershell_comments(module_data)
@@ -235,18 +236,33 @@ class Modules(object):
 
     def _generate_script_powershell(self, module: PydanticModule, params: Dict, obfuscate=False, obfuscate_command='') \
             -> Tuple[Optional[str], Optional[str]]:
-        if module.script_path:
+        module_source = module.script_path
+        if module_source:
             # Get preobfuscated module code
             if obfuscate:
-                data_util.obfuscate_module(moduleSource=module.script_path, obfuscationCommand=obfuscate_command)
-                module_source = module.script_path.replace("module_source", "obfuscated_module_source")
-                with open(module_source, 'r') as stream:
-                    script = stream.read()
+                obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
+                if pathlib.Path(obfuscated_module_source).is_file():
+                    module_source = obfuscated_module_source
+
+            # read obfuscated or unobfuscated scripts
+            try:
+                with open(module_source, 'r') as f:
+                    module_code = f.read()
+            except:
+                return handle_error_message("[!] Could not read module source path at: " + str(module_source))
+
+            # obfuscate script if global obfuscation is on and preobfuscated script doesnt exist
+            if obfuscate and not pathlib.Path(obfuscated_module_source).is_file():
+                script = data_util.obfuscate(installPath=self.main_menu.installPath, psScript=module_code, obfuscationCommand=obfuscate_command)
             else:
-                with open(module.script_path, 'r') as stream:
-                    script = stream.read()
+                script = module_code
+
+        # Check if global obfuscation is on and obfuscate powershell code from yamls
         else:
-            script = module.script
+            if obfuscate:
+                script = data_util.obfuscate(installPath=self.main_menu.installPath, psScript=module.script, obfuscationCommand=obfuscate_command)
+            else:
+                script = module_code
 
         script_end = f" {module.script_end} "
         option_strings = []
@@ -276,10 +292,10 @@ class Modules(object):
             .replace('{{ OUTPUT_FUNCTION }}', params.get('OutputFunction', 'Out-String')) \
             .replace('{{OUTPUT_FUNCTION}}', params.get('OutputFunction', 'Out-String'))
 
-        script += script_end
-
+        # obfuscate the invoke command and append to script
         if obfuscate:
-            script = helpers.obfuscate(self.main_menu.installPath, psScript=script, obfuscationCommand=obfuscate_command)
+            script_end = data_util.obfuscate(self.main_menu.installPath, psScript=script_end, obfuscationCommand=obfuscate_command)
+        script += script_end
         script = data_util.keyword_obfuscation(script)
 
         return script, None

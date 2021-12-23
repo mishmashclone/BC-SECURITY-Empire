@@ -1,0 +1,46 @@
+name: Invoke-BOF
+authors:
+  - '@Cx01N'
+description: |
+  This script will load the BOF file (aka COFF file) into memory, map all sections,
+  perform relocation, serialize beacon parameters, and jump into the entry point
+  selected by the user.
+software: S0154
+techniques:
+  - T1055
+background: true
+output_extension:
+needs_admin: false
+opsec_safe: true
+language: powershell
+min_language_version: '2'
+comments:
+  - https://github.com/airbus-cert/Invoke-Bof
+  - https://github.com/BC-SECURITY/Invoke-Bof
+options:
+  - name: Agent
+    description: Agent to run module on.
+    required: true
+    value: ''
+  - name: File
+    description: Beacon object file to load and execute.
+    required: true
+    value: ''
+  - name: EntryPoint
+    description: Name of the function exported to execute in the beacon object file.
+    required: true
+    value: 'go'
+  - name: ArguementList
+    description: List of arguments that will be passed to the beacon, available through BeaconParse API.
+    required: false
+    value: ''
+  - name: UnicodeStringParameter
+    description: All string parameter in ArgumentList will be converted into Unicode.
+    required: false
+    value: 'False'
+    suggested_values:
+      - 'True'
+      - 'False'
+    strict: true
+advanced:
+  custom_generate: true

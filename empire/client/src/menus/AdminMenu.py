@@ -1,5 +1,6 @@
 import random
 import string
+import base64
 
 from prompt_toolkit.completion import Completion
 
@@ -8,7 +9,8 @@ from empire.client.src.menus.Menu import Menu
 from empire.client.src.utils import print_util, date_util
 from empire.client.src.utils import table_util
 from empire.client.src.utils.cli_util import register_cli_commands, command
-from empire.client.src.utils.autocomplete_util import filtered_search_list, position_util, complete_path
+from empire.client.src.utils.autocomplete_util import filtered_search_list, position_util, complete_path, current_files
+from empire.client.src.utils.data_util import get_data_from_file
 
 @register_cli_commands
 class AdminMenu(Menu):
@@ -25,10 +27,20 @@ class AdminMenu(Menu):
         elif cmd_line[0] == 'load_malleable_profile' and position_util(cmd_line, 2, word_before_cursor):
             for profile in filtered_search_list(word_before_cursor, complete_path('.profile')):
                 yield Completion(profile, start_position=-len(word_before_cursor))
+        elif cmd_line[0] == 'download' and position_util(cmd_line, 2, word_before_cursor):
+            for files in filtered_search_list(word_before_cursor, state.server_files):
+                yield Completion(files, start_position=-len(word_before_cursor))
+        elif cmd_line[0] in ['upload'] and position_util(cmd_line, 2, word_before_cursor):
+            if len(cmd_line) > 1 and cmd_line[1] == '-p':
+                yield Completion(state.search_files(), start_position=-len(word_before_cursor))
+            else:
+                for files in filtered_search_list(word_before_cursor, current_files()):
+                    yield Completion(files, display=files.split('/')[-1], start_position=-len(word_before_cursor))
         elif position_util(cmd_line, 1, word_before_cursor):
             yield from super().get_completions(document, complete_event, cmd_line, word_before_cursor)
 
     def on_enter(self):
+        state.get_files()
         self.user_id = state.get_user_me()['id']
         return True
 
@@ -278,6 +290,46 @@ class AdminMenu(Menu):
         if 'success' in response.keys():
             print(print_util.color(f'[*] Deleted { profile_name } from database'))
             state.get_malleable_profile()
+        elif 'error' in response.keys():
+            print(print_util.color('[!] Error: ' + response['error']))
+
+    @command
+    def upload(self, file_directory: str):
+        """
+        Upload a file to the server from /empire/client/downloads. Use '-p' for a file selection dialog.
+
+        Usage: upload <file_directory>
+        """
+        filename = file_directory.split('/')[-1]
+        data = get_data_from_file(file_directory)
+
+        if data:
+            response = state.upload_file(filename, data)
+
+            if 'success' in response.keys():
+                print(print_util.color(f'[+] Uploaded { filename } to server'))
+            elif 'error' in response.keys():
+                print(print_util.color('[!] Error: ' + response['error']))
+        else:
+            print(print_util.color('[!] Error: Invalid file path'))
+
+    @command
+    def download(self, filename: str):
+        """
+        Download a file from the server to /empire/client/downloads
+
+        Usage: download <filename>
+        """
+        response = state.download_file(filename)
+
+        if 'success' in response.keys():
+            print(print_util.color(f'[*] Downloading { filename } from server'))
+            file_data = base64.b64decode(response['data'].encode('UTF-8'))
+
+            with open(f"empire/client/downloads/{ filename }", 'wb+') as f:
+                f.write(file_data)
+            print(print_util.color(f'[+] Downloaded { filename } from server'))
+
         elif 'error' in response.keys():
             print(print_util.color('[!] Error: ' + response['error']))
 

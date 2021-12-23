@@ -69,7 +69,7 @@ class Module(object):
                         sc = ",0".join(values.split("\\"))[0:]
                         script_end += " -" + str(option) + " @(" + sc + ")"
                     elif option.lower() == "file":
-                        with open(values, 'rb') as bin_data:
+                        with open(f"{main_menu.installPath}/downloads/{values}", 'rb') as bin_data:
                             shellcode_bin_data = bin_data.read()
                         sc = ''
                         for x in range(len(shellcode_bin_data)):

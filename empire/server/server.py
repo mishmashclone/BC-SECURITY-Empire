@@ -299,6 +299,41 @@ def start_restful_api(empireMenu: MainMenu, suppress=False, headless=False, user
 
         return jsonify({'stagers': stagers})
 
+    @app.route('/api/files/upload', methods=['POST'])
+    def upload_file():
+        """
+        Upload file to server.
+        """
+        if not request.json['filename']:
+            return make_response(jsonify({'error': 'file name not provided'}), 404)
+
+        filename = request.json['filename']
+        data = request.json['data']
+
+        main.upload_file(filename, data)
+        return jsonify({'success': True})
+
+    @app.route('/api/files/download', methods=['POST'])
+    def download_file():
+        """
+        Download file from server.
+        """
+        if not request.json['filename']:
+            return make_response(jsonify({'error': 'file name not provided'}), 404)
+
+        filename = request.json['filename']
+
+        file_data = main.download_file(filename)
+        return jsonify({'success': True, 'data': file_data})
+
+    @app.route('/api/files/', methods=['GET'])
+    def display_files():
+        """
+        Displays all files.
+        """
+        files = main.list_files()
+        return jsonify({'files': files})
+
     @app.route('/api/stagers/<path:stager_name>', methods=['GET'])
     def get_stagers_name(stager_name):
         """

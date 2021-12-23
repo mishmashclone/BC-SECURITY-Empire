@@ -59,5 +59,12 @@ def complete_path(file_type: str):
             continue
         else:
             filenames.append(filename)
-
     return filenames
+
+
+def current_files():
+    """
+    List files in current directory
+    """
+    directory = 'empire/client/downloads'
+    return [os.path.join(directory, file) for file in os.listdir(directory)]

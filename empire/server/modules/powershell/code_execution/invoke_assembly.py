@@ -62,23 +62,19 @@ class Module(object):
         else:
             script = module_code
 
-        script_end = "\nInvoke-Assembly"
-
         try:
-            f = open(params['Assembly'], 'rb')
-            with open(module_source, 'rb') as f:
+            with open(f"{main_menu.installPath}/downloads/{params['File']}", 'rb') as f:
                 assembly_data = f.read()
         except:
             return handle_error_message("[!] Could not read .NET assembly path at: " + str(params['Arguments']))
 
-        module_code = module_code.replace("~~ASSEMBLY~~", base64.b64encode(assembly_data).decode('utf-8'))
-        script = module_code
+        encode_assembly = helpers.encode_base64(assembly_data).decode('UTF-8')
 
         # Do some parsing on the operator's arguments so it can be formatted for Powershell
         if params['Arguments'] != '':
             assembly_args = parse_assembly_args(params['Arguments'])
 
-        script_end = "\nInvoke-Assembly"
+        script_end = f'\nInvoke-Assembly -ASMdata "{encode_assembly}"'
         # Add any arguments to the end execution of the script
         if params['Arguments'] != '':
             script_end += " -" + "Arguments" + " " + assembly_args

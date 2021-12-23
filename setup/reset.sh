@@ -22,10 +22,7 @@ then
 fi
 
 # remove the download folders
-if [ -d ./downloads/ ]
-then
-	rm -rf ./downloads/
-fi
+rm -rf ./downloads/*
 
 # remove the compiled csharp folders
 if [ -d ./csharp/Covenant/bin ]

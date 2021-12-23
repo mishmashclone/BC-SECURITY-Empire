@@ -17,18 +17,19 @@ Function Invoke-Assembly {
         https://www.mike-gualtieri.com/posts/red-team-tradecraft-loading-encrypted-c-sharp-assemblies-in-memory
 #>
 	[CmdletBinding()]
-		Param (		
+		Param (
+			[Parameter()]
+			[String[]]$ASMdata = "",
+
 			[Parameter()]
 			[String[]]$Arguments = ""
 	)
 	$foundMain = $false
-	$asm_data = "~~ASSEMBLY~~"
 	try {
-		$assembly = [Reflection.Assembly]::Load([Convert]::FromBase64String($asm_data))
+		$assembly = [Reflection.Assembly]::Load([byte[]][Convert]::FromBase64String($ASMdata))
 	}
 	catch {
 		Write-Output "[!] Could not load assembly. Is it in COFF/MSIL/.NET format?"
-		throw
 	}
 	foreach($type in $assembly.GetExportedTypes()) {
 		foreach($method in $type.GetMethods()) {
@@ -51,7 +52,6 @@ Function Invoke-Assembly {
 				}
 				catch {
 					Write-Output "[!] Could not invoke assembly or program crashed during execution"
-					throw
 				}
 
 				[Console]::SetOut($PrevConOut)
@@ -62,6 +62,5 @@ Function Invoke-Assembly {
 	}
 	if(!$foundMain) {
 		Write-Output "[!] Could not find public Main() function. Did you set the namespace as public?"
-		throw
 	}
 }

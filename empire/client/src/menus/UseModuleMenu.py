@@ -1,3 +1,6 @@
+import base64
+import pathlib
+
 from prompt_toolkit.completion import Completion
 
 from empire.client.src.EmpireCliState import state
@@ -6,7 +9,7 @@ from empire.client.src.menus.UseMenu import UseMenu
 from empire.client.src.utils import print_util
 from empire.client.src.utils.autocomplete_util import filtered_search_list, position_util
 from empire.client.src.utils.cli_util import register_cli_commands, command
-
+from empire.client.src.utils.data_util import get_data_from_file
 
 @register_cli_commands
 class UseModuleMenu(UseMenu):
@@ -60,6 +63,31 @@ class UseModuleMenu(UseMenu):
 
         Usage: execute
         """
+        # Find file then upload to server
+        if 'File' in self.record_options:
+            # if a full path upload to server, else use file from download directory
+            if pathlib.Path(self.record_options['File']['Value']).is_file():
+                file_directory = self.record_options['File']['Value']
+                filename = file_directory.split('/')[-1]
+                self.record_options['File']['Value'] = filename
+
+                data = get_data_from_file(file_directory)
+                response = state.upload_file(filename, data)
+                if 'success' in response.keys():
+                    print(print_util.color('[+] File uploaded to server successfully'))
+
+                elif 'error' in response.keys():
+                    if response['error'].startswith('[!]'):
+                        msg = response['error']
+                    else:
+                        msg = f"[!] Error: {response['error']}"
+                    print(print_util.color(msg))
+
+                # Save copy off to downloads folder so last value points to the coorect file
+                data = base64.b64decode(data.encode('UTF-8'))
+                with open(f"empire/client/downloads/{filename}", 'wb+') as f:
+                    f.write(data)
+
         post_body = {}
         for key, value in self.record_options.items():
             post_body[key] = self.record_options[key]['Value']

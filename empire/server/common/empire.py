@@ -480,6 +480,37 @@ class MainMenu(cmd.Cmd):
                 print(helpers.color("[*] " + os.path.basename(file) + " was already obfuscated. Not reobfuscating."))
             data_util.obfuscate_module(file, obfuscation_command, reobfuscate)
 
+    def upload_file(self, filename: str, data: bytes):
+        """
+        Upload a file to the remote server.
+        """
+        # decode the file data and save it off as appropriate
+        file_data = helpers.decode_base64(data.encode('UTF-8'))
+
+        with open(f"{self.installPath}/downloads/{filename}", 'wb+') as f:
+            f.write(file_data)
+
+    def list_files(self):
+        """
+        List all files in the download directory.
+        """
+        files = next(os.walk(f"{self.installPath}/downloads"), (None, None, []))[2]
+        if '.keep' in files:
+            files.remove('.keep')
+        return files
+
+    def download_file(self, filename: str):
+        """
+        Download a file from the remote server.
+        """
+        with open(f"{self.installPath}/downloads/{filename}", 'rb') as f:
+            data = f.read()
+
+        # decode the file data and save it off as appropriate
+        file_data = helpers.encode_base64(data).decode('UTF-8')
+        return file_data
+
+
 def xstr(s):
     """
     Safely cast to a string with a handler for None

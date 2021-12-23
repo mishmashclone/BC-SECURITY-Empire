@@ -1,5 +1,8 @@
 from typing import Dict, Optional
+from tkinter import *
+from tkinter import filedialog
 
+import base64
 import requests
 import socketio
 
@@ -34,6 +37,7 @@ class EmpireCliState(object):
         self.empire_version = ''
         self.cached_plugin_results = {}
         self.chat_cache = []
+        self.server_files = []
 
         # { session_id: { task_id: 'output' }}
         self.cached_agent_results = {}
@@ -92,6 +96,7 @@ class EmpireCliState(object):
         self.get_malleable_profile()
         self.get_bypasses()
         self.get_credentials()
+        self.get_files()
 
     def init_handlers(self):
         if self.sio:
@@ -194,6 +199,15 @@ class EmpireCliState(object):
         else:
             return ''
 
+    def search_files(self):
+        """
+        Find a file and return filename.
+        """
+        tk = Tk()
+        tk.withdraw()
+        file_directory = filedialog.askopenfilename(title="Select file")
+        return file_directory
+
     # I think we we will break out the socketio handler and http requests to new classes that the state imports.
     # This will do for this iteration.
     def get_listeners(self):
@@ -210,6 +224,31 @@ class EmpireCliState(object):
                                  json=options,
                                  verify=False,
                                  params={'token': self.token})
+
+        return response.json()
+
+    def upload_file(self, filename: str, data: bytes):
+        response = requests.post(url=f'{self.host}:{self.port}/api/files/upload',
+                                 json={'filename': filename, 'data': data},
+                                 verify=False,
+                                 params={'token': self.token})
+
+        return response.json()
+
+    def download_file(self, filename: str):
+        response = requests.post(url=f'{self.host}:{self.port}/api/files/download',
+                                 json={'filename': filename},
+                                 verify=False,
+                                 params={'token': self.token})
+
+        return response.json()
+
+    def get_files(self):
+        response = requests.get(url=f'{self.host}:{self.port}/api/files',
+                                verify=False,
+                                params={'token': self.token})
+
+        self.server_files = response.json()['files']
 
         return response.json()
 

@@ -6,8 +6,7 @@ from prompt_toolkit.completion import Completion
 from empire.client.src.EmpireCliState import state
 from empire.client.src.menus.Menu import Menu
 from empire.client.src.utils import print_util, table_util
-from empire.client.src.utils.autocomplete_util import position_util, filtered_search_list, \
-    where_am_i
+from empire.client.src.utils.autocomplete_util import position_util, filtered_search_list, where_am_i, current_files
 from empire.client.src.utils.cli_util import command
 
 
@@ -52,6 +51,13 @@ class UseMenu(Menu):
             if len(cmd_line) > 1 and cmd_line[1] == 'agent':
                 for agent in filtered_search_list(word_before_cursor, state.agents.keys()):
                     yield Completion(agent, start_position=-len(word_before_cursor))
+            if len(cmd_line) > 1 and cmd_line[1] == 'file':
+                if len(cmd_line) > 2 and cmd_line[2] == '-p':
+                    yield Completion(state.search_files(), start_position=-len(word_before_cursor))
+                else:
+                    for files in filtered_search_list(word_before_cursor, current_files()):
+                        yield Completion(files, display=files.split('/')[-1],
+                        start_position=-len(word_before_cursor))
             if len(cmd_line) > 1 and cmd_line[1] == 'credid':
                 for cred in filtered_search_list(word_before_cursor, state.credentials.keys()):
                     full = state.credentials[cred]
@@ -59,7 +65,6 @@ class UseMenu(Menu):
                     yield Completion(cred,
                                      display=HTML(f"{full['ID']} <purple>({help_text})</purple>"),
                                      start_position=-len(word_before_cursor))
-
             if len(cmd_line) > 1 and len(self.suggested_values_for_option(cmd_line[1])) > 0:
                 for suggested_value in filtered_search_list(word_before_cursor,
                                                             self.suggested_values_for_option(cmd_line[1])):
@@ -70,7 +75,7 @@ class UseMenu(Menu):
     @command
     def set(self, key: str, value: str):
         """
-        Set a field for the current record
+        Set a field for the current record. If setting a File, provide -p for a file selection dialog.
 
         Usage: set <key> <value>
         """

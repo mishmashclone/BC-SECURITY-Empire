@@ -11,9 +11,9 @@ from empire.client.src.Shortcut import Shortcut
 from empire.client.src.ShortcutHandler import shortcut_handler
 from empire.client.src.menus.Menu import Menu
 from empire.client.src.utils import table_util, print_util
-from empire.client.src.utils.autocomplete_util import filtered_search_list, position_util
+from empire.client.src.utils.autocomplete_util import filtered_search_list, position_util, current_files
 from empire.client.src.utils.cli_util import register_cli_commands, command
-
+from empire.client.src.utils.data_util import get_data_from_file
 
 @register_cli_commands
 class InteractMenu(Menu):
@@ -60,6 +60,13 @@ class InteractMenu(Menu):
                 yield Completion(task_id,
                                  display=HTML(f"{full['taskID']} <purple>({help_text})</purple>"),
                                  start_position=-len(word_before_cursor))
+        elif cmd_line[0] in ['upload']:
+            if len(cmd_line) > 1 and cmd_line[1] == '-p':
+                yield Completion(state.search_files(), start_position=-len(word_before_cursor))
+            else:
+                for files in filtered_search_list(word_before_cursor, current_files()):
+                    yield Completion(files, display=files.split('/')[-1], start_position=-len(word_before_cursor))
+
 
     def on_enter(self, **kwargs) -> bool:
         if 'selected' not in kwargs:
@@ -133,25 +140,23 @@ class InteractMenu(Menu):
         print(print_util.color('[*] Tasked ' + self.session_id + ' to run Task ' + str(response['taskID'])))
 
     @command
-    def upload(self, local_file_directory: str, destination_file_name: str) -> None:
+    def upload(self, local_file_directory: str) -> None:
         """
-        Tasks an the specified agent to upload a file.
+        Tasks an the specified agent to upload a file. Use '-p' for a file selection dialog.
 
-        Usage: upload <local_file_directory> [destination_file_name]
+        Usage: upload <local_file_directory>
         """
-        file_name = os.path.basename(local_file_directory)
-        with open(local_file_directory, 'rb') as open_file:
-            file_data = base64.b64encode(open_file.read())
+        filename = local_file_directory.split('/')[-1]
+        data = get_data_from_file(local_file_directory)
 
-        if destination_file_name:
-            file_name = destination_file_name
-
-        response = state.agent_upload_file(self.session_id, file_name, file_data.decode('UTF-8'))
-        if 'success' in response.keys():
-            print(print_util.color('[*] Tasked ' + self.selected + ' to run Task ' + str(response['taskID'])))
-
-        elif 'error' in response.keys():
-            print(print_util.color('[!] Error: ' + response['error']))
+        if data:
+            response = state.agent_upload_file(self.session_id, filename, data)
+            if 'success' in response.keys():
+                print(print_util.color('[*] Tasked ' + self.selected + ' to upload file ' + filename))
+            elif 'error' in response.keys():
+                print(print_util.color('[!] Error: ' + response['error']))
+        else:
+            print(print_util.color('[!] Error: Invalid file path'))
 
     @command
     def download(self, file_name: str) -> None:

@@ -19,3 +19,7 @@ database:
     ip-blacklist: ""
 modules:
   retain-last-value: false
+plugins:
+  # Auto-load plugin with defined settings
+  csharpserver:
+    status: start

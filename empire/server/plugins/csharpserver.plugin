@@ -46,10 +46,7 @@ class Plugin(Plugin):
         self.status = 'OFF'
 
     def execute(self, command):
-        # This is for parsing commands through the api
         try:
-            # essentially switches to parse the proper command to execute
-            self.options['status']['Value'] = command['status']
             results = self.do_csharpserver('')
             return results
         except Exception as e:

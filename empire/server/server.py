@@ -2442,6 +2442,23 @@ def run(args):
         Session().delete(user)
         Session().commit()
 
+    def autostart_plugins():
+        '''
+        Autorun plugin commands at server startup.
+        '''
+        plugins = empire_config.yaml.get('plugins')
+        if plugins:
+            for plugin in plugins:
+                use_plugin = main.loadedPlugins[plugin]
+                for option in plugins[plugin]:
+                    value = plugins[plugin][option]
+                    use_plugin.options[option]['Value'] = value
+                results = use_plugin.execute('')
+                if results is False:
+                    print(helpers.color(f'[!] Plugin failed to run: {plugin}'))
+                else:
+                    print(helpers.color(f'[+] Plugin {plugin} ran successfully!'))
+
     if not args.restport:
         args.restport = '1337'
     else:
@@ -2484,6 +2501,8 @@ def run(args):
         sleep(2)
 
         server_startup_validator()
+        autostart_plugins()
+
         main.teamserver()
 
     sys.exit()

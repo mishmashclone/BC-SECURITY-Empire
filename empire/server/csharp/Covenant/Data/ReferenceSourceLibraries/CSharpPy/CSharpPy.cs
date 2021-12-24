@@ -17,22 +17,29 @@ namespace CSharpPy
     {
         public static void Agent(string B64PyCode)
         {
-            // setup ironpython engine
-            string PyCode = "";
-            byte[] ScriptBytes = Convert.FromBase64String(B64PyCode);
-            PyCode = Encoding.ASCII.GetString(ScriptBytes);
-            ScriptEngine engine = Python.CreateEngine();
+            try
+            {
+                // setup ironpython engine
+                string PyCode = "";
+                byte[] ScriptBytes = Convert.FromBase64String(B64PyCode);
+                PyCode = Encoding.ASCII.GetString(ScriptBytes);
+                ScriptEngine engine = Python.CreateEngine();
 
-            // Load stdlib to memory
-            Assembly asm = Assembly.GetExecutingAssembly();
-            dynamic sysScope = engine.GetSysModule();
-            var importer = new ResourceMetaPathImporter(asm, "Lib.zip");
-            sysScope.meta_path.append(importer);
-            sysScope.path.append(importer);
+                // Load stdlib to memory
+                Assembly asm = Assembly.GetExecutingAssembly();
+                dynamic sysScope = engine.GetSysModule();
+                var importer = new ResourceMetaPathImporter(asm, "Lib.zip");
+                sysScope.meta_path.append(importer);
+                sysScope.path.append(importer);
 
-            //execute ironpython code
-            var script = engine.CreateScriptSourceFromString(PyCode, SourceCodeKind.Statements);
-            script.Execute();
+                //execute ironpython code
+                var script = engine.CreateScriptSourceFromString(PyCode, SourceCodeKind.Statements);
+                script.Execute();
+             }
+            catch
+             {
+                Environment.Exit(0);
+             }
         }
     }
 }

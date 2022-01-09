@@ -763,7 +763,7 @@ def agent_exit():
         except:
             # die hard if thread kill fails
             pass
-    exit()
+    sys.exit()
 
 
 def indent(lines, amount=4, ch=' '):

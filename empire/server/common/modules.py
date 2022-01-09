@@ -237,11 +237,13 @@ class Modules(object):
     def _generate_script_powershell(self, module: PydanticModule, params: Dict, obfuscate=False, obfuscate_command='') \
             -> Tuple[Optional[str], Optional[str]]:
         module_source = module.script_path
+        preobfuscated = False
         if module_source:
             # Get preobfuscated module code
             if obfuscate:
                 obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
                 if pathlib.Path(obfuscated_module_source).is_file():
+                    preobfuscated = True
                     module_source = obfuscated_module_source
 
             # read obfuscated or unobfuscated scripts
@@ -249,10 +251,10 @@ class Modules(object):
                 with open(module_source, 'r') as f:
                     module_code = f.read()
             except:
-                return handle_error_message("[!] Could not read module source path at: " + str(module_source))
+                return None, f"Could not read module source path at: {module_source}"
 
             # obfuscate script if global obfuscation is on and preobfuscated script doesnt exist
-            if obfuscate and not pathlib.Path(obfuscated_module_source).is_file():
+            if obfuscate and not preobfuscated:
                 script = data_util.obfuscate(installPath=self.main_menu.installPath, psScript=module_code, obfuscationCommand=obfuscate_command)
             else:
                 script = module_code
@@ -262,7 +264,7 @@ class Modules(object):
             if obfuscate:
                 script = data_util.obfuscate(installPath=self.main_menu.installPath, psScript=module.script, obfuscationCommand=obfuscate_command)
             else:
-                script = module_code
+                script = module.script
 
         script_end = f" {module.script_end} "
         option_strings = []

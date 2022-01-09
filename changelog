@@ -4,6 +4,9 @@
         - Fixed issue with module variables referenced before assignment or undefined (@Vinnybod)
         - Fixed bug with Invoke-Seatbelt caused by variable name mismatch (@Vinnybod)
         - Fixed IronPython exit/shutdown issue (@Cx01N)
+        - Fixed ToLower() bug in PowerShell agent when using route (@CyrilleFranchet)
+        - Fixed multiline shell output bug (#491) (@CyrilleFranchet)
+        - Added dir command to the file browser hook (@CyrilleFranchet)
 
 12/23/2021
 ------------

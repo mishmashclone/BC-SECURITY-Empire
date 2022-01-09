@@ -14,7 +14,7 @@ from empire.server.utils.module_util import handle_error_message
 class Module(object):
     @staticmethod
     def generate(main_menu, module: PydanticModule, params: Dict, obfuscate: bool = False, obfuscation_command: str = ""):
-        moduleSource = main_menu.installPath + "/data/module_source/situational_awareness/host/Invoke-Seatbelt.ps1"
+        module_source = main_menu.installPath + "/data/module_source/situational_awareness/host/Invoke-Seatbelt.ps1"
         if main_menu.obfuscate:
             obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
             if pathlib.Path(obfuscated_module_source).is_file():

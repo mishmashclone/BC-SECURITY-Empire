@@ -1,3 +1,13 @@
+1/8/2022
+------------
+- Version 4.3.1 Master Release
+        - Fixed issue with module variables referenced before assignment or undefined (@Vinnybod)
+        - Fixed bug with Invoke-Seatbelt caused by variable name mismatch (@Vinnybod)
+        - Fixed IronPython exit/shutdown issue (@Cx01N)
+        - Fixed ToLower() bug in PowerShell agent when using route (@CyrilleFranchet)
+        - Fixed multiline shell output bug (#491) (@CyrilleFranchet)
+        - Added dir command to the file browser hook (@CyrilleFranchet)
+
 12/23/2021
 ------------
 - Version 4.3.0 Master Release
@@ -8,17 +18,17 @@
         - Updated reset script to remove c# tasks and generated-stagers (@Cx01N)
         - Added obfuscation options into Empire CLI (@Cx01N)
         - Added Invoke-BOF module (@Cx01N)
-	- Added C# server plugin to run on startup (@Cx01N)
-	- Added autostart plugin with options to config file (@Cx01N)
+        - Added C# server plugin to run on startup (@Cx01N)
+        - Added autostart plugin with options to config file (@Cx01N)
         - Added upload & download options for Empire CLI (@Cx01N)
         - Added Plugin folders and extensions (@Cx01N)
         - Added C# redirector (@Cx01N)
         - Added Invoke-DownloadFile (@Cx01N)
         - Added error message in client for file downloads >1MB (@Cx01N)
         - Moved NVNC and Sharpire as C# submodules (@Cx01N)
-	- Fixed Invoke-Assembley (@Cx01N)
-	- Fixed osx/clipboard & pilliageuser modules (@Cx01N)
-	- Removed unused wiki workflows (@Cx01N)
+        - Fixed Invoke-Assembley (@Cx01N)
+        - Fixed osx/clipboard & pilliageuser modules (@Cx01N)
+        - Removed unused wiki workflows (@Cx01N)
 
 11/1/2021
 ------------

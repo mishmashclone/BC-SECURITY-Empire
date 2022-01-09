@@ -7,6 +7,9 @@
         - Fixed ToLower() bug in PowerShell agent when using route (@CyrilleFranchet)
         - Fixed multiline shell output bug (#491) (@CyrilleFranchet)
         - Added dir command to the file browser hook (@CyrilleFranchet)
+        - Generate test account with secure rng (@moloch--)
+        - Add Invoke-FodhelperProgIDs module (@m1m1k4tz)
+        - Add Invoke-VeeamGetCreds module (@sadshade)
 
 12/23/2021
 ------------

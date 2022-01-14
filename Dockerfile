@@ -13,11 +13,11 @@
 # -----BUILD ENTRY-----
 
 # image base
-FROM python:3.9.4-buster
+FROM python:3.9.9-buster
 
 # extra metadata
 LABEL maintainer="bc-security"
-LABEL description="Dockerfile base for Empire server."
+LABEL description="Dockerfile for Empire server and client. https://bc-security.gitbook.io/empire-wiki/quickstart/installation#docker"
 
 # env setup
 ENV STAGING_KEY=RANDOM
@@ -38,6 +38,12 @@ RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod
     sudo dpkg -i packages-microsoft-prod.deb && \
     sudo apt-get update && \
     sudo apt-get install -y powershell \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+    sudo dpkg -i packages-microsoft-prod.deb && \
+    sudo apt-get update && \
+    sudo apt-get install -y apt-transport-https dotnet-sdk-3.1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /empire

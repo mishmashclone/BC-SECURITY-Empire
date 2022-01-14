@@ -3,6 +3,7 @@
 - Version 4.3.2 Master Release
         - Fixed issues with variables names in Mimikatz & Privesc modules (@sbrun)
         - Fixed issue with Invoke-Obfuscation not being properly called (@Cx01N)
+        - Add dotnet install to dockerfile (@Vinnybod)
 
 1/8/2022
 ------------

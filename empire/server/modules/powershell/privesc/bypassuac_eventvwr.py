@@ -30,7 +30,7 @@ class Module(object):
         ObfuscateCommand = params['ObfuscateCommand']
 
         # read in the common module source code
-        moduleSource = main_menu.installPath + "/data/module_source/privesc/Invoke-EventVwrBypass.ps1"
+        module_source = main_menu.installPath + "/data/module_source/privesc/Invoke-EventVwrBypass.ps1"
         if main_menu.obfuscate:
             obfuscated_module_source = module_source.replace("module_source", "obfuscated_module_source")
             if pathlib.Path(obfuscated_module_source).is_file():
@@ -62,7 +62,7 @@ class Module(object):
             if launcher == "":
                 return handle_error_message("[!] Error in launcher generation.")
             else:
-                scriptEnd = "Invoke-EventVwrBypass -Command \"%s\"" % (encScript)
+                script_end = "Invoke-EventVwrBypass -Command \"%s\"" % (encScript)
 
         if main_menu.obfuscate:
             script_end = data_util.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=main_menu.obfuscateCommand)

@@ -56,7 +56,7 @@ class Module(object):
             if launcher == "":
                 return handle_error_message("[!] Error in launcher generation.")
             else:
-                script_end += "Invoke-EnvBypass -Command \"%s\"" % (enc_script)
+                script_end = "Invoke-EnvBypass -Command \"%s\"" % (enc_script)
                 if main_menu.obfuscate:
                     script_end = data_util.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=main_menu.obfuscateCommand)
                 script += script_end

@@ -39,7 +39,7 @@ class Module(object):
         if params.get("ComputerName"):
             command = f'{command} -ComputerName "{params["ComputerName"]}"'
         # base64 encode the command to pass to Invoke-Mimikatz
-        scriptEnd = f"Invoke-Mimikatz {command};"
+        script_end = f"Invoke-Mimikatz {command};"
 
         if main_menu.obfuscate:
             script_end = data_util.obfuscate(main_menu.installPath, psScript=script_end, obfuscationCommand=main_menu.obfuscateCommand)

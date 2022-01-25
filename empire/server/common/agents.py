@@ -1225,6 +1225,8 @@ class Agents(object):
             if self.mainMenu.socketio:
                 self.mainMenu.socketio.emit('agents/stage2', agent, broadcast=True)
 
+            hooks.run_hooks(hooks.AFTER_AGENT_STAGE2_HOOK, self.get_agent_from_name_or_session_id(sessionID))
+
             # save the initial sysinfo information in the agent log
             output = messages.display_agent(agent, returnAsString=True)
             output += "[+] Agent %s now active:\n" % (sessionID)

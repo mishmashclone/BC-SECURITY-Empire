@@ -28,6 +28,11 @@ class Hooks(object):
     # It has one argument (agent: models.Agent)
     AFTER_AGENT_CHECKIN_HOOK = 'after_agent_checkin_hook'
 
+    # This event is triggered after the agent has completed the stage2 of the checkin process,
+    # and the sysinfo has been written to the database.
+    # It has one argument (agent: models.Agent)
+    AFTER_AGENT_STAGE2_HOOK = 'after_agent_stage2_hook'
+
     def __init__(self):
         self.hooks: Dict[str, Dict[str, Callable]] = {}
         self.filters: Dict[str, Dict[str, Callable]] = {}
